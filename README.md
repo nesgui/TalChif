@@ -1,3 +1,5 @@
+OSEA.td application web centralisée sur le modèle SaaS (Software as a Service)
+
 📑 Spécification Fonctionnelle – Application Web de Gestion des Événements Nationaux
 
 ________________________________________
@@ -19,6 +21,7 @@ Créer une application web nationale permettant :
 ________________________________________
 
 📌 Documentation – Partie Client (mise à jour)
+
 🎭 Acteur : Client
 1.	Navigation libre
 
@@ -38,7 +41,9 @@ ________________________________________
         - Confirmation du mot de passe
 
     o   Connexion via :
+
         -Email
+
         -Mot de passe.
 
 
@@ -83,8 +88,10 @@ ________________________________________
 
 
 
-________________________________________ 
+________________________________________
+ 
 📌 Documentation – Partie Organisateur (mise à jour)
+
 🎭 Acteur : Organisateur
 
 1.	Création & gestion des événements
@@ -119,7 +126,7 @@ ________________________________________ 
     o Sur ce dashboard public, les affiches défilent ou sont consultables en galerie, mais elles restent reliées au même jeu d’instructions (prix, types de billets, lieu, etc.).
 
 
-⚠️ NB : La création d’événement ne passe pas par une validation de l’administrateur. L’organisateur publie directement son événement.
+⚠️ Important : La création d’événement ne nécessite pas de validation préalable de l’administrateur. L’organisateur publie directement son événement.
 
 
 
@@ -128,7 +135,7 @@ ________________________________________
 
     •	Page vitrine de l’événement accessible aux clients.
 
-    •	Affiches visibles en galerie.
+    •	Affiches(flyer) visibles en galerie.
 
     •	Infos pratiques reliées (lieu, prix, types de billets, description).
 
@@ -151,7 +158,7 @@ ________________________________________
 
         -	Téléchargement/visualisation des QR Codes pour chaque billet vendu.
 
-        -	Statistiques de performance de l’événement (ex : taux de vente, courbe de progression).
+        -	Statistiques de performance de l’événement
 
 
 
@@ -160,7 +167,8 @@ ________________________________________
     o	L’organisateur (ou son équipe) utilise une application mobile dédiée pour scanner les QR Codes des billets à l’entrée.
 
 
-    o	Chaque QR Code est unique et non réutilisable (validation en temps réel ou en mode offline si réseau limité).
+    o	Chaque QR Code est unique, non réutilisable, et validé en temps réel ou hors ligne uniquement après export sécurisé des données chiffrées vers l’application de contrôle. Une fois exportés, ces QR Codes sont désactivés sur la plateforme et utilisables exclusivement sur l’appareil de vérification.
+    
     Le tableau de bord peut afficher :
 
         -	Nombre de participants déjà entrés.
@@ -290,3 +298,88 @@ ________________________________________
 
     •	Expérience utilisateur (clients & organisateurs)
 
+
+
+________________________________________
+3️⃣ Failles potentielles du projet (à anticiper)
+
+⚠️ Failles techniques
+
+    - Fraude aux billets :
+
+        duplication de QR Codes via capture d’écran si la validation est mal synchronisée.
+
+    - Mode hors ligne mal contrôlé :
+
+        risque de double validation si plusieurs appareils utilisent les mêmes QR Codes.
+
+    - Surcharge lors des pics :
+
+        ouverture des ventes,
+
+        événements très populaires.
+
+    - Dépendance aux paiements :
+
+        panne Mobile Money / API bancaire.
+
+
+⚠️ Failles fonctionnelles
+
+    Publication sans validation admin :
+
+        risque de faux événements ou de contenu inapproprié.
+
+    Litiges organisateur ↔ client :
+
+        annulations,
+
+        remboursements,
+
+        événements non conformes.
+
+    Gestion des remboursements :
+
+        juridiquement et techniquement complexe.
+
+
+⚠️ Failles business
+
+    Confiance initiale :
+
+        les organisateurs peuvent hésiter au lancement.
+
+    Commission mal calibrée :
+
+        trop élevée → fuite des organisateurs,
+
+        trop basse → faible rentabilité.
+
+    Concurrence :
+
+        plateformes internationales déjà établies.
+
+
+4️⃣ Améliorations majeures possibles
+
+    🚀 Améliorations fonctionnelles
+
+        Validation automatique des organisateurs (KYC léger).
+
+        Système d’avis et de notation des événements.
+
+        Gestion des remboursements partiels ou automatiques.
+
+        Billets nominatifs avec contrôle d’identité.
+
+        Invitations privées / événements à accès restreint.
+    
+    🔐 Améliorations sécurité
+
+        QR Codes dynamiques avec signature cryptographique.
+
+        Rotation des clés de chiffrement.
+
+        Limitation stricte du mode hors ligne (quota, durée).
+
+        Journalisation complète des scans.
