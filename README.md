@@ -5,15 +5,14 @@ ________________________________________
 🎯 Objectif du projet  
 Créer une application web nationale permettant :
 
-• la gestion et la promotion des événements (soirées, fêtes, concerts, matchs de foot, anniversaires, etc.),
+    • la gestion et la promotion des événements (soirées, fêtes, concerts, matchs de foot, anniversaires, etc.),
 
-• la vente de billets électroniques intégrant un QR Code unique pour chaque client,
+    • la vente de billets électroniques intégrant un QR Code unique pour chaque client,
 
-• une relation tripartite entre :
-
-o Clients (participants),  
-o Organisateurs d’événements,  
-o Administrateur de la plateforme.
+    • une relation tripartite entre :
+        o Clients (participants),  
+        o Organisateurs d’événements,  
+        o Administrateur de la plateforme.
 
 
 ________________________________________
@@ -21,13 +20,11 @@ ________________________________________
 📌 Documentation – Partie Client (mise à jour)
 🎭 Acteur : Client
 1.	Navigation libre
-
     o	Accès direct à la liste des événements disponibles sans obligation de créer un compte.
 
     o	Possibilité de consulter les détails d’un événement (affiches, date, lieu, types de billets, prix, description).
 
 2.	Création de compte / Connexion (uniquement au moment de l’achat)
-
     o	Lorsqu’il veut acheter un ticket, il doit se créer un compte.
 
     o	Formulaire d’inscription :
@@ -36,19 +33,23 @@ ________________________________________
         - Mot de passe
         - Confirmation du mot de passe
 
-    o   Connexion avec Email + Mot de passe.
+    o   Connexion via :
+        -Email
+        -Mot de passe.
 
 3.	Achat du ticket
+    o	Sélection de 
+        - L’événement,
+        - le type de billet (SIMPLE / VIP),
+        - le nombre de billets.
 
-    o	Sélection de l’événement et du type de billet (SIMPLE / VIP).
-
-    o	Sélectionne le nombre de billets.
-
-    o	Paie via Mobile Money ou par Carte Bancaire.
+    o	Paiement via :
+        - Mobile Money,
+        - Carte bancaire.
 
     o	Génération immédiate d’un billet électronique avec QR Code unique, reçu :
-    ­	par email,
-    ­	et disponible dans l’espace personnel du client.
+    ­	- par email,
+    ­	- et accessible dans l’espace personnel du client.
 
 4.	Portefeuille client
     o	Accède à son espace personnel après connexion.
@@ -60,7 +61,7 @@ ________________________________________
 5.	Notifications
     o	Peut être notifié lorsqu’un nouvel événement est publié (optionnel).
 
-    
+
 ________________________________________
 🔄 Workflow côté client (simplifié)
 1.	Ouverture de l’appli → accès direct à la liste des événements.
