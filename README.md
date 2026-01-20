@@ -116,7 +116,7 @@ ________________________________________ 
 
 👉 Une fois soumis, ces informations alimentent automatiquement une page publique de l’événement, qui sert de vitrine (dashboard public).
 
-    o	Sur ce dashboard public, les affiches défilent ou sont consultables en galerie, mais elles restent reliées au même jeu d’instructions (prix, types de billets, lieu, etc.).
+    o Sur ce dashboard public, les affiches défilent ou sont consultables en galerie, mais elles restent reliées au même jeu d’instructions (prix, types de billets, lieu, etc.).
 
 
 ⚠️ NB : La création d’événement ne passe pas par une validation de l’administrateur. L’organisateur publie directement son événement.
@@ -287,6 +287,6 @@ ________________________________________
     •	Sécurité (anti-fraude)
 
     •	Supervision (organisateurs & événements)
-    
+
     •	Expérience utilisateur (clients & organisateurs)
 
