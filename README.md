@@ -44,7 +44,7 @@ etc.
 
 FIN DE NOTE IMPORTANTE À IGNORER PAR L'IA, DESTINÉE UNIQUEMENT EN LECTURE AUX ÉDITEURS DE CODE CURSOR OU WINDSURF :
  ```
-
+.
 
 
 📑 Spécification Fonctionnelle – Application Web de Gestion des Événements Nationaux
