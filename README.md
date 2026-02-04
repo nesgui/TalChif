@@ -11,10 +11,12 @@ Nous préférons que vous rédigiez en français : le code source, les commentai
 
 Structure du projet : 
 À la racine, en dehors du répertoire projet/, tu trouvera le fichier readme.md dans lequel se trouve toute la présentation et la structure du projet à développer.
-Dans le répertoire recherches (./projet/recherches/), vous trouverez un fichier readme_fr.md.
 
+- Dans le répertoire recherches (./projet/recherches/), tu trouvera un fichier readme_fr.md.
 Règles de mise à jour du fichier readme_fr.md : 
 À chaque mise à jour du code, ajout de fonctionnalités, amélioration du code ou toute autre modification, vous mettrez à jour ce fichier en y insérant ces modifications.
+
+- Toujours dans le répertoire (./projet/recherches/), tu trouvera un fichier feuille_de_route.md. Ce que tu fera sur ce fichier sera de lire tout le projet décrit dans le readme.md à la racine, puis si cela n'existe pas deja, tu construira, dans la feuille_de_route.md une structure stratégique visuelle qui planifie les étapes clés et les objectifs par tâches, qui seront cochés à chaque évolution.Et à chaque tâche remplie, validée, confirmée par nous, tu feras une mise au point pour que l'on puisse continuer à la tâche suivante avec notre accord préalable.
 
 La règle stricte à suivre est : 
 À chaque modification terminée, testée et validée par nous, tu demanderas une confirmation pour savoir si cette mise à jour doit être enregistrée sous le pseudo de << DIEUDONNÉ >> ou << VITAL >> avant de mettre à jour le readme_fr.
@@ -41,6 +43,9 @@ Fonctionnalités ajoutées : .....
 Ou modifications apportées : ....
 etc.
 etc.
+
+Toujours dans le repertoire (./projet/recherches/), tu trouvera un fichier 'feuille_de_route.md', ce que tu fera sur ce fichier sera de lire tout le prjet descrit sur le readme.md a la racine et tu construits dans la feuille_de_route une structure stratégique visuel qui planifie les étapes clés, les objectifs par tâches qui seront cocher a chaque evolutions.
+
 
 FIN DE NOTE IMPORTANTE À IGNORER PAR L'IA, DESTINÉE UNIQUEMENT EN LECTURE AUX ÉDITEURS DE CODE CURSOR OU WINDSURF :
  ```
