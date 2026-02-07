@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Portefeuille{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Portefeuille client</h1>
+<p class="page-subtitle">Tous les billets achetés (données factices).</p>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Événement</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>QR Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Concert Live</td>
+                <td>VIP</td>
+                <td><span class="pill">Valide</span></td>
+                <td><span class="pill">QR-XXXXX</span></td>
+            </tr>
+            <tr>
+                <td>Match de foot</td>
+                <td>SIMPLE</td>
+                <td><span class="pill">Valide</span></td>
+                <td><span class="pill">QR-YYYYY</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

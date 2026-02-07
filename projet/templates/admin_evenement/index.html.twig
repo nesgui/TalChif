@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Événements{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Admin - Événements</h1>
+<p class="page-subtitle">Liste globale des événements publiés (prototype UI).</p>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Organisateur</th>
+                <th>Statut</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Concert Live</td>
+                <td>Org #12</td>
+                <td><span class="pill">Actif</span></td>
+                <td><a class="btn" href="#">Suspendre (prototype)</a></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Match de foot</td>
+                <td>Org #08</td>
+                <td><span class="pill">Actif</span></td>
+                <td><a class="btn" href="#">Suspendre (prototype)</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="card-actions">
+        <a class="btn" href="{{ path('admin.dashboard') }}">Retour dashboard</a>
+    </div>
+</div>
+{% endblock %}

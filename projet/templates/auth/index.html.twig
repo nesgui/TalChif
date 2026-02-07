@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Authentification{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Authentification</h1>
+<p class="page-subtitle">Prototype UI : choisis une action.</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Accès</h2>
+        <p class="card-meta">Connexion ou création de compte.</p>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('auth.login') }}">Connexion</a>
+            <a class="btn" href="{{ path('auth.register') }}">Inscription</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Organisateurs{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Admin - Organisateurs</h1>
+<p class="page-subtitle">Gestion des comptes organisateurs (prototype UI).</p>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Statut</th>
+                <th>Commission</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>12</td>
+                <td>Organisateur Alpha</td>
+                <td><span class="pill">Actif</span></td>
+                <td>10%</td>
+                <td>
+                    <a class="btn" href="#">Bloquer (prototype)</a>
+                    <a class="btn" href="#">Commission (prototype)</a>
+                </td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>Organisateur Beta</td>
+                <td><span class="pill">Actif</span></td>
+                <td>8%</td>
+                <td>
+                    <a class="btn" href="#">Bloquer (prototype)</a>
+                    <a class="btn" href="#">Commission (prototype)</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="card-actions">
+        <a class="btn" href="{{ path('admin.dashboard') }}">Retour dashboard</a>
+    </div>
+</div>
+{% endblock %}

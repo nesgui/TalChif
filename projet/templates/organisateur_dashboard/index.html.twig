@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard organisateur{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Dashboard organisateur</h1>
+<p class="page-subtitle">Suivi des ventes et pilotage (données factices).</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Aperçu</h2>
+        <p class="card-meta">
+            <span class="pill">Billets vendus: 128</span>
+            <span class="pill">Revenu brut: 1 250 000 XAF</span>
+            <span class="pill">Places restantes: 342</span>
+        </p>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('organisateur.evenement.index') }}">Gérer mes événements</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Outils (UI)</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Export participants</th>
+                    <td><span class="pill">Prototype</span></td>
+                </tr>
+                <tr>
+                    <th>QR Codes billets vendus</th>
+                    <td><span class="pill">Prototype</span></td>
+                </tr>
+                <tr>
+                    <th>Statistiques performance</th>
+                    <td><span class="pill">Prototype</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Événements{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Événements</h1>
+<p class="page-subtitle">Explore les événements disponibles (données factices).</p>
+
+<div class="grid">
+    {% for evenement in evenements %}
+        <article class="card">
+            <h2 class="card-title">{{ evenement.titre }}</h2>
+            <p class="card-meta">
+                <span class="pill">{{ evenement.ville }}</span>
+                <span class="pill">{{ evenement.date }}</span>
+                <span class="pill">Simple: {{ evenement.prix_simple }} XAF</span>
+                <span class="pill">VIP: {{ evenement.prix_vip }} XAF</span>
+            </p>
+
+            <div class="card-actions">
+                <a class="btn" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">Détails</a>
+                <a class="btn btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
+            </div>
+        </article>
+    {% else %}
+        <div class="card">
+            <h2 class="card-title">Aucun événement</h2>
+            <p class="card-meta">La liste est vide pour le moment.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Sécurité{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Admin - Sécurité & anti-fraude</h1>
+<p class="page-subtitle">Contrôles, alertes et journalisation (prototype UI).</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Contrôles (UI)</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Détection doublons billets</th>
+                    <td><span class="pill">Actif</span></td>
+                </tr>
+                <tr>
+                    <th>Anomalies (sur-génération)</th>
+                    <td><span class="pill">Actif</span></td>
+                </tr>
+                <tr>
+                    <th>Mode hors ligne</th>
+                    <td><span class="pill">À cadrer</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Logs (extraits)</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2026-02-07 00:22</td>
+                    <td>Scan billet QR-XXXXX</td>
+                    <td><span class="pill">OK</span></td>
+                </tr>
+                <tr>
+                    <td>2026-02-07 00:25</td>
+                    <td>Scan billet QR-XXXXX (doublon)</td>
+                    <td><span class="pill">ALERTE</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="card-actions">
+            <a class="btn" href="{{ path('admin.dashboard') }}">Retour dashboard</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

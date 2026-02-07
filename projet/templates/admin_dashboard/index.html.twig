@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard admin{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Back-office admin</h1>
+<p class="page-subtitle">Supervision globale (prototype UI).</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Indicateurs</h2>
+        <p class="card-meta">
+            <span class="pill">Événements actifs: 42</span>
+            <span class="pill">Billets vendus: 8 120</span>
+            <span class="pill">Revenus: 58 400 000 XAF</span>
+            <span class="pill">Commission: 10%</span>
+        </p>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Accès rapides</h2>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('admin.evenement.index') }}">Gérer les événements</a>
+            <a class="btn" href="{{ path('admin.organisateur.index') }}">Gérer les organisateurs</a>
+            <a class="btn" href="{{ path('admin.finance.index') }}">Finances & paiements</a>
+            <a class="btn" href="{{ path('admin.securite.index') }}">Sécurité</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

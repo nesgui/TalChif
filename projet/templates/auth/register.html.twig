@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Inscription</h1>
+<p class="page-subtitle">Prototype UI. Les formulaires Symfony seront branchés plus tard.</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Créer un compte</h2>
+        <p class="card-meta">Nom complet, email, mot de passe, confirmation.</p>
+
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Nom complet</th>
+                    <td><span class="pill">champ</span></td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td><span class="pill">champ</span></td>
+                </tr>
+                <tr>
+                    <th>Mot de passe</th>
+                    <td><span class="pill">champ</span></td>
+                </tr>
+                <tr>
+                    <th>Confirmation</th>
+                    <td><span class="pill">champ</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('auth.login') }}">Créer le compte (prototype)</a>
+            <a class="btn" href="{{ path('auth.login') }}">J'ai déjà un compte</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes événements{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Mes événements</h1>
+<p class="page-subtitle">Espace organisateur : création/gestion des événements (UI).</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Liste (données factices)</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>101</td>
+                    <td>Concert Live</td>
+                    <td>2026-02-14 20:00</td>
+                    <td><span class="pill">Publié</span></td>
+                    <td><a class="btn" href="{{ path('organisateur.evenement.show', {id: 101}) }}">Gérer</a></td>
+                </tr>
+                <tr>
+                    <td>102</td>
+                    <td>Soirée Urbaine</td>
+                    <td>2026-02-22 21:30</td>
+                    <td><span class="pill">Brouillon</span></td>
+                    <td><a class="btn" href="{{ path('organisateur.evenement.show', {id: 102}) }}">Gérer</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Créer un événement (prototype)</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

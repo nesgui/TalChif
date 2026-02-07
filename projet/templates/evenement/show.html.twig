@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ evenement.titre }}{% endblock %}
+
+{% block body %}
+<h1 class="page-title">{{ evenement.titre }}</h1>
+<p class="page-subtitle">
+    <span class="pill">{{ evenement.date }}</span>
+    <span class="pill">{{ evenement.lieu }}</span>
+</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Description</h2>
+        <p class="card-meta">{{ evenement.description }}</p>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Billets</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Prix</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for billet in evenement.types_billets %}
+                    <tr>
+                        <td>{{ billet.code }}</td>
+                        <td>{{ billet.prix }} XAF</td>
+                        <td>
+                            <a class="btn btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="card-actions">
+            <a class="btn" href="{{ path('evenement.index') }}">Retour</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

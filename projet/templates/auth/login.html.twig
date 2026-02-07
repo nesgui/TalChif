@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Connexion</h1>
+<p class="page-subtitle">Prototype UI. La sécurité Symfony sera branchée plus tard.</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Se connecter</h2>
+        <p class="card-meta">Email + mot de passe</p>
+
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Email</th>
+                    <td><span class="pill">champ</span></td>
+                </tr>
+                <tr>
+                    <th>Mot de passe</th>
+                    <td><span class="pill">champ</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('portefeuille.index') }}">Se connecter (prototype)</a>
+            <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

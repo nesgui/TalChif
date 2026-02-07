@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Achat ticket{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Acheter un ticket</h1>
+<p class="page-subtitle">Événement #{{ id }} ({{ slug }})</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">1) Authentification</h2>
+        <p class="card-meta">Connexion / inscription au moment de l'achat (UI).</p>
+        <div class="card-actions">
+            <a class="btn" href="{{ path('auth.login') }}">Connexion</a>
+            <a class="btn" href="{{ path('auth.register') }}">Inscription</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">2) Sélection</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Type de billet</th>
+                    <td><span class="pill">SIMPLE / VIP</span></td>
+                </tr>
+                <tr>
+                    <th>Quantité</th>
+                    <td><span class="pill">1..N</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">3) Paiement</h2>
+        <p class="card-meta">Mobile Money / Carte bancaire (UI).</p>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('portefeuille.index') }}">Payer (prototype)</a>
+            <a class="btn" href="{{ path('evenement.show', {slug: slug, id: id}) }}">Retour détails</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<h1 class="page-title">OCEA.td</h1>
+<p class="page-subtitle">Plateforme de gestion et promotion d'événements avec vente de billets électroniques (prototype frontend).</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Espace client</h2>
+        <p class="card-meta">Découvrir les événements, consulter les détails, lancer un achat, accéder au portefeuille.</p>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('evenement.index') }}">Voir les événements</a>
+            <a class="btn" href="{{ path('portefeuille.index') }}">Portefeuille</a>
+            <a class="btn" href="{{ path('auth.login') }}">Connexion</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Espace organisateur</h2>
+        <p class="card-meta">Créer / gérer des événements et suivre les ventes (UI).</p>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Dashboard organisateur</a>
+            <a class="btn" href="{{ path('organisateur.evenement.index') }}">Mes événements</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Back-office admin</h2>
+        <p class="card-meta">Supervision globale, monétisation, gestion utilisateurs/événements, sécurité anti-fraude (UI).</p>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('admin.dashboard') }}">Dashboard admin</a>
+            <a class="btn" href="{{ path('admin.evenement.index') }}">Événements</a>
+            <a class="btn" href="{{ path('admin.organisateur.index') }}">Organisateurs</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-OSEA.td application web centralisée sur le modèle SaaS (Software as a Service)
+OCEA.td application web centralisée sur le modèle SaaS (Software as a Service)
 
 
 ```

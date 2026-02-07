@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Achat{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Achat</h1>
+<p class="page-subtitle">Prototype UI d'achat. La logique (auth/paiement/QR) sera branchée côté backend plus tard.</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Pré-requis</h2>
+        <p class="card-meta">Pour acheter un ticket, le client doit créer un compte ou se connecter.</p>
+        <div class="card-actions">
+            <a class="btn" href="{{ path('auth.login') }}">Connexion</a>
+            <a class="btn" href="{{ path('auth.register') }}">Inscription</a>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Moyens de paiement (UI)</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Moyen</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mobile Money</td>
+                    <td><span class="pill">Prototype</span></td>
+                </tr>
+                <tr>
+                    <td>Carte bancaire</td>
+                    <td><span class="pill">Prototype</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}
