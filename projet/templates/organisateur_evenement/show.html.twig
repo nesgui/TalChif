@@ -1,9 +1,16 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
 
-{% block title %}Événement organisateur #{{ id }}{% endblock %}
+{% set section = 'organisateur' %}
 
-{% block body %}
-<h1 class="page-title">Événement (organisateur)</h1>
+{% block title %}Événement #{{ id }}{% endblock %}
+
+{% block dashboard_title %}Événement #{{ id }}{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn" href="{{ path('organisateur.evenement.index') }}">Retour</a>
+{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Détail/édition UI pour l'événement #{{ id }}.</p>
 
 <div class="grid">
@@ -31,7 +38,6 @@
         </table>
         <div class="card-actions">
             <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Enregistrer (prototype)</a>
-            <a class="btn" href="{{ path('organisateur.evenement.index') }}">Retour</a>
         </div>
     </section>
 </div>

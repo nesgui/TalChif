@@ -1,9 +1,16 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Mes événements{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Mes événements</h1>
+{% block dashboard_title %}Mes événements{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Créer (prototype)</a>
+{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Espace organisateur : création/gestion des événements (UI).</p>
 
 <div class="grid">
@@ -36,9 +43,6 @@
                 </tr>
             </tbody>
         </table>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Créer un événement (prototype)</a>
-        </div>
     </section>
 </div>
 {% endblock %}

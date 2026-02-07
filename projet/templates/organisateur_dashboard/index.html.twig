@@ -1,9 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Dashboard organisateur{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Dashboard organisateur</h1>
+{% block dashboard_title %}Dashboard organisateur{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Suivi des ventes et pilotage (données factices).</p>
 
 <div class="grid">

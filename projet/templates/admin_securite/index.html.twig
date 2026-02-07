@@ -1,9 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
 
 {% block title %}Admin - Sécurité{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Admin - Sécurité & anti-fraude</h1>
+{% block dashboard_title %}Sécurité & anti-fraude{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Contrôles, alertes et journalisation (prototype UI).</p>
 
 <div class="grid">
@@ -50,9 +53,6 @@
                 </tr>
             </tbody>
         </table>
-        <div class="card-actions">
-            <a class="btn" href="{{ path('admin.dashboard') }}">Retour dashboard</a>
-        </div>
     </section>
 </div>
 {% endblock %}

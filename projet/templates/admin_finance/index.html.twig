@@ -1,9 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
 
 {% block title %}Admin - Finance{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Admin - Finance & paiements</h1>
+{% block dashboard_title %}Finance & paiements{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Suivi des transactions, commissions et reversements (prototype UI).</p>
 
 <div class="grid">
@@ -44,9 +47,6 @@
                 </tr>
             </tbody>
         </table>
-        <div class="card-actions">
-            <a class="btn" href="{{ path('admin.dashboard') }}">Retour dashboard</a>
-        </div>
     </section>
 </div>
 {% endblock %}

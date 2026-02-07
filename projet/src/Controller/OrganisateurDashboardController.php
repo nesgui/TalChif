@@ -11,8 +11,6 @@ final class OrganisateurDashboardController extends AbstractController
     #[Route('/organisateur', name: 'organisateur.dashboard')]
     public function index(): Response
     {
-        return $this->render('organisateur_dashboard/index.html.twig', [
-            'controller_name' => 'OrganisateurDashboardController',
-        ]);
+        return $this->render('organisateur_dashboard/index.html.twig');
     }
 }

@@ -1,9 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
 
 {% block title %}Dashboard admin{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Back-office admin</h1>
+{% block dashboard_title %}Back-office admin{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Supervision globale (prototype UI).</p>
 
 <div class="grid">

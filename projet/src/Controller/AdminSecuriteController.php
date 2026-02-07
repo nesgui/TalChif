@@ -11,8 +11,6 @@ final class AdminSecuriteController extends AbstractController
     #[Route('/admin/securite', name: 'admin.securite.index')]
     public function index(): Response
     {
-        return $this->render('admin_securite/index.html.twig', [
-            'controller_name' => 'AdminSecuriteController',
-        ]);
+        return $this->render('admin_securite/index.html.twig');
     }
 }

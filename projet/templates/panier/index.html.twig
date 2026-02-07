@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panier{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Panier</h1>
+<p class="page-subtitle">Prototype e-commerce (stockage session). Tu pourras relier au backend/BDD plus tard.</p>
+
+<div class="grid">
+    <section class="card">
+        <div class="card-actions" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2 class="card-title" style="margin: 0;">Articles</h2>
+                <p class="card-meta" style="margin: 6px 0 0;">Ajoute / supprime des articles pour simuler un panier Amazon.</p>
+            </div>
+            <form method="post" action="{{ path('panier.vider') }}">
+                <button class="btn" type="submit">Vider</button>
+            </form>
+        </div>
+
+        {% if lignes|length > 0 %}
+            <div class="panier-lignes">
+                {% for ligne in lignes %}
+                    <article class="panier-ligne">
+                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="{{ ligne.produit.titre }}" />
+                        <div class="panier-info">
+                            <div class="panier-titre">{{ ligne.produit.titre }}</div>
+                            <div class="panier-meta">
+                                <span class="pill">Quantité: {{ ligne.quantite }}</span>
+                                <span class="pill">Prix: {{ ligne.produit.prix_min }} XAF</span>
+                                <span class="pill">Sous-total: {{ ligne.sous_total }} XAF</span>
+                            </div>
+                            <div class="card-actions">
+                                <a class="btn" href="{{ path('evenement.show', {slug: ligne.produit.slug, id: ligne.produit.id}) }}">Voir</a>
+                                <form method="post" action="{{ path('panier.supprimer', {id: ligne.id}) }}">
+                                    <button class="btn" type="submit">Supprimer</button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="card-meta">Ton panier est vide.</p>
+            <div class="card-actions">
+                <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer les événements</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <aside class="card">
+        <h2 class="card-title">Récapitulatif</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Total</th>
+                    <td><strong>{{ total }} XAF</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="card-actions">
+            <a class="btn btn-primary" href="{{ path('achat.index') }}">Passer au paiement (prototype)</a>
+        </div>
+    </aside>
+</div>
+{% endblock %}

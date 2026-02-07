@@ -1,9 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
 
 {% block title %}Admin - Événements{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Admin - Événements</h1>
+{% block dashboard_title %}Événements{% endblock %}
+
+{% block dashboard_content %}
 <p class="page-subtitle">Liste globale des événements publiés (prototype UI).</p>
 
 <div class="card">
@@ -34,9 +37,5 @@
             </tr>
         </tbody>
     </table>
-
-    <div class="card-actions">
-        <a class="btn" href="{{ path('admin.dashboard') }}">Retour dashboard</a>
-    </div>
 </div>
 {% endblock %}

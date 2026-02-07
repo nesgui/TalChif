@@ -11,8 +11,6 @@ final class AdminOrganisateurController extends AbstractController
     #[Route('/admin/organisateurs', name: 'admin.organisateur.index')]
     public function index(): Response
     {
-        return $this->render('admin_organisateur/index.html.twig', [
-            'controller_name' => 'AdminOrganisateurController',
-        ]);
+        return $this->render('admin_organisateur/index.html.twig');
     }
 }

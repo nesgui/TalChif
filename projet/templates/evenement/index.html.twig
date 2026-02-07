@@ -4,22 +4,49 @@
 
 {% block body %}
 <h1 class="page-title">Événements</h1>
-<p class="page-subtitle">Explore les événements disponibles (données factices).</p>
+<p class="page-subtitle">Catalogue (style e-commerce) basé sur des données factices.</p>
 
-<div class="grid">
+<div class="catalog">
     {% for evenement in evenements %}
-        <article class="card">
-            <h2 class="card-title">{{ evenement.titre }}</h2>
-            <p class="card-meta">
-                <span class="pill">{{ evenement.ville }}</span>
-                <span class="pill">{{ evenement.date }}</span>
-                <span class="pill">Simple: {{ evenement.prix_simple }} XAF</span>
-                <span class="pill">VIP: {{ evenement.prix_vip }} XAF</span>
-            </p>
+        {% set largeur_note = (evenement.note / 5) * 100 %}
+        <article class="product-card">
+            <a class="product-link" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
+                <div class="product-media">
+                    <img class="product-img" src="{{ evenement.image }}" alt="{{ evenement.titre }}" />
+                    {% if evenement.badge %}
+                        <span class="product-badge">{{ evenement.badge }}</span>
+                    {% endif %}
+                </div>
 
-            <div class="card-actions">
-                <a class="btn" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">Détails</a>
-                <a class="btn btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
+                <div class="product-body">
+                    <h2 class="product-title">{{ evenement.titre }}</h2>
+                    <div class="product-meta">
+                        <span class="pill">{{ evenement.ville }}</span>
+                        <span class="pill">{{ evenement.date }}</span>
+                    </div>
+
+                    <div class="product-rating">
+                        <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
+                            <span class="stars-fill" style="width: {{ largeur_note }}%"></span>
+                        </span>
+                        <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
+                    </div>
+
+                    <div class="product-price">À partir de <strong>{{ evenement.prix_min }} XAF</strong></div>
+
+                    <div class="product-actions">
+                        <span class="btn">Détails</span>
+                        <span class="btn btn-primary">Acheter</span>
+                    </div>
+                </div>
+            </a>
+
+            <div class="product-actions" style="padding: 0 12px 12px;">
+                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" style="width: 100%;">
+                    <input type="hidden" name="quantite" value="1" />
+                    <input type="hidden" name="redirect" value="precedent" />
+                    <button class="btn" type="submit" style="width: 100%; justify-content: center;">Ajouter au panier</button>
+                </form>
             </div>
         </article>
     {% else %}

@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block site_header %}{% endblock %}
+
+{% block site_main %}
+    <input class="dashboard-toggle" type="checkbox" id="dashboard-menu" />
+
+    <div class="dashboard">
+        <aside class="dashboard-sidebar" aria-label="Menu latéral">
+            <div class="dashboard-sidebar-top">
+                <a class="dashboard-brand" href="{{ path('accueil') }}">OCEA.td</a>
+                <label class="dashboard-close" for="dashboard-menu">Fermer</label>
+            </div>
+
+            {% if section is not defined %}
+                {% set section = 'client' %}
+            {% endif %}
+
+            <nav class="dashboard-nav">
+                {% if section == 'organisateur' %}
+                    <div class="dashboard-nav-title">Organisateur</div>
+
+                    <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}">Tableau de bord</a>
+
+                    <details class="dashboard-group" open>
+                        <summary>Événements</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}">Mes événements</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Créer (prototype)</a>
+                        </div>
+                    </details>
+
+                    <details class="dashboard-group">
+                        <summary>Ventes</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Vue globale</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Participants (prototype)</a>
+                        </div>
+                    </details>
+
+                    <div class="dashboard-nav-title">Général</div>
+                    <a class="dashboard-link" href="{{ path('evenement.index') }}">Vitrine événements</a>
+                    <a class="dashboard-link" href="{{ path('accueil') }}">Retour site</a>
+                {% elseif section == 'admin' %}
+                    <div class="dashboard-nav-title">Administration</div>
+
+                    <a class="dashboard-link" href="{{ path('admin.dashboard') }}">Tableau de bord</a>
+
+                    <details class="dashboard-group" open>
+                        <summary>Gestion</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}">Événements</a>
+                            <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}">Organisateurs</a>
+                        </div>
+                    </details>
+
+                    <details class="dashboard-group">
+                        <summary>Finance</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}">Transactions</a>
+                            <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}">Commission (prototype)</a>
+                        </div>
+                    </details>
+
+                    <details class="dashboard-group">
+                        <summary>Sécurité</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}">Anti-fraude</a>
+                            <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}">Logs (prototype)</a>
+                        </div>
+                    </details>
+
+                    <div class="dashboard-nav-title">Général</div>
+                    <a class="dashboard-link" href="{{ path('accueil') }}">Retour site</a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <div class="dashboard-main">
+            <header class="dashboard-topbar">
+                <label class="dashboard-burger" for="dashboard-menu">Menu</label>
+                <div class="dashboard-topbar-title">
+                    {% block dashboard_title %}{% endblock %}
+                </div>
+                <div class="dashboard-topbar-actions">
+                    {% block dashboard_actions %}{% endblock %}
+                </div>
+            </header>
+
+            <section class="dashboard-content">
+                {% block dashboard_content %}{% endblock %}
+            </section>
+        </div>
+    </div>
+{% endblock %}

@@ -3,37 +3,96 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
-<h1 class="page-title">OCEA.td</h1>
-<p class="page-subtitle">Plateforme de gestion et promotion d'événements avec vente de billets électroniques (prototype frontend).</p>
-
-<div class="grid">
-    <section class="card">
-        <h2 class="card-title">Espace client</h2>
-        <p class="card-meta">Découvrir les événements, consulter les détails, lancer un achat, accéder au portefeuille.</p>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('evenement.index') }}">Voir les événements</a>
-            <a class="btn" href="{{ path('portefeuille.index') }}">Portefeuille</a>
-            <a class="btn" href="{{ path('auth.login') }}">Connexion</a>
+<section class="hero">
+    <img class="hero-media" src="/images/placeholders/banniere-home.svg" alt="Bannière" />
+    <div class="hero-content">
+        <h1 class="hero-title">Trouve ton prochain événement</h1>
+        <p class="hero-subtitle">Catalogue mobile-first (prototype). Achats et panier seront connectés au backend plus tard.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer</a>
+            <a class="btn" href="{{ path('auth.login') }}">Se connecter</a>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="card">
-        <h2 class="card-title">Espace organisateur</h2>
-        <p class="card-meta">Créer / gérer des événements et suivre les ventes (UI).</p>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Dashboard organisateur</a>
-            <a class="btn" href="{{ path('organisateur.evenement.index') }}">Mes événements</a>
-        </div>
-    </section>
+<section class="section">
+    <h2 class="section-title">Accès rapide</h2>
+    <div class="quick-grid">
+        <a class="quick-card" href="{{ path('evenement.index') }}">
+            <div class="quick-title">Événements</div>
+            <div class="quick-meta">Voir le catalogue</div>
+        </a>
+        <a class="quick-card" href="{{ path('portefeuille.index') }}">
+            <div class="quick-title">Portefeuille</div>
+            <div class="quick-meta">Mes billets</div>
+        </a>
+        <a class="quick-card" href="{{ path('auth.login') }}">
+            <div class="quick-title">Compte</div>
+            <div class="quick-meta">Connexion / inscription</div>
+        </a>
+    </div>
+</section>
 
-    <section class="card">
-        <h2 class="card-title">Back-office admin</h2>
-        <p class="card-meta">Supervision globale, monétisation, gestion utilisateurs/événements, sécurité anti-fraude (UI).</p>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('admin.dashboard') }}">Dashboard admin</a>
-            <a class="btn" href="{{ path('admin.evenement.index') }}">Événements</a>
-            <a class="btn" href="{{ path('admin.organisateur.index') }}">Organisateurs</a>
-        </div>
-    </section>
-</div>
+<section class="section">
+    <h2 class="section-title">Recommandations</h2>
+    <div class="catalog">
+        <article class="product-card">
+            <a class="product-link" href="{{ path('evenement.show', {slug: 'concert-live', id: 1}) }}">
+                <div class="product-media">
+                    <img class="product-img" src="/images/evenements/evenement-1.svg" alt="Concert Live" />
+                    <span class="product-badge">Meilleure vente</span>
+                </div>
+                <div class="product-body">
+                    <h3 class="product-title">Concert Live</h3>
+                    <div class="product-rating">
+                        <span class="stars" aria-label="Note 4.6 sur 5">
+                            <span class="stars-fill" style="width: 92%"></span>
+                        </span>
+                        <span class="product-rating-meta">4.6 (128)</span>
+                    </div>
+                    <div class="product-price">À partir de <strong>3 000 XAF</strong></div>
+                </div>
+            </a>
+        </article>
+        <article class="product-card">
+            <a class="product-link" href="{{ path('evenement.show', {slug: 'match-de-foot', id: 2}) }}">
+                <div class="product-media">
+                    <img class="product-img" src="/images/evenements/evenement-2.svg" alt="Match de foot" />
+                    <span class="product-badge">Recommandé</span>
+                </div>
+                <div class="product-body">
+                    <h3 class="product-title">Match de foot</h3>
+                    <div class="product-rating">
+                        <span class="stars" aria-label="Note 4.2 sur 5">
+                            <span class="stars-fill" style="width: 84%"></span>
+                        </span>
+                        <span class="product-rating-meta">4.2 (74)</span>
+                    </div>
+                    <div class="product-price">À partir de <strong>2 000 XAF</strong></div>
+                </div>
+            </a>
+        </article>
+        <article class="product-card">
+            <a class="product-link" href="{{ path('evenement.show', {slug: 'soiree-urbaine', id: 3}) }}">
+                <div class="product-media">
+                    <img class="product-img" src="/images/evenements/evenement-3.svg" alt="Soirée Urbaine" />
+                    <span class="product-badge">Nouveau</span>
+                </div>
+                <div class="product-body">
+                    <h3 class="product-title">Soirée Urbaine</h3>
+                    <div class="product-rating">
+                        <span class="stars" aria-label="Note 4.8 sur 5">
+                            <span class="stars-fill" style="width: 96%"></span>
+                        </span>
+                        <span class="product-rating-meta">4.8 (203)</span>
+                    </div>
+                    <div class="product-price">À partir de <strong>2 500 XAF</strong></div>
+                </div>
+            </a>
+        </article>
+    </div>
+    <div class="section-actions">
+        <a class="btn btn-primary" href="{{ path('evenement.index') }}">Voir tout</a>
+    </div>
+</section>
 {% endblock %}

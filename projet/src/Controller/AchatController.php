@@ -11,9 +11,7 @@ final class AchatController extends AbstractController
     #[Route('/achat', name: 'achat.index')]
     public function index(): Response
     {
-        return $this->render('achat/index.html.twig', [
-            'controller_name' => 'AchatController',
-        ]);
+        return $this->render('achat/index.html.twig');
     }
 
     #[Route(

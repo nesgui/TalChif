@@ -11,9 +11,7 @@ final class OrganisateurEvenementController extends AbstractController
     #[Route('/organisateur/evenements', name: 'organisateur.evenement.index')]
     public function index(): Response
     {
-        return $this->render('organisateur_evenement/index.html.twig', [
-            'controller_name' => 'OrganisateurEvenementController',
-        ]);
+        return $this->render('organisateur_evenement/index.html.twig');
     }
 
     #[Route('/organisateur/evenements/{id}', name: 'organisateur.evenement.show', requirements: ['id' => '\\d+'])]

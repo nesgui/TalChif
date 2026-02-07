@@ -11,8 +11,6 @@ final class AdminEvenementController extends AbstractController
     #[Route('/admin/evenements', name: 'admin.evenement.index')]
     public function index(): Response
     {
-        return $this->render('admin_evenement/index.html.twig', [
-            'controller_name' => 'AdminEvenementController',
-        ]);
+        return $this->render('admin_evenement/index.html.twig');
     }
 }

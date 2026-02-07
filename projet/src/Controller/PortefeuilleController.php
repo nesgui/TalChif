@@ -11,8 +11,6 @@ final class PortefeuilleController extends AbstractController
     #[Route('/portefeuille', name: 'portefeuille.index')]
     public function index(): Response
     {
-        return $this->render('portefeuille/index.html.twig', [
-            'controller_name' => 'PortefeuilleController',
-        ]);
+        return $this->render('portefeuille/index.html.twig');
     }
 }

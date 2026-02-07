@@ -11,8 +11,6 @@ final class AdminFinanceController extends AbstractController
     #[Route('/admin/finance', name: 'admin.finance.index')]
     public function index(): Response
     {
-        return $this->render('admin_finance/index.html.twig', [
-            'controller_name' => 'AdminFinanceController',
-        ]);
+        return $this->render('admin_finance/index.html.twig');
     }
 }

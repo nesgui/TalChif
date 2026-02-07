@@ -13,32 +13,100 @@
         {% endblock %}
     </head>
     <body>
-        <header class="site-header">
-            <div class="container header-inner">
-                <a class="brand" href="{{ path('accueil') }}">OCEA.td</a>
+        {% block site_header %}
+            <input class="public-toggle" type="checkbox" id="public-menu" />
 
-                <nav class="nav">
-                    <a class="nav-link" href="{{ path('evenement.index') }}">Événements</a>
-                    <a class="nav-link" href="{{ path('portefeuille.index') }}">Portefeuille</a>
-                    <a class="nav-link" href="{{ path('auth.login') }}">Connexion</a>
-                    <span class="nav-sep"></span>
-                    <a class="nav-link" href="{{ path('organisateur.dashboard') }}">Organisateur</a>
-                    <a class="nav-link" href="{{ path('admin.dashboard') }}">Admin</a>
-                </nav>
-            </div>
-        </header>
+            <header class="public-header">
+                <div class="container public-topbar">
+                    <a class="public-brand" href="{{ path('accueil') }}">OCEA.td</a>
+                    <label class="public-action" for="public-menu" aria-label="Ouvrir le menu">☰</label>
+                </div>
 
-        <main class="site-main">
-            <div class="container">
-                {% block body %}{% endblock %}
-            </div>
-        </main>
+                <div class="container public-search">
+                    <form class="public-search-form" action="{{ path('evenement.index') }}" method="get">
+                        <input class="public-search-input" type="search" name="q" placeholder="Rechercher un événement…" autocomplete="off" />
+                    </form>
+                </div>
 
-        <footer class="site-footer">
-            <div class="container footer-inner">
-                <div class="muted">Prototype Frontend Twig</div>
-                <div class="muted">OCEA.td</div>
-            </div>
-        </footer>
+                <div class="container public-drawer" aria-label="Menu">
+                    <a class="public-drawer-link" href="{{ path('auth.login') }}">Connexion</a>
+                    <a class="public-drawer-link" href="{{ path('auth.register') }}">Inscription</a>
+                    <span class="public-drawer-sep"></span>
+                    <a class="public-drawer-link" href="{{ path('organisateur.dashboard') }}">Organisateur</a>
+                    <a class="public-drawer-link" href="{{ path('admin.dashboard') }}">Admin</a>
+                </div>
+            </header>
+
+            <nav class="public-bottom-nav" aria-label="Navigation principale">
+                <a class="public-tab" href="{{ path('accueil') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 11.5L12 4l9 7.5" />
+                            <path d="M5 10.5V20h14v-9.5" />
+                            <path d="M10 20v-6h4v6" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Accueil</span>
+                </a>
+                <a class="public-tab" href="{{ path('evenement.index') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 7h18" />
+                            <path d="M6 7V5a2 2 0 0 1 2-2h1" />
+                            <path d="M18 7V5a2 2 0 0 0-2-2h-1" />
+                            <rect x="3" y="7" width="18" height="14" rx="2" />
+                            <path d="M7 11h4" />
+                            <path d="M7 15h6" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Événements</span>
+                </a>
+                <a class="public-tab" href="{{ path('panier.index') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 7h15l-2 10H8L6 7z" />
+                            <path d="M6 7l-2 0" />
+                            <circle cx="9" cy="20" r="1" />
+                            <circle cx="18" cy="20" r="1" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Panier</span>
+                </a>
+                <a class="public-tab" href="{{ path('portefeuille.index') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 7h15a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
+                            <path d="M20 10h-5a2 2 0 0 0 0 4h5" />
+                            <path d="M7 7V6a2 2 0 0 1 2-2h10" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Portefeuille</span>
+                </a>
+                <a class="public-tab" href="{{ path('auth.login') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21a8 8 0 0 0-16 0" />
+                            <circle cx="12" cy="8" r="4" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Compte</span>
+                </a>
+            </nav>
+        {% endblock %}
+
+        {% block site_main %}
+            <main class="site-main">
+                <div class="container">
+                    {% block body %}{% endblock %}
+                </div>
+            </main>
+
+            <footer class="site-footer">
+                <div class="container footer-inner">
+                    <div class="muted">Prototype Frontend Twig</div>
+                    <div class="muted">OCEA.td</div>
+                </div>
+            </footer>
+        {% endblock %}
     </body>
 </html>

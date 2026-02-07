@@ -11,8 +11,6 @@ final class AdminDashboardController extends AbstractController
     #[Route('/admin', name: 'admin.dashboard')]
     public function index(): Response
     {
-        return $this->render('admin_dashboard/index.html.twig', [
-            'controller_name' => 'AdminDashboardController',
-        ]);
+        return $this->render('admin_dashboard/index.html.twig');
     }
 }
