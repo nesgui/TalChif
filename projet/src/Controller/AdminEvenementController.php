@@ -13,4 +13,10 @@ final class AdminEvenementController extends AbstractController
     {
         return $this->render('admin_evenement/index.html.twig');
     }
+
+    #[Route('/admin/evenements/creer', name: 'admin.evenement.create')]
+    public function create(): Response
+    {
+        return $this->render('admin_evenement/create.html.twig');
+    }
 }

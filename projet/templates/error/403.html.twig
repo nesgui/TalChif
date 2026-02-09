@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé{% endblock %}
+
+{% block body %}
+<div class="grid">
+    <section class="card">
+        <h1 class="page-title">Accès refusé</h1>
+        <div class="alert alert-error">
+            <h2>⚠️ Vous n'avez pas les permissions nécessaires</h2>
+            <p>La page que vous essayez d'accéder nécessite des autorisations spécifiques.</p>
+            
+            <div class="error-details">
+                <h3>Que faire ?</h3>
+                <ul>
+                    <li><strong>Si vous êtes organisateur</strong> : Connectez-vous avec votre compte organisateur</li>
+                    <li><strong>Si vous êtes client</strong> : Accédez aux pages publiques (accueil, événements)</li>
+                    <li><strong>Si vous voulez devenir organisateur</strong> : Contactez l'administration</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card-actions">
+            <a href="{{ path('accueil') }}" class="btn btn-primary">Retour à l'accueil</a>
+            <a href="{{ path('auth.login') }}" class="btn">Se connecter</a>
+            <a href="{{ path('auth.register') }}" class="btn">Créer un compte</a>
+        </div>
+    </section>
+</div>
+
+<style>
+.error-details {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.error-details h3 {
+    color: #495057;
+    margin-bottom: 15px;
+}
+
+.error-details ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.error-details li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+</style>
+{% endblock %}

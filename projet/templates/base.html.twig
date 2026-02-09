@@ -6,10 +6,13 @@
         <title>{% block title %}OCEA.td{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+            <link rel="stylesheet" href="{{ asset('styles/notifications.css') }}">
         {% endblock %}
 
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
+            <script src="{{ asset('services/notification_service.js') }}" defer></script>
         {% endblock %}
     </head>
     <body>
@@ -19,7 +22,21 @@
             <header class="public-header">
                 <div class="container public-topbar">
                     <a class="public-brand" href="{{ path('accueil') }}">OCEA.td</a>
-                    <label class="public-action" for="public-menu" aria-label="Ouvrir le menu">☰</label>
+                    <div class="public-topbar-actions">
+                        <button 
+                            class="theme-toggle" 
+                            data-controller="theme" 
+                            data-action="click->theme#toggle"
+                            data-theme-target="toggle"
+                            type="button"
+                            aria-label="Changer le thème"
+                            title="Thème clair (cliquer pour thème sombre)"
+                        >
+                            <span class="icon-sun">☀️</span>
+                            <span class="icon-moon">🌙</span>
+                        </button>
+                        <label class="public-action" for="public-menu" aria-label="Ouvrir le menu">☰</label>
+                    </div>
                 </div>
 
                 <div class="container public-search">
@@ -97,6 +114,7 @@
         {% block site_main %}
             <main class="site-main">
                 <div class="container">
+                    {% include 'partials/flashes.html.twig' %}
                     {% block body %}{% endblock %}
                 </div>
             </main>
@@ -109,4 +127,10 @@
             </footer>
         {% endblock %}
     </body>
+    
+    <!-- Conteneur pour les notifications -->
+    <div id="notifications-container" 
+         data-controller="notification" 
+         data-notification-target="container">
+    </div>
 </html>

@@ -1,0 +1,13 @@
+<!-- Placeholder image for Soirée Urbaine -->
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="200" fill="#8b5cf6"/>
+    <text x="150" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white">
+        🌃 Soirée Urbaine
+    </text>
+    <text x="150" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white">
+        VIP Night
+    </text>
+    <text x="150" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+        Golden Lounge
+    </text>
+</svg>

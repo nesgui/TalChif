@@ -4,38 +4,63 @@
 
 {% block body %}
 <h1 class="page-title">Inscription</h1>
-<p class="page-subtitle">Prototype UI. Les formulaires Symfony seront branchés plus tard.</p>
+<p class="page-subtitle">Créez votre compte pour accéder à tous les événements</p>
 
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Créer un compte</h2>
-        <p class="card-meta">Nom complet, email, mot de passe, confirmation.</p>
+        <p class="card-meta">Remplissez les informations ci-dessous</p>
 
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Nom complet</th>
-                    <td><span class="pill">champ</span></td>
-                </tr>
-                <tr>
-                    <th>Email</th>
-                    <td><span class="pill">champ</span></td>
-                </tr>
-                <tr>
-                    <th>Mot de passe</th>
-                    <td><span class="pill">champ</span></td>
-                </tr>
-                <tr>
-                    <th>Confirmation</th>
-                    <td><span class="pill">champ</span></td>
-                </tr>
-            </tbody>
-        </table>
+        {% for flash in app.flashes('error') %}
+            <div class="alert alert-error">
+                {{ flash }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'class': 'form'}}) }}
+        
+        <div class="form-group">
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.nom) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.nom) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.prenom) }}
+            {{ form_widget(form.prenom, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.prenom) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.telephone) }}
+            {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.telephone) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.password) }}
+            {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.password) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.password_confirm) }}
+            {{ form_widget(form.password_confirm, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.password_confirm) }}
+        </div>
 
         <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('auth.login') }}">Créer le compte (prototype)</a>
-            <a class="btn" href="{{ path('auth.login') }}">J'ai déjà un compte</a>
+            <button type="submit" class="btn btn-primary">Créer le compte</button>
+            <a href="{{ path('auth.login') }}" class="btn">J'ai déjà un compte</a>
         </div>
+
+        {{ form_end(form) }}
     </section>
 </div>
 {% endblock %}

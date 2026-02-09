@@ -1,0 +1,13 @@
+<!-- Placeholder image for Match Foot -->
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="200" fill="#10b981"/>
+    <text x="150" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white">
+        ⚽ Match Foot
+    </text>
+    <text x="150" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white">
+        Étoile vs Djamena
+    </text>
+    <text x="150" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+        Stade Omnisports
+    </text>
+</svg>

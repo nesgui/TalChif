@@ -1,0 +1,25 @@
+{% for type, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ type }}">
+            {{ message }}
+        </div>
+        {% if loop.last %}
+            <script>
+                // Convertir les flash messages en notifications modernes
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.NotificationService) {
+                        {% if type == 'success' %}
+                            NotificationService.success('Succès', '{{ message|e('js') }}', { duration: 4000 });
+                        {% elseif type == 'error' %}
+                            NotificationService.error('Erreur', '{{ message|e('js') }}', { duration: 6000 });
+                        {% elseif type == 'warning' %}
+                            NotificationService.warning('Attention', '{{ message|e('js') }}', { duration: 5000 });
+                        {% else %}
+                            NotificationService.info('Information', '{{ message|e('js') }}', { duration: 4000 });
+                        {% endif %}
+                    }
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endfor %}

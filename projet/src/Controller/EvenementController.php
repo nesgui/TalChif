@@ -2,62 +2,52 @@
 
 namespace App\Controller;
 
+use App\Entity\Evenement;
+use App\Repository\EvenementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class EvenementController extends AbstractController
 {
+    public function __construct(
+        private EvenementRepository $evenementRepository
+    ) {
+    }
+
     #[Route('/evenements', name: 'evenement.index')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $evenements = [
-            [
-                'id' => 1,
-                'slug' => 'concert-live',
-                'titre' => 'Concert Live',
-                'image' => '/images/evenements/evenement-1.svg',
-                'ville' => 'N\'Djamena',
-                'date' => '2026-02-14 20:00',
-                'prix_simple' => 3000,
-                'prix_vip' => 10000,
-                'prix_min' => 3000,
-                'note' => 4.6,
-                'avis' => 128,
-                'badge' => 'Meilleure vente',
-            ],
-            [
-                'id' => 2,
-                'slug' => 'match-de-foot',
-                'titre' => 'Match de foot',
-                'image' => '/images/evenements/evenement-2.svg',
-                'ville' => 'Moundou',
-                'date' => '2026-02-18 16:00',
-                'prix_simple' => 2000,
-                'prix_vip' => 7000,
-                'prix_min' => 2000,
-                'note' => 4.2,
-                'avis' => 74,
-                'badge' => 'Recommandé',
-            ],
-            [
-                'id' => 3,
-                'slug' => 'soiree-urbaine',
-                'titre' => 'Soirée Urbaine',
-                'image' => '/images/evenements/evenement-3.svg',
-                'ville' => 'Sarh',
-                'date' => '2026-02-22 21:30',
-                'prix_simple' => 2500,
-                'prix_vip' => 9000,
-                'prix_min' => 2500,
-                'note' => 4.8,
-                'avis' => 203,
-                'badge' => 'Nouveau',
-            ],
-        ];
+        $search = $request->query->get('q');
+        
+        if ($search) {
+            $evenements = $this->evenementRepository->searchEvents($search);
+        } else {
+            $evenements = $this->evenementRepository->findActiveEvents();
+        }
+
+        // Transformer les entités en tableau pour le template existant
+        $evenementsArray = [];
+        foreach ($evenements as $evenement) {
+            $evenementsArray[] = [
+                'id' => $evenement->getId(),
+                'slug' => $evenement->getSlug(),
+                'titre' => $evenement->getNom(),
+                'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
+                'ville' => $evenement->getVille(),
+                'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
+                'prix_simple' => $evenement->getPrixSimple(),
+                'prix_vip' => $evenement->getPrixVip(),
+                'prix_min' => $evenement->getPrixSimple(),
+                'note' => 4.5, // TODO: Implémenter système d'avis
+                'avis' => 0, // TODO: Compter les vrais avis
+                'badge' => $this->getBadgeForEvent($evenement),
+            ];
+        }
 
         return $this->render('evenement/index.html.twig', [
-            'evenements' => $evenements,
+            'evenements' => $evenementsArray,
         ]);
     }
 
@@ -65,32 +55,71 @@ final class EvenementController extends AbstractController
         '/evenements/{slug}-{id}',
         name: 'evenement.show',
         requirements: [
-            'id' => '\\d+',
+            'id' => '\d+',
             'slug' => '[a-z0-9-]+'
         ]
     )]
     public function show(string $slug, int $id): Response
     {
-        $evenement = [
-            'id' => $id,
-            'slug' => $slug,
-            'titre' => 'Événement #' . $id,
-            'image' => '/images/evenements/evenement-' . $id . '.svg',
-            'description' => 'Description provisoire. Cette page est un prototype frontend (Twig) en attente de la logique backend.',
-            'lieu' => 'Ville + Adresse précise',
-            'date' => '2026-02-14 20:00',
-            'prix_min' => 3000,
-            'note' => 4.5,
-            'avis' => 110,
-            'badge' => 'Recommandé',
-            'types_billets' => [
-                ['code' => 'SIMPLE', 'prix' => 3000],
-                ['code' => 'VIP', 'prix' => 10000],
-            ],
+        $evenement = $this->evenementRepository->find($id);
+        
+        if (!$evenement || $evenement->getSlug() !== $slug) {
+            throw $this->createNotFoundException('Événement non trouvé');
+        }
+
+        // Transformer l'entité en tableau pour le template existant
+        $evenementArray = [
+            'id' => $evenement->getId(),
+            'slug' => $evenement->getSlug(),
+            'titre' => $evenement->getNom(),
+            'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
+            'description' => $evenement->getDescription(),
+            'lieu' => $evenement->getLieu(),
+            'adresse' => $evenement->getAdresse(),
+            'ville' => $evenement->getVille(),
+            'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
+            'prix_min' => $evenement->getPrixSimple(),
+            'note' => 4.5, // TODO: Implémenter système d'avis
+            'avis' => 0, // TODO: Compter les vrais avis
+            'badge' => $this->getBadgeForEvent($evenement),
+            'places_disponibles' => $evenement->getPlacesRestantes(),
+            'places_total' => $evenement->getPlacesDisponibles(),
+            'organisateur' => $evenement->getOrganisateur()->getFullName(),
+            'types_billets' => $this->getTicketTypes($evenement),
         ];
 
         return $this->render('evenement/show.html.twig', [
-            'evenement' => $evenement,
+            'evenement' => $evenementArray,
         ]);
+    }
+
+    private function getBadgeForEvent(Evenement $evenement): ?string
+    {
+        if ($evenement->isComplet()) {
+            return 'Complet';
+        }
+        
+        if ($evenement->getPlacesVendues() > 50) {
+            return 'Meilleure vente';
+        }
+        
+        if ($evenement->getCreatedAt() > new \DateTimeImmutable('-7 days')) {
+            return 'Nouveau';
+        }
+        
+        return 'Recommandé';
+    }
+
+    private function getTicketTypes(Evenement $evenement): array
+    {
+        $types = [
+            ['code' => 'SIMPLE', 'prix' => $evenement->getPrixSimple()],
+        ];
+
+        if ($evenement->hasVip()) {
+            $types[] = ['code' => 'VIP', 'prix' => $evenement->getPrixVip()];
+        }
+
+        return $types;
     }
 }

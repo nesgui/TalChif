@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Evenement;
+use App\Repository\EvenementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,28 +13,42 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class PanierController extends AbstractController
 {
+    public function __construct(
+        private EvenementRepository $evenementRepository
+    ) {
+    }
+
     #[Route('/panier', name: 'panier.index', methods: ['GET'])]
     public function index(SessionInterface $session): Response
     {
         $panier = $session->get('panier', []);
-        $catalogue = $this->catalogue();
 
         $lignes = [];
         $total = 0;
 
         foreach ($panier as $id => $quantite) {
-            if (!isset($catalogue[$id])) {
+            $evenement = $this->evenementRepository->find($id);
+            
+            if (!$evenement || !$evenement->isIsActive()) {
                 continue;
             }
 
-            $produit = $catalogue[$id];
-            $sousTotal = $produit['prix_min'] * $quantite;
+            $prixMin = $evenement->getPrixSimple();
+            $sousTotal = $prixMin * $quantite;
             $total += $sousTotal;
 
             $lignes[] = [
                 'id' => $id,
                 'quantite' => $quantite,
-                'produit' => $produit,
+                'produit' => [
+                    'id' => $evenement->getId(),
+                    'slug' => $evenement->getSlug(),
+                    'titre' => $evenement->getNom(),
+                    'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
+                    'prix_min' => $prixMin,
+                    'ville' => $evenement->getVille(),
+                    'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
+                ],
                 'sous_total' => $sousTotal,
             ];
         }
@@ -46,86 +62,74 @@ final class PanierController extends AbstractController
     #[Route('/panier/ajouter/{id}', name: 'panier.ajouter', requirements: ['id' => '\\d+'], methods: ['POST'])]
     public function ajouter(int $id, Request $request, SessionInterface $session): RedirectResponse
     {
-        $catalogue = $this->catalogue();
-        if (!isset($catalogue[$id])) {
-            return $this->redirectToRoute('panier.index');
+        $evenement = $this->evenementRepository->find($id);
+        
+        if (!$evenement || !$evenement->isIsActive()) {
+            $this->addFlash('error', 'Événement non disponible');
+            return $this->redirectToRoute('evenement.index');
+        }
+
+        if ($evenement->isComplet()) {
+            $this->addFlash('error', 'Cet événement est complet');
+            return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }
 
         $quantite = (int) $request->request->get('quantite', 1);
-        if ($quantite < 1) {
-            $quantite = 1;
-        }
-        if ($quantite > 10) {
-            $quantite = 10;
-        }
+        $quantite = max(1, min($quantite, $evenement->getPlacesRestantes()));
 
         $panier = $session->get('panier', []);
         $panier[$id] = ($panier[$id] ?? 0) + $quantite;
         $session->set('panier', $panier);
 
-        $redirect = (string) $request->request->get('redirect', 'panier');
+        $this->addFlash('success', 'Événement ajouté au panier');
+
+        $redirect = $request->request->get('redirect');
         if ($redirect === 'precedent') {
-            $referer = $request->headers->get('referer');
-            if ($referer) {
-                return $this->redirect($referer);
-            }
+            return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }
 
         return $this->redirectToRoute('panier.index');
     }
 
     #[Route('/panier/supprimer/{id}', name: 'panier.supprimer', requirements: ['id' => '\\d+'], methods: ['POST'])]
-    public function supprimer(int $id, Request $request, SessionInterface $session): RedirectResponse
+    public function supprimer(int $id, SessionInterface $session): RedirectResponse
     {
         $panier = $session->get('panier', []);
-        unset($panier[$id]);
-        $session->set('panier', $panier);
-
-        $referer = $request->headers->get('referer');
-        if ($referer) {
-            return $this->redirect($referer);
+        
+        if (isset($panier[$id])) {
+            unset($panier[$id]);
+            $session->set('panier', $panier);
+            $this->addFlash('success', 'Article supprimé du panier');
         }
 
         return $this->redirectToRoute('panier.index');
     }
 
     #[Route('/panier/vider', name: 'panier.vider', methods: ['POST'])]
-    public function vider(Request $request, SessionInterface $session): RedirectResponse
+    public function vider(SessionInterface $session): RedirectResponse
     {
-        $session->set('panier', []);
-
-        $referer = $request->headers->get('referer');
-        if ($referer) {
-            return $this->redirect($referer);
-        }
-
+        $session->remove('panier');
+        $this->addFlash('success', 'Panier vidé');
         return $this->redirectToRoute('panier.index');
     }
 
-    private function catalogue(): array
+    public function getNombreArticles(SessionInterface $session): int
     {
-        return [
-            1 => [
-                'id' => 1,
-                'slug' => 'concert-live',
-                'titre' => 'Concert Live',
-                'image' => '/images/evenements/evenement-1.svg',
-                'prix_min' => 3000,
-            ],
-            2 => [
-                'id' => 2,
-                'slug' => 'match-de-foot',
-                'titre' => 'Match de foot',
-                'image' => '/images/evenements/evenement-2.svg',
-                'prix_min' => 2000,
-            ],
-            3 => [
-                'id' => 3,
-                'slug' => 'soiree-urbaine',
-                'titre' => 'Soirée Urbaine',
-                'image' => '/images/evenements/evenement-3.svg',
-                'prix_min' => 2500,
-            ],
-        ];
+        return array_sum($session->get('panier', []));
+    }
+
+    public function getTotal(SessionInterface $session): int
+    {
+        $panier = $session->get('panier', []);
+        $total = 0;
+
+        foreach ($panier as $id => $quantite) {
+            $evenement = $this->evenementRepository->find($id);
+            if ($evenement && $evenement->isIsActive()) {
+                $total += $evenement->getPrixSimple() * $quantite;
+            }
+        }
+
+        return $total;
     }
 }

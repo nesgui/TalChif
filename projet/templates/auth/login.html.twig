@@ -4,30 +4,38 @@
 
 {% block body %}
 <h1 class="page-title">Connexion</h1>
-<p class="page-subtitle">Prototype UI. La sécurité Symfony sera branchée plus tard.</p>
+<p class="page-subtitle">Accédez à votre espace personnel</p>
+
+{% if error %}
+    <div class="alert alert-error">
+        {{ error.messageKey|trans(error.messageData, 'security') }}
+    </div>
+{% endif %}
 
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Se connecter</h2>
-        <p class="card-meta">Email + mot de passe</p>
+        <p class="card-meta">Entrez vos identifiants</p>
 
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Email</th>
-                    <td><span class="pill">champ</span></td>
-                </tr>
-                <tr>
-                    <th>Mot de passe</th>
-                    <td><span class="pill">champ</span></td>
-                </tr>
-            </tbody>
-        </table>
+        <form method="post" action="{{ path('auth.login') }}" class="form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" 
+                       value="{{ last_username }}" required autofocus>
+            </div>
 
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('portefeuille.index') }}">Se connecter (prototype)</a>
-            <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
-        </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+
+            <div class="card-actions">
+                <button type="submit" class="btn btn-primary">Se connecter</button>
+                <a href="{{ path('auth.register') }}" class="btn">Créer un compte</a>
+            </div>
+        </form>
     </section>
 </div>
 {% endblock %}

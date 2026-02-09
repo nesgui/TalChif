@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un événement{% endblock %}
+
+{% block body %}
+<h1 class="page-title">Créer un événement</h1>
+<p class="page-subtitle">Organisez votre événement</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Formulaire de création</h2>
+        <div class="alert alert-info">
+            <h3>📋 Fonctionnalité en cours de développement</h3>
+            <p>Le formulaire de création d'événement sera bientôt disponible.</p>
+            <p>Pour l'instant, vous pouvez utiliser les fonctionnalités de gestion existantes.</p>
+        </div>
+        
+        <div class="card-actions">
+            <a href="{{ path('organisateur_evenement.index') }}" class="btn btn-primary">Retour à mes événements</a>
+            <a href="{{ path('portefeuille.index') }}" class="btn">Mon portefeuille</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,5 +1,7 @@
 import { startStimulusApp } from '@symfony/stimulus-bundle';
 
 const app = startStimulusApp();
-// register any custom, 3rd party controllers here
-// app.register('some_controller_name', SomeImportedController);
+
+// Import and register the theme controller
+import ThemeController from './controllers/theme_controller.js';
+app.register('theme', ThemeController);

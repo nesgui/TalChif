@@ -3,33 +3,64 @@
 {% block title %}Portefeuille{% endblock %}
 
 {% block body %}
-<h1 class="page-title">Portefeuille client</h1>
-<p class="page-subtitle">Tous les billets achetés (données factices).</p>
-
-<div class="card">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Événement</th>
-                <th>Type</th>
-                <th>Statut</th>
-                <th>QR Code</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Concert Live</td>
-                <td>VIP</td>
-                <td><span class="pill">Valide</span></td>
-                <td><span class="pill">QR-XXXXX</span></td>
-            </tr>
-            <tr>
-                <td>Match de foot</td>
-                <td>SIMPLE</td>
-                <td><span class="pill">Valide</span></td>
-                <td><span class="pill">QR-YYYYY</span></td>
-            </tr>
-        </tbody>
-    </table>
+<div class="grid">
+    <section class="card">
+        <h1 class="page-title">Bienvenue, {{ app.user.prenom }} {{ app.user.nom }} !</h1>
+        <p class="page-subtitle">Votre espace personnel</p>
+        
+        <div class="user-info">
+            <h2>Informations du compte</h2>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Email</th>
+                        <td>{{ app.user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Rôle</th>
+                        <td><span class="pill">{{ app.user.role }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Téléphone</th>
+                        <td>{{ app.user.telephone ?: 'Non renseigné' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Compte vérifié</th>
+                        <td>
+                            {% if app.user.isVerified %}
+                                <span class="pill pill-success">Oui</span>
+                            {% else %}
+                                <span class="pill pill-warning">Non</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="user-actions">
+            <h2>Actions rapides</h2>
+            {% if is_granted('ROLE_ORGANISATEUR') %}
+                <div class="card-actions">
+                    <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">Créer un événement</a>
+                </div>
+            {% endif %}
+            
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="card-actions">
+                    <a href="{{ path('admin.evenement.create') }}" class="btn btn-primary">Créer un événement</a>
+                </div>
+            {% endif %}
+            
+            <div class="card-actions">
+                <a href="{{ path('panier.index') }}" class="btn">Mon panier</a>
+                <a href="{{ path('evenement.index') }}" class="btn">Voir les événements</a>
+            </div>
+            
+            <div class="card-actions">
+                <a href="{{ path('auth.logout') }}" class="btn btn-danger">Se déconnecter</a>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
