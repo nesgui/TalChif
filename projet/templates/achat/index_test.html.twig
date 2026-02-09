@@ -1,0 +1,370 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Finaliser l'achat (Test){% endblock %}
+
+{% block body %}
+<div class="purchase-header">
+    <div class="test-badge">
+        🧪 MODE TEST - Simulation Mobile Money
+    </div>
+    <h1 class="page-title">Finaliser l'achat</h1>
+    <p class="page-subtitle">Test du système de paiement Mobile Money (sans API réelle)</p>
+</div>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Votre commande</h2>
+        <p class="card-meta">Dernière vérification avant paiement simulé</p>
+
+        {% if lignes|length > 0 %}
+            <div class="panier-lignes">
+                {% for ligne in lignes %}
+                    <article class="panier-ligne">
+                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="{{ ligne.produit.titre }}" />
+                        <div class="panier-info">
+                            <div class="panier-titre">{{ ligne.produit.titre }}</div>
+                            <div class="panier-meta">
+                                <span class="pill">{{ ligne.produit.date|date('d/m') }}</span>
+                                <span class="pill">{{ ligne.produit.ville }}</span>
+                            </div>
+                            <div class="panier-details">
+                                <small>{{ ligne.produit.date|date('H:i') }} • {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
+                            </div>
+                        </div>
+                        <div class="panier-quantite">
+                            <div class="quantite-display">
+                                <span class="quantite-label">Quantité</span>
+                                <span class="quantite-value">{{ ligne.quantite }}</span>
+                            </div>
+                            <div class="panier-sous-total">
+                                <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="card-meta">Votre panier est vide.</p>
+            <div class="card-actions">
+                <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer les événements</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <aside class="card">
+        <h2 class="card-title">💳 Paiement Test</h2>
+        
+        {% if app.user %}
+            <div class="test-notice">
+                <h4>🧪 Environnement de Test</h4>
+                <p>Ceci est une simulation du paiement Mobile Money. Aucune transaction réelle ne sera effectuée.</p>
+                <ul>
+                    <li>✅ Validation du format de téléphone</li>
+                    <li>✅ Simulation de vérification de solde</li>
+                    <li>✅ Génération de billets de test</li>
+                    <li>✅ Notifications de confirmation</li>
+                </ul>
+            </div>
+
+            <form method="post" action="{{ path('achat.paiement') }}">
+                <div class="form-group">
+                    <label class="form-label">Méthode de paiement *</label>
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="methode_paiement" value="momo" checked required>
+                            <span class="payment-icon">📱</span>
+                            <div class="payment-info">
+                                <span class="payment-name">MoMo</span>
+                                <small>Mobile Money</small>
+                            </div>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="methode_paiement" value="airtel" required>
+                            <span class="payment-icon">📱</span>
+                            <div class="payment-info">
+                                <span class="payment-name">Airtel Money</span>
+                                <small>Airtel Money</small>
+                            </div>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="methode_paiement" value="orange" required>
+                            <span class="payment-icon">📱</span>
+                            <div class="payment-info">
+                                <span class="payment-name">Orange Money</span>
+                                <small>Orange Money</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="telephone">Numéro de téléphone *</label>
+                    <input type="tel" id="telephone" name="telephone" class="form-control" 
+                           placeholder="235 00 00 00 00" pattern="[0-9\s]+" required>
+                    <small class="form-help">
+                        Formats acceptés : 235 XX XX XX XX, 235XXXXXXXX, +235XXXXXXXX
+                    </small>
+                </div>
+
+                <div class="test-examples">
+                    <h4>📞 Numéros de test</h4>
+                    <div class="example-numbers">
+                        <button type="button" class="btn btn-sm" onclick="setTestNumber('235 66 01 02 03')">
+                            235 66 01 02 03
+                        </button>
+                        <button type="button" class="btn btn-sm" onclick="setTestNumber('235 99 88 77 66')">
+                            235 99 88 77 66
+                        </button>
+                        <button type="button" class="btn btn-sm" onclick="setTestNumber('+235 77 44 33 22')">
+                            +235 77 44 33 22
+                        </button>
+                    </div>
+                </div>
+
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Sous-total</th>
+                            <td>{{ total|number_format(0, '.', ' ') }} XAF</td>
+                        </tr>
+                        <tr>
+                            <th>Frais de service</th>
+                            <td>0 XAF</td>
+                        </tr>
+                        <tr class="total-row">
+                            <th>Total à payer</th>
+                            <td><strong>{{ total|number_format(0, '.', ' ') }} XAF</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card-actions">
+                    <button type="submit" class="btn btn-primary btn-large" onclick="return confirmTestPaiement()">
+                        🧪 Simuler le paiement
+                    </button>
+                    <a href="{{ path('panier.index') }}" class="btn">Retour au panier</a>
+                </div>
+            </form>
+        {% else %}
+            <div class="auth-required">
+                <p class="card-meta">🔐 Connectez-vous pour effectuer un achat</p>
+                <div class="card-actions">
+                    <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
+                    <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
+                </div>
+            </div>
+        {% endif %}
+    </aside>
+</div>
+
+<style>
+.purchase-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.test-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.test-notice {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #86efac;
+    border-radius: var(--rayon);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.test-notice h4 {
+    margin: 0 0 0.5rem 0;
+    color: #16a34a;
+}
+
+.test-notice p {
+    margin: 0 0 1rem 0;
+    color: #15803d;
+}
+
+.test-notice ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #15803d;
+}
+
+.test-notice li {
+    margin-bottom: 0.25rem;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 8px;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-method:hover {
+    border-color: var(--couleur-primaire);
+    background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
+}
+
+.payment-method input[type="radio"] {
+    margin: 0;
+}
+
+.payment-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-name {
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.payment-info small {
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.875rem;
+}
+
+.test-examples {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+}
+
+.test-examples h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.example-numbers {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.example-numbers .btn-sm {
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+
+.total-row {
+    border-top: 2px solid var(--couleur-bordure);
+    font-size: 1.1rem;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+    border-radius: var(--rayon);
+    transition: all 0.2s ease;
+}
+
+.btn-large:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.auth-required {
+    text-align: center;
+    padding: 2rem;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: var(--rayon);
+}
+
+.panier-ligne {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.panier-img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--rayon);
+}
+
+.quantite-display {
+    text-align: right;
+}
+
+.quantite-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--couleur-texte-secondaire);
+    text-transform: uppercase;
+}
+
+.quantite-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--couleur-primaire);
+}
+
+.panier-sous-total {
+    text-align: right;
+    color: var(--couleur-texte);
+    font-weight: 600;
+}
+</style>
+
+<script>
+function setTestNumber(number) {
+    document.getElementById('telephone').value = number;
+}
+
+function confirmTestPaiement() {
+    const telephone = document.getElementById('telephone').value;
+    const methode = document.querySelector('input[name="methode_paiement"]:checked').value;
+    
+    if (!telephone || !methode) {
+        alert('Veuillez remplir tous les champs');
+        return false;
+    }
+    
+    // Validation simple du numéro de téléphone
+    const cleanPhone = telephone.replace(/\s/g, '');
+    if (!/^235\d{8}$/.test(cleanPhone) && !/^\+235\d{8}$/.test(cleanPhone)) {
+        alert('Format du numéro de téléphone invalide. Utilisez un des numéros de test proposés.');
+        return false;
+    }
+    
+    return confirm(`🧪 SIMULATION DE PAIEMENT\n\nConfirmer la simulation de paiement de {{ total|number_format(0, '.', ' ') }} XAF par ${methode.toUpperCase()} ?\n\nAucune transaction réelle ne sera effectuée.`);
+}
+</script>
+{% endblock %}

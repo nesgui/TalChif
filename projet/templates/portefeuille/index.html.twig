@@ -40,24 +40,21 @@
         
         <div class="user-actions">
             <h2>Actions rapides</h2>
-            {% if is_granted('ROLE_ORGANISATEUR') %}
-                <div class="card-actions">
-                    <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">Créer un événement</a>
-                </div>
-            {% endif %}
-            
-            {% if is_granted('ROLE_ADMIN') %}
-                <div class="card-actions">
-                    <a href="{{ path('admin.evenement.create') }}" class="btn btn-primary">Créer un événement</a>
-                </div>
-            {% endif %}
-            
             <div class="card-actions">
+                <a href="{{ path('billet.index') }}" class="btn btn-primary">
+                    🎫 Mes billets
+                </a>
+                
+                {% if is_granted('ROLE_ORGANISATEUR') %}
+                    <a href="{{ path('organisateur.dashboard') }}" class="btn">Gestion des événements</a>
+                {% endif %}
+                
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin.evenement.create') }}" class="btn">Créer un événement</a>
+                {% endif %}
+                
                 <a href="{{ path('panier.index') }}" class="btn">Mon panier</a>
                 <a href="{{ path('evenement.index') }}" class="btn">Voir les événements</a>
-            </div>
-            
-            <div class="card-actions">
                 <a href="{{ path('auth.logout') }}" class="btn btn-danger">Se déconnecter</a>
             </div>
         </div>

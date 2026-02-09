@@ -1,21 +1,23 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Panier{% endblock %}
+{% block title %}Mon panier{% endblock %}
 
 {% block body %}
-<h1 class="page-title">Panier</h1>
-<p class="page-subtitle">Prototype e-commerce (stockage session). Tu pourras relier au backend/BDD plus tard.</p>
+<h1 class="page-title">Mon panier</h1>
+<p class="page-subtitle">Gérez vos billets et finalisez votre commande</p>
 
 <div class="grid">
     <section class="card">
         <div class="card-actions" style="justify-content: space-between; align-items: center;">
             <div>
-                <h2 class="card-title" style="margin: 0;">Articles</h2>
-                <p class="card-meta" style="margin: 6px 0 0;">Ajoute / supprime des articles pour simuler un panier Amazon.</p>
+                <h2 class="card-title" style="margin: 0;">Articles ({{ lignes|length }})</h2>
+                <p class="card-meta" style="margin: 6px 0 0;">Ajoutez ou supprimez des billets</p>
             </div>
-            <form method="post" action="{{ path('panier.vider') }}">
-                <button class="btn" type="submit">Vider</button>
-            </form>
+            {% if lignes|length > 0 %}
+                <form method="post" action="{{ path('panier.vider') }}">
+                    <button class="btn" type="submit" onclick="return confirm('Vider tout le panier ?')">Vider</button>
+                </form>
+            {% endif %}
         </div>
 
         {% if lignes|length > 0 %}
@@ -26,41 +28,389 @@
                         <div class="panier-info">
                             <div class="panier-titre">{{ ligne.produit.titre }}</div>
                             <div class="panier-meta">
-                                <span class="pill">Quantité: {{ ligne.quantite }}</span>
-                                <span class="pill">Prix: {{ ligne.produit.prix_min }} XAF</span>
-                                <span class="pill">Sous-total: {{ ligne.sous_total }} XAF</span>
+                                <span class="pill">{{ ligne.produit.date|date('d/m') }}</span>
+                                <span class="pill">{{ ligne.produit.ville }}</span>
+                            </div>
+                            <div class="panier-details">
+                                <small>{{ ligne.produit.date|date('H:i') }} • {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
                             </div>
                             <div class="card-actions">
-                                <a class="btn" href="{{ path('evenement.show', {slug: ligne.produit.slug, id: ligne.produit.id}) }}">Voir</a>
-                                <form method="post" action="{{ path('panier.supprimer', {id: ligne.id}) }}">
-                                    <button class="btn" type="submit">Supprimer</button>
+                                <a class="btn btn-sm" href="{{ path('evenement.show', {slug: ligne.produit.slug, id: ligne.produit.id}) }}">Voir</a>
+                                <form method="post" action="{{ path('panier.supprimer', {id: ligne.id}) }}" style="display: inline;">
+                                    <button class="btn btn-sm" type="submit" onclick="return confirm('Supprimer cet article ?')">Supprimer</button>
                                 </form>
+                            </div>
+                        </div>
+                        <div class="panier-quantite">
+                            <div class="quantite-control">
+                                <span class="quantite-label">Quantité</span>
+                                <div class="quantite-buttons">
+                                    <button class="btn btn-sm" onclick="updateQuantite({{ ligne.id }}, -1, this)">-</button>
+                                    <span class="quantite-value" data-id="{{ ligne.id }}">{{ ligne.quantite }}</span>
+                                    <button class="btn btn-sm" onclick="updateQuantite({{ ligne.id }}, 1, this)">+</button>
+                                </div>
+                            </div>
+                            <div class="panier-sous-total">
+                                <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
                             </div>
                         </div>
                     </article>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="card-meta">Ton panier est vide.</p>
-            <div class="card-actions">
-                <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer les événements</a>
+            <div class="empty-cart">
+                <div class="empty-icon">🛒</div>
+                <h3>Votre panier est vide</h3>
+                <p>Découvrez nos événements et ajoutez des billets à votre panier</p>
+                <div class="card-actions">
+                    <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer les événements</a>
+                </div>
             </div>
         {% endif %}
     </section>
 
-    <aside class="card">
-        <h2 class="card-title">Récapitulatif</h2>
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Total</th>
-                    <td><strong>{{ total }} XAF</strong></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('achat.index') }}">Passer au paiement (prototype)</a>
-        </div>
-    </aside>
+    {% if lignes|length > 0 %}
+        <aside class="card">
+            <h2 class="card-title">Récapitulatif</h2>
+            
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Sous-total</th>
+                        <td>{{ total|number_format(0, '.', ' ') }} XAF</td>
+                    </tr>
+                    <tr>
+                        <th>Frais de service</th>
+                        <td>0 XAF</td>
+                    </tr>
+                    <tr class="total-row">
+                        <th>Total</th>
+                        <td><strong>{{ total|number_format(0, '.', ' ') }} XAF</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if app.user %}
+                <div class="user-info">
+                    <p class="card-meta">Connecté en tant que <strong>{{ app.user.fullName }}</strong></p>
+                </div>
+            {% else %}
+                <div class="auth-notice">
+                    <p class="card-meta">🔐 Connectez-vous pour finaliser votre achat</p>
+                    <div class="card-actions">
+                        <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
+                        <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="card-actions">
+                {% if app.user %}
+                    <a class="btn btn-primary btn-large" href="{{ path('achat.index') }}">
+                        🚀 Finaliser la commande
+                    </a>
+                {% endif %}
+                <a class="btn" href="{{ path('evenement.index') }}">Continuer mes achats</a>
+            </div>
+
+            <div class="payment-info">
+                <h4>Moyens de paiement acceptés</h4>
+                <div class="payment-methods">
+                    <span class="payment-method">📱 MoMo</span>
+                    <span class="payment-method">📱 Airtel Money</span>
+                    <span class="payment-method">📱 Orange Money</span>
+                </div>
+            </div>
+        </aside>
+    {% endif %}
 </div>
+
+<style>
+.panier-ligne {
+    display: grid;
+    grid-template-columns: 100px 1fr 120px;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--couleur-bordure);
+    background: var(--couleur-fond);
+    border-radius: var(--rayon);
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.panier-ligne:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.panier-ligne:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.panier-img {
+    width: 100px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--rayon);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.panier-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.panier-titre {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.panier-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.panier-details {
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.875rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.panier-quantite {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+.quantite-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.quantite-label {
+    font-size: 0.75rem;
+    color: var(--couleur-texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quantite-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    padding: 0.25rem;
+}
+
+.quantite-buttons .btn-sm {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    border-radius: 4px;
+}
+
+.quantite-value {
+    min-width: 2rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--couleur-texte);
+}
+
+.panier-sous-total {
+    color: var(--couleur-primaire);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    border: 2px dashed var(--couleur-bordure);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.3;
+}
+
+.empty-cart h3 {
+    margin: 0 0 1rem 0;
+    color: var(--couleur-texte);
+}
+
+.empty-cart p {
+    margin: 0 0 2rem 0;
+    color: var(--couleur-texte-secondaire);
+}
+
+.total-row {
+    border-top: 2px solid var(--couleur-bordure);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.user-info {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--couleur-primaire), var(--couleur-secondaire));
+    color: white;
+    border-radius: var(--rayon);
+    margin-bottom: 1rem;
+}
+
+.user-info p {
+    margin: 0;
+}
+
+.auth-notice {
+    padding: 1rem;
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    border: 1px solid #f59e0b;
+    border-radius: var(--rayon);
+    margin-bottom: 1rem;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+    border-radius: var(--rayon);
+    transition: all 0.2s ease;
+}
+
+.btn-large:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.payment-info {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--couleur-bordure);
+}
+
+.payment-info h4 {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.payment-method {
+    padding: 0.5rem 1rem;
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.payment-method:hover {
+    border-color: var(--couleur-primaire);
+    background: color-mix(in srgb, var(--couleur-surface) 90%, var(--couleur-primaire) 10%);
+}
+
+@media (max-width: 768px) {
+    .panier-ligne {
+        grid-template-columns: 80px 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .panier-img {
+        width: 80px;
+        height: 60px;
+    }
+    
+    .panier-quantite {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--couleur-bordure);
+    }
+    
+    .quantite-control {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .quantite-label {
+        display: none;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .card-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+function updateQuantite(id, change, button) {
+    const quantiteElement = button.parentElement.querySelector('.quantite-value');
+    const currentQuantite = parseInt(quantiteElement.textContent);
+    const newQuantite = Math.max(1, currentQuantite + change);
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/panier/ajouter/${id}`;
+    
+    const quantiteInput = document.createElement('input');
+    quantiteInput.type = 'hidden';
+    quantiteInput.name = 'quantite';
+    quantiteInput.value = newQuantite;
+    
+    const redirectInput = document.createElement('input');
+    redirectInput.type = 'hidden';
+    redirectInput.name = 'redirect';
+    redirectInput.value = 'precedent';
+    
+    form.appendChild(quantiteInput);
+    form.appendChild(redirectInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
 {% endblock %}

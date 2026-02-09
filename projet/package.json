@@ -1,0 +1,28 @@
+{
+  "name": "projet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/styles/input.css -o ./assets/styles/app.css",
+    "watch:css": "tailwindcss -i ./assets/styles/input.css -o ./assets/styles/app.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "tailwindcss": "^4.1.18"
+  },
+  "dependencies": {
+    "datatables.net": "^2.3.7",
+    "datatables.net-buttons": "^3.2.6",
+    "datatables.net-buttons-dt": "^3.2.6",
+    "datatables.net-dt": "^2.3.7",
+    "datatables.net-responsive-dt": "^3.0.8"
+  }
+}

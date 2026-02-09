@@ -2,43 +2,95 @@
 
 {% set section = 'organisateur' %}
 
-{% block title %}Événement #{{ id }}{% endblock %}
+{% block title %}{{ evenement.nom }}{% endblock %}
 
-{% block dashboard_title %}Événement #{{ id }}{% endblock %}
+{% block dashboard_title %}{{ evenement.nom }}{% endblock %}
 
 {% block dashboard_actions %}
-    <a class="btn" href="{{ path('organisateur.evenement.index') }}">Retour</a>
+    <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.index') }}">Retour</a>
+    <a class="btn btn-sm btn-primary" href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}">Modifier</a>
+    
+    {% if evenement.placesVendues == 0 %}
+        <form method="post" action="{{ path('organisateur.evenement.delete', {id: evenement.id}) }}" style="display: inline;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')">Supprimer</button>
+        </form>
+    {% endif %}
 {% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Détail/édition UI pour l'événement #{{ id }}.</p>
+<p class="page-subtitle">Détails de l'événement</p>
 
 <div class="grid">
     <section class="card">
-        <h2 class="card-title">Informations</h2>
+        <h2 class="card-title">Informations générales</h2>
+        
+        {% if evenement.affichePrincipale %}
+            <div class="text-center mb-6">
+                <img src="{{ evenement.affichePrincipale }}" alt="{{ evenement.nom }}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+            </div>
+        {% endif %}
+        
         <table class="table">
             <tbody>
                 <tr>
                     <th>Nom</th>
-                    <td><span class="pill">champ</span></td>
+                    <td>{{ evenement.nom }}</td>
                 </tr>
                 <tr>
-                    <th>Date (jour/heure)</th>
-                    <td><span class="pill">champ</span></td>
+                    <th>Date</th>
+                    <td>{{ evenement.dateEvenement|date('d/m/Y H:i') }}</td>
                 </tr>
                 <tr>
                     <th>Lieu</th>
-                    <td><span class="pill">champ</span></td>
+                    <td>{{ evenement.lieu }}</td>
                 </tr>
                 <tr>
-                    <th>Types de billets</th>
-                    <td><span class="pill">SIMPLE / VIP</span></td>
+                    <th>Adresse</th>
+                    <td>{{ evenement.adresse }}, {{ evenement.ville }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>{{ evenement.description }}</td>
+                </tr>
+                <tr>
+                    <th>Statut</th>
+                    <td>
+                        {% if evenement.isActive and evenement.isValide %}
+                            <span class="pill pill-success">Publié</span>
+                        {% else %}
+                            <span class="pill pill-warning">Brouillon</span>
+                        {% endif %}
+                    </td>
                 </tr>
             </tbody>
         </table>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Enregistrer (prototype)</a>
-        </div>
+    </section>
+    
+    <section class="card">
+        <h2 class="card-title">Billets et prix</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Places disponibles</th>
+                    <td>{{ evenement.placesVendues }} / {{ evenement.placesDisponibles }}</td>
+                </tr>
+                <tr>
+                    <th>Places restantes</th>
+                    <td>{{ evenement.placesRestantes }}</td>
+                </tr>
+                <tr>
+                    <th>Prix billet simple</th>
+                    <td>{{ evenement.prixSimple }} XAF</td>
+                </tr>
+                {% if evenement.prixVip %}
+                <tr>
+                    <th>Prix billet VIP</th>
+                    <td>{{ evenement.prixVip }} XAF</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </section>
 </div>
 {% endblock %}

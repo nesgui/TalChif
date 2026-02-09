@@ -1,0 +1,422 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Billets - Passés{% endblock %}
+
+{% block body %}
+<div class="tickets-header">
+    <h1 class="page-title">⏰ Billets Passés</h1>
+    <p class="page-subtitle">Vos événements terminés</p>
+</div>
+
+<div class="tickets-nav">
+    <a href="{{ path('billet.index') }}" class="nav-btn">
+        📋 Tous les billets
+    </a>
+    <a href="{{ path('billet.avenir') }}" class="nav-btn">
+        📅 À venir
+    </a>
+    <a href="{{ path('billet.passes') }}" class="nav-btn active">
+        ⏰ Passés
+    </a>
+</div>
+
+{% if billets|length > 0 %}
+    <div class="past-events">
+        {% for billet in billets %}
+            <div class="past-ticket">
+                <div class="ticket-header">
+                    <img class="event-image" src="{{ billet.evenement.affichePrincipale ?: '/images/evenements/default.svg' }}" 
+                         alt="{{ billet.evenement.nom }}" />
+                    <div class="event-info">
+                        <h3 class="event-title">{{ billet.evenement.nom }}</h3>
+                        <div class="event-meta">
+                            <span class="pill">{{ billet.evenement.dateEvenement|date('d/m/Y H:i') }}</span>
+                            <span class="pill">{{ billet.evenement.ville }}</span>
+                            <span class="pill pill-{{ billet.isUtilise() ? 'used' : 'not-used' }}">
+                                {{ billet.isUtilise() ? 'Utilisé' : 'Non utilisé' }}
+                            </span>
+                        </div>
+                        <div class="event-date-info">
+                            <span class="past-label">Événement terminé</span>
+                            <span class="time-ago" data-date="{{ billet.evenement.dateEvenement|date('Y-m-d H:i') }}">
+                                Il y a quelques instants
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ticket-details">
+                    <div class="ticket-summary">
+                        <div class="ticket-qr">
+                            <div class="qr-code {{ billet.isUtilise() ? 'used' : '' }}">
+                                {{ billet.isUtilise() ? '❌' : '🎫' }}
+                                <small>{{ billet.isUtilise() ? 'Utilisé' : 'QR' }}</small>
+                            </div>
+                            <div class="qr-text">{{ billet.qrCode }}</div>
+                        </div>
+                        
+                        <div class="ticket-info">
+                            <div class="ticket-price">{{ billet.prix|number_format(0, '.', ' ') }} XAF</div>
+                            <div class="ticket-date">
+                                Acheté le {{ billet.createdAt|date('d/m/Y') }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ticket-actions">
+                        {% if not billet.isUtilise() %}
+                            <div class="not-used-notice">
+                                <small>⚠️ Billet non utilisé</small>
+                            </div>
+                        {% endif %}
+                        
+                        <a href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" 
+                           class="btn btn-sm" target="_blank">
+                            Voir le billet
+                        </a>
+                        <button class="btn btn-sm" onclick="copyQRCode('{{ billet.qrCode }}')">
+                            Copier QR
+                        </button>
+                        <a href="{{ path('evenement.show', {slug: billet.evenement.slug, id: billet.evenement.id}) }}" 
+                           class="btn btn-sm">
+                            Détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-tickets">
+        <div class="empty-icon">⏰</div>
+        <h3>Aucun billet passé</h3>
+        <p>Vous n'avez pas participé à des événements passés</p>
+        <div class="card-actions">
+            <a href="{{ path('evenement.index') }}" class="btn btn-primary">Explorer les événements</a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+.tickets-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.tickets-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    text-decoration: none;
+    color: var(--couleur-texte);
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    border-color: var(--couleur-primaire);
+    background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
+}
+
+.nav-btn.active {
+    background: var(--couleur-primaire);
+    color: white;
+    border-color: var(--couleur-primaire);
+}
+
+.past-events {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.past-ticket {
+    background: var(--couleur-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    overflow: hidden;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
+.past-ticket:hover {
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.ticket-header {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.event-image {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: var(--rayon);
+    opacity: 0.7;
+}
+
+.event-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.event-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.pill-used {
+    background: #ef4444;
+    color: white;
+}
+
+.pill-not-used {
+    background: #f59e0b;
+    color: white;
+}
+
+.event-date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.past-label {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+    font-weight: 500;
+}
+
+.time-ago {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.ticket-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    gap: 1rem;
+}
+
+.ticket-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ticket-qr {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.qr-code {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.qr-code.used {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.qr-code small {
+    font-size: 0.6rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.qr-text {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--couleur-texte);
+    opacity: 0.7;
+}
+
+.ticket-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ticket-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.ticket-date {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.ticket-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.not-used-notice {
+    color: #f59e0b;
+    font-size: 0.75rem;
+    text-align: right;
+}
+
+.empty-tickets {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--couleur-surface);
+    border: 2px dashed var(--couleur-bordure);
+    border-radius: var(--rayon);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.3;
+}
+
+.empty-tickets h3 {
+    margin: 0 0 1rem 0;
+    color: var(--couleur-texte);
+}
+
+.empty-tickets p {
+    margin: 0 0 2rem 0;
+    color: var(--couleur-texte-secondaire);
+}
+
+@media (max-width: 768px) {
+    .ticket-header {
+        grid-template-columns: 80px 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .event-image {
+        width: 80px;
+        height: 60px;
+    }
+    
+    .ticket-details {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .ticket-summary {
+        justify-content: center;
+    }
+    
+    .ticket-actions {
+        align-items: center;
+    }
+}
+</style>
+
+<script>
+function copyQRCode(qrCode) {
+    navigator.clipboard.writeText(qrCode).then(() => {
+        const notification = document.createElement('div');
+        notification.textContent = '📋 QR Code copié !';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--couleur-primaire);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--rayon);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    });
+}
+
+// Add animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+// Time ago function
+function updateTimeAgo() {
+    const timeElements = document.querySelectorAll('.time-ago');
+    
+    timeElements.forEach(element => {
+        const eventDate = new Date(element.dataset.date);
+        const now = new Date();
+        const diff = now - eventDate;
+        
+        let timeText = '';
+        
+        if (diff < 60000) { // Less than 1 minute
+            timeText = 'Il y a quelques instants';
+        } else if (diff < 3600000) { // Less than 1 hour
+            const minutes = Math.floor(diff / 60000);
+            timeText = `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
+        } else if (diff < 86400000) { // Less than 1 day
+            const hours = Math.floor(diff / 3600000);
+            timeText = `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+        } else if (diff < 2592000000) { // Less than 30 days
+            const days = Math.floor(diff / 86400000);
+            timeText = `Il y a ${days} jour${days > 1 ? 's' : ''}`;
+        } else if (diff < 31536000000) { // Less than 1 year
+            const months = Math.floor(diff / 2592000000);
+            timeText = `Il y a ${months} mois`;
+        } else {
+            const years = Math.floor(diff / 31536000000);
+            timeText = `Il y a ${years} an${years > 1 ? 's' : ''}`;
+        }
+        
+        element.textContent = timeText;
+    });
+}
+
+// Update time ago immediately and every minute
+updateTimeAgo();
+setInterval(updateTimeAgo, 60000);
+</script>
+{% endblock %}

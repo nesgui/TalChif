@@ -7,42 +7,151 @@
 {% block dashboard_title %}Mes événements{% endblock %}
 
 {% block dashboard_actions %}
-    <a class="btn btn-primary" href="{{ path('organisateur.dashboard') }}">Créer (prototype)</a>
+    <a class="btn btn-primary" href="{{ path('organisateur.evenement.create') }}">Créer un événement</a>
 {% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Espace organisateur : création/gestion des événements (UI).</p>
+<p class="page-subtitle">Espace organisateur : création/gestion des événements.</p>
 
 <div class="grid">
     <section class="card">
-        <h2 class="card-title">Liste (données factices)</h2>
-        <table class="table">
+        <h2 class="card-title">Mes événements</h2>
+        <p class="card-meta">Liste complète de vos événements avec tri, recherche et export</p>
+        
+        <table id="events-table" class="table">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Date</th>
+                    <th>Lieu</th>
                     <th>Statut</th>
-                    <th></th>
+                    <th>Places</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>101</td>
-                    <td>Concert Live</td>
-                    <td>2026-02-14 20:00</td>
-                    <td><span class="pill">Publié</span></td>
-                    <td><a class="btn" href="{{ path('organisateur.evenement.show', {id: 101}) }}">Gérer</a></td>
-                </tr>
-                <tr>
-                    <td>102</td>
-                    <td>Soirée Urbaine</td>
-                    <td>2026-02-22 21:30</td>
-                    <td><span class="pill">Brouillon</span></td>
-                    <td><a class="btn" href="{{ path('organisateur.evenement.show', {id: 102}) }}">Gérer</a></td>
-                </tr>
+                {% for evenement in evenements %}
+                    <tr>
+                        <td>{{ evenement.id }}</td>
+                        <td>{{ evenement.nom }}</td>
+                        <td>{{ evenement.dateEvenement|date('d/m/Y H:i') }}</td>
+                        <td>{{ evenement.lieu }}</td>
+                        <td>
+                            {% if evenement.isActive and evenement.isValide %}
+                                <span class="pill pill-success">Publié</span>
+                            {% else %}
+                                <span class="pill pill-warning">Brouillon</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ evenement.placesVendues }}/{{ evenement.placesDisponibles }}</td>
+                        <td>
+                            <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                            <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
+                            
+                            {% if evenement.isActive and evenement.isValide %}
+                                <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'deactivate'}) }}" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Désactiver cet événement ?')">Désactiver</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'activate'}) }}" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Activer cet événement ?')">Activer</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <p>Vous n'avez pas encore créé d'événements.</p>
+                            <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">Créer votre premier événement</a>
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser DataTables pour les événements
+    if (typeof DataTableOS !== 'undefined') {
+        DataTableOS.init('#events-table', {
+            order: [[2, 'desc']], // Tri par date (décroissant)
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: 'Excel',
+                    className: 'btn btn-sm btn-success',
+                    exportOptions: {
+                        title: 'Exporter la liste des événements en Excel'
+                    }
+                },
+                {
+                    extend: 'csv',
+                    text: 'CSV',
+                    className: 'btn btn-sm btn-info',
+                    exportOptions: {
+                        title: 'Exporter la liste des événements en CSV'
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: 'Imprimer',
+                    className: 'btn btn-sm btn-secondary',
+                    exportOptions: {
+                        title: 'Imprimer la liste des événements'
+                    }
+                }
+            ],
+            columns: [
+                { width: '60px' },
+                null,
+                { width: '150px' },
+                null,
+                null,
+                { width: '100px', orderable: false },
+                { width: '80px' },
+                { width: '150px', orderable: false }
+            ]
+        });
+    }
+});
+</script>
+
+<style>
+/* Uniformiser la taille et l'espacement des boutons dans la table */
+td form {
+    display: inline-block;
+    margin: 0 2px;
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    min-width: 80px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* S'assurer que les boutons dans les formulaires ont le même style */
+td form button {
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* Espacement entre les boutons */
+td > a, td > form {
+    margin-right: 4px;
+}
+
+td > a:last-child, td > form:last-child {
+    margin-right: 0;
+}
+</style>
 {% endblock %}

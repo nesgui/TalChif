@@ -23,10 +23,11 @@
                     <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}">Tableau de bord</a>
 
                     <details class="dashboard-group" open>
-                        <summary>Événements</summary>
+                        <summary>Gestion des événements</summary>
                         <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}">Mes événements</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Créer (prototype)</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}">Liste des événements</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}">Ajouter un événement</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Ventes effectuées</a>
                         </div>
                     </details>
 
@@ -49,6 +50,7 @@
                     <details class="dashboard-group" open>
                         <summary>Gestion</summary>
                         <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('admin.user.index') }}">Utilisateurs</a>
                             <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}">Événements</a>
                             <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}">Organisateurs</a>
                         </div>

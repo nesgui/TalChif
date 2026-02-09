@@ -1,0 +1,471 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Billets{% endblock %}
+
+{% block body %}
+<div class="tickets-header">
+    <h1 class="page-title">🎫 Mes Billets</h1>
+    <p class="page-subtitle">Gérez vos billets pour tous les événements</p>
+    
+    <div class="tickets-stats">
+        <div class="stat-card">
+            <span class="stat-number">{{ totalBillets }}</span>
+            <span class="stat-label">Total billets</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ billetsByEvenement|length }}</span>
+            <span class="stat-label">Événements</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ totalAmount|number_format(0, '.', ' ') }}</span>
+            <span class="stat-label">Total XAF</span>
+        </div>
+    </div>
+</div>
+
+<div class="tickets-nav">
+    <a href="{{ path('billet.index') }}" class="nav-btn active">
+        📋 Tous les billets
+    </a>
+    <a href="{{ path('billet.avenir') }}" class="nav-btn">
+        📅 À venir
+    </a>
+    <a href="{{ path('billet.passes') }}" class="nav-btn">
+        ⏰ Passés
+    </a>
+</div>
+
+{% if billetsByEvenement|length > 0 %}
+    <div class="events-grid">
+        {% for evenementId, data in billetsByEvenement %}
+            <div class="event-card">
+                <div class="event-header">
+                    <img class="event-image" src="{{ data.evenement.affichePrincipale ?: '/images/evenements/default.svg' }}" 
+                         alt="{{ data.evenement.nom }}" />
+                    <div class="event-info">
+                        <h3 class="event-title">{{ data.evenement.nom }}</h3>
+                        <div class="event-meta">
+                            <span class="pill">{{ data.evenement.dateEvenement|date('d/m/Y H:i') }}</span>
+                            <span class="pill">{{ data.evenement.ville }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tickets-list">
+                    <h4 class="tickets-title">{{ data.billets|length }} billet(s)</h4>
+                    
+                    {% for billet in data.billets %}
+                        <div class="ticket-item">
+                            <div class="ticket-main">
+                                <div class="ticket-qr">
+                                    <div class="qr-small">
+                                        🎫
+                                        <small>QR</small>
+                                    </div>
+                                </div>
+                                <div class="ticket-details">
+                                    <div class="ticket-code">{{ billet.qrCode }}</div>
+                                    <div class="ticket-info">
+                                        <span class="ticket-type">{{ billet.type }}</span>
+                                        <span class="ticket-price">{{ billet.prix|number_format(0, '.', ' ') }} XAF</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ticket-status">
+                                {% if billet.isUtilise() %}
+                                    <span class="status-badge used">Utilisé</span>
+                                {% else %}
+                                    <span class="status-badge valid">Valide</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="ticket-actions">
+                                <a href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" 
+                                   class="btn btn-sm" target="_blank">
+                                    Voir
+                                </a>
+                                <button class="btn btn-sm" onclick="copyQRCode('{{ billet.qrCode }}')">
+                                    Copier
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="event-footer">
+                    <div class="event-summary">
+                        <span>Total: {{ data.billets|length }} billets</span>
+                        <span>{{ data.total|number_format(0, '.', ' ') }} XAF</span>
+                    </div>
+                    <a href="{{ path('evenement.show', {slug: data.evenement.slug, id: data.evenement.id}) }}" 
+                       class="btn btn-sm">
+                        Voir l'événement
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-tickets">
+        <div class="empty-icon">🎫</div>
+        <h3>Vous n'avez pas encore de billets</h3>
+        <p>Achetez des billets pour vos événements préférés et ils apparaîtront ici</p>
+        <div class="card-actions">
+            <a href="{{ path('evenement.index') }}" class="btn btn-primary">Explorer les événements</a>
+            <a href="{{ path('panier.index') }}" class="btn">Voir mon panier</a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+.tickets-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.tickets-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1.5rem 0;
+}
+
+.stat-card {
+    background: var(--couleur-surface);
+    padding: 1rem 2rem;
+    border-radius: var(--rayon);
+    text-align: center;
+    min-width: 120px;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--couleur-primaire);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.tickets-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    text-decoration: none;
+    color: var(--couleur-texte);
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    border-color: var(--couleur-primaire);
+    background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
+}
+
+.nav-btn.active {
+    background: var(--couleur-primaire);
+    color: white;
+    border-color: var(--couleur-primaire);
+}
+
+.events-grid {
+    display: grid;
+    gap: 2rem;
+}
+
+.event-card {
+    background: var(--couleur-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.event-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.event-header {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--couleur-surface);
+}
+
+.event-image {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: var(--rayon);
+}
+
+.event-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.event-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tickets-list {
+    padding: 1.5rem;
+}
+
+.tickets-title {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.ticket-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.ticket-item:hover {
+    background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
+}
+
+.ticket-item:last-child {
+    margin-bottom: 0;
+}
+
+.ticket-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ticket-qr {
+    flex-shrink: 0;
+}
+
+.qr-small {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.qr-small small {
+    font-size: 0.6rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.ticket-details {
+    flex: 1;
+}
+
+.ticket-code {
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--couleur-texte);
+    margin-bottom: 0.25rem;
+}
+
+.ticket-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.ticket-type {
+    padding: 0.25rem 0.5rem;
+    background: var(--couleur-primaire);
+    color: white;
+    border-radius: var(--rayon);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.ticket-price {
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.ticket-status {
+    text-align: center;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--rayon);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.valid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.used {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.ticket-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.event-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--couleur-surface);
+    border-top: 1px solid var(--couleur-bordure);
+}
+
+.event-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.empty-tickets {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--couleur-surface);
+    border: 2px dashed var(--couleur-bordure);
+    border-radius: var(--rayon);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.3;
+}
+
+.empty-tickets h3 {
+    margin: 0 0 1rem 0;
+    color: var(--couleur-texte);
+}
+
+.empty-tickets p {
+    margin: 0 0 2rem 0;
+    color: var(--couleur-texte-secondaire);
+}
+
+@media (max-width: 768px) {
+    .tickets-stats {
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        min-width: 100px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .event-header {
+        grid-template-columns: 80px 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .event-image {
+        width: 80px;
+        height: 60px;
+    }
+    
+    .ticket-item {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .ticket-main {
+        order: 1;
+    }
+    
+    .ticket-status {
+        order: 2;
+        text-align: left;
+    }
+    
+    .ticket-actions {
+        order: 3;
+        justify-content: flex-start;
+    }
+    
+    .event-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+}
+</style>
+
+<script>
+function copyQRCode(qrCode) {
+    navigator.clipboard.writeText(qrCode).then(() => {
+        // Créer une notification temporaire
+        const notification = document.createElement('div');
+        notification.textContent = '📋 QR Code copié !';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--couleur-primaire);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--rayon);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    });
+}
+
+// Ajouter les animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

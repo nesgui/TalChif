@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ evenement.nom }} - Billets{% endblock %}
+
+{% block body %}
+<div class="event-billets-header">
+    <div class="event-info">
+        <h1 class="page-title">{{ evenement.nom }}</h1>
+        <div class="event-meta">
+            <span class="pill">{{ evenement.dateEvenement|date('d/m/Y H:i') }}</span>
+            <span class="pill">{{ evenement.ville }}</span>
+            <span class="pill">{{ evenement.lieu }}</span>
+        </div>
+    </div>
+    
+    <div class="stats-summary">
+        <div class="stat-card">
+            <span class="stat-number">4</span>
+            <span class="stat-label">Types de billets</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">370</span>
+            <span class="stat-label">Places totales</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Billets disponibles</h2>
+        <p class="card-meta">Gestion complète des types de billets et réservations</p>
+        
+        <div class="tickets-preview">
+            <div class="preview-info">
+                <h4>Types de billets disponibles</h4>
+                <p>Consultez la page de gestion des billets pour voir tous les types, prix, disponibilités et l'historique des réservations.</p>
+            </div>
+            
+            <div class="preview-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Types disponibles</span>
+                    <span class="stat-value">4</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Places totales</span>
+                    <span class="stat-value">370</span>
+                </div>
+            </div>
+            
+            <div class="preview-actions">
+                <a href="{{ path('event.billets', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-primary btn-large">
+                    🎫 Gérer les billets
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Historique des réservations</h2>
+        <p class="card-meta">Dernières réservations et validations</p>
+        
+        <div class="reservations-preview">
+            <div class="preview-info">
+                <h4>Historique complet</h4>
+                <p>Accédez à l'historique détaillé de toutes les réservations et validations de billets pour cet événement.</p>
+            </div>
+            
+            <div class="preview-actions">
+                <a href="{{ path('event.billets', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-secondary">
+                    📊 Voir l'historique
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.event-billets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.event-info h1 {
+    margin: 0 0 0.5rem 0;
+}
+
+.event-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.stats-summary {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-card {
+    background: var(--couleur-surface);
+    padding: 1rem 1.5rem;
+    border-radius: var(--rayon);
+    text-align: center;
+    min-width: 120px;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--couleur-primaire);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.tickets-preview {
+    background: linear-gradient(135deg, var(--couleur-surface), color-mix(in srgb, var(--couleur-primaire) 5%, var(--couleur-secondaire) 95%));
+    border: 1px solid var(--couleur-primaire);
+    border-radius: var(--rayon);
+    padding: 2rem;
+    text-align: center;
+}
+
+.preview-info {
+    margin-bottom: 1.5rem;
+}
+
+.preview-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--couleur-texte);
+}
+
+.preview-info p {
+    margin: 0 0 1rem 0;
+    color: var(--couleur-texte-secondaire);
+}
+
+.preview-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.preview-actions {
+    text-align: center;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: var(--rayon);
+    transition: all 0.2s ease;
+}
+
+.btn-large:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.reservations-preview {
+    background: linear-gradient(135deg, var(--couleur-surface), color-mix(in srgb, var(--couleur-secondaire) 95%, var(--couleur-primaire) 5%);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: 2rem;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .event-billets-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .stats-summary {
+        justify-content: center;
+    }
+    
+    .tickets-preview,
+    .reservations-preview {
+        padding: 1.5rem;
+    }
+    
+    .btn-large {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+// Animation des statistiques au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const finalValue = stat.textContent;
+        stat.textContent = '0';
+        setTimeout(() => {
+            animateValue(stat, finalValue, 1000);
+        }, 100);
+    });
+});
+
+function animateValue(element, target, duration) {
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        element.textContent = Math.floor(current);
+        
+        if (current >= target) {
+            clearInterval(timer);
+        }
+    }, 16);
+}
+</script>
+{% endblock %}

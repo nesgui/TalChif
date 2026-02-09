@@ -24,22 +24,82 @@ class NotificationService {
             persistent = false
         } = options;
 
-        const event = new CustomEvent('notification:show', {
-            detail: { type, title, message, duration, progress }
-        });
-
-        document.dispatchEvent(event);
-
-        // Retourner l'ID de la notification pour pouvoir la supprimer manuellement
-        return Date.now().toString();
+        // Créer directement la notification sans passer par les événements
+        this.createDirectNotification(type, title, message, duration, progress);
     }
 
-    hide(notificationId) {
-        const event = new CustomEvent('notification:hide', {
-            detail: { notificationId }
+    createDirectNotification(type, title, message, duration, progress) {
+        const container = document.getElementById('notifications-container');
+        if (!container) {
+            console.error('Conteneur de notifications non trouvé');
+            return;
+        }
+
+        const notification = this.createNotificationElement(type, title, message, progress);
+        container.appendChild(notification);
+        
+        // Animation d'entrée
+        requestAnimationFrame(() => {
+            notification.classList.add('notification', type);
         });
 
-        document.dispatchEvent(event);
+        // Barre de progression si nécessaire
+        if (progress) {
+            this.showProgress(notification);
+        }
+
+        // Auto-suppression
+        if (duration > 0) {
+            setTimeout(() => {
+                this.hideNotificationElement(notification);
+            }, duration);
+        }
+    }
+
+    createNotificationElement(type, title, message, progress) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+
+        notification.innerHTML = `
+            <div class="notification-header">
+                <span class="notification-icon">${icons[type] || 'ℹ️'}</span>
+                <span class="notification-title">${title}</span>
+                <button class="notification-close" onclick="this.closest('.notification').remove()">&times;</button>
+            </div>
+            <div class="notification-body">${message}</div>
+            ${progress ? '<div class="notification-progress"><div class="notification-progress-bar"></div></div>' : ''}
+        `;
+
+        return notification;
+    }
+
+    hideNotificationElement(notification) {
+        if (notification && notification.parentNode) {
+            notification.classList.add('removing');
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }
+    }
+
+    showProgress(notification) {
+        const progressBar = notification.querySelector('.notification-progress-bar');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            requestAnimationFrame(() => {
+                progressBar.style.width = '100%';
+            });
+        }
     }
 
     success(title, message, options = {}) {

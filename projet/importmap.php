@@ -16,6 +16,24 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    'styles/app' => [
+        'path' => './assets/styles/app.css',
+    ],
+    'styles/notifications' => [
+        'path' => './assets/styles/notifications.css',
+    ],
+    'styles/tailwind-forms' => [
+        'path' => './assets/styles/tailwind-forms.css',
+    ],
+    'styles/datatables' => [
+        'path' => './assets/styles/datatables.css',
+    ],
+    'services/notification_service' => [
+        'path' => './assets/services/notification_service.js',
+    ],
+    'services/datatables-service' => [
+        'path' => './assets/services/datatables-service.js',
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

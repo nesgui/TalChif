@@ -1,0 +1,176 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Créer un événement{% endblock %}
+
+{% block dashboard_title %}Créer un événement{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Création d'un nouvel événement pour la plateforme</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Informations de l'événement</h2>
+        <p class="card-meta">Remplissez tous les champs pour créer un nouvel événement</p>
+
+        {% for flash in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ flash }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'class': 'form', 'enctype': 'multipart/form-data'}}) }}
+        
+        <div class="form-group">
+            {{ form_label(form.nom) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.nom) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'rows': '4'}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateEvenement) }}
+            {{ form_widget(form.dateEvenement, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.dateEvenement) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.lieu) }}
+            {{ form_widget(form.lieu, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.lieu) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.adresse) }}
+            {{ form_widget(form.adresse, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.adresse) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.ville) }}
+            {{ form_widget(form.ville, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.ville) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.placesDisponibles) }}
+            {{ form_widget(form.placesDisponibles, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.placesDisponibles) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.prixSimple) }}
+            {{ form_widget(form.prixSimple, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.prixSimple) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.prixVip) }}
+            {{ form_widget(form.prixVip, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.prixVip) }}
+            <small class="form-help text-gray-500 text-sm mt-1">Optionnel - Laissez vide si pas de billets VIP</small>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.affichePrincipale) }}
+            {{ form_widget(form.affichePrincipale, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.affichePrincipale) }}
+            <small class="form-help text-gray-500 text-sm mt-1">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB)</small>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.autresAffiches) }}
+            {{ form_widget(form.autresAffiches, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.autresAffiches) }}
+            <small class="form-help text-gray-500 text-sm mt-1">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles</small>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.imageBillet) }}
+            {{ form_widget(form.imageBillet, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.imageBillet) }}
+            <small class="form-help text-gray-500 text-sm mt-1">Formats acceptés: JPEG, PNG, GIF, WebP (max 2MB)</small>
+        </div>
+
+        <div class="form-group">
+            <div class="form-checkbox-wrapper">
+                {{ form_widget(form.isActive, {'attr': {'class': 'form-checkbox'}}) }}
+                <label for="{{ form.isActive.vars.id }}" class="form-checkbox-label">
+                    <strong>{{ form_label(form.isActive) }}</strong>
+                    <span class="form-help">{{ form_help(form.isActive) }}</span>
+                </label>
+            </div>
+            {{ form_errors(form.isActive) }}
+        </div>
+
+        <div class="form-group">
+            <div class="form-checkbox-wrapper">
+                {{ form_widget(form.isValide, {'attr': {'class': 'form-checkbox'}}) }}
+                <label for="{{ form.isValide.vars.id }}" class="form-checkbox-label">
+                    <strong>{{ form_label(form.isValide) }}</strong>
+                    <span class="form-help">{{ form_help(form.isValide) }}</span>
+                </label>
+            </div>
+            {{ form_errors(form.isValide) }}
+        </div>
+
+        <style>
+        .form-checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: var(--couleur-surface);
+            border: 1px solid var(--couleur-bordure);
+            border-radius: var(--rayon);
+            transition: all 0.2s ease;
+        }
+
+        .form-checkbox-wrapper:hover {
+            border-color: var(--couleur-primaire);
+            background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
+        }
+
+        .form-checkbox {
+            margin: 4px 0 0 0;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--couleur-primaire);
+        }
+
+        .form-checkbox-label {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .form-checkbox-label strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--couleur-texte);
+            font-weight: 600;
+        }
+
+        .form-help {
+            display: block;
+            color: var(--couleur-texte-secondaire);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        </style>
+
+        <div class="card-actions">
+            <button type="submit" class="btn btn-primary">Créer l'événement</button>
+            <a href="{{ path('admin.evenement.index') }}" class="btn">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </section>
+</div>
+{% endblock %}

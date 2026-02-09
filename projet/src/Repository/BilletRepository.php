@@ -92,4 +92,34 @@ class BilletRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findBilletsAVenir(User $client): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.evenement', 'e')
+            ->where('b.client = :client')
+            ->andWhere('b.statutPaiement = :paid')
+            ->andWhere('e.dateEvenement > :now')
+            ->setParameter('client', $client)
+            ->setParameter('paid', 'PAYE')
+            ->setParameter('now', new \DateTime())
+            ->orderBy('e.dateEvenement', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findBilletsPasses(User $client): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.evenement', 'e')
+            ->where('b.client = :client')
+            ->andWhere('b.statutPaiement = :paid')
+            ->andWhere('e.dateEvenement <= :now')
+            ->setParameter('client', $client)
+            ->setParameter('paid', 'PAYE')
+            ->setParameter('now', new \DateTime())
+            ->orderBy('e.dateEvenement', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -8,11 +8,20 @@
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
             <link rel="stylesheet" href="{{ asset('styles/notifications.css') }}">
+            <link rel="stylesheet" href="{{ asset('styles/tailwind-forms.css') }}">
+            <link rel="stylesheet" href="{{ asset('styles/datatables.css') }}">
+            <link rel="stylesheet" href="{{ asset('styles/buttons-uniform.css') }}">
         {% endblock %}
 
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
             <script src="{{ asset('services/notification_service.js') }}" defer></script>
+            <script src="{{ asset('services/datatables-service.js') }}" defer></script>
+            <!-- Bibliothèques pour les exports DataTables -->
+            <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
         {% endblock %}
     </head>
     <body>
@@ -46,11 +55,17 @@
                 </div>
 
                 <div class="container public-drawer" aria-label="Menu">
-                    <a class="public-drawer-link" href="{{ path('auth.login') }}">Connexion</a>
-                    <a class="public-drawer-link" href="{{ path('auth.register') }}">Inscription</a>
-                    <span class="public-drawer-sep"></span>
-                    <a class="public-drawer-link" href="{{ path('organisateur.dashboard') }}">Organisateur</a>
-                    <a class="public-drawer-link" href="{{ path('admin.dashboard') }}">Admin</a>
+                    {% if app.user %}
+                        <div class="public-drawer-content">
+                            <span class="public-drawer-welcome">
+                                Bonjour {{ app.user.prenom|default(app.user.email) }}
+                            </span>
+                            <div class="public-drawer-actions">
+                                <a class="public-drawer-link" href="{{ path('portefeuille.index') }}">Mon compte</a>
+                                <a class="public-drawer-link" href="{{ path('auth.logout') }}">Déconnexion</a>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             </header>
 
@@ -99,6 +114,7 @@
                     </span>
                     <span class="public-tab-label">Portefeuille</span>
                 </a>
+                {% if not app.user %}
                 <a class="public-tab" href="{{ path('auth.login') }}">
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -108,6 +124,17 @@
                     </span>
                     <span class="public-tab-label">Compte</span>
                 </a>
+            {% else %}
+                <a class="public-tab" href="{{ path('portefeuille.index') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21a8 8 0 0 0-16 0" />
+                            <circle cx="12" cy="8" r="4" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Mon compte</span>
+                </a>
+            {% endif %}
             </nav>
         {% endblock %}
 

@@ -1,25 +1,47 @@
 {% for type, messages in app.flashes %}
     {% for message in messages %}
-        <div class="alert alert-{{ type }}">
-            {{ message }}
-        </div>
-        {% if loop.last %}
-            <script>
-                // Convertir les flash messages en notifications modernes
-                document.addEventListener('DOMContentLoaded', function() {
-                    if (window.NotificationService) {
-                        {% if type == 'success' %}
-                            NotificationService.success('Succès', '{{ message|e('js') }}', { duration: 4000 });
-                        {% elseif type == 'error' %}
-                            NotificationService.error('Erreur', '{{ message|e('js') }}', { duration: 6000 });
-                        {% elseif type == 'warning' %}
-                            NotificationService.warning('Attention', '{{ message|e('js') }}', { duration: 5000 });
-                        {% else %}
-                            NotificationService.info('Information', '{{ message|e('js') }}', { duration: 4000 });
-                        {% endif %}
-                    }
-                });
-            </script>
-        {% endif %}
+        <script>
+            // Stocker les messages flash pour les afficher plus tard
+            console.log('Flash message trouvé:', { type: '{{ type }}', message: '{{ message|e('js') }}' });
+            if (!window.flashMessages) {
+                window.flashMessages = [];
+            }
+            window.flashMessages.push({
+                type: '{{ type }}',
+                message: '{{ message|e('js') }}'
+            });
+        </script>
     {% endfor %}
 {% endfor %}
+
+<script>
+// Traitement des messages flash après chargement du service
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM chargé, traitement des messages flash...');
+    console.log('Messages flash à traiter:', window.flashMessages);
+    console.log('NotificationService disponible:', window.NotificationService);
+    
+    setTimeout(function() {
+        console.log('Tentative d\'affichage des notifications...');
+        if (window.NotificationService && window.flashMessages) {
+            console.log('NotificationService et messages disponibles, affichage...');
+            window.flashMessages.forEach(function(flash) {
+                console.log('Affichage notification:', flash);
+                if (flash.type === 'success') {
+                    NotificationService.success('Succès', flash.message, { duration: 4000 });
+                } else if (flash.type === 'error') {
+                    NotificationService.error('Erreur', flash.message, { duration: 6000 });
+                } else if (flash.type === 'warning') {
+                    NotificationService.warning('Attention', flash.message, { duration: 5000 });
+                } else {
+                    NotificationService.info('Information', flash.message, { duration: 4000 });
+                }
+            });
+            // Vider les messages après traitement
+            window.flashMessages = [];
+        } else {
+            console.log('Problème: NotificationService:', !!window.NotificationService, 'Messages:', !!window.flashMessages);
+        }
+    }, 500); // Attendre 500ms que tout soit chargé
+});
+</script>

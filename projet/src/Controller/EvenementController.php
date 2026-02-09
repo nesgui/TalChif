@@ -20,7 +20,7 @@ final class EvenementController extends AbstractController
     public function index(Request $request): Response
     {
         $search = $request->query->get('q');
-        
+
         if ($search) {
             $evenements = $this->evenementRepository->searchEvents($search);
         } else {
@@ -62,7 +62,7 @@ final class EvenementController extends AbstractController
     public function show(string $slug, int $id): Response
     {
         $evenement = $this->evenementRepository->find($id);
-        
+
         if (!$evenement || $evenement->getSlug() !== $slug) {
             throw $this->createNotFoundException('Événement non trouvé');
         }
@@ -98,15 +98,15 @@ final class EvenementController extends AbstractController
         if ($evenement->isComplet()) {
             return 'Complet';
         }
-        
+
         if ($evenement->getPlacesVendues() > 50) {
             return 'Meilleure vente';
         }
-        
+
         if ($evenement->getCreatedAt() > new \DateTimeImmutable('-7 days')) {
             return 'Nouveau';
         }
-        
+
         return 'Recommandé';
     }
 

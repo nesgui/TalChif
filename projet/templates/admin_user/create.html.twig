@@ -1,0 +1,75 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Créer un utilisateur{% endblock %}
+
+{% block dashboard_title %}Créer un utilisateur{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Création d'un nouvel utilisateur pour la plateforme</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Informations de l'utilisateur</h2>
+        <p class="card-meta">Remplissez tous les champs pour créer un nouvel utilisateur</p>
+
+        {% for flash in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ flash }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'class': 'form'}}) }}
+        
+        <div class="form-group">
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.nom) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.nom) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.prenom) }}
+            {{ form_widget(form.prenom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.prenom) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.telephone) }}
+            {{ form_widget(form.telephone, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.telephone) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.role) }}
+            {{ form_widget(form.role, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.role) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.password) }}
+            {{ form_widget(form.password, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.password) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.password_confirm) }}
+            {{ form_widget(form.password_confirm, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.password_confirm) }}
+        </div>
+
+        <div class="card-actions">
+            <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+            <a href="{{ path('admin.user.index') }}" class="btn">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </section>
+</div>
+{% endblock %}

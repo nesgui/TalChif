@@ -4,16 +4,103 @@
 
 {% block body %}
 <section class="hero">
-    <img class="hero-media" src="/images/placeholders/banniere-home.svg" alt="Bannière" />
+    <img class="hero-media" src="/images/placeholders/banniere-home.jpg" alt="Bannière" />
     <div class="hero-content">
-        <h1 class="hero-title">Trouve ton prochain événement</h1>
-        <p class="hero-subtitle">Catalogue mobile-first (prototype). Achats et panier seront connectés au backend plus tard.</p>
+        <h1 class="hero-title">Trouve ton prochain événement près de chez toi !</h1>
+        <p class="hero-subtitle">Des soirées aux festivals, tout est à portée de clic.</p>
         <div class="hero-actions">
-            <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer</a>
-            <a class="btn" href="{{ path('auth.login') }}">Se connecter</a>
+            <a class="btn btn-primary btn-xs" href="{{ path('evenement.index') }}">Explorer</a>
+            <a class="btn btn-secondary btn-xs" href="{{ path('auth.login') }}">Se connecter</a>
         </div>
     </div>
 </section>
+
+<style>
+/* Boutons ultra-compacts */
+.btn-xs {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1;
+}
+
+/* Réduction espaces bannière */
+.hero-content {
+    padding: 8px !important;
+    gap: 6px !important;
+}
+
+.hero-title {
+    margin-bottom: 2px !important;
+}
+
+.hero-subtitle {
+    margin-bottom: 4px !important;
+}
+
+/* Réduction taille image bannière */
+.hero-media {
+    max-height: 200px !important;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* Réduction hauteur bannière complète */
+.hero {
+    max-height: 280px !important;
+}
+
+/* Responsive bannière */
+@media (max-width: 768px) {
+    .hero-media {
+        max-height: 150px !important;
+    }
+    
+    .hero {
+        max-height: 220px !important;
+    }
+    
+    .hero-content {
+        padding: 6px !important;
+        gap: 4px !important;
+    }
+    
+    .hero-title {
+        font-size: 18px !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 14px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-media {
+        max-height: 120px !important;
+    }
+    
+    .hero {
+        max-height: 180px !important;
+    }
+    
+    .hero-content {
+        padding: 4px !important;
+        gap: 3px !important;
+    }
+    
+    .hero-title {
+        font-size: 16px !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 12px !important;
+    }
+    
+    .btn-xs {
+        font-size: 0.75rem !important;
+        padding: 0.1875rem 0.625rem !important;
+    }
+}
+</style>
 
 <section class="section">
     <h2 class="section-title">Accès rapide</h2>
@@ -36,60 +123,28 @@
 <section class="section">
     <h2 class="section-title">Recommandations</h2>
     <div class="catalog">
+        {% for evenement in evenements %}
         <article class="product-card">
-            <a class="product-link" href="{{ path('evenement.show', {slug: 'concert-live', id: 1}) }}">
+            <a class="product-link" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
                 <div class="product-media">
-                    <img class="product-img" src="/images/evenements/evenement-1.svg" alt="Concert Live" />
-                    <span class="product-badge">Meilleure vente</span>
+                    <img class="product-img" src="{{ evenement.image }}" alt="{{ evenement.titre }}" />
+                    <span class="product-badge">{{ evenement.badge }}</span>
                 </div>
                 <div class="product-body">
-                    <h3 class="product-title">Concert Live</h3>
+                    <h3 class="product-title">{{ evenement.titre }}</h3>
                     <div class="product-rating">
-                        <span class="stars" aria-label="Note 4.6 sur 5">
-                            <span class="stars-fill" style="width: 92%"></span>
+                        <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
+                            <span class="stars-fill" style="width: {{ (evenement.note / 5 * 100)|round }}%"></span>
                         </span>
-                        <span class="product-rating-meta">4.6 (128)</span>
+                        <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
                     </div>
-                    <div class="product-price">À partir de <strong>3 000 XAF</strong></div>
+                    <div class="product-price">À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong></div>
                 </div>
             </a>
         </article>
-        <article class="product-card">
-            <a class="product-link" href="{{ path('evenement.show', {slug: 'match-de-foot', id: 2}) }}">
-                <div class="product-media">
-                    <img class="product-img" src="/images/evenements/evenement-2.svg" alt="Match de foot" />
-                    <span class="product-badge">Recommandé</span>
-                </div>
-                <div class="product-body">
-                    <h3 class="product-title">Match de foot</h3>
-                    <div class="product-rating">
-                        <span class="stars" aria-label="Note 4.2 sur 5">
-                            <span class="stars-fill" style="width: 84%"></span>
-                        </span>
-                        <span class="product-rating-meta">4.2 (74)</span>
-                    </div>
-                    <div class="product-price">À partir de <strong>2 000 XAF</strong></div>
-                </div>
-            </a>
-        </article>
-        <article class="product-card">
-            <a class="product-link" href="{{ path('evenement.show', {slug: 'soiree-urbaine', id: 3}) }}">
-                <div class="product-media">
-                    <img class="product-img" src="/images/evenements/evenement-3.svg" alt="Soirée Urbaine" />
-                    <span class="product-badge">Nouveau</span>
-                </div>
-                <div class="product-body">
-                    <h3 class="product-title">Soirée Urbaine</h3>
-                    <div class="product-rating">
-                        <span class="stars" aria-label="Note 4.8 sur 5">
-                            <span class="stars-fill" style="width: 96%"></span>
-                        </span>
-                        <span class="product-rating-meta">4.8 (203)</span>
-                    </div>
-                    <div class="product-price">À partir de <strong>2 500 XAF</strong></div>
-                </div>
-            </a>
-        </article>
+        {% else %}
+        <p class="text-center text-gray-500">Aucun événement disponible pour le moment.</p>
+        {% endfor %}
     </div>
     <div class="section-actions">
         <a class="btn btn-primary" href="{{ path('evenement.index') }}">Voir tout</a>

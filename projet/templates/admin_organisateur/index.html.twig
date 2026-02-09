@@ -7,41 +7,125 @@
 {% block dashboard_title %}Organisateurs{% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Gestion des comptes organisateurs (prototype UI).</p>
+<p class="page-subtitle">Gestion des comptes organisateurs.</p>
 
 <div class="card">
-    <table class="table">
+    <h2 class="card-title">Liste des Organisateurs</h2>
+    <p class="card-meta">Tous les comptes organisateurs avec tri et recherche</p>
+    
+    <table id="organizers-table" class="table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
                 <th>Statut</th>
                 <th>Commission</th>
+                <th>Événements</th>
+                <th>Inscription</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>12</td>
-                <td>Organisateur Alpha</td>
-                <td><span class="pill">Actif</span></td>
+                <td>Alpha Events</td>
+                <td>alpha@osea.td</td>
+                <td>+235 12 34 56 78</td>
+                <td><span class="pill pill-success">Actif</span></td>
                 <td>10%</td>
+                <td>15</td>
+                <td>2024-01-15</td>
                 <td>
-                    <a class="btn" href="#">Bloquer (prototype)</a>
-                    <a class="btn" href="#">Commission (prototype)</a>
+                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="#" class="btn btn-sm">Modifier</a>
+                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
                 </td>
             </tr>
             <tr>
                 <td>8</td>
-                <td>Organisateur Beta</td>
-                <td><span class="pill">Actif</span></td>
+                <td>Beta Productions</td>
+                <td>beta@osea.td</td>
+                <td>+235 23 45 67 89</td>
+                <td><span class="pill pill-success">Actif</span></td>
                 <td>8%</td>
+                <td>8</td>
+                <td>2024-02-20</td>
                 <td>
-                    <a class="btn" href="#">Bloquer (prototype)</a>
-                    <a class="btn" href="#">Commission (prototype)</a>
+                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="#" class="btn btn-sm">Modifier</a>
+                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                </td>
+            </tr>
+            <tr>
+                <td>15</td>
+                <td>Gamma Concerts</td>
+                <td>gamma@osea.td</td>
+                <td>+235 34 56 78 90</td>
+                <td><span class="pill pill-warning">Inactif</span></td>
+                <td>12%</td>
+                <td>22</td>
+                <td>2024-03-10</td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="#" class="btn btn-sm">Modifier</a>
+                    <a href="#" class="btn btn-sm btn-success">Activer</a>
+                </td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Delta Shows</td>
+                <td>delta@osea.td</td>
+                <td>+235 45 67 89 01</td>
+                <td><span class="pill pill-success">Actif</span></td>
+                <td>15%</td>
+                <td>35</td>
+                <td>2023-12-05</td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="#" class="btn btn-sm">Modifier</a>
+                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                </td>
+            </tr>
+            <tr>
+                <td>20</td>
+                <td>Epsilon Events</td>
+                <td>epsilon@osea.td</td>
+                <td>+235 56 78 90 12</td>
+                <td><span class="pill pill-success">Actif</span></td>
+                <td>7%</td>
+                <td>12</td>
+                <td>2024-04-01</td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="#" class="btn btn-sm">Modifier</a>
+                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
                 </td>
             </tr>
         </tbody>
     </table>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser DataTables pour les organisateurs
+    if (typeof DataTableOS !== 'undefined') {
+        DataTableOS.init('#organizers-table', {
+            order: [[0, 'asc']], // Tri par ID
+            columns: [
+                { width: '50px' },
+                null,
+                null,
+                null,
+                { width: '80px', orderable: false },
+                { width: '80px' },
+                { width: '80px' },
+                { width: '100px' },
+                { width: '150px', orderable: false }
+            ]
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -3,40 +3,29 @@
 {% block title %}{{ evenement.titre }}{% endblock %}
 
 {% block body %}
-{% set largeur_note = (evenement.note / 5) * 100 %}
 
 <section class="product-page">
     <div class="product-hero">
         <div class="product-hero-media">
-            <img class="product-hero-img" src="{{ evenement.image }}" alt="{{ evenement.titre }}" />
-            {% if evenement.badge %}
-                <span class="product-badge">{{ evenement.badge }}</span>
-            {% endif %}
+            <img class="product-hero-img" src="{{ evenement.image ?: '/images/placeholders/banniere-home.svg' }}" alt="{{ evenement.titre }}" />
         </div>
 
         <div class="product-hero-body">
             <h1 class="page-title">{{ evenement.titre }}</h1>
             <p class="page-subtitle">
-                <span class="pill">{{ evenement.date }}</span>
+                <span class="pill">{{ evenement.date|date('d/m/Y H:i') }}</span>
                 <span class="pill">{{ evenement.lieu }}</span>
             </p>
-
-            <div class="product-rating">
-                <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
-                    <span class="stars-fill" style="width: {{ largeur_note }}%"></span>
-                </span>
-                <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
-            </div>
 
             <div class="product-price">À partir de <strong>{{ evenement.prix_min }} XAF</strong></div>
 
             <div class="card-actions">
-                <a class="btn" href="{{ path('evenement.index') }}">Retour</a>
-                <a class="btn btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
+                <a class="btn btn-sm btn-secondary" href="{{ path('evenement.index') }}">Retour</a>
+                <a class="btn btn-sm btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
                 <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}">
                     <input type="hidden" name="quantite" value="1" />
                     <input type="hidden" name="redirect" value="panier" />
-                    <button class="btn" type="submit">Ajouter au panier</button>
+                    <button class="btn btn-sm btn-success" type="submit">Ajouter au panier</button>
                 </form>
             </div>
         </div>
@@ -49,28 +38,51 @@
         </section>
 
         <section class="card">
-            <h2 class="card-title">Billets</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Prix</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for billet in evenement.types_billets %}
-                        <tr>
-                            <td>{{ billet.code }}</td>
-                            <td>{{ billet.prix }} XAF</td>
-                            <td>
-                                <a class="btn btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <h2 class="card-title">Billets disponibles</h2>
+            <p class="card-meta">Gestion complète des types de billets et réservations</p>
+            
+            <div class="tickets-preview">
+                <div class="preview-info">
+                    <h4>Types de billets disponibles</h4>
+                    <p>Consultez la page de gestion des billets pour voir tous les types, prix, disponibilités et l'historique des réservations.</p>
+                </div>
+                
+                <div class="preview-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Types disponibles</span>
+                        <span class="stat-value">2</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Places totales</span>
+                        <span class="stat-value">250</span>
+                    </div>
+                </div>
+                
+                <div class="preview-actions">
+                    <a href="{{ path('event.billets', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-primary" style="margin-left: auto;">
+                        Gérer les billets
+                    </a>
+                </div>
+            </div>
         </section>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser DataTables pour les billets
+    if (typeof DataTableOS !== 'undefined') {
+        DataTableOS.init('#tickets-table', {
+            order: [[1, 'asc']], // Tri par prix (croissant)
+            columns: [
+                { width: '80px', orderable: false },
+                null,
+                { width: '100px' },
+                { width: '120px', orderable: false },
+                { width: '150px', orderable: false }
+            ]
+        });
+    }
+});
+</script>
 {% endblock %}

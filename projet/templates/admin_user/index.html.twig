@@ -1,0 +1,92 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block dashboard_title %}Gestion des utilisateurs{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn btn-primary" href="{{ path('admin.user.create') }}">Créer un utilisateur</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Gestion des comptes utilisateurs (clients, organisateurs, administrateurs)</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Liste des utilisateurs</h2>
+        <p class="card-meta">Tous les utilisateurs inscrits sur la plateforme</p>
+        
+        <table id="users-table" class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Date d'inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.nom }}</td>
+                    <td>{{ user.prenom }}</td>
+                    <td>{{ user.telephone ?: 'Non renseigné' }}</td>
+                    <td>
+                        {% if user.role == 'CLIENT' %}
+                            <span class="pill pill-info">Client</span>
+                        {% elseif user.role == 'ORGANISATEUR' %}
+                            <span class="pill pill-success">Organisateur</span>
+                        {% elseif user.role == 'ADMIN' %}
+                            <span class="pill pill-warning">Admin</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.createdAt ? user.createdAt|date('d/m/Y') : 'N/A' }}</td>
+                    <td>
+                        <a href="{{ path('admin.user.edit', {id: user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                        {% if user != app.user %}
+                            <form method="post" action="{{ path('admin.user.delete', {id: user.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">Supprimer</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">Aucun utilisateur trouvé</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser DataTables pour les utilisateurs
+    if (typeof DataTableOS !== 'undefined') {
+        DataTableOS.init('#users-table', {
+            order: [[0, 'asc']], // Tri par ID (croissant)
+            columns: [
+                { width: '60px' },
+                null,
+                null,
+                null,
+                null,
+                { width: '120px', orderable: false },
+                { width: '120px' },
+                { width: '150px', orderable: false }
+            ]
+        });
+    }
+});
+</script>
+{% endblock %}

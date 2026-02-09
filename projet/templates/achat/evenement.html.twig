@@ -1,44 +1,283 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Achat ticket{% endblock %}
+{% block title %}Achat - {{ evenement.titre }}{% endblock %}
 
 {% block body %}
-<h1 class="page-title">Acheter un ticket</h1>
-<p class="page-subtitle">Événement #{{ id }} ({{ slug }})</p>
-
-<div class="grid">
-    <section class="card">
-        <h2 class="card-title">1) Authentification</h2>
-        <p class="card-meta">Connexion / inscription au moment de l'achat (UI).</p>
-        <div class="card-actions">
-            <a class="btn" href="{{ path('auth.login') }}">Connexion</a>
-            <a class="btn" href="{{ path('auth.register') }}">Inscription</a>
+<div class="event-purchase">
+    <div class="event-header">
+        <img class="event-image" src="{{ evenement.image }}" alt="{{ evenement.titre }}" />
+        <div class="event-info">
+            <h1 class="page-title">{{ evenement.titre }}</h1>
+            <div class="event-meta">
+                <span class="pill">{{ evenement.date|date('d/m/Y H:i') }}</span>
+                <span class="pill">{{ evenement.ville }}</span>
+                <span class="pill">{{ evenement.places_restantes }} places restantes</span>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <section class="card">
-        <h2 class="card-title">2) Sélection</h2>
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Type de billet</th>
-                    <td><span class="pill">SIMPLE / VIP</span></td>
-                </tr>
-                <tr>
-                    <th>Quantité</th>
-                    <td><span class="pill">1..N</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+    <div class="grid">
+        <section class="card">
+            <h2 class="card-title">Achat direct</h2>
+            <p class="card-meta">Ajoutez cet événement directement à votre panier</p>
 
-    <section class="card">
-        <h2 class="card-title">3) Paiement</h2>
-        <p class="card-meta">Mobile Money / Carte bancaire (UI).</p>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('portefeuille.index') }}">Payer (prototype)</a>
-            <a class="btn" href="{{ path('evenement.show', {slug: slug, id: id}) }}">Retour détails</a>
-        </div>
-    </section>
+            {% if app.user %}
+                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}">
+                    <div class="form-group">
+                        <label class="form-label">Type de billet</label>
+                        <div class="ticket-types">
+                            <label class="ticket-type">
+                                <input type="radio" name="type" value="simple" checked>
+                                <div class="ticket-info">
+                                    <strong>Simple</strong>
+                                    <span>{{ evenement.prix_simple|number_format(0, '.', ' ') }} XAF</span>
+                                </div>
+                            </label>
+                            {% if evenement.prix_vip %}
+                                <label class="ticket-type">
+                                    <input type="radio" name="type" value="vip">
+                                    <div class="ticket-info">
+                                        <strong>VIP</strong>
+                                        <span>{{ evenement.prix_vip|number_format(0, '.', ' ') }} XAF</span>
+                                    </div>
+                                </label>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="quantite">Quantité</label>
+                        <input type="number" id="quantite" name="quantite" class="form-control" 
+                               value="1" min="1" max="{{ evenement.places_restantes }}">
+                        <small class="form-help">Maximum: {{ evenement.places_restantes }} places</small>
+                    </div>
+
+                    <input type="hidden" name="redirect" value="panier">
+
+                    <div class="card-actions">
+                        <button type="submit" class="btn btn-primary">
+                            🛒 Ajouter au panier
+                        </button>
+                        <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn">
+                            Retour aux détails
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <div class="auth-required">
+                    <p class="card-meta">🔐 Connectez-vous pour acheter des billets</p>
+                    <div class="card-actions">
+                        <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
+                        <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Informations sur l'événement</h2>
+            
+            <div class="event-details">
+                <div class="detail-row">
+                    <span class="detail-icon">📅</span>
+                    <div class="detail-content">
+                        <strong>Date</strong><br>
+                        {{ evenement.date|date('d/m/Y à H:i') }}
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-icon">📍</span>
+                    <div class="detail-content">
+                        <strong>Lieu</strong><br>
+                        {{ evenement.lieu }} - {{ evenement.ville }}
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-icon">🎫</span>
+                    <div class="detail-content">
+                        <strong>Places disponibles</strong><br>
+                        {{ evenement.places_restantes }} / {{ evenement.places_restantes + (evenement.places_restantes * 0.2)|round }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-summary">
+                <h3>Tarifs</h3>
+                <div class="price-item">
+                    <span>Billet Simple</span>
+                    <strong>{{ evenement.prix_simple|number_format(0, '.', ' ') }} XAF</strong>
+                </div>
+                {% if evenement.prix_vip %}
+                    <div class="price-item">
+                        <span>Billet VIP</span>
+                        <strong>{{ evenement.prix_vip|number_format(0, '.', ' ') }} XAF</strong>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="payment-methods">
+                <h4>Moyens de paiement acceptés</h4>
+                <div class="payment-list">
+                    <span class="payment-method">📱 MoMo</span>
+                    <span class="payment-method">📱 Airtel Money</span>
+                    <span class="payment-method">📱 Orange Money</span>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
+
+<style>
+.event-purchase {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.event-header {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    background: var(--couleur-surface);
+    padding: 1.5rem;
+    border-radius: var(--rayon);
+}
+
+.event-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: var(--rayon);
+}
+
+.event-info h1 {
+    margin: 0 0 1rem 0;
+}
+
+.event-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.ticket-types {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ticket-type {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ticket-type:hover {
+    border-color: var(--couleur-primaire);
+}
+
+.ticket-type input[type="radio"] {
+    margin: 0;
+}
+
+.ticket-type input[type="radio"]:checked + .ticket-info {
+    color: var(--couleur-primaire);
+}
+
+.ticket-info strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.detail-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.detail-content strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.price-summary {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+}
+
+.price-summary h3 {
+    margin: 0 0 0.75rem 0;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.price-item:last-child {
+    border-bottom: none;
+}
+
+.payment-methods h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.payment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.payment-method {
+    padding: 0.25rem 0.5rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    font-size: 0.875rem;
+}
+
+.auth-required {
+    text-align: center;
+    padding: 2rem;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: var(--rayon);
+}
+
+@media (max-width: 768px) {
+    .event-header {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .event-image {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+}
+</style>
 {% endblock %}
