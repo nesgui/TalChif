@@ -1,0 +1,723 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}QR Codes - {{ evenement.nom }}{% endblock %}
+
+{% block body %}
+<div class="qrcodes-container">
+    <div class="qrcodes-header">
+        <h1 class="page-title">
+            <a href="{{ path('organisateur.dashboard') }}" class="back-link">← Retour</a>
+            QR Codes des billets
+        </h1>
+        <div class="event-info">
+            <h2>{{ evenement.nom }}</h2>
+            <p class="event-meta">{{ evenement.dateEvenement|date('d/m/Y H:i') }} • {{ evenement.lieu }}</p>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="filters-section">
+        <div class="filters-row">
+            <div class="filter-group">
+                <label for="search">Rechercher</label>
+                <input type="text" id="search" class="search-input" placeholder="Nom, email ou QR Code...">
+            </div>
+            <div class="filter-group">
+                <label for="type-filter">Type de billet</label>
+                <select id="type-filter" class="filter-select">
+                    <option value="">Tous</option>
+                    <option value="simple">Standard</option>
+                    <option value="vip">VIP</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="status-filter">Statut</label>
+                <select id="status-filter" class="filter-select">
+                    <option value="">Tous</option>
+                    <option value="available">Disponible</option>
+                    <option value="used">Utilisé</option>
+                </select>
+            </div>
+        </div>
+        <div class="export-section">
+            <button class="btn btn-primary" onclick="downloadAllQRs()">
+                📥 Télécharger tous les QR Codes
+            </button>
+        </div>
+    </div>
+
+    <!-- Grille des QR Codes -->
+    <div class="qrcodes-grid">
+        {% for billet in billets %}
+        <div class="qr-card" data-name="{{ billet.client.fullName|lower }}" data-email="{{ billet.client.email|lower }}" data-type="{{ billet.type }}" data-status="{{ billet.utilise ? 'used' : 'available' }}">
+            <div class="qr-header">
+                <div class="participant-info">
+                    <h3 class="participant-name">{{ billet.client.fullName }}</h3>
+                    <p class="participant-email">{{ billet.client.email }}</p>
+                </div>
+                <div class="ticket-type-badge {{ billet.type == 'vip' ? 'vip' : 'standard' }}">
+                    {{ billet.type|upper }}
+                </div>
+            </div>
+            
+            <div class="qr-body">
+                <div class="qr-code-container" data-qr="{{ billet.qrCode }}">
+                    <div class="qr-placeholder">📱</div>
+                </div>
+                <div class="qr-details">
+                    <p class="qr-code-text">{{ billet.qrCode }}</p>
+                    <div class="qr-actions">
+                        <button class="btn-small btn-view" onclick="viewQRCode('{{ billet.qrCode }}')">
+                            👁 Agrandir
+                        </button>
+                        <button class="btn-small btn-download" onclick="downloadQR('{{ billet.qrCode }}', '{{ billet.client.fullName }}')">
+                            📥 Télécharger
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="qr-footer">
+                <div class="price-info">
+                    <span class="price-amount">{{ billet.prix|number_format(0, '.', ' ') }}</span>
+                    <span class="price-currency">XAF</span>
+                </div>
+                <div class="status-info">
+                    <span class="status-badge {{ billet.utilise ? 'used' : 'available' }}">
+                        {% if billet.utilise %}
+                            ❌ Utilisé le {{ billet.dateUtilisation ? billet.dateUtilisation|date('d/m/Y H:i') : '' }}
+                        {% else %}
+                            ✅ Disponible
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📱</div>
+            <h3>Aucun QR Code trouvé</h3>
+            <p>Aucun billet n'a été vendu pour cet événement.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if totalPages > 1 %}
+    <div class="pagination">
+        {% if currentPage > 1 %}
+            <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id, page: currentPage - 1}) }}" class="page-link">←</a>
+        {% endif %}
+        
+        {% set startPage = max(1, currentPage - 2) %}
+        {% set endPage = min(totalPages, currentPage + 2) %}
+        
+        {% for page in startPage..endPage %}
+            {% if page == currentPage %}
+                <span class="page-current">{{ page }}</span>
+            {% else %}
+                <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id, page: page}) }}" class="page-link">{{ page }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if currentPage < totalPages %}
+            <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id, page: currentPage + 1}) }}" class="page-link">→</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Modal QR Code -->
+    <div id="qrModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>QR Code du billet</h3>
+                <button class="modal-close" onclick="closeQRModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="qr-display">
+                    <div id="modalQRCode" class="qr-code-large">
+                        <!-- QR Code sera généré ici -->
+                    </div>
+                    <div class="qr-info">
+                        <p class="qr-code-text" id="modalQRText"></p>
+                        <div class="qr-actions">
+                            <button class="btn btn-primary" onclick="copyQRCode()">📋 Copier</button>
+                            <button class="btn btn-secondary" onclick="downloadModalQR()">📥 Télécharger</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.qrcodes-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.qrcodes-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: #3b82f6;
+}
+
+.event-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.event-meta {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.filters-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.search-input, .filter-select {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus, .filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.export-section {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.qrcodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.qr-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+}
+
+.qr-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.qr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.participant-info h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.25rem 0;
+}
+
+.participant-email {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.ticket-type-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ticket-type-badge.standard {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.ticket-type-badge.vip {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.qr-body {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.qr-code-container {
+    width: 120px;
+    height: 120px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qr-code-container:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.qr-placeholder {
+    font-size: 2rem;
+    color: #64748b;
+}
+
+.qr-details {
+    flex: 1;
+}
+
+.qr-code-text {
+    font-family: 'Courier New', monospace;
+    background: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    word-break: break-all;
+    margin-bottom: 1rem;
+    font-size: 0.75rem;
+}
+
+.qr-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-view {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #2563eb;
+}
+
+.btn-download {
+    background: #10b981;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #059669;
+}
+
+.qr-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-info {
+    text-align: left;
+}
+
+.price-amount {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.125rem;
+}
+
+.price-currency {
+    color: #64748b;
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+.status-info {
+    text-align: right;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge.used {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-badge.available {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #64748b;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.page-link {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.page-link:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.page-current {
+    padding: 0.5rem 0.75rem;
+    background: #3b82f6;
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.modal-close:hover {
+    background: #f1f5f9;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.qr-display {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.qr-code-large {
+    width: 200px;
+    height: 200px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .qrcodes-container {
+        padding: 1rem;
+    }
+    
+    .filters-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .qrcodes-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .qr-body {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .qr-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+// Charger la bibliothèque QRCode
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
+script.onload = initializeQRCodes;
+document.head.appendChild(script);
+
+function initializeQRCodes() {
+    const containers = document.querySelectorAll('.qr-code-container');
+    
+    containers.forEach(container => {
+        const qrData = container.dataset.qr;
+        if (qrData) {
+            QRCode.toCanvas(document.createElement('canvas'), qrData, {
+                width: 100,
+                margin: 1,
+                color: {
+                    dark: '#1e293b',
+                    light: '#ffffff'
+                }
+            }, function(error, canvas) {
+                if (error) {
+                    container.innerHTML = '<div class="qr-error">❌</div>';
+                } else {
+                    container.innerHTML = '';
+                    container.appendChild(canvas);
+                }
+            });
+        }
+    });
+}
+
+// Fonctions de recherche et filtrage
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    const typeFilter = document.getElementById('type-filter');
+    const statusFilter = document.getElementById('status-filter');
+    const cards = document.querySelectorAll('.qr-card');
+
+    function filterCards() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const typeValue = typeFilter.value;
+        const statusValue = statusFilter.value;
+
+        cards.forEach(card => {
+            const name = card.dataset.name;
+            const email = card.dataset.email;
+            const type = card.dataset.type;
+            const status = card.dataset.status;
+            
+            let showCard = true;
+
+            // Filtrage par recherche
+            if (searchTerm && !name.includes(searchTerm) && !email.includes(searchTerm)) {
+                showCard = false;
+            }
+
+            // Filtrage par type
+            if (typeValue && type !== typeValue) {
+                showCard = false;
+            }
+
+            // Filtrage par statut
+            if (statusValue && status !== statusValue) {
+                showCard = false;
+            }
+            
+            card.style.display = showCard ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterCards);
+    typeFilter.addEventListener('change', filterCards);
+    statusFilter.addEventListener('change', filterCards);
+});
+
+function viewQRCode(qrCode) {
+    document.getElementById('modalQRText').textContent = qrCode;
+    document.getElementById('modalQRCode').innerHTML = '<div class="qr-loading">Génération en cours...</div>';
+    document.getElementById('qrModal').style.display = 'flex';
+
+    // Générer le QR Code en grand format
+    QRCode.toCanvas(document.createElement('canvas'), qrCode, {
+        width: 200,
+        margin: 2,
+        color: {
+            dark: '#1e293b',
+            light: '#ffffff'
+        }
+    }, function(error, canvas) {
+        if (error) {
+            document.getElementById('modalQRCode').innerHTML = '<div class="qr-error">Erreur</div>';
+        } else {
+            document.getElementById('modalQRCode').innerHTML = '';
+            document.getElementById('modalQRCode').appendChild(canvas);
+        }
+    });
+}
+
+function closeQRModal() {
+    document.getElementById('qrModal').style.display = 'none';
+}
+
+function copyQRCode() {
+    const qrText = document.getElementById('modalQRText').textContent;
+    navigator.clipboard.writeText(qrText).then(() => {
+        alert('QR Code copié dans le presse-papiers !');
+    });
+}
+
+function downloadQR(qrCode, participantName) {
+    // Créer un canvas temporaire pour le téléchargement
+    QRCode.toCanvas(document.createElement('canvas'), qrCode, {
+        width: 300,
+        margin: 3,
+        color: {
+            dark: '#1e293b',
+            light: '#ffffff'
+        }
+    }, function(error, canvas) {
+        if (error) {
+            alert('Erreur lors de la génération du QR Code');
+        } else {
+            // Convertir le canvas en image et télécharger
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `QR_Code_${participantName.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+    });
+}
+
+function downloadAllQRs() {
+    if (confirm('Télécharger tous les QR Codes des billets vendus ?')) {
+        // Simuler le téléchargement de tous les QR Codes
+        alert('Fonctionnalité de téléchargement en masse à implémenter');
+    }
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.getElementById('qrModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeQRModal();
+    }
+});
+</script>
+{% endblock %}

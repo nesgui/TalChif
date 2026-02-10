@@ -1,0 +1,665 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation des Billets{% endblock %}
+
+{% block body %}
+<section class="validation-page">
+    <div class="validation-container">
+        <div class="validation-header">
+            <h1 class="page-title">
+                <span class="title-icon">🎫</span>
+                Validation des Billets
+            </h1>
+            <p class="page-subtitle">Scannez ou saisissez le QR Code pour valider l'entrée</p>
+        </div>
+
+        <div class="validation-main">
+            <div class="scan-section">
+                <div class="scan-container">
+                    <div class="scan-area" id="scanArea">
+                        <div class="scan-frame">
+                            <div class="scan-corners">
+                                <div class="corner corner-tl"></div>
+                                <div class="corner corner-tr"></div>
+                                <div class="corner corner-bl"></div>
+                                <div class="corner corner-br"></div>
+                            </div>
+                            <div class="scan-line"></div>
+                            <div class="scan-placeholder">
+                                <div class="scan-icon">📷</div>
+                                <p>Positionnez le QR Code dans le cadre</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scan-controls">
+                        <button class="btn btn-primary btn-lg" id="startScanBtn">
+                            Démarrer le Scan
+                        </button>
+                        <button class="btn btn-secondary" id="stopScanBtn" style="display: none;">
+                            Arrêter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="manual-section">
+                <div class="manual-input">
+                    <h3 class="section-title">Saisie Manuelle</h3>
+                    <form id="manualForm" class="manual-form">
+                        <div class="form-group">
+                            <label for="qrCodeInput" class="form-label">QR Code du billet</label>
+                            <input 
+                                type="text" 
+                                id="qrCodeInput" 
+                                name="qrCode" 
+                                class="form-input" 
+                                placeholder="Ex: BILLET_ABC123_1644451200"
+                                autocomplete="off"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Valider le Billet
+                        </button>
+                    </form>
+                </div>
+
+                <div class="quick-actions">
+                    <h3 class="section-title">Actions Rapides</h3>
+                    <div class="action-grid">
+                        <a href="{{ path('validation.historique') }}" class="action-card">
+                            <div class="action-content">
+                                <h4>Historique</h4>
+                                <p>Voir les validations récentes</p>
+                            </div>
+                        </a>
+                        <a href="{{ path('admin.securite.index') }}" class="action-card">
+                            <div class="action-content">
+                                <h4>Sécurité</h4>
+                                <p>Contrôles et alertes</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de résultat -->
+        <div id="resultModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Résultat de la Validation</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Contenu dynamique -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.validation-page {
+    min-height: 100vh;
+    background: var(--couleur-fond);
+    padding: 2rem;
+}
+
+.validation-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.validation-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 2.5rem;
+    color: var(--couleur-texte);
+    margin-bottom: 0.5rem;
+}
+
+.title-icon {
+    font-size: 2.5rem;
+}
+
+.page-subtitle {
+    color: var(--couleur-texte-secondaire);
+    font-size: 1.125rem;
+}
+
+.validation-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.scan-section {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    padding: 2rem;
+    box-shadow: var(--ombre-lg);
+}
+
+.scan-container {
+    text-align: center;
+}
+
+.scan-area {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 2rem;
+    background: #000;
+    border-radius: var(--rayon);
+    overflow: hidden;
+}
+
+.scan-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.scan-corners {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+}
+
+.corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--couleur-success);
+}
+
+.corner-tl {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-tr {
+    top: 0;
+    right: 0;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-bl {
+    bottom: 0;
+    left: 0;
+    border-right: none;
+    border-top: none;
+}
+
+.corner-br {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+}
+
+.scan-line {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--couleur-success), transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% { transform: translateY(-100px); }
+    100% { transform: translateY(100px); }
+}
+
+.scan-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--couleur-texte-tertiaire);
+}
+
+.scan-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.scan-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.manual-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.manual-input {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    padding: 2rem;
+    box-shadow: var(--ombre-lg);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--couleur-texte);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    font-size: 1rem;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+    transition: all var(--transition-rapide);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.quick-actions {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    padding: 2rem;
+    box-shadow: var(--ombre-lg);
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--couleur-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    text-decoration: none;
+    color: var(--couleur-texte);
+    transition: all var(--transition-rapide);
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-md);
+    border-color: var(--couleur-primaire);
+}
+
+.action-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.action-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.action-content p {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+    margin: 0;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--ombre-xl);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--couleur-texte);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--couleur-texte-secondaire);
+    padding: 0.5rem;
+    border-radius: var(--rayon);
+    transition: all var(--transition-rapide);
+}
+
+.modal-close:hover {
+    background: var(--couleur-bordure);
+    color: var(--couleur-texte);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--couleur-bordure);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .validation-main {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .validation-page {
+        padding: 1rem;
+    }
+    
+    .scan-area {
+        width: 250px;
+        height: 250px;
+    }
+}
+
+@media (max-width: 640px) {
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .scan-controls {
+        flex-direction: column;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+}
+</style>
+
+<script>
+let isScanning = false;
+
+// Validation manuelle
+document.getElementById('manualForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const qrCode = document.getElementById('qrCodeInput').value.trim();
+    if (!qrCode) {
+        showNotification('Veuillez saisir un QR Code', 'error');
+        return;
+    }
+    
+    await validateBillet(qrCode);
+});
+
+// Scan simulation
+document.getElementById('startScanBtn').addEventListener('click', function() {
+    startScan();
+});
+
+document.getElementById('stopScanBtn').addEventListener('click', function() {
+    stopScan();
+});
+
+function startScan() {
+    isScanning = true;
+    document.getElementById('startScanBtn').style.display = 'none';
+    document.getElementById('stopScanBtn').style.display = 'inline-flex';
+    document.querySelector('.scan-placeholder').innerHTML = `
+        <div class="scan-icon">📷</div>
+        <p>Scan en cours...</p>
+    `;
+    
+    // Simuler un scan après 3 secondes
+    setTimeout(() => {
+        if (isScanning) {
+            simulateScan();
+        }
+    }, 3000);
+}
+
+function stopScan() {
+    isScanning = false;
+    document.getElementById('startScanBtn').style.display = 'inline-flex';
+    document.getElementById('stopScanBtn').style.display = 'none';
+    document.querySelector('.scan-placeholder').innerHTML = `
+        <div class="scan-icon">📷</div>
+        <p>Positionnez le QR Code dans le cadre</p>
+    `;
+}
+
+function simulateScan() {
+    // Simuler un QR Code scanné
+    const testCodes = [
+        'BILLET_SIMPLE_1644451200',
+        'BILLET_VIP_1644451201',
+        'TEST_QR_1234567890'
+    ];
+    
+    const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
+    document.getElementById('qrCodeInput').value = randomCode;
+    
+    stopScan();
+    validateBillet(randomCode);
+}
+
+async function validateBillet(qrCode) {
+    try {
+        const response = await fetch('/api/validation/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `qrCode=${encodeURIComponent(qrCode)}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showResultModal('success', data);
+        } else {
+            showResultModal('error', data);
+        }
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Erreur de connexion au serveur', 'error');
+    }
+}
+
+function showResultModal(type, data) {
+    const modal = document.getElementById('resultModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    
+    if (type === 'success') {
+        modalTitle.innerHTML = '✅ Validation Réussie';
+        modalTitle.style.color = 'var(--couleur-success)';
+        
+        modalBody.innerHTML = `
+            <div class="success-content">
+                <div class="success-icon">✅</div>
+                <h4>Billet Validé</h4>
+                <div class="billet-info">
+                    <p><strong>QR Code:</strong> ${data.billet.qrCode}</p>
+                    <p><strong>Type:</strong> ${data.billet.type}</p>
+                    <p><strong>Événement:</strong> ${data.billet.evenement.nom}</p>
+                    <p><strong>Client:</strong> ${data.billet.client}</p>
+                    <p><strong>Prix:</strong> ${data.billet.prix.toLocaleString()} XAF</p>
+                    <p><strong>Date validation:</strong> ${data.billet.dateValidation}</p>
+                </div>
+            </div>
+        `;
+    } else {
+        modalTitle.innerHTML = '❌ Validation Échouée';
+        modalTitle.style.color = 'var(--couleur-error)';
+        
+        let errorMessage = data.message;
+        let errorDetails = '';
+        
+        if (data.billet) {
+            errorDetails = `
+                <div class="billet-info">
+                    <p><strong>QR Code:</strong> ${data.billet.qrCode}</p>
+                    <p><strong>Type:</strong> ${data.billet.type || 'N/A'}</p>
+                    ${data.billet.evenement ? `<p><strong>Événement:</strong> ${data.billet.evenement}</p>` : ''}
+                    ${data.billet.client ? `<p><strong>Client:</strong> ${data.billet.client}</p>` : ''}
+                    ${data.billet.dateUtilisation ? `<p><strong>Date utilisation:</strong> ${data.billet.dateUtilisation}</p>` : ''}
+                </div>
+            `;
+        }
+        
+        modalBody.innerHTML = `
+            <div class="error-content">
+                <div class="error-icon">❌</div>
+                <h4>${errorMessage}</h4>
+                ${errorDetails}
+            </div>
+        `;
+    }
+    
+    modal.style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('resultModal').style.display = 'none';
+    document.getElementById('qrCodeInput').value = '';
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.getElementById('resultModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+// Notification système
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'success' ? 'var(--couleur-success)' : type === 'error' ? 'var(--couleur-error)' : 'var(--couleur-primaire)'};
+        color: white;
+        border-radius: var(--rayon);
+        box-shadow: var(--ombre-lg);
+        z-index: 2000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .success-content, .error-content {
+        text-align: center;
+    }
+    
+    .success-icon, .error-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .billet-info {
+        background: var(--couleur-fond);
+        border-radius: var(--rayon);
+        padding: 1rem;
+        margin-top: 1rem;
+        text-align: left;
+    }
+    
+    .billet-info p {
+        margin: 0.5rem 0;
+        font-size: 0.875rem;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

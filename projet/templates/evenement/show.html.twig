@@ -17,7 +17,7 @@
                 <span class="pill">{{ evenement.lieu }}</span>
             </p>
 
-            <div class="product-price">À partir de <strong>{{ evenement.prix_min }} XAF</strong></div>
+            <div class="product-price">À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong></div>
 
             <div class="card-actions">
                 <a class="btn btn-sm btn-secondary" href="{{ path('evenement.index') }}">Retour</a>
@@ -40,13 +40,13 @@
         <section class="card">
             <h2 class="card-title">Billets disponibles</h2>
             <p class="card-meta">Gestion complète des types de billets et réservations</p>
-            
+
             <div class="tickets-preview">
                 <div class="preview-info">
                     <h4>Types de billets disponibles</h4>
                     <p>Consultez la page de gestion des billets pour voir tous les types, prix, disponibilités et l'historique des réservations.</p>
                 </div>
-                
+
                 <div class="preview-stats">
                     <div class="stat-item">
                         <span class="stat-label">Types disponibles</span>
@@ -57,10 +57,10 @@
                         <span class="stat-value">250</span>
                     </div>
                 </div>
-                
+
                 <div class="preview-actions">
-                    <a href="{{ path('event.billets', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-primary" style="margin-left: auto;">
-                        Gérer les billets
+                    <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-outline">
+                        Voir dans le dashboard
                     </a>
                 </div>
             </div>

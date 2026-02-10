@@ -1,0 +1,450 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques - {{ evenement.nom }}{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="page-title">
+            <a href="{{ path('organisateur.dashboard') }}" class="back-link">← Retour</a>
+            Statistiques de l'événement
+        </h1>
+        <div class="event-info">
+            <h2>{{ evenement.nom }}</h2>
+            <p class="event-meta">{{ evenement.dateEvenement|date('d/m/Y H:i') }} • {{ evenement.lieu }}</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <!-- Carte principale -->
+        <div class="stat-card main">
+            <div class="stat-header">
+                <h3>📊 Vue d'ensemble</h3>
+            </div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ stats.billets_vendus }}</span>
+                    <span class="label">billets vendus</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ stats.taux_remplissage }}%"></div>
+                    <span class="progress-text">{{ stats.taux_remplissage }}% rempli</span>
+                </div>
+                <div class="remaining-places">
+                    <span class="places-count">{{ stats.billets_restants }}</span>
+                    <span class="places-label">places restantes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte revenus -->
+        <div class="stat-card revenue">
+            <div class="stat-header">
+                <h3>💰 Revenus générés</h3>
+            </div>
+            <div class="stat-content">
+                <div class="revenue-row">
+                    <span class="revenue-label">Brut:</span>
+                    <span class="revenue-amount gross">{{ stats.revenus_bruts|number_format(0, '.', ' ') }} XAF</span>
+                </div>
+                <div class="revenue-row">
+                    <span class="revenue-label">Net (après commission):</span>
+                    <span class="revenue-amount net">{{ stats.revenus_nets|number_format(0, '.', ' ') }} XAF</span>
+                </div>
+                <div class="commission-info">
+                    <span class="commission-text">Commission admin (10%): {{ (stats.revenus_bruts - stats.revenus_nets)|number_format(0, '.', ' ') }} XAF</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte types de billets -->
+        <div class="stat-card ticket-types">
+            <div class="stat-header">
+                <h3>🎫 Billets par type</h3>
+            </div>
+            <div class="stat-content">
+                <div class="ticket-type-row">
+                    <div class="type-info">
+                        <span class="type-name">Standard</span>
+                        <span class="type-count">{{ stats.billets_simple }}</span>
+                    </div>
+                    <div class="type-percentage">
+                        {% set simple_percentage = stats.total_billets > 0 ? (stats.billets_simple / stats.total_billets * 100)|round : 0 %}
+                        <div class="percentage-bar">
+                            <div class="percentage-fill" style="width: {{ simple_percentage }}%"></div>
+                        </div>
+                        <span class="percentage-text">{{ simple_percentage }}%</span>
+                    </div>
+                </div>
+                <div class="ticket-type-row">
+                    <div class="type-info">
+                        <span class="type-name">VIP</span>
+                        <span class="type-count">{{ stats.billets_vip }}</span>
+                    </div>
+                    <div class="type-percentage">
+                        {% set vip_percentage = stats.total_billets > 0 ? (stats.billets_vip / stats.total_billets * 100)|round : 0 %}
+                        <div class="percentage-bar">
+                            <div class="percentage-fill vip" style="width: {{ vip_percentage }}%"></div>
+                        </div>
+                        <span class="percentage-text">{{ vip_percentage }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="actions-section">
+        <h3 class="section-title">🛠️ Outils disponibles</h3>
+        <div class="actions-grid">
+            <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="action-card">
+                <div class="action-icon">👥</div>
+                <div class="action-content">
+                    <h4>Liste des participants</h4>
+                    <p>Noms, emails, types de billets</p>
+                </div>
+            </a>
+            <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id}) }}" class="action-card">
+                <div class="action-icon">📱</div>
+                <div class="action-content">
+                    <h4>QR Codes</h4>
+                    <p>Téléchargement et visualisation</p>
+                </div>
+            </a>
+            <a href="{{ path('organisateur.evenement.export', {id: evenement.id}) }}" class="action-card">
+                <div class="action-icon">📥</div>
+                <div class="action-content">
+                    <h4>Exporter les participants</h4>
+                    <p>Télécharger en CSV</p>
+                </div>
+            </a>
+            <a href="{{ path('organisateur.evenement.performance', {id: evenement.id}) }}" class="action-card">
+                <div class="action-icon">📈</div>
+                <div class="action-content">
+                    <h4>Performance</h4>
+                    <p>Statistiques détaillées</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: #3b82f6;
+}
+
+.event-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.event-meta {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #f1f5f9;
+}
+
+.stat-card.main {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-card.main .stat-header h3 {
+    color: white;
+}
+
+.big-number {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.big-number .number {
+    display: block;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.big-number .label {
+    display: block;
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+.progress-bar {
+    background: rgba(255,255,255,0.2);
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #10b981;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.remaining-places {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.places-count {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.places-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.revenue-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.revenue-row:last-child {
+    border-bottom: none;
+}
+
+.revenue-label {
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.revenue-amount {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.revenue-amount.gross {
+    color: #fbbf24;
+}
+
+.revenue-amount.net {
+    color: #10b981;
+}
+
+.commission-info {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.ticket-type-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.ticket-type-row:last-child {
+    border-bottom: none;
+}
+
+.type-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.type-name {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.type-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.type-percentage {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.percentage-bar {
+    width: 60px;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.percentage-fill {
+    height: 100%;
+    background: #3b82f6;
+    transition: width 0.3s ease;
+}
+
+.percentage-fill.vip {
+    background: #f59e0b;
+}
+
+.percentage-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.actions-section {
+    margin-top: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+.action-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.action-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.action-content p {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card.main {
+        grid-column: span 1;
+    }
+    
+    .page-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

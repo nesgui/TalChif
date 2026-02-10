@@ -62,6 +62,9 @@
                             </span>
                             <div class="public-drawer-actions">
                                 <a class="public-drawer-link" href="{{ path('portefeuille.index') }}">Mon compte</a>
+                                {% if is_granted('ROLE_ORGANISATEUR') %}
+                                    <a class="public-drawer-link" href="{{ path('validation.index') }}">🎫 Validation</a>
+                                {% endif %}
                                 <a class="public-drawer-link" href="{{ path('auth.logout') }}">Déconnexion</a>
                             </div>
                         </div>

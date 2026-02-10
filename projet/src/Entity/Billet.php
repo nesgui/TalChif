@@ -53,6 +53,10 @@ class Billet
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $transactionId = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $validePar = null;
+
     #[ORM\Column(length: 50)]
     private ?string $statutPaiement = 'EN_ATTENTE'; // EN_ATTENTE, PAYE, REMBOURSE
 
@@ -264,6 +268,25 @@ class Billet
     {
         $this->statutPaiement = 'PAYE';
         $this->isValide = true;
+    }
+
+    public function getValidePar(): ?User
+    {
+        return $this->validePar;
+    }
+
+    public function setValidePar(?User $validePar): static
+    {
+        $this->validePar = $validePar;
+
+        return $this;
+    }
+
+    public function setUtilise(bool $utilise): static
+    {
+        $this->isUtilise = $utilise;
+
+        return $this;
     }
 
     public function annuler(): void

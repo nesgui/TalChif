@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">
+  <!-- Background -->
+  <rect width="400" height="200" fill="#059669"/>
+  
+  <!-- Ticket border -->
+  <rect x="10" y="10" width="380" height="180" fill="none" stroke="#10b981" stroke-width="2" rx="10"/>
+  
+  <!-- Left section -->
+  <rect x="20" y="20" width="200" height="160" fill="#f0fdf4" rx="5"/>
+  
+  <!-- Sport icon -->
+  <circle cx="120" cy="60" r="20" fill="#10b981"/>
+  <circle cx="120" cy="60" r="15" fill="none" stroke="white" stroke-width="2"/>
+  <circle cx="120" cy="60" r="5" fill="white"/>
+  
+  <!-- Title -->
+  <text x="120" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#059669">SPORT</text>
+  <text x="120" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#64748b">TICKET</text>
+  
+  <!-- Right section -->
+  <rect x="230" y="20" width="150" height="160" fill="#10b981" rx="5"/>
+  
+  <!-- QR Code placeholder -->
+  <rect x="250" y="40" width="110" height="110" fill="white" rx="5"/>
+  <rect x="260" y="50" width="90" height="90" fill="#059669" rx="3"/>
+  
+  <!-- QR Code pattern -->
+  <rect x="270" y="60" width="10" height="10" fill="white"/>
+  <rect x="285" y="60" width="10" height="10" fill="white"/>
+  <rect x="300" y="60" width="10" height="10" fill="white"/>
+  <rect x="315" y="60" width="10" height="10" fill="white"/>
+  <rect x="330" y="60" width="10" height="10" fill="white"/>
+  
+  <rect x="270" y="75" width="10" height="10" fill="white"/>
+  <rect x="285" y="75" width="10" height="10" fill="#059669"/>
+  <rect x="300" y="75" width="10" height="10" fill="white"/>
+  <rect x="315" y="75" width="10" height="10" fill="#059669"/>
+  <rect x="330" y="75" width="10" height="10" fill="white"/>
+  
+  <rect x="270" y="90" width="10" height="10" fill="white"/>
+  <rect x="285" y="90" width="10" height="10" fill="white"/>
+  <rect x="300" y="90" width="10" height="10" fill="#059669"/>
+  <rect x="315" y="90" width="10" height="10" fill="white"/>
+  <rect x="330" y="90" width="10" height="10" fill="white"/>
+  
+  <rect x="270" y="105" width="10" height="10" fill="white"/>
+  <rect x="285" y="105" width="10" height="10" fill="#059669"/>
+  <rect x="300" y="105" width="10" height="10" fill="white"/>
+  <rect x="315" y="105" width="10" height="10" fill="#059669"/>
+  <rect x="330" y="105" width="10" height="10" fill="white"/>
+  
+  <rect x="270" y="120" width="10" height="10" fill="white"/>
+  <rect x="285" y="120" width="10" height="10" fill="white"/>
+  <rect x="300" y="120" width="10" height="10" fill="white"/>
+  <rect x="315" y="120" width="10" height="10" fill="white"/>
+  <rect x="330" y="120" width="10" height="10" fill="white"/>
+</svg>

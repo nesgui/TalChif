@@ -1,45 +1,618 @@
-{% extends 'layout/dashboard.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% set section = 'organisateur' %}
+{% block title %}Tableau de bord Organisateur{% endblock %}
 
-{% block title %}Dashboard organisateur{% endblock %}
+{% block body %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="page-title">Tableau de bord Organisateur</h1>
+        <p class="page-subtitle">Gérez vos événements et suivez vos performances</p>
+    </div>
 
-{% block dashboard_title %}Dashboard organisateur{% endblock %}
-
-{% block dashboard_content %}
-<p class="page-subtitle">Suivi des ventes et pilotage (données factices).</p>
-
-<div class="grid">
-    <section class="card">
-        <h2 class="card-title">Aperçu</h2>
-        <p class="card-meta">
-            <span class="pill">Billets vendus: 128</span>
-            <span class="pill">Revenu brut: 1 250 000 XAF</span>
-            <span class="pill">Places restantes: 342</span>
-        </p>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('organisateur.evenement.index') }}">Gérer mes événements</a>
+    <!-- Statistiques globales -->
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <div class="stat-header">
+                <h3>📊 Événements</h3>
+            </div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ stats.total_evenements }}</span>
+                    <span class="label">événements créés</span>
+                </div>
+                <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-small">+ Créer un événement</a>
+            </div>
         </div>
-    </section>
 
-    <section class="card">
-        <h2 class="card-title">Outils (UI)</h2>
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Export participants</th>
-                    <td><span class="pill">Prototype</span></td>
-                </tr>
-                <tr>
-                    <th>QR Codes billets vendus</th>
-                    <td><span class="pill">Prototype</span></td>
-                </tr>
-                <tr>
-                    <th>Statistiques performance</th>
-                    <td><span class="pill">Prototype</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+        <div class="stat-card success">
+            <div class="stat-header">
+                <h3>🎫 Billets vendus</h3>
+            </div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ stats.total_billets_vendus }}</span>
+                    <span class="label">billets vendus</span>
+                </div>
+                <div class="trend-indicator">
+                    <span class="trend-text">Total toutes catégories</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card revenue">
+            <div class="stat-header">
+                <h3>💰 Revenus</h3>
+            </div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ stats.total_revenus|number_format(0, '.', ' ') }}</span>
+                    <span class="label">XAF générés</span>
+                </div>
+                <div class="trend-indicator">
+                    <span class="trend-text">Revenus totaux</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-header">
+                <h3>📅 À venir</h3>
+            </div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ stats.billets_a_venir }}</span>
+                    <span class="label">billets à venir</span>
+                </div>
+                <div class="trend-indicator">
+                    <span class="trend-text">Événements futurs</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des événements -->
+    <div class="events-section">
+        <div class="section-header">
+            <h2 class="section-title">Vos événements</h2>
+            <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
+                ➕ Créer un événement
+            </a>
+        </div>
+
+        <div class="events-grid">
+            {% for evenement in evenements %}
+            <div class="event-card">
+                <div class="event-image">
+                    {% if evenement.affichePrincipale %}
+                        <img src="{{ evenement.affichePrincipale }}" alt="{{ evenement.nom }}" />
+                    {% else %}
+                        <div class="event-placeholder">
+                            <span>📅</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="event-content">
+                    <div class="event-header">
+                        <h3 class="event-title">{{ evenement.nom }}</h3>
+                        <div class="event-status">
+                            {% if evenement.isActive and evenement.isValide %}
+                                <span class="status-badge active">✅ Actif</span>
+                            {% else %}
+                                <span class="status-badge inactive">⏸️ Inactif</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="event-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span class="meta-text">{{ evenement.dateEvenement|date('d/m/Y H:i') }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            <span class="meta-text">{{ evenement.lieu }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">💰</span>
+                            <span class="meta-text">{{ evenement.prixSimple|number_format(0, '.', ' ') }} XAF</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">{{ evenement.placesVendues ?? 0 }}</span>
+                            <span class="stat-label">vendus</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">{{ evenement.placesDisponibles - (evenement.placesVendues ?? 0) }}</span>
+                            <span class="stat-label">disponibles</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-actions">
+                        <a href="{{ path('organisateur.evenement.stats', {id: evenement.id}) }}" class="btn btn-small btn-outline">
+                            📊 Statistiques
+                        </a>
+                        <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-small btn-outline">
+                            ✏️ Modifier
+                        </a>
+                        <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="btn btn-small btn-outline">
+                            👥 Participants
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <h3>Aucun événement</h3>
+                <p>Commencez par créer votre premier événement</p>
+                <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
+                    ➕ Créer un événement
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="quick-actions">
+        <h2 class="section-title">Actions rapides</h2>
+        <div class="actions-grid">
+            <a href="{{ path('organisateur.evenement.create') }}" class="action-card">
+                <div class="action-icon">➕</div>
+                <div class="action-content">
+                    <h4>Créer un événement</h4>
+                    <p>Ajouter un nouvel événement</p>
+                </div>
+            </a>
+            
+            <a href="{{ path('validation.index') }}" class="action-card">
+                <div class="action-icon">📱</div>
+                <div class="action-content">
+                    <h4>Scanner QR Codes</h4>
+                    <p>Valider les billets</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card" onclick="alert('Rapports à implémenter')">
+                <div class="action-icon">📊</div>
+                <div class="action-content">
+                    <h4>Rapports</h4>
+                    <p>Exporter des rapports</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card" onclick="alert('Paramètres à implémenter')">
+                <div class="action-icon">⚙️</div>
+                <div class="action-content">
+                    <h4>Paramètres</h4>
+                    <p>Configurer votre compte</p>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
+
+<style>
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--espace-lg);
+}
+
+.dashboard-header {
+    margin-bottom: var(--espace-xl);
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--couleur-texte);
+    margin: 0 0 var(--espace-sm) 0;
+}
+
+.page-subtitle {
+    color: var(--couleur-texte-secondaire);
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--espace-lg);
+    margin-bottom: var(--espace-xl);
+}
+
+.stat-card {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    padding: var(--espace-lg);
+    border: 1px solid var(--couleur-bordure);
+    box-shadow: var(--ombre-md);
+    transition: all var(--transition-normale);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-lg);
+}
+
+.stat-card.primary {
+    background: var(--couleur-primaire);
+    color: var(--couleur-texte-inverse);
+}
+
+.stat-card.success {
+    background: var(--couleur-success);
+    color: var(--couleur-texte-inverse);
+}
+
+.stat-card.revenue {
+    background: var(--couleur-warning);
+    color: var(--couleur-texte-inverse);
+}
+
+.stat-card.info {
+    background: var(--couleur-info);
+    color: var(--couleur-texte-inverse);
+}
+
+.stat-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 var(--espace-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--espace-sm);
+}
+
+.stat-card.primary .stat-header h3,
+.stat-card.success .stat-header h3,
+.stat-card.revenue .stat-header h3,
+.stat-card.info .stat-header h3 {
+    color: var(--couleur-texte-inverse);
+}
+
+.big-number {
+    text-align: center;
+    margin-bottom: var(--espace-md);
+}
+
+.big-number .number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.big-number .label {
+    display: block;
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-top: var(--espace-xs);
+}
+
+.trend-indicator {
+    text-align: center;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.btn-small {
+    padding: var(--espace-sm) var(--espace-md);
+    border: none;
+    border-radius: var(--rayon-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all var(--transition-rapide);
+}
+
+.btn-small:hover {
+    transform: translateY(-1px);
+}
+
+.stat-card.primary .btn-small,
+.stat-card.success .btn-small,
+.stat-card.revenue .btn-small,
+.stat-card.info .btn-small {
+    background: rgba(255,255,255,0.2);
+    color: var(--couleur-texte-inverse);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.stat-card.primary .btn-small:hover,
+.stat-card.success .btn-small:hover,
+.stat-card.revenue .btn-small:hover,
+.stat-card.info .btn-small:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.events-section {
+    margin-bottom: var(--espace-xl);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--espace-lg);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin: 0;
+}
+
+.btn {
+    padding: var(--espace-sm) var(--espace-lg);
+    border: none;
+    border-radius: var(--rayon-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all var(--transition-rapide);
+    white-space: nowrap;
+    user-select: none;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--espace-sm);
+}
+
+.btn-primary {
+    background: var(--couleur-primaire);
+    color: var(--couleur-texte-inverse);
+}
+
+.btn-primary:hover {
+    background: var(--couleur-primaire-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--ombre-md);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--couleur-texte-secondaire);
+    border: 1px solid var(--couleur-bordure);
+}
+
+.btn-outline:hover {
+    background: var(--couleur-surface);
+    border-color: var(--couleur-primaire);
+    color: var(--couleur-primaire);
+    transform: translateY(-1px);
+    box-shadow: var(--ombre-sm);
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--espace-lg);
+}
+
+.event-card {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    overflow: hidden;
+    border: 1px solid var(--couleur-bordure);
+    box-shadow: var(--ombre-md);
+    transition: all var(--transition-normale);
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-lg);
+}
+
+.event-image {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--couleur-surface-elevee);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--couleur-texte-tertiaire);
+}
+
+.event-content {
+    padding: var(--espace-lg);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--espace-md);
+}
+
+.event-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin: 0;
+    flex: 1;
+}
+
+.status-badge {
+    padding: var(--espace-xs) var(--espace-sm);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: var(--couleur-success);
+    color: var(--couleur-texte-inverse);
+}
+
+.status-badge.inactive {
+    background: var(--couleur-error);
+    color: var(--couleur-texte-inverse);
+}
+
+.event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-sm);
+    margin-bottom: var(--espace-md);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-sm);
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.meta-icon {
+    font-size: 1rem;
+}
+
+.event-stats {
+    display: flex;
+    gap: var(--espace-md);
+    margin-bottom: var(--espace-md);
+    padding: var(--espace-md);
+    background: var(--couleur-surface-elevee);
+    border-radius: var(--rayon-sm);
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--couleur-texte);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--couleur-texte-secondaire);
+    margin-top: var(--espace-xs);
+}
+
+.event-actions {
+    display: flex;
+    gap: var(--espace-sm);
+    flex-wrap: wrap;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--espace-3xl);
+    color: var(--couleur-texte-secondaire);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--espace-md);
+}
+
+.quick-actions {
+    margin-top: var(--espace-2xl);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--espace-md);
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-md);
+    padding: var(--espace-lg);
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    text-decoration: none;
+    color: var(--couleur-texte);
+    transition: all var(--transition-normale);
+}
+
+.action-card:hover {
+    border-color: var(--couleur-primaire);
+    box-shadow: var(--ombre-md);
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.action-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 var(--espace-xs) 0;
+}
+
+.action-content p {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: var(--espace-md);
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--espace-md);
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: var(--espace-md);
+        align-items: flex-start;
+    }
+    
+    .events-grid {
+        grid-template-columns: 1fr;
+        gap: var(--espace-md);
+    }
+    
+    .event-actions {
+        flex-direction: column;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}

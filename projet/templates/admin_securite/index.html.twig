@@ -11,6 +11,26 @@
 
 <div class="grid">
     <section class="card">
+        <h2 class="card-title">Accès Rapide</h2>
+        <div class="quick-actions-grid">
+            <a href="{{ path('validation.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">🎫</div>
+                <div class="quick-action-content">
+                    <h4>Validation des Billets</h4>
+                    <p>Scanner et valider les QR Codes</p>
+                </div>
+            </a>
+            <a href="{{ path('validation.historique') }}" class="quick-action-card">
+                <div class="quick-action-icon">📊</div>
+                <div class="quick-action-content">
+                    <h4>Historique</h4>
+                    <p>Voir les validations récentes</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section class="card">
         <h2 class="card-title">Contrôles (UI)</h2>
         <table class="table">
             <tbody>
@@ -55,4 +75,50 @@
         </table>
     </section>
 </div>
+
+<style>
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--couleur-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    text-decoration: none;
+    color: var(--couleur-texte);
+    transition: all var(--transition-rapide);
+}
+
+.quick-action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-md);
+    border-color: var(--couleur-primaire);
+}
+
+.quick-action-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.quick-action-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--couleur-texte);
+}
+
+.quick-action-content p {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+    margin: 0;
+}
+</style>
 {% endblock %}

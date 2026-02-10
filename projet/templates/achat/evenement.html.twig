@@ -47,7 +47,7 @@
 
                     <div class="form-group">
                         <label class="form-label" for="quantite">Quantité</label>
-                        <input type="number" id="quantite" name="quantite" class="form-control" 
+                        <input type="number" id="quantite" name="quantite" class="form-control"
                                value="1" min="1" max="{{ evenement.places_restantes }}">
                         <small class="form-help">Maximum: {{ evenement.places_restantes }} places</small>
                     </div>
@@ -76,7 +76,7 @@
 
         <section class="card">
             <h2 class="card-title">Informations sur l'événement</h2>
-            
+
             <div class="event-details">
                 <div class="detail-row">
                     <span class="detail-icon">📅</span>
@@ -85,7 +85,7 @@
                         {{ evenement.date|date('d/m/Y à H:i') }}
                     </div>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-icon">📍</span>
                     <div class="detail-content">
@@ -93,7 +93,7 @@
                         {{ evenement.lieu }} - {{ evenement.ville }}
                     </div>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-icon">🎫</span>
                     <div class="detail-content">
@@ -273,7 +273,7 @@
         grid-template-columns: 1fr;
         text-align: center;
     }
-    
+
     .event-image {
         max-width: 300px;
         margin: 0 auto;

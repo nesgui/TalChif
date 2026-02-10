@@ -1,0 +1,720 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique des Validations{% endblock %}
+
+{% block body %}
+<section class="historique-page">
+    <div class="historique-container">
+        <div class="historique-header">
+            <h1 class="page-title">
+                <span class="title-icon">📊</span>
+                Historique des Validations
+            </h1>
+            <p class="page-subtitle">Consultez toutes les validations de billets effectuées</p>
+            
+            <div class="header-actions">
+                <a href="{{ path('validation.index') }}" class="btn btn-primary">
+                    <span class="btn-icon">🎫</span>
+                    Retour au Scan
+                </a>
+            </div>
+        </div>
+
+        <div class="historique-content">
+            {% if billets|length > 0 %}
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3>{{ billets|length }}</h3>
+                            <p>Billets validés</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <h3>{{ "now"|date("d/m/Y") }}</h3>
+                            <p>Aujourd'hui</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <h3>{{ billets|reduce((total, billet) => total + billet.prix, 0)|number_format(0, '.', ' ') }}</h3>
+                            <p>Valeur totale (XAF)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="validations-table">
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>QR Code</th>
+                                <th>Type</th>
+                                <th>Événement</th>
+                                <th>Client</th>
+                                <th>Prix</th>
+                                <th>Validé par</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for billet in billets %}
+                                <tr class="validation-row">
+                                    <td>
+                                        <div class="date-cell">
+                                            <span class="date-main">{{ billet.dateUtilisation|date('d/m/Y') }}</span>
+                                            <span class="time">{{ billet.dateUtilisation|date('H:i') }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <code class="qr-code">{{ billet.qrCode }}</code>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge type-{{ billet.type|lower }}">
+                                            {{ billet.type }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="event-info">
+                                            <strong>{{ billet.evenement.nom }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ billet.evenement.date|date('d/m/Y H:i') }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="client-email">{{ billet.client.email }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="price">{{ billet.prix|number_format(0, '.', ' ') }} XAF</span>
+                                    </td>
+                                    <td>
+                                        <span class="validator">{{ billet.validePar.email }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-outline" onclick="showDetails('{{ billet.qrCode }}')">
+                                                Détails
+                                            </button>
+                                            <button class="btn btn-sm btn-ghost" onclick="copyQRCode('{{ billet.qrCode }}')">
+                                                Copier
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if page > 1 or billets|length == limit %}
+                    <div class="pagination">
+                        {% if page > 1 %}
+                            <a href="{{ path('validation.historique', {page: page - 1}) }}" class="btn btn-outline">
+                                ← Précédent
+                            </a>
+                        {% endif %}
+                        
+                        <span class="page-info">
+                            Page {{ page }} - {{ billets|length }} résultats
+                        </span>
+                        
+                        {% if billets|length == limit %}
+                            <a href="{{ path('validation.historique', {page: page + 1}) }}" class="btn btn-outline">
+                                Suivant →
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <h3>Aucune validation trouvée</h3>
+                    <p>Aucun billet n'a été validé pour le moment.</p>
+                    <div class="empty-actions">
+                        <a href="{{ path('validation.index') }}" class="btn btn-primary">
+                            <span class="btn-icon">🎫</span>
+                            Commencer les validations
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Modal détails -->
+<div id="detailsModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Détails du Billet</h3>
+            <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="detailsBody">
+            <!-- Contenu dynamique -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeDetailsModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.historique-page {
+    min-height: 100vh;
+    background: var(--couleur-fond);
+    padding: 2rem;
+}
+
+.historique-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.historique-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 2rem;
+    color: var(--couleur-texte);
+    margin: 0;
+}
+
+.title-icon {
+    font-size: 2rem;
+}
+
+.page-subtitle {
+    color: var(--couleur-texte-secondaire);
+    margin: 0.5rem 0 0 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon-lg);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all var(--transition-rapide);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-md);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.stat-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--couleur-texte);
+    margin: 0 0 0.25rem 0;
+}
+
+.stat-content p {
+    color: var(--couleur-texte-secondaire);
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.table-container {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    padding: 1.5rem;
+    box-shadow: var(--ombre-lg);
+    overflow-x: auto;
+}
+
+.validation-row {
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.validation-row:hover {
+    background: var(--couleur-fond);
+}
+
+.date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.date-main {
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.time {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.qr-code {
+    background: var(--couleur-fond);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--rayon-sm);
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--couleur-texte);
+}
+
+.type-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--rayon);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.type-simple {
+    background: var(--couleur-primaire-clair);
+    color: var(--couleur-primaire-fonce);
+}
+
+.type-vip {
+    background: var(--couleur-warning);
+    color: #92400e;
+}
+
+.event-info {
+    max-width: 200px;
+}
+
+.text-muted {
+    color: var(--couleur-texte-secondaire);
+}
+
+.client-email {
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.price {
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.validator {
+    font-size: 0.875rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--couleur-bordure);
+}
+
+.page-info {
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.875rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    box-shadow: var(--ombre-lg);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--couleur-texte);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--couleur-texte-secondaire);
+    margin-bottom: 2rem;
+}
+
+.empty-actions {
+    display: flex;
+    justify-content: center;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon-lg);
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--ombre-xl);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--couleur-texte);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--couleur-texte-secondaire);
+    padding: 0.5rem;
+    border-radius: var(--rayon);
+    transition: all var(--transition-rapide);
+}
+
+.modal-close:hover {
+    background: var(--couleur-bordure);
+    color: var(--couleur-texte);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--couleur-bordure);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .historique-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .historique-page {
+        padding: 1rem;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .table-container {
+        padding: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Initialiser DataTables pour le tableau des validations
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS !== 'undefined') {
+        DataTableOS.init('#validations-table', {
+            order: [[0, 'desc']], // Tri par date décroissante
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            language: {
+                search: "Rechercher...",
+                lengthMenu: "Afficher _MENU_ entrées",
+                info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                paginate: {
+                    first: "Premier",
+                    last: "Dernier",
+                    next: "Suivant",
+                    previous: "Précédent"
+                }
+            },
+            columns: [
+                { width: '120px' },
+                { width: '200px' },
+                { width: '80px' },
+                null,
+                null,
+                { width: '100px' },
+                { width: '150px' },
+                { width: '150px', orderable: false }
+            ]
+        });
+    }
+});
+
+async function showDetails(qrCode) {
+    try {
+        const response = await fetch(`/api/validation/lookup/${qrCode}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const modal = document.getElementById('detailsModal');
+            const modalBody = document.getElementById('detailsBody');
+            
+            modalBody.innerHTML = `
+                <div class="billet-details">
+                    <div class="detail-section">
+                        <h4>Informations du billet</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>QR Code:</label>
+                                <span><code>${data.billet.qrCode}</code></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Type:</label>
+                                <span class="type-badge type-${data.billet.type.toLowerCase()}">${data.billet.type}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Prix:</label>
+                                <span><strong>${data.billet.prix.toLocaleString()} XAF</strong></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Statut paiement:</label>
+                                <span class="status-badge status-${data.billet.statutPaiement.toLowerCase()}">${data.billet.statutPaiement}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Utilisé:</label>
+                                <span class="status-badge status-${data.billet.utilise ? 'success' : 'warning'}">${data.billet.utilise ? 'Oui' : 'Non'}</span>
+                            </div>
+                            ${data.billet.dateUtilisation ? `
+                            <div class="detail-item">
+                                <label>Date utilisation:</label>
+                                <span>${data.billet.dateUtilisation}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Événement</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Nom:</label>
+                                <span><strong>${data.billet.evenement.nom}</strong></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Date:</label>
+                                <span>${data.billet.evenement.date}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Lieu:</label>
+                                <span>${data.billet.evenement.lieu}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Client</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Email:</label>
+                                <span>${data.billet.client}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Transaction:</label>
+                                <span><code>${data.billet.transactionId}</code></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        } else {
+            showNotification('Impossible de charger les détails du billet', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Erreur de connexion au serveur', 'error');
+    }
+}
+
+function closeDetailsModal() {
+    document.getElementById('detailsModal').style.display = 'none';
+}
+
+function copyQRCode(qrCode) {
+    navigator.clipboard.writeText(qrCode).then(() => {
+        showNotification('QR Code copié dans le presse-papiers', 'success');
+    }).catch(() => {
+        showNotification('Erreur lors de la copie du QR Code', 'error');
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'success' ? 'var(--couleur-success)' : type === 'error' ? 'var(--couleur-error)' : 'var(--couleur-primaire)'};
+        color: white;
+        border-radius: var(--rayon);
+        box-shadow: var(--ombre-lg);
+        z-index: 2000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.getElementById('detailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailsModal();
+    }
+});
+
+// Styles CSS additionnels
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .billet-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .detail-section {
+        background: var(--couleur-fond);
+        border-radius: var(--rayon);
+        padding: 1.5rem;
+    }
+    
+    .detail-section h4 {
+        margin: 0 0 1rem 0;
+        color: var(--couleur-texte);
+        font-size: 1.125rem;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .detail-item label {
+        font-size: 0.875rem;
+        color: var(--couleur-texte-secondaire);
+        font-weight: 500;
+    }
+    
+    .detail-item span {
+        font-weight: 500;
+        color: var(--couleur-texte);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--rayon);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-paid {
+        background: var(--couleur-success);
+        color: white;
+    }
+    
+    .status-pending {
+        background: var(--couleur-warning);
+        color: white;
+    }
+    
+    .status-success {
+        background: var(--couleur-success);
+        color: white;
+    }
+    
+    .status-warning {
+        background: var(--couleur-warning);
+        color: white;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

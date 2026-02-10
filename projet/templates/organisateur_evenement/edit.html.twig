@@ -11,6 +11,8 @@
         <h2 class="card-title">Informations de l'événement</h2>
         <p class="card-meta">Modifiez les champs nécessaires</p>
 
+            {% include 'partials/flashes.html.twig' %}
+
         {% for flash in app.flashes('success') %}
             <div class="alert alert-success">
                 {{ flash }}
@@ -23,8 +25,20 @@
             </div>
         {% endfor %}
 
+        {% for flash in app.flashes('info') %}
+            <div class="alert alert-info">
+                {{ flash }}
+            </div>
+        {% endfor %}
+
+        {% for flash in app.flashes('warning') %}
+            <div class="alert alert-warning">
+                {{ flash }}
+            </div>
+        {% endfor %}
+
         {{ form_start(form, {'attr': {'class': 'form', 'enctype': 'multipart/form-data'}}) }}
-        
+
         <div class="form-group">
             {{ form_label(form.nom) }}
             {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}

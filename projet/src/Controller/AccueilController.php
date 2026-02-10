@@ -19,6 +19,12 @@ final class AccueilController extends AbstractController
     {
         // Récupérer les événements actifs pour la page d'accueil
         $evenements = $this->evenementRepository->findActiveEvents(6);
+        
+        // Debug: Afficher les slugs récupérés
+        error_log('DEBUG: Slugs from database:');
+        foreach ($evenements as $e) {
+            error_log('DEBUG: ID ' . $e->getId() . ' -> Slug: ' . $e->getSlug());
+        }
 
         // Transformer les entités en tableaux avec badges
         $evenementsArray = [];

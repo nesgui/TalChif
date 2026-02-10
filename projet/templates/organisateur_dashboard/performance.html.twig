@@ -1,0 +1,639 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Performance - {{ evenement.nom }}{% endblock %}
+
+{% block body %}
+<div class="performance-container">
+    <div class="performance-header">
+        <h1 class="page-title">
+            <a href="{{ path('organisateur.dashboard') }}" class="back-link">← Retour</a>
+            Performance de l'événement
+        </h1>
+        <div class="event-info">
+            <h2>{{ evenement.nom }}</h2>
+            <p class="event-meta">{{ evenement.dateEvenement|date('d/m/Y H:i') }} • {{ evenement.lieu }}</p>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="stats-overview">
+        <div class="stat-card primary">
+            <div class="stat-header">
+                <h3>📊 Performance globale</h3>
+            </div>
+            <div class="stat-content">
+                <div class="metric-row">
+                    <div class="metric">
+                        <span class="metric-value">{{ performance.ventes_par_jour|length }}</span>
+                        <span class="metric-label">Jours avec ventes</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">{{ performance.ventes_par_mois|length }}</span>
+                        <span class="metric-label">Mois avec activité</span>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <div class="metric">
+                        <span class="metric-value">{{ performance.taux_conversion }}%</span>
+                        <span class="metric-label">Taux de conversion</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">{{ performance.revenu_moyen_par_billet|number_format(0, '.', ' ') }} XAF</span>
+                        <span class="metric-label">Panier moyen</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="performance-grid">
+        <!-- Graphique des ventes par jour -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>📈 Ventes par jour</h3>
+                <div class="chart-controls">
+                    <button class="btn-small" onclick="toggleChart('daily')">📊</button>
+                </div>
+            </div>
+            <div class="chart-content">
+                <div class="chart-container" id="dailyChart">
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color daily"></span>
+                        <span class="legend-label">Billets vendus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique des ventes par mois -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>📅 Ventes par mois</h3>
+                <div class="chart-controls">
+                    <button class="btn-small" onclick="toggleChart('monthly')">📊</button>
+                </div>
+            </div>
+            <div class="chart-content">
+                <div class="chart-container" id="monthlyChart">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color monthly"></span>
+                        <span class="legend-label">Billets vendus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Types de billets populaires -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>🎫 Types de billets populaires</h3>
+            </div>
+            <div class="chart-content">
+                <div class="popularity-list">
+                    {% for type in performance.types_populaires %}
+                    <div class="popularity-item">
+                        <div class="type-info">
+                            <span class="type-name">{{ type.type|upper }}</span>
+                            <span class="type-count">{{ type.count }} billets</span>
+                        </div>
+                        <div class="type-percentage">
+                            {% set total_billets = performance.types_populaires|first.count + performance.types_populaires|last.count %}
+                            {% set percentage = total_billets > 0 ? (type.count / total_billets * 100)|round : 0 %}
+                            <div class="percentage-bar">
+                                <div class="percentage-fill" style="width: {{ percentage }}%"></div>
+                            </div>
+                            <span class="percentage-text">{{ percentage }}%</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pics de ventes -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>⚡ Pics de ventes</h3>
+            </div>
+            <div class="chart-content">
+                <div class="peaks-list">
+                    {% for peak in performance.pics_ventes %}
+                    <div class="peak-item">
+                        <div class="peak-time">{{ peak.hour }}h</div>
+                        <div class="peak-sales">
+                            <span class="sales-number">{{ peak.sales }}</span>
+                            <span class="sales-label">ventes</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export des données -->
+    <div class="export-section">
+        <h3 class="section-title">📥 Exporter les données</h3>
+        <div class="export-buttons">
+            <button class="btn btn-primary" onclick="exportPerformanceData('csv')">
+                📊 Exporter en CSV
+            </button>
+            <button class="btn btn-secondary" onclick="exportPerformanceData('json')">
+                📄 Exporter en JSON
+            </button>
+            <button class="btn btn-outline" onclick="printReport()">
+                🖨️ Imprimer le rapport
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.performance-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.performance-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: #3b82f6;
+}
+
+.event-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.event-meta {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.stats-overview {
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.stat-card.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-card.primary .stat-header h3 {
+    color: white;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.metric-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.metric-row:last-child {
+    margin-bottom: 0;
+}
+
+.metric {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+}
+
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.chart-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.chart-content {
+    position: relative;
+}
+
+.chart-container {
+    height: 250px;
+    margin-bottom: 1rem;
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.legend-color.daily {
+    background: #3b82f6;
+}
+
+.legend-color.monthly {
+    background: #10b981;
+}
+
+.popularity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.popularity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.type-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.type-name {
+    font-weight: 600;
+    color: #1e293b;
+    text-transform: uppercase;
+}
+
+.type-count {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.type-percentage {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.percentage-bar {
+    width: 60px;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.percentage-fill {
+    height: 100%;
+    background: #3b82f6;
+    transition: width 0.3s ease;
+}
+
+.percentage-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.peaks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.peak-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.peak-time {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.125rem;
+}
+
+.peak-sales {
+    text-align: right;
+}
+
+.sales-number {
+    font-weight: 700;
+    color: #10b981;
+    font-size: 1.125rem;
+}
+
+.sales-label {
+    color: #64748b;
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+.export-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .performance-container {
+        padding: 1rem;
+    }
+    
+    .performance-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .metric-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Données de performance
+const performanceData = {{ performance|json_encode|raw }};
+
+// Initialiser les graphiques
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+});
+
+function initializeCharts() {
+    // Graphique des ventes par jour
+    const dailyCtx = document.getElementById('dailySalesChart');
+    if (dailyCtx && performanceData.ventes_par_jour) {
+        new Chart(dailyCtx, {
+            type: 'line',
+            data: {
+                labels: performanceData.ventes_par_jour.map(item => item.date),
+                datasets: [{
+                    label: 'Billets vendus',
+                    data: performanceData.ventes_par_jour.map(item => item.sales),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique des ventes par mois
+    const monthlyCtx = document.getElementById('monthlySalesChart');
+    if (monthlyCtx && performanceData.ventes_par_mois) {
+        new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: performanceData.ventes_par_mois.map(item => item.month),
+                datasets: [{
+                    label: 'Billets vendus',
+                    data: performanceData.ventes_par_mois.map(item => item.sales),
+                    backgroundColor: '#10b981',
+                    borderColor: '#059669',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+function toggleChart(type) {
+    // Basculer entre différents types de graphiques
+    console.log('Toggle chart:', type);
+    // Implémenter la logique de basculement
+}
+
+function exportPerformanceData(format) {
+    const dataStr = JSON.stringify(performanceData, null, 2);
+    
+    if (format === 'json') {
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `performance_{{ evenement.slug }}_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } else if (format === 'csv') {
+        // Convertir en CSV
+        let csv = 'Catégorie,Valeur\n';
+        
+        // Ventes par jour
+        csv += 'Ventes par jour\n';
+        performanceData.ventes_par_jour.forEach(item => {
+            csv += `${item.date},${item.sales}\n`;
+        });
+        
+        csv += '\nVentes par mois\n';
+        performanceData.ventes_par_mois.forEach(item => {
+            csv += `${item.month},${item.sales}\n`;
+        });
+        
+        csv += '\nTypes populaires\n';
+        performanceData.types_populaires.forEach(item => {
+            csv += `${item.type},${item.count}\n`;
+        });
+        
+        csv += '\nPics de ventes\n';
+        performanceData.pics_ventes.forEach(item => {
+            csv += `${item.hour}h,${item.sales}\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `performance_{{ evenement.slug }}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+function printReport() {
+    window.print();
+}
+</script>
+{% endblock %}

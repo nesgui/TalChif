@@ -24,7 +24,7 @@ final class OrganisateurEvenementController extends AbstractController
     ) {
     }
 
-    #[Route('/organisateur/evenements', name: 'organisateur.evenement.index')]
+    #[Route('/organisateur/evenement', name: 'organisateur.evenement.index')]
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function index(): Response
     {
@@ -37,7 +37,7 @@ final class OrganisateurEvenementController extends AbstractController
         ]);
     }
 
-    #[Route('/organisateur/evenements/creer', name: 'organisateur.evenement.create')]
+    #[Route('/organisateur/evenement/creer', name: 'organisateur.evenement.create')]
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function create(Request $request, SluggerInterface $slugger): Response
     {
@@ -144,9 +144,9 @@ final class OrganisateurEvenementController extends AbstractController
         ]);
     }
 
-    #[Route('/organisateur/evenements/{id}/editer', name: 'organisateur.evenement.edit')]
+    #[Route('/organisateur/evenement/{id}/editer', name: 'organisateur.evenement.edit')]
     #[IsGranted('ROLE_ORGANISATEUR')]
-    public function edit(Evenement $evenement, Request $request): Response
+    public function edit(Evenement $evenement, Request $request, SluggerInterface $slugger): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -162,11 +162,94 @@ final class OrganisateurEvenementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $evenement->setSlug($this->generateSlug($evenement->getNom()));
+            error_log('DEBUG: Form is submitted and valid - starting event update');
+            
+            // Mettre à jour le slug SEULEMENT si le nom a changé
+            $originalSlug = $evenement->getSlug();
+            $newSlug = $slugger->slug($evenement->getNom());
+            
+            if ($originalSlug !== $newSlug) {
+                $evenement->setSlug($newSlug);
+                error_log('DEBUG: Slug updated from ' . $originalSlug . ' to ' . $newSlug);
+            } else {
+                error_log('DEBUG: Slug unchanged: ' . $originalSlug);
+            }
+
+            // Gérer l'upload de l'affiche principale
+            $affichePrincipaleFile = $form->get('affichePrincipale')->getData();
+            if ($affichePrincipaleFile instanceof UploadedFile) {
+                error_log('DEBUG: Processing affiche principale upload');
+                $newFilename = uniqid() . '.' . $affichePrincipaleFile->guessExtension();
+                try {
+                    $affichePrincipaleFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/images/evenements',
+                        $newFilename
+                    );
+                    $evenement->setAffichePrincipale('/images/evenements/' . $newFilename);
+                    error_log('DEBUG: Affiche principale uploaded successfully');
+                } catch (FileException $e) {
+                    error_log('ERROR: Upload failed - ' . $e->getMessage());
+                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'affiche principale: ' . $e->getMessage());
+                }
+            }
+
+            // Gérer l'upload des autres affiches
+            $autresAffichesFiles = $form->get('autresAffiches')->getData();
+            $autresAffichesUrls = $evenement->getAutresAffiches() ?? [];
+            if (!empty($autresAffichesFiles)) {
+                foreach ($autresAffichesFiles as $file) {
+                    if ($file instanceof UploadedFile) {
+                        $newFilename = uniqid() . '.' . $file->guessExtension();
+                        try {
+                            $file->move(
+                                $this->getParameter('kernel.project_dir') . '/public/images/evenements',
+                                $newFilename
+                            );
+                            $autresAffichesUrls[] = '/images/evenements/' . $newFilename;
+                        } catch (FileException $e) {
+                            continue;
+                        }
+                    }
+                }
+                $evenement->setAutresAffiches($autresAffichesUrls);
+            }
+
+            // Gérer l'upload de l'image billet
+            $imageBilletFile = $form->get('imageBillet')->getData();
+            if ($imageBilletFile instanceof UploadedFile) {
+                $newFilename = uniqid() . '_ticket.' . $imageBilletFile->guessExtension();
+                try {
+                    $imageBilletFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/images/billets',
+                        $newFilename
+                    );
+                    $evenement->setImageBillet('/images/billets/' . $newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image billet.');
+                }
+            }
+
+            error_log('DEBUG: About to save event to database');
             $this->evenementRepository->save($evenement, true);
+            error_log('DEBUG: Event saved successfully');
 
             $this->addFlash('success', 'Événement modifié avec succès !');
+            error_log('DEBUG: Redirecting to event index');
             return $this->redirectToRoute('organisateur.evenement.index');
+        } else {
+            // Ajouter des logs pour le débogage
+            if ($form->isSubmitted()) {
+                error_log('DEBUG: Form submitted but INVALID');
+                $errors = $form->getErrors(true);
+                error_log('DEBUG: Form validation errors count: ' . count($errors));
+                foreach ($errors as $error) {
+                    error_log('DEBUG: Form error: ' . $error->getMessage());
+                    error_log('DEBUG: Form error field: ' . $error->getOrigin()->getName());
+                    $this->addFlash('error', $error->getMessage());
+                }
+            } else {
+                error_log('DEBUG: Form not submitted');
+            }
         }
 
         return $this->render('organisateur_evenement/edit.html.twig', [
@@ -175,7 +258,7 @@ final class OrganisateurEvenementController extends AbstractController
         ]);
     }
 
-    #[Route('/organisateur/evenements/{id}/supprimer', name: 'organisateur.evenement.delete', methods: ['POST'])]
+    #[Route('/organisateur/evenement/{id}/supprimer', name: 'organisateur.evenement.delete', methods: ['POST'])]
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function delete(Evenement $evenement, Request $request): Response
     {
@@ -196,7 +279,7 @@ final class OrganisateurEvenementController extends AbstractController
         return $this->redirectToRoute('organisateur.evenement.index');
     }
 
-    #[Route('/organisateur/evenements/{id}', name: 'organisateur.evenement.show', requirements: ['id' => '\\d+'])]
+    #[Route('/organisateur/evenement/{id}', name: 'organisateur.evenement.show', requirements: ['id' => '\\d+'])]
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function show(Evenement $evenement): Response
     {
@@ -232,7 +315,7 @@ final class OrganisateurEvenementController extends AbstractController
         return $slug;
     }
 
-    #[Route('/organisateur/evenements/{id}/toggle-status/{action}', name: 'organisateur.evenement.toggle_status', methods: ['POST'])]
+    #[Route('/organisateur/evenement/{id}/toggle-status/{action}', name: 'organisateur.evenement.toggle_status', methods: ['POST'])]
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function toggleStatus(Request $request, Evenement $evenement, string $action, CsrfTokenManagerInterface $csrfTokenManager): Response
     {

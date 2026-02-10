@@ -93,6 +93,34 @@ final class EvenementController extends AbstractController
         ]);
     }
 
+    #[Route('/evenements/{slug}', name: 'evenement.show.redirect')]
+    public function showRedirect(string $slug): Response
+    {
+        error_log('DEBUG: showRedirect called with slug: ' . $slug);
+
+        // Chercher l'événement par slug
+        $evenement = $this->evenementRepository->findOneBy(['slug' => $slug]);
+
+        if (!$evenement) {
+            error_log('DEBUG: Event not found for slug: ' . $slug);
+            // Lister tous les slugs disponibles pour debug
+            $allEvents = $this->evenementRepository->findAll();
+            error_log('DEBUG: Available slugs:');
+            foreach ($allEvents as $e) {
+                error_log('DEBUG:  - ID ' . $e->getId() . ' -> ' . $e->getSlug());
+            }
+            throw $this->createNotFoundException('Événement non trouvé');
+        }
+
+        error_log('DEBUG: Found event, redirecting to: ' . $evenement->getSlug() . '-' . $evenement->getId());
+
+        // Rediriger vers l'URL correcte
+        return $this->redirectToRoute('evenement.show', [
+            'slug' => $evenement->getSlug(),
+            'id' => $evenement->getId()
+        ]);
+    }
+
     private function getBadgeForEvent(Evenement $evenement): ?string
     {
         if ($evenement->isComplet()) {

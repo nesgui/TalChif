@@ -3,283 +3,298 @@
 {% block title %}Billet - {{ billet.evenement.nom }}{% endblock %}
 
 {% block body %}
-<div class="ticket-container">
-    <div class="ticket-main">
+<div class="ticket-wrapper">
+    <div class="ticket-container">
+        <!-- Header du billet -->
         <div class="ticket-header">
-            <div class="ticket-event">
-                <h1 class="ticket-title">{{ billet.evenement.nom }}</h1>
-                <div class="ticket-meta">
-                    <span class="pill pill-{{ billet.type|lower }}">{{ billet.type }}</span>
-                    <span class="pill">{{ billet.prix|number_format(0, '.', ' ') }} XAF</span>
+            <div class="event-info">
+                <h1 class="event-title">{{ billet.evenement.nom }}</h1>
+                <div class="event-details">
+                    <span class="detail-item">
+                        <span class="icon">📅</span>
+                        {{ billet.evenement.dateEvenement|date('d F Y') }}
+                    </span>
+                    <span class="detail-item">
+                        <span class="icon">📍</span>
+                        {{ billet.evenement.lieu }}
+                    </span>
                 </div>
             </div>
-            <div class="ticket-status">
-                {% if billet.isPaye() %}
-                    <span class="status-badge status-success">✅ Payé</span>
-                {% else %}
-                    <span class="status-badge status-warning">⏳ En attente</span>
-                {% endif %}
-                {% if billet.isUtilise() %}
-                    <span class="status-badge status-error">❌ Utilisé</span>
-                {% endif %}
+            <div class="ticket-type-badge">
+                {{ billet.type|upper }}
             </div>
         </div>
 
-        <div class="ticket-info">
-            <div class="info-row">
-                <span class="info-icon">📅</span>
-                <div class="info-content">
-                    <strong>Date</strong><br>
-                    {{ billet.evenement.dateEvenement|date('d/m/Y H:i') }}
+        <!-- Corps du billet -->
+        <div class="ticket-body">
+            <div class="ticket-left">
+                <div class="attendee-info">
+                    <div class="info-row">
+                        <span class="label">Nom</span>
+                        <span class="value">{{ billet.client.fullName }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value">{{ billet.client.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">ID Transaction</span>
+                        <span class="value">{{ billet.transactionId }}</span>
+                    </div>
+                </div>
+                
+                <div class="ticket-price">
+                    <span class="price-amount">{{ billet.prix|number_format(0, '.', ' ') }}</span>
+                    <span class="price-currency">XAF</span>
                 </div>
             </div>
-            
-            <div class="info-row">
-                <span class="info-icon">📍</span>
-                <div class="info-content">
-                    <strong>Lieu</strong><br>
-                    {{ billet.evenement.lieu }} - {{ billet.evenement.ville }}
-                </div>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-icon">👤</span>
-                <div class="info-content">
-                    <strong>Acheteur</strong><br>
-                    {{ billet.client.fullName }}
-                </div>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-icon">🆔</span>
-                <div class="info-content">
-                    <strong>Transaction</strong><br>
-                    {{ billet.transactionId }}
+
+            <div class="ticket-right">
+                <div class="qr-section">
+                    <div class="qr-code" id="qr-code-container">
+                        <div class="qr-loading">Génération...</div>
+                    </div>
+                    <div class="qr-info">
+                        <span class="qr-label">CODE D'ACCÈS</span>
+                        <span class="qr-code-text">{{ billet.qrCode }}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="ticket-qr">
-            <div class="qr-code">
-                <div class="qr-placeholder">
-                    🎫
-                    <div style="font-size: 0.8rem; margin-top: 0.5rem;">QR Code</div>
+        <!-- Footer du billet -->
+        <div class="ticket-footer">
+            <div class="footer-left">
+                <div class="status-badge {{ billet.isPaye() ? 'paid' : 'pending' }}">
+                    {% if billet.isPaye() %}
+                        ✅ Payé
+                    {% else %}
+                        ⏳ En attente
+                    {% endif %}
                 </div>
             </div>
-            <div class="qr-text">
-                <strong>Code QR</strong><br>
-                <span style="font-family: monospace; font-size: 0.9rem;">{{ billet.qrCode }}</span>
+            <div class="footer-right">
+                <span class="footer-text">Présentez ce code à l'entrée</span>
             </div>
-        </div>
-    </div>
-
-    <div class="ticket-footer">
-        <div class="footer-info">
-            <p><strong>Instructions importantes:</strong></p>
-            <ul>
-                <li>Présentez ce QR code à l'entrée de l'événement</li>
-                <li>Ne partagez jamais ce code avec d'autres personnes</li>
-                <li>Ce billet est non remboursable et non transférable</li>
-                <li>En cas de problème, contactez le support: support@osea.td</li>
-            </ul>
-        </div>
-        <div class="footer-actions">
-            <button class="btn btn-primary" onclick="downloadTicket()">
-                📥 Télécharger le billet
-            </button>
-            <button class="btn" onclick="shareTicket()">
-                📤 Partager
-            </button>
         </div>
     </div>
 </div>
 
 <style>
+.ticket-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
 .ticket-container {
-    max-width: 800px;
-    margin: 0 auto;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    max-width: 600px;
+    width: 100%;
     overflow: hidden;
 }
 
-.ticket-main {
-    padding: 2rem;
+.ticket-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    position: relative;
-}
-
-.ticket-main::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
-}
-
-.ticket-header {
+    padding: 2rem;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
-    position: relative;
-    z-index: 1;
+    align-items: center;
 }
 
-.ticket-title {
-    font-size: 2rem;
-    margin: 0 0 0.5rem 0;
+.event-info {
+    flex: 1;
+}
+
+.event-title {
+    font-size: 1.5rem;
     font-weight: 700;
+    margin: 0 0 0.5rem 0;
 }
 
-.ticket-meta {
+.event-details {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.ticket-status {
-    text-align: right;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.status-success {
-    background: #10b981;
-    color: white;
-}
-
-.status-warning {
-    background: #f59e0b;
-    color: white;
-}
-
-.status-error {
-    background: #ef4444;
-    color: white;
-}
-
-.ticket-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-    z-index: 1;
+    opacity: 0.9;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.ticket-type-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    backdrop-filter: blur(10px);
+}
+
+.ticket-body {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.ticket-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.attendee-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .info-row {
     display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.info-icon {
-    font-size: 1.25rem;
-    flex-shrink: 0;
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.value {
+    font-weight: 500;
+    color: #1e293b;
+    text-align: right;
+}
+
+.ticket-price {
+    text-align: center;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.price-amount {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+}
+
+.price-currency {
+    display: block;
+    font-size: 0.875rem;
+    color: #64748b;
     margin-top: 0.25rem;
 }
 
-.info-content strong {
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.ticket-qr {
+.ticket-right {
     display: flex;
     align-items: center;
-    gap: 2rem;
-    padding: 1.5rem;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-    position: relative;
-    z-index: 1;
+    justify-content: center;
+}
+
+.qr-section {
+    text-align: center;
 }
 
 .qr-code {
-    width: 120px;
-    height: 120px;
+    width: 160px;
+    height: 160px;
     background: white;
-    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    margin: 0 auto 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.qr-placeholder {
+.qr-loading {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.qr-info {
     text-align: center;
-    color: #666;
 }
 
-.qr-text {
-    flex: 1;
-    color: white;
+.qr-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.qr-code-text {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: #1e293b;
+    background: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    word-break: break-all;
 }
 
 .ticket-footer {
-    padding: 2rem;
     background: #f8fafc;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-top: 1px solid #e2e8f0;
 }
 
-.footer-info {
-    margin-bottom: 1.5rem;
-}
-
-.footer-info ul {
-    margin: 0.5rem 0 0 0;
-    padding-left: 1.5rem;
-}
-
-.footer-info li {
-    margin-bottom: 0.25rem;
-    color: #64748b;
-}
-
-.footer-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.pill {
-    padding: 0.25rem 0.75rem;
+.status-badge {
+    padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.875rem;
     font-weight: 600;
 }
 
-.pill-simple {
-    background: rgba(59, 130, 246, 0.2);
-    color: white;
+.status-badge.paid {
+    background: #dcfce7;
+    color: #16a34a;
 }
 
-.pill-vip {
-    background: rgba(245, 158, 11, 0.2);
-    color: white;
+.status-badge.pending {
+    background: #fef3c7;
+    color: #d97706;
 }
 
+.footer-text {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .ticket-container {
-        margin: 1rem;
-        border-radius: 8px;
-    }
-    
-    .ticket-main {
-        padding: 1.5rem;
+    .ticket-wrapper {
+        padding: 1rem;
     }
     
     .ticket-header {
@@ -288,44 +303,107 @@
         text-align: center;
     }
     
-    .ticket-status {
+    .event-details {
+        justify-content: center;
+    }
+    
+    .ticket-body {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .ticket-right {
+        order: -1;
+    }
+    
+    .ticket-footer {
+        flex-direction: column;
+        gap: 1rem;
         text-align: center;
     }
     
-    .ticket-qr {
-        flex-direction: column;
-        text-align: center;
+    .price-amount {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .ticket-container {
+        border-radius: 16px;
     }
     
-    .footer-actions {
-        flex-direction: column;
+    .ticket-header {
+        padding: 1.5rem;
+    }
+    
+    .event-title {
+        font-size: 1.25rem;
+    }
+    
+    .ticket-body {
+        padding: 1.5rem;
+    }
+    
+    .qr-code {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+@media print {
+    .ticket-wrapper {
+        background: white;
+        padding: 0;
+    }
+    
+    .ticket-container {
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .ticket-header {
+        background: #667eea !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 }
 </style>
 
 <script>
-function downloadTicket() {
-    // En production, générer un vrai PDF du billet
-    window.print();
-}
+// Charger la bibliothèque QRCode
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
+script.onload = generateQRCode;
+document.head.appendChild(script);
 
-function shareTicket() {
-    if (navigator.share) {
-        navigator.share({
-            title: 'Billet - {{ billet.evenement.nom }}',
-            text: 'Je viens d\'acheter un billet pour {{ billet.evenement.nom }} !',
-            url: window.location.href
-        });
-    } else {
-        // Fallback: copier le lien
-        navigator.clipboard.writeText(window.location.href);
-        alert('Lien copié dans le presse-papiers !');
-    }
+function generateQRCode() {
+    const container = document.getElementById('qr-code-container');
+    const qrData = '{{ billet.qrCode }}';
+    
+    // Effacer le contenu de chargement
+    container.innerHTML = '';
+    
+    // Créer le canvas pour le QR Code
+    const canvas = document.createElement('canvas');
+    container.appendChild(canvas);
+    
+    // Générer le QR Code
+    QRCode.toCanvas(canvas, qrData, {
+        width: 140,
+        margin: 2,
+        color: {
+            dark: '#1e293b',
+            light: '#ffffff'
+        },
+        errorCorrectionLevel: 'H'
+    }, function (error) {
+        if (error) {
+            console.error('Erreur génération QR Code:', error);
+            container.innerHTML = '<div class="qr-error">❌ Erreur</div>';
+        } else {
+            console.log('QR Code généré avec succès');
+        }
+    });
 }
-
-// Auto-refresh toutes les 30 secondes pour vérifier le statut
-setInterval(() => {
-    location.reload();
-}, 30000);
 </script>
 {% endblock %}
