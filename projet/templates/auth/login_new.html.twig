@@ -1,0 +1,60 @@
+{% extends 'layout/auth.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block auth_content %}
+    <div class="auth-header">
+        <h1 class="auth-title">Connexion</h1>
+        <p class="auth-subtitle">Accédez à votre espace personnel</p>
+    </div>
+    
+    <div class="auth-body">
+        {% for flash in app.flashes('error') %}
+            <div class="auth-alert auth-alert-error">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ flash }}
+            </div>
+        {% endfor %}
+
+        {% for flash in app.flashes('success') %}
+            <div class="auth-alert auth-alert-success">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12.5a1 1 0 0 0-1-1v-1a6 6 0 0 0-6-6H6a6 6 0 0 0-6 6v1a9 9 0 0 0 9 9h.01a9 9 0 0 0 9-9H21"/>
+                    <polyline points="22,11.08 22,4 16,4 16,11.08"/>
+                </svg>
+                {{ flash }}
+            </div>
+        {% endfor %}
+
+        <form class="auth-form" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            
+            <div class="auth-form-group">
+                <label for="inputEmail" class="auth-label">Email</label>
+                <input type="email" id="inputEmail" name="email" class="auth-input" placeholder="Entrez votre adresse email" required autofocus>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="inputPassword" class="auth-label">Mot de passe</label>
+                <input type="password" id="inputPassword" name="password" class="auth-input" placeholder="Entrez votre mot de passe" required>
+            </div>
+            
+            <div class="auth-form-actions">
+                <button type="submit" class="auth-btn auth-btn-primary">
+                    Se connecter
+                </button>
+            </div>
+        </form>
+        
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                Pas encore de compte ? 
+                <a href="{{ path('auth.register') }}" class="auth-link">Créez un compte</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

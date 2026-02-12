@@ -42,7 +42,7 @@
             <h2>Actions rapides</h2>
             <div class="card-actions">
                 <a href="{{ path('billet.index') }}" class="btn btn-primary">
-                    🎫 Mes billets
+                    Mes billets
                 </a>
                 
                 {% if is_granted('ROLE_ORGANISATEUR') %}
@@ -50,7 +50,7 @@
                 {% endif %}
                 
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('admin.evenement.create') }}" class="btn">Créer un événement</a>
+                    <a href="{{ path('admin.dashboard') }}" class="btn">Back-office admin</a>
                 {% endif %}
                 
                 <a href="{{ path('panier.index') }}" class="btn">Mon panier</a>

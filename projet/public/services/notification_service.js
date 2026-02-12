@@ -1,9 +1,14 @@
 // Service de notifications globales
-class NotificationService {
-    constructor() {
-        this.container = null;
-        this.init();
-    }
+
+// Prevent duplicate script loading
+if (window.NotificationService) {
+    console.log('[NOTIFICATION DEBUG] NotificationService already loaded, skipping...');
+} else {
+    window.NotificationService = class NotificationService {
+        constructor() {
+            this.container = null;
+            this.init();
+        }
 
     init() {
         // Créer le conteneur de notifications s'il n'existe pas
@@ -56,6 +61,13 @@ class NotificationService {
         }
     }
 
+    escapeHtml(text) {
+        if (text == null) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     createNotificationElement(type, title, message, progress) {
         const notification = document.createElement('div');
         notification.className = 'notification';
@@ -67,13 +79,16 @@ class NotificationService {
             info: 'ℹ️'
         };
 
+        const safeTitle = this.escapeHtml(String(title));
+        const safeMessage = this.escapeHtml(String(message));
+
         notification.innerHTML = `
             <div class="notification-header">
                 <span class="notification-icon">${icons[type] || 'ℹ️'}</span>
-                <span class="notification-title">${title}</span>
-                <button class="notification-close" onclick="this.closest('.notification').remove()">&times;</button>
+                <span class="notification-title">${safeTitle}</span>
+                <button class="notification-close" onclick="this.closest('.notification').remove()" aria-label="Fermer">&times;</button>
             </div>
-            <div class="notification-body">${message}</div>
+            <div class="notification-body">${safeMessage}</div>
             ${progress ? '<div class="notification-progress"><div class="notification-progress-bar"></div></div>' : ''}
         `;
 
@@ -167,3 +182,26 @@ class NotificationService {
 
 // Exporter pour utilisation globale
 window.NotificationService = new NotificationService();
+
+// Afficher les flash messages dès que le service est prêt (évite les races avec defer)
+(function showPendingFlashes() {
+    if (!window.flashMessages || window.flashMessages.length === 0) return;
+    var ns = window.NotificationService;
+    if (!ns) return;
+    window.flashMessages.forEach(function(flash) {
+        var title = flash.type === 'success' ? 'Succès' : flash.type === 'error' ? 'Erreur' : flash.type === 'warning' ? 'Attention' : 'Information';
+        var duration = flash.type === 'error' ? 6000 : flash.type === 'warning' ? 5000 : 4000;
+        if (flash.type === 'success') {
+            ns.success(title, flash.message, { duration: duration });
+        } else if (flash.type === 'error') {
+            ns.error(title, flash.message, { duration: duration });
+        } else if (flash.type === 'warning') {
+            ns.warning(title, flash.message, { duration: duration });
+        } else {
+            ns.info(title, flash.message, { duration: duration });
+        }
+    });
+    window.flashMessages = [];
+})();
+
+} // Close the else block from duplicate check

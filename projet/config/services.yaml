@@ -19,5 +19,9 @@ services:
     App\:
         resource: '../src/'
 
+    # Paiement : par défaut le stub (remplacer par une implémentation réelle en prod)
+    App\Service\Payment\PaymentInterface:
+        alias: App\Service\Payment\StubPaymentService
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

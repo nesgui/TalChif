@@ -64,4 +64,53 @@ class UserRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function remove(User $user, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($user);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * Pagination pour les listes (évite de charger des milliers d'enregistrements en une fois).
+     */
+    public function findPaginated(int $page = 1, int $limit = 100, ?string $search = null): array
+    {
+        $offset = max(0, ($page - 1) * $limit);
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.id', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $this->applySearch($qb, $search);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countTotal(?string $search = null): int
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)');
+        $this->applySearch($qb, $search);
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    private function applySearch($qb, ?string $search): void
+    {
+        if ($search === null || trim($search) === '') {
+            return;
+        }
+        $term = '%' . trim($search) . '%';
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->like('u.email', ':search'),
+                $qb->expr()->like('u.nom', ':search'),
+                $qb->expr()->like('u.prenom', ':search')
+            )
+        )->setParameter('search', $term);
+    }
 }

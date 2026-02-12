@@ -98,28 +98,24 @@
         <h3 class="section-title">🛠️ Outils disponibles</h3>
         <div class="actions-grid">
             <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="action-card">
-                <div class="action-icon">👥</div>
                 <div class="action-content">
                     <h4>Liste des participants</h4>
                     <p>Noms, emails, types de billets</p>
                 </div>
             </a>
             <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id}) }}" class="action-card">
-                <div class="action-icon">📱</div>
                 <div class="action-content">
                     <h4>QR Codes</h4>
                     <p>Téléchargement et visualisation</p>
                 </div>
             </a>
             <a href="{{ path('organisateur.evenement.export', {id: evenement.id}) }}" class="action-card">
-                <div class="action-icon">📥</div>
                 <div class="action-content">
                     <h4>Exporter les participants</h4>
                     <p>Télécharger en CSV</p>
                 </div>
             </a>
             <a href="{{ path('organisateur.evenement.performance', {id: evenement.id}) }}" class="action-card">
-                <div class="action-icon">📈</div>
                 <div class="action-content">
                     <h4>Performance</h4>
                     <p>Statistiques détaillées</p>

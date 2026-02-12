@@ -418,6 +418,11 @@ body {
     background: color-mix(in srgb, var(--couleur-fond) 86%, var(--couleur-texte) 14%);
 }
 
+.public-drawer-link-highlight {
+    font-weight: 700;
+    border-width: 2px;
+}
+
 .public-drawer-sep {
     display: block;
     height: 1px;
@@ -1196,9 +1201,28 @@ body {
     display: none;
     cursor: pointer;
     font-weight: 700;
-    padding: 8px 10px;
+    padding: 10px 14px;
     border: 1px solid var(--couleur-bordure);
     border-radius: 12px;
+    background: var(--couleur-surface);
+    color: var(--couleur-texte);
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, border-color 0.2s;
+}
+.dashboard-burger:hover {
+    background: color-mix(in srgb, var(--couleur-surface) 92%, var(--couleur-texte) 8%);
+    border-color: var(--couleur-texte-secondaire);
+}
+.dashboard-burger-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.dashboard-burger-icon svg {
+    display: block;
+}
+.dashboard-burger-text {
+    white-space: nowrap;
 }
 
 .dashboard-topbar-title {

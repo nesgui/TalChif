@@ -19,14 +19,26 @@ final class AdminUserController extends AbstractController
     ) {
     }
 
+    private const USERS_PER_PAGE = 100;
+
     #[Route('/admin/utilisateurs', name: 'admin.user.index')]
     #[IsGranted('ROLE_ADMIN')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $users = $this->userRepository->findAll();
+        $page = max(1, $request->query->getInt('page', 1));
+        $search = $request->query->get('q');
+        $limit = self::USERS_PER_PAGE;
+        $users = $this->userRepository->findPaginated($page, $limit, $search);
+        $total = $this->userRepository->countTotal($search);
+        $totalPages = max(1, (int) ceil($total / $limit));
 
         return $this->render('admin_user/index.html.twig', [
             'users' => $users,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'total' => $total,
+            'limit' => $limit,
+            'search' => $search,
         ]);
     }
 

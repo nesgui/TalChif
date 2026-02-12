@@ -171,7 +171,7 @@
                     </div>
                     <div class="qr-info">
                         <p class="qr-code-text" id="modalQRText"></p>
-                        <button class="btn btn-primary" onclick="copyQRCode()">📋 Copier</button>
+                        <button class="btn btn-primary" onclick="copyQRCode()">Copier</button>
                     </div>
                 </div>
             </div>
@@ -193,7 +193,7 @@
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0 0 1rem 0;
     display: flex;
     align-items: center;
@@ -201,25 +201,25 @@
 }
 
 .back-link {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
 }
 
 .back-link:hover {
-    color: #3b82f6;
+    color: var(--couleur-primaire);
 }
 
 .event-info h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0;
 }
 
 .event-meta {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
@@ -229,7 +229,7 @@
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -248,7 +248,7 @@
 
 .filter-group label {
     font-weight: 500;
-    color: #374151;
+    color: var(--couleur-texte);
     font-size: 0.875rem;
 }
 
@@ -262,7 +262,7 @@
 
 .search-input:focus, .filter-select:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: var(--couleur-primaire);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -275,7 +275,7 @@
     background: white;
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
@@ -290,32 +290,32 @@
 }
 
 .participants-table th {
-    background: #f8fafc;
+    background: var(--couleur-surface);
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #374151;
-    border-bottom: 2px solid #e2e8f0;
+    color: var(--couleur-texte);
+    border-bottom: 2px solid var(--couleur-bordure);
     white-space: nowrap;
 }
 
 .participants-table td {
     padding: 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--couleur-surface);
     vertical-align: middle;
 }
 
 .participant-row:hover {
-    background: #f8fafc;
+    background: var(--couleur-surface);
 }
 
 .participant-name {
     font-weight: 500;
-    color: #1e293b;
+    color: var(--couleur-texte);
 }
 
 .participant-email {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.813rem;
 }
 
@@ -339,11 +339,11 @@
 
 .price-amount {
     font-weight: 700;
-    color: #1e293b;
+    color: var(--couleur-texte);
 }
 
 .price-currency {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.75rem;
     margin-left: 0.25rem;
 }
@@ -356,12 +356,12 @@
 
 .date-main {
     font-weight: 500;
-    color: #1e293b;
+    color: var(--couleur-texte);
 }
 
 .date-time {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .status-badge {
@@ -407,7 +407,7 @@
 }
 
 .btn-view {
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     color: white;
 }
 
@@ -430,7 +430,7 @@
 }
 
 .empty-state {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .empty-icon {
@@ -452,19 +452,19 @@
     border: 1px solid #d1d5db;
     border-radius: 4px;
     text-decoration: none;
-    color: #374151;
+    color: var(--couleur-texte);
     transition: all 0.2s;
 }
 
 .page-link:hover {
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     color: white;
-    border-color: #3b82f6;
+    border-color: var(--couleur-primaire);
 }
 
 .page-current {
     padding: 0.5rem 0.75rem;
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     color: white;
     border-radius: 4px;
     font-weight: 600;
@@ -499,14 +499,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--couleur-bordure);
 }
 
 .modal-header h3 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
 }
 
 .modal-close {
@@ -514,13 +514,13 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     padding: 0.25rem;
     border-radius: 4px;
 }
 
 .modal-close:hover {
-    background: #f1f5f9;
+    background: var(--couleur-surface);
 }
 
 .modal-body {
@@ -536,13 +536,13 @@
 .qr-code-placeholder {
     width: 150px;
     height: 150px;
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
+    background: var(--couleur-surface);
+    border: 2px solid var(--couleur-bordure);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
 }
 
@@ -552,10 +552,10 @@
 
 .qr-code-text {
     font-family: 'Courier New', monospace;
-    background: #f8fafc;
+    background: var(--couleur-surface);
     padding: 0.75rem;
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     word-break: break-all;
     margin-bottom: 1rem;
     font-size: 0.875rem;
@@ -651,7 +651,7 @@ function viewQRCode(qrCode) {
             width: 150,
             margin: 2,
             color: {
-                dark: '#1e293b',
+                dark: 'var(--couleur-texte)',
                 light: '#ffffff'
             }
         }, function(error, canvas) {

@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Evenement;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class EvenementType extends AbstractType
 {
@@ -35,6 +36,10 @@ class EvenementType extends AbstractType
                         minMessage: 'Le nom doit faire au moins {{ limit }} caractères',
                         maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'
                     ),
+                    new Regex(
+                        pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u',
+                        message: 'Le nom ne doit pas contenir de caractères de contrôle ou invalides'
+                    ),
                 ],
             ])
             ->add('description', TextareaType::class, [
@@ -46,21 +51,27 @@ class EvenementType extends AbstractType
                     new NotBlank(message: 'La description est obligatoire'),
                     new Length(
                         min: 10,
-                        minMessage: 'La description doit faire au moins {{ limit }} caractères'
+                        max: 10000,
+                        minMessage: 'La description doit faire au moins {{ limit }} caractères',
+                        maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères'
+                    ),
+                    new Regex(
+                        pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]*$/u',
+                        message: 'La description ne doit pas contenir de caractères de contrôle ou invalides'
                     ),
                 ],
             ])
-            ->add('dateEvenement', DateType::class, [
-                'label' => 'Date de l\'événement',
+            ->add('dateEvenement', DateTimeType::class, [
+                'label' => 'Date et heure de l\'événement',
                 'widget' => 'single_text',
                 'attr' => [
-                    'min' => (new \DateTime())->format('Y-m-d'),
+                    'min' => (new \DateTime())->format('Y-m-d\TH:i'),
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'La date est obligatoire'),
+                    new NotBlank(message: 'La date et l\'heure sont obligatoires'),
                     new GreaterThan(
-                        value: 'today',
-                        message: 'La date doit être dans le futur'
+                        value: 'now',
+                        message: 'La date et l\'heure doivent être dans le futur'
                     ),
                 ],
             ])
@@ -68,12 +79,22 @@ class EvenementType extends AbstractType
                 'label' => 'Lieu',
                 'constraints' => [
                     new NotBlank(message: 'Le lieu est obligatoire'),
+                    new Length(max: 255, maxMessage: 'Le lieu ne peut pas dépasser {{ limit }} caractères'),
+                    new Regex(
+                        pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u',
+                        message: 'Le lieu ne doit pas contenir de caractères de contrôle ou invalides'
+                    ),
                 ],
             ])
             ->add('adresse', TextType::class, [
                 'label' => 'Adresse',
                 'constraints' => [
                     new NotBlank(message: 'L\'adresse est obligatoire'),
+                    new Length(max: 255, maxMessage: 'L\'adresse ne peut pas dépasser {{ limit }} caractères'),
+                    new Regex(
+                        pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u',
+                        message: 'L\'adresse ne doit pas contenir de caractères de contrôle ou invalides'
+                    ),
                 ],
             ])
             ->add('ville', TextType::class, [
@@ -83,6 +104,11 @@ class EvenementType extends AbstractType
                 ],
                 'constraints' => [
                     new NotBlank(message: 'La ville est obligatoire'),
+                    new Length(max: 100, maxMessage: 'La ville ne peut pas dépasser {{ limit }} caractères'),
+                    new Regex(
+                        pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u',
+                        message: 'La ville ne doit pas contenir de caractères de contrôle ou invalides'
+                    ),
                 ],
             ])
             ->add('placesDisponibles', IntegerType::class, [

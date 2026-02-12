@@ -24,16 +24,28 @@ final class OrganisateurEvenementController extends AbstractController
     ) {
     }
 
+    private const EVENTS_PER_PAGE = 100;
+
     #[Route('/organisateur/evenement', name: 'organisateur.evenement.index')]
     #[IsGranted('ROLE_ORGANISATEUR')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         /** @var User $user */
         $user = $this->getUser();
-        $evenements = $this->evenementRepository->findByOrganisateur($user);
+        $page = max(1, $request->query->getInt('page', 1));
+        $search = $request->query->get('q');
+        $limit = self::EVENTS_PER_PAGE;
+        $evenements = $this->evenementRepository->findPaginatedByOrganisateur($user, $page, $limit, $search);
+        $total = $this->evenementRepository->countByOrganisateur($user, $search);
+        $totalPages = max(1, (int) ceil($total / $limit));
 
         return $this->render('organisateur_evenement/index.html.twig', [
             'evenements' => $evenements,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'total' => $total,
+            'limit' => $limit,
+            'search' => $search,
         ]);
     }
 
@@ -58,7 +70,8 @@ final class OrganisateurEvenementController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
             $evenement->setOrganisateur($user);
-            $evenement->setSlug($slugger->slug($evenement->getNom()));
+            $baseSlug = (string) $slugger->slug($evenement->getNom());
+            $evenement->setSlug($this->evenementRepository->generateUniqueSlug($baseSlug));
             $evenement->setPlacesVendues(0);
 
             // Gérer l'upload de l'affiche principale
@@ -159,20 +172,18 @@ final class OrganisateurEvenementController extends AbstractController
         $form = $this->createForm(EvenementType::class, $evenement, [
             'allow_file_upload' => true
         ]);
+        $nomAvant = $evenement->getNom();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             error_log('DEBUG: Form is submitted and valid - starting event update');
-            
-            // Mettre à jour le slug SEULEMENT si le nom a changé
-            $originalSlug = $evenement->getSlug();
-            $newSlug = $slugger->slug($evenement->getNom());
-            
-            if ($originalSlug !== $newSlug) {
+
+            // Ne mettre à jour le slug que si le nom a vraiment changé (évite de casser le lien quand on modifie seulement une image)
+            if ($evenement->getNom() !== $nomAvant) {
+                $baseSlug = (string) $slugger->slug($evenement->getNom());
+                $newSlug = $this->evenementRepository->generateUniqueSlug($baseSlug, $evenement->getId());
                 $evenement->setSlug($newSlug);
-                error_log('DEBUG: Slug updated from ' . $originalSlug . ' to ' . $newSlug);
-            } else {
-                error_log('DEBUG: Slug unchanged: ' . $originalSlug);
+                error_log('DEBUG: Slug updated to ' . $newSlug . ' (nom modifié)');
             }
 
             // Gérer l'upload de l'affiche principale
@@ -294,25 +305,6 @@ final class OrganisateurEvenementController extends AbstractController
         return $this->render('organisateur_evenement/show.html.twig', [
             'evenement' => $evenement,
         ]);
-    }
-
-    private function generateSlug(string $nom): string
-    {
-        // Convertir en minuscules et remplacer les caractères spéciaux
-        $slug = strtolower($nom);
-        $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
-        $slug = preg_replace('/[\s-]+/', '-', $slug);
-        $slug = trim($slug, '-');
-
-        // Ajouter un suffixe si le slug existe déjà
-        $originalSlug = $slug;
-        $counter = 1;
-        while ($this->evenementRepository->findOneBy(['slug' => $slug])) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 
     #[Route('/organisateur/evenement/{id}/toggle-status/{action}', name: 'organisateur.evenement.toggle_status', methods: ['POST'])]

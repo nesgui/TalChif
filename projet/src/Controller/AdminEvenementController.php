@@ -91,8 +91,9 @@ final class AdminEvenementController extends AbstractController
                 }
             }
 
-            // Générer le slug
-            $evenement->setSlug($slugger->slug($evenement->getNom()));
+            // Générer un slug unique (évite les doublons et respecte la contrainte de route [a-z0-9-]+)
+            $baseSlug = (string) $slugger->slug($evenement->getNom());
+            $evenement->setSlug($this->evenementRepository->generateUniqueSlug($baseSlug));
 
             // Sauvegarder l'événement
             $this->evenementRepository->save($evenement, true);

@@ -7,26 +7,15 @@
 {% block dashboard_title %}Back-office admin{% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Supervision globale (prototype UI).</p>
+<p class="page-subtitle">Fonctionnalités disponibles en back-office.</p>
 
 <div class="grid">
     <section class="card">
-        <h2 class="card-title">Indicateurs</h2>
-        <p class="card-meta">
-            <span class="pill">Événements actifs: 42</span>
-            <span class="pill">Billets vendus: 8 120</span>
-            <span class="pill">Revenus: 58 400 000 XAF</span>
-            <span class="pill">Commission: 10%</span>
-        </p>
-    </section>
-
-    <section class="card">
         <h2 class="card-title">Accès rapides</h2>
+        <p class="card-meta">Seules les fonctionnalités connectées aux données réelles sont proposées ici. Les autres modules (événements, organisateurs, finance, sécurité) seront activés au fur et à mesure de leur mise en service.</p>
         <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('admin.evenement.index') }}">Gérer les événements</a>
-            <a class="btn" href="{{ path('admin.organisateur.index') }}">Gérer les organisateurs</a>
-            <a class="btn" href="{{ path('admin.finance.index') }}">Finances & paiements</a>
-            <a class="btn" href="{{ path('admin.securite.index') }}">Sécurité</a>
+            <a class="btn btn-primary" href="{{ path('admin.user.index') }}">Gérer les utilisateurs</a>
+            <a class="btn btn-secondary" href="{{ path('accueil') }}">Retour au site</a>
         </div>
     </section>
 </div>

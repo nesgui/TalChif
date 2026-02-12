@@ -6,6 +6,7 @@ use App\Repository\EvenementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EvenementRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -17,9 +18,15 @@ class Evenement
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Length(min: 3, max: 255)]
+    #[Assert\Regex(pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u', message: 'Le nom ne doit pas contenir de caractères invalides')]
     private ?string $nom = null;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
+    #[Assert\Length(min: 10, max: 10000)]
+    #[Assert\Regex(pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]*$/u', message: 'La description ne doit pas contenir de caractères invalides')]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
@@ -29,12 +36,21 @@ class Evenement
     private ?\DateTimeImmutable $dateEvenement = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le lieu est obligatoire')]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u', message: 'Le lieu ne doit pas contenir de caractères invalides')]
     private ?string $lieu = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'L\'adresse est obligatoire')]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u', message: 'L\'adresse ne doit pas contenir de caractères invalides')]
     private ?string $adresse = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'La ville est obligatoire')]
+    #[Assert\Length(max: 100)]
+    #[Assert\Regex(pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/u', message: 'La ville ne doit pas contenir de caractères invalides')]
     private ?string $ville = null;
 
     #[ORM\Column(type: 'integer')]
@@ -44,10 +60,10 @@ class Evenement
     private ?int $placesVendues = 0;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    private ?float $prixSimple = null;
+    private ?string $prixSimple = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $prixVip = null;
+    private ?string $prixVip = null;
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $affichePrincipale = null;
@@ -70,7 +86,7 @@ class Evenement
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'evenements')]
+    #[ORM\ManyToOne(inversedBy: 'evenementsOrganises')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $organisateur = null;
 
@@ -197,24 +213,24 @@ class Evenement
 
     public function getPrixSimple(): ?float
     {
-        return $this->prixSimple;
+        return $this->prixSimple ? (float) $this->prixSimple : null;
     }
 
     public function setPrixSimple(float $prixSimple): static
     {
-        $this->prixSimple = $prixSimple;
+        $this->prixSimple = (string) $prixSimple;
 
         return $this;
     }
 
     public function getPrixVip(): ?float
     {
-        return $this->prixVip;
+        return $this->prixVip ? (float) $this->prixVip : null;
     }
 
     public function setPrixVip(?float $prixVip): static
     {
-        $this->prixVip = $prixVip;
+        $this->prixVip = $prixVip ? (string) $prixVip : null;
 
         return $this;
     }
@@ -369,6 +385,6 @@ class Evenement
 
     public function hasVip(): bool
     {
-        return $this->prixVip !== null && $this->prixVip > 0;
+        return $this->prixVip !== null && (float) $this->prixVip > 0;
     }
 }

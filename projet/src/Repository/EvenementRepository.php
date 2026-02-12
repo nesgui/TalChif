@@ -53,6 +53,51 @@ class EvenementRepository extends ServiceEntityRepository
         return $this->findBy(['organisateur' => $organisateur], ['createdAt' => 'DESC']);
     }
 
+    /**
+     * Pagination pour la liste des événements d'un organisateur (grosse quantité de données).
+     */
+    public function findPaginatedByOrganisateur(User $organisateur, int $page = 1, int $limit = 100, ?string $search = null): array
+    {
+        $offset = max(0, ($page - 1) * $limit);
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.organisateur = :organisateur')
+            ->setParameter('organisateur', $organisateur)
+            ->orderBy('e.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+        $this->applyOrganisateurSearch($qb, $search);
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Nombre d'événements d'un organisateur (optionnellement filtré par recherche).
+     */
+    public function countByOrganisateur(User $organisateur, ?string $search = null): int
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.organisateur = :organisateur')
+            ->setParameter('organisateur', $organisateur);
+        $this->applyOrganisateurSearch($qb, $search);
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    private function applyOrganisateurSearch($qb, ?string $search): void
+    {
+        if ($search === null || trim($search) === '') {
+            return;
+        }
+        $term = '%' . trim($search) . '%';
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->like('e.nom', ':search'),
+                $qb->expr()->like('e.lieu', ':search'),
+                $qb->expr()->like('e.ville', ':search'),
+                $qb->expr()->like('e.description', ':search')
+            )
+        )->setParameter('search', $term);
+    }
+
     public function searchEvents(string $query): array
     {
         return $this->createQueryBuilder('e')
@@ -93,11 +138,6 @@ class EvenementRepository extends ServiceEntityRepository
         return $this->count(['isActive' => true]);
     }
 
-    public function countByOrganisateur(User $organisateur): int
-    {
-        return $this->count(['organisateur' => $organisateur]);
-    }
-
     public function save(Evenement $evenement, bool $flush = false): void
     {
         $this->getEntityManager()->persist($evenement);
@@ -114,5 +154,45 @@ class EvenementRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    /**
+     * Génère un slug unique à partir d'une base (ex. nom slugifié).
+     * Normalise en [a-z0-9-] pour correspondre aux routes.
+     * En édition, passer l'id de l'événement à exclure pour ne pas le considérer comme doublon.
+     */
+    public function generateUniqueSlug(string $baseSlug, ?int $excludeEventId = null): string
+    {
+        $slug = $this->normalizeSlugForRoute($baseSlug);
+        if ($slug === '') {
+            $slug = 'evenement';
+        }
+
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (true) {
+            $existing = $this->findOneBy(['slug' => $slug]);
+            if (!$existing) {
+                return $slug;
+            }
+            if ($excludeEventId !== null && $existing->getId() === $excludeEventId) {
+                return $slug;
+            }
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+    }
+
+    /**
+     * Normalise une chaîne pour qu'elle respecte la contrainte de route [a-z0-9-]+.
+     */
+    private function normalizeSlugForRoute(string $s): string
+    {
+        $s = strtolower($s);
+        $s = preg_replace('/[^a-z0-9\s-]/', '', $s);
+        $s = preg_replace('/[\s-]+/', '-', $s);
+
+        return trim($s, '-');
     }
 }

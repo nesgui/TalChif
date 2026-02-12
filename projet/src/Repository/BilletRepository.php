@@ -121,9 +121,9 @@ class BilletRepository extends ServiceEntityRepository
     public function findUsedTickets(int $limit = 50, int $offset = 0): array
     {
         return $this->createQueryBuilder('b')
-            ->join('b.evenement', 'e')
-            ->join('b.client', 'c')
-            ->join('b.validePar', 'v')
+            ->leftJoin('b.evenement', 'e')
+            ->leftJoin('b.client', 'c')
+            ->leftJoin('b.validePar', 'v')
             ->where('b.isUtilise = :used')
             ->setParameter('used', true)
             ->orderBy('b.dateUtilisation', 'DESC')

@@ -31,6 +31,9 @@ return [
     'services/notification_service' => [
         'path' => './assets/services/notification_service.js',
     ],
+    'services/theme_service' => [
+        'path' => './assets/services/theme_service.js',
+    ],
     'services/datatables-service' => [
         'path' => './assets/services/datatables-service.js',
     ],

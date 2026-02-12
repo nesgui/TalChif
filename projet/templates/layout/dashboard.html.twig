@@ -27,15 +27,7 @@
                         <div class="dashboard-sub">
                             <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}">Liste des événements</a>
                             <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}">Ajouter un événement</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Ventes effectuées</a>
-                        </div>
-                    </details>
-
-                    <details class="dashboard-group">
-                        <summary>Ventes</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Vue globale</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Participants (prototype)</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Vue globale ventes</a>
                         </div>
                     </details>
 
@@ -51,24 +43,7 @@
                         <summary>Gestion</summary>
                         <div class="dashboard-sub">
                             <a class="dashboard-sublink" href="{{ path('admin.user.index') }}">Utilisateurs</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}">Événements</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}">Organisateurs</a>
-                        </div>
-                    </details>
-
-                    <details class="dashboard-group">
-                        <summary>Finance</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}">Transactions</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}">Commission (prototype)</a>
-                        </div>
-                    </details>
-
-                    <details class="dashboard-group">
-                        <summary>Sécurité</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}">Anti-fraude</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}">Logs (prototype)</a>
+                            {# Événements, Organisateurs, Finance, Sécurité : masqués tant qu'en prototype (voir etat_des_lieux_fonctionnalites.md) #}
                         </div>
                     </details>
 
@@ -79,8 +54,14 @@
         </aside>
 
         <div class="dashboard-main">
+            {% include 'partials/flashes.html.twig' %}
             <header class="dashboard-topbar">
-                <label class="dashboard-burger" for="dashboard-menu">Menu</label>
+                <label class="dashboard-burger" for="dashboard-menu" aria-label="Ouvrir le menu de navigation">
+                    <span class="dashboard-burger-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                    </span>
+                    <span class="dashboard-burger-text">Menu</span>
+                </label>
                 <div class="dashboard-topbar-title">
                     {% block dashboard_title %}{% endblock %}
                 </div>

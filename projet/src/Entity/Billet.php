@@ -21,7 +21,7 @@ class Billet
     private ?string $type = 'SIMPLE'; // SIMPLE, VIP
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    private ?float $prix = null;
+    private ?string $prix = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $isValide = true;
@@ -91,12 +91,12 @@ class Billet
 
     public function getPrix(): ?float
     {
-        return $this->prix;
+        return $this->prix ? (float) $this->prix : null;
     }
 
     public function setPrix(float $prix): static
     {
-        $this->prix = $prix;
+        $this->prix = (string) $prix;
 
         return $this;
     }

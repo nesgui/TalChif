@@ -50,6 +50,33 @@ final class ValidationController extends AbstractController
             ], 404);
         }
 
+        // Anti-fraude : seul l'organisateur de l'événement ou un admin peut valider
+        $evenement = $billet->getEvenement();
+        $user = $this->getUser();
+        $isOrganisateur = $evenement->getOrganisateur() && $evenement->getOrganisateur()->getId() === $user->getId();
+        $isAdmin = $user->isAdmin();
+        if (!$isOrganisateur && !$isAdmin) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Vous n\'êtes pas autorisé à valider les billets de cet événement',
+                'type' => 'FORBIDDEN'
+            ], 403);
+        }
+
+        // Billet invalide (annulé / remboursé)
+        if (!$billet->isValide()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Billet invalide (annulé ou remboursé)',
+                'type' => 'INVALID_TICKET',
+                'billet' => [
+                    'id' => $billet->getId(),
+                    'qrCode' => $billet->getQrCode(),
+                    'statutPaiement' => $billet->getStatutPaiement()
+                ]
+            ], 400);
+        }
+
         // Vérifier si le billet est déjà utilisé
         if ($billet->isUtilise()) {
             return new JsonResponse([

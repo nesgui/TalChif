@@ -3,65 +3,168 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
-<section class="hero">
-    <img class="hero-media" src="/images/placeholders/banniere-home.jpg" alt="Bannière" />
+<section class="hero hero-modern" aria-label="Bannière d'accueil">
+    <div class="hero-media-wrap">
+        <img class="hero-media" src="/images/placeholders/banniere-home.jpg" alt="" />
+        <div class="hero-media-overlay"></div>
+    </div>
     <div class="hero-content">
         <h1 class="hero-title">Trouve ton prochain événement près de chez toi !</h1>
         <p class="hero-subtitle">Des soirées aux festivals, tout est à portée de clic.</p>
         <div class="hero-actions">
-            <a class="btn btn-primary btn-xs" href="{{ path('evenement.index') }}">Explorer</a>
-            <a class="btn btn-secondary btn-xs" href="{{ path('auth.login') }}">Se connecter</a>
+            <a class="btn btn-primary btn-xs hero-btn" href="{{ path('evenement.index') }}">Explorer</a>
+            <a class="btn btn-secondary btn-xs hero-btn" href="{{ path('auth.login') }}">Se connecter</a>
         </div>
     </div>
 </section>
 
-<style>
-/* Boutons ultra-compacts */
+<style id="accueil-page-styles">
+/* --- Bannière moderne animée --- */
+.hero-modern {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    max-height: 280px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.hero-media-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+}
+
+.hero-media {
+    max-height: 200px !important;
+    width: 100%;
+    object-fit: cover;
+    animation: heroImageReveal 1.2s ease-out forwards;
+}
+
+.hero-media-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 45%, transparent 70%);
+    pointer-events: none;
+}
+
+.hero-modern .hero-content {
+    padding: 12px 16px !important;
+    gap: 8px !important;
+    animation: heroContentReveal 0.6s ease-out 0.3s both;
+}
+
+.hero-title {
+    margin-bottom: 4px !important;
+    animation: heroTitleIn 0.7s ease-out 0.4s both;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+    margin-bottom: 8px !important;
+    animation: heroSubtitleIn 0.6s ease-out 0.55s both;
+    opacity: 0.9;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    animation: heroActionsIn 0.5s ease-out 0.7s both;
+}
+
+.hero-btn {
+    padding: 0.35rem 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes heroImageReveal {
+    from {
+        opacity: 0;
+        transform: scale(1.05);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes heroContentReveal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes heroTitleIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroSubtitleIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroActionsIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Réduction hauteur bannière */
+.hero {
+    max-height: 280px !important;
+}
+
 .btn-xs {
     padding: 0.25rem 0.75rem;
     font-size: 0.8125rem;
     line-height: 1;
 }
 
-/* Réduction espaces bannière */
-.hero-content {
-    padding: 8px !important;
-    gap: 6px !important;
-}
-
-.hero-title {
-    margin-bottom: 2px !important;
-}
-
-.hero-subtitle {
-    margin-bottom: 4px !important;
-}
-
-/* Réduction taille image bannière */
-.hero-media {
-    max-height: 200px !important;
-    width: 100%;
-    object-fit: cover;
-}
-
-/* Réduction hauteur bannière complète */
-.hero {
-    max-height: 280px !important;
-}
-
 /* Responsive bannière */
 @media (max-width: 768px) {
+    .hero-modern {
+        border-radius: 12px;
+        max-height: 220px !important;
+    }
+
     .hero-media {
         max-height: 150px !important;
     }
 
-    .hero {
-        max-height: 220px !important;
-    }
-
-    .hero-content {
-        padding: 6px !important;
-        gap: 4px !important;
+    .hero-modern .hero-content {
+        padding: 8px 12px !important;
+        gap: 6px !important;
     }
 
     .hero-title {
@@ -74,17 +177,17 @@
 }
 
 @media (max-width: 480px) {
+    .hero-modern {
+        max-height: 180px !important;
+    }
+
     .hero-media {
         max-height: 120px !important;
     }
 
-    .hero {
-        max-height: 180px !important;
-    }
-
-    .hero-content {
-        padding: 4px !important;
-        gap: 3px !important;
+    .hero-modern .hero-content {
+        padding: 6px 10px !important;
+        gap: 4px !important;
     }
 
     .hero-title {
@@ -95,9 +198,9 @@
         font-size: 12px !important;
     }
 
-    .btn-xs {
+    .hero-btn {
+        padding: 0.25rem 0.75rem;
         font-size: 0.75rem !important;
-        padding: 0.1875rem 0.625rem !important;
     }
 }
 </style>
@@ -133,17 +236,21 @@
                 <div class="product-body">
                     <h3 class="product-title">{{ evenement.titre }}</h3>
                     <div class="product-rating">
-                        <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
-                            <span class="stars-fill" style="width: {{ (evenement.note / 5 * 100)|round }}%"></span>
-                        </span>
-                        <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
+                        {% if evenement.note is defined and evenement.note is not null %}
+                            <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
+                                <span class="stars-fill" style="width: {{ (evenement.note / 5 * 100)|round }}%"></span>
+                            </span>
+                            <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
+                        {% else %}
+                            <span class="product-rating-meta">— Pas encore de note</span>
+                        {% endif %}
                     </div>
                     <div class="product-price">À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong></div>
                 </div>
             </a>
         </article>
         {% else %}
-        <p class="text-center text-gray-500">Aucun événement disponible pour le moment.</p>
+        <p class="text-center text-muted">Aucun événement disponible pour le moment.</p>
         {% endfor %}
     </div>
     <div class="section-actions">

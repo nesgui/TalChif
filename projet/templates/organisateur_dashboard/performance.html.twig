@@ -52,7 +52,7 @@
             <div class="chart-header">
                 <h3>📈 Ventes par jour</h3>
                 <div class="chart-controls">
-                    <button class="btn-small" onclick="toggleChart('daily')">📊</button>
+                    <button class="btn-small" onclick="toggleChart('daily')">Jour</button>
                 </div>
             </div>
             <div class="chart-content">
@@ -73,7 +73,7 @@
             <div class="chart-header">
                 <h3>📅 Ventes par mois</h3>
                 <div class="chart-controls">
-                    <button class="btn-small" onclick="toggleChart('monthly')">📊</button>
+                    <button class="btn-small" onclick="toggleChart('monthly')">Mois</button>
                 </div>
             </div>
             <div class="chart-content">
@@ -168,7 +168,7 @@
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0 0 1rem 0;
     display: flex;
     align-items: center;
@@ -176,25 +176,25 @@
 }
 
 .back-link {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
 }
 
 .back-link:hover {
-    color: #3b82f6;
+    color: var(--couleur-primaire);
 }
 
 .event-info h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0;
 }
 
 .event-meta {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
@@ -207,12 +207,12 @@
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 .stat-card.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--palette-primary-red) 0%, var(--palette-dark-blue) 100%);
     color: white;
 }
 
@@ -285,7 +285,7 @@
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
@@ -299,7 +299,7 @@
 .chart-header h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0;
 }
 
@@ -332,11 +332,11 @@
 }
 
 .legend-color.daily {
-    background: #3b82f6;
+    background: var(--couleur-primaire);
 }
 
 .legend-color.monthly {
-    background: #10b981;
+    background: var(--couleur-success);
 }
 
 .popularity-list {
@@ -350,9 +350,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--couleur-surface);
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
 }
 
 .type-info {
@@ -363,12 +363,12 @@
 
 .type-name {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     text-transform: uppercase;
 }
 
 .type-count {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
 }
 
@@ -381,21 +381,21 @@
 .percentage-bar {
     width: 60px;
     height: 6px;
-    background: #f1f5f9;
+    background: var(--couleur-surface);
     border-radius: 3px;
     overflow: hidden;
 }
 
 .percentage-fill {
     height: 100%;
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     transition: width 0.3s ease;
 }
 
 .percentage-text {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .peaks-list {
@@ -409,14 +409,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--couleur-surface);
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
 }
 
 .peak-time {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     font-size: 1.125rem;
 }
 
@@ -426,12 +426,12 @@
 
 .sales-number {
     font-weight: 700;
-    color: #10b981;
+    color: var(--couleur-success);
     font-size: 1.125rem;
 }
 
 .sales-label {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.75rem;
     margin-left: 0.25rem;
 }
@@ -440,14 +440,14 @@
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin-bottom: 1rem;
 }
 
@@ -514,8 +514,8 @@ function initializeCharts() {
                 datasets: [{
                     label: 'Billets vendus',
                     data: performanceData.ventes_par_jour.map(item => item.sales),
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: '#E63946',
+                    backgroundColor: 'rgba(230, 57, 70, 0.15)',
                     tension: 0.4,
                     fill: true
                 }]

@@ -1,53 +1,63 @@
-/* Thème par défaut (clair) - Design moderne inspiré de Symposium */
+/* Thème par défaut (clair) - Palette OSEA cohérente et accessible */
 :root {
-    /* Couleurs de fond */
-    --couleur-fond: #ffffff;
-    --couleur-surface: #f8fafc;
+    /* Design tokens - palette fournie */
+    --palette-primary-red: #E63946;
+    --palette-light-green: #F1FAEE;
+    --palette-light-blue: #A8DADC;
+    --palette-medium-blue: #457B9D;
+    --palette-dark-blue: #1D3557;
+
+    /* Couleurs de fond (hiérarchie visuelle) */
+    --couleur-fond: var(--palette-light-green);
+    --couleur-surface: var(--palette-light-blue);
     --couleur-surface-elevee: #ffffff;
-    --couleur-bordure: #e2e8f0;
-    --couleur-bordure-subtile: #f1f5f9;
-    
-    /* Couleurs de texte */
-    --couleur-texte: #1e293b;
-    --couleur-texte-secondaire: #64748b;
-    --couleur-texte-tertiaire: #94a3b8;
+    --couleur-bordure: color-mix(in srgb, var(--palette-dark-blue) 25%, var(--palette-light-blue));
+    --couleur-bordure-subtile: color-mix(in srgb, var(--palette-light-blue) 80%, var(--palette-light-green));
+
+    /* Couleurs de texte (contraste WCAG sur fond clair) */
+    --couleur-texte: var(--palette-dark-blue);
+    --couleur-texte-secondaire: var(--palette-medium-blue);
+    --couleur-texte-tertiaire: color-mix(in srgb, var(--palette-dark-blue) 60%, var(--palette-light-green));
     --couleur-texte-inverse: #ffffff;
-    
-    /* Palette principale - Bleu moderne */
-    --couleur-primaire: #3b82f6;
-    --couleur-primaire-hover: #2563eb;
-    --couleur-primaire-active: #1d4ed8;
-    --couleur-primaire-clair: #dbeafe;
-    --couleur-primaire-fonce: #1e40af;
-    
-    /* Palette secondaire - Gris moderne */
-    --couleur-secondaire: #64748b;
-    --couleur-secondaire-hover: #475569;
-    --couleur-secondaire-clair: #f1f5f9;
-    
-    /* Palette d'accents */
+
+    /* Primaire = actions principales, CTAs (#E63946) */
+    --couleur-primaire: var(--palette-primary-red);
+    --couleur-primaire-hover: #c92a37;
+    --couleur-primaire-active: #b02430;
+    --couleur-primaire-clair: color-mix(in srgb, var(--palette-primary-red) 18%, var(--palette-light-green));
+    --couleur-primaire-fonce: var(--palette-primary-red);
+
+    /* Secondaire = icônes, boutons secondaires, hover (#457B9D) */
+    --couleur-secondaire: var(--palette-medium-blue);
+    --couleur-secondaire-hover: #3a6a85;
+    --couleur-secondaire-clair: color-mix(in srgb, var(--palette-medium-blue) 25%, var(--palette-light-green));
+
+    /* États système uniquement (success, error, warning) - conservés pour sémantique */
     --couleur-success: #10b981;
     --couleur-warning: #f59e0b;
-    --couleur-error: #ef4444;
-    --couleur-info: #06b6d4;
-    
-    /* Ombres modernes */
-    --ombre-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --ombre-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --ombre-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --ombre-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    
+    --couleur-error: #dc2626;
+    --couleur-error-hover: #b91c1c;
+    --couleur-success-hover: #059669;
+    --couleur-info: var(--palette-medium-blue);
+
+    /* Ombres */
+    --ombre-sm: 0 1px 2px 0 rgb(29 53 87 / 0.06);
+    --ombre-md: 0 4px 6px -1px rgb(29 53 87 / 0.08), 0 2px 4px -2px rgb(29 53 87 / 0.06);
+    --ombre-lg: 0 10px 15px -3px rgb(29 53 87 / 0.1), 0 4px 6px -4px rgb(29 53 87 / 0.06);
+    --ombre-xl: 0 20px 25px -5px rgb(29 53 87 / 0.1), 0 8px 10px -6px rgb(29 53 87 / 0.08);
+    --couleur-ombre: 0 10px 30px rgb(29 53 87 / 0.12);
+
     /* Design system */
     --rayon: 12px;
     --rayon-sm: 8px;
     --rayon-lg: 16px;
     --rayon-xl: 24px;
-    
+
     /* Transitions */
     --transition-rapide: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normale: 250ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-lente: 350ms cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* Espacements */
     --espace-xs: 4px;
     --espace-sm: 8px;
@@ -58,38 +68,37 @@
     --espace-3xl: 64px;
 }
 
-/* Thème sombre - Design moderne inspiré de VS Code/Dark Mode */
-[data-theme="dark"] {
-    /* Couleurs de fond */
-    --couleur-fond: #0f172a;
-    --couleur-surface: #1e293b;
-    --couleur-surface-elevee: #334155;
-    --couleur-bordure: #334155;
-    --couleur-bordure-subtile: #1e293b;
-    
-    /* Couleurs de texte */
-    --couleur-texte: #f8fafc;
-    --couleur-texte-secondaire: #cbd5e1;
-    --couleur-texte-tertiaire: #94a3b8;
-    --couleur-texte-inverse: #0f172a;
-    
-    /* Palette principale - Bleu moderne en mode sombre */
-    --couleur-primaire: #60a5fa;
-    --couleur-primaire-hover: #3b82f6;
-    --couleur-primaire-active: #2563eb;
-    --couleur-primaire-clair: #1e3a8a;
-    --couleur-primaire-fonce: #dbeafe;
-    
-    /* Palette secondaire */
-    --couleur-secondaire: #94a3b8;
-    --couleur-secondaire-hover: #cbd5e1;
-    --couleur-secondaire-clair: #334155;
-    
-    /* Ombres modernes pour mode sombre */
+/* Thème sombre - Même palette OSEA, variantes sombres */
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --couleur-fond: #0d1321;
+    --couleur-surface: var(--palette-dark-blue);
+    --couleur-surface-elevee: #2a3f5f;
+    --couleur-bordure: color-mix(in srgb, var(--palette-medium-blue) 50%, transparent);
+    --couleur-bordure-subtile: var(--palette-dark-blue);
+
+    --couleur-texte: var(--palette-light-green);
+    --couleur-texte-secondaire: var(--palette-light-blue);
+    --couleur-texte-tertiaire: var(--palette-medium-blue);
+    --couleur-texte-inverse: var(--palette-dark-blue);
+
+    --couleur-primaire: var(--palette-primary-red);
+    --couleur-primaire-hover: #f0505d;
+    --couleur-primaire-active: #ff6b78;
+    --couleur-primaire-clair: color-mix(in srgb, var(--palette-primary-red) 30%, var(--palette-dark-blue));
+    --couleur-primaire-fonce: var(--palette-primary-red);
+
+    --couleur-secondaire: var(--palette-medium-blue);
+    --couleur-secondaire-hover: var(--palette-light-blue);
+    --couleur-secondaire-clair: color-mix(in srgb, var(--palette-medium-blue) 40%, var(--palette-dark-blue));
+    --couleur-error-hover: #f87171;
+    --couleur-success-hover: #34d399;
+
     --ombre-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --ombre-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
     --ombre-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
     --ombre-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+    --couleur-ombre: 0 10px 30px rgb(0 0 0 / 0.4);
 }
 
 /* Thème sombre automatique (préférence système) - désactivé pour 2 modes */
@@ -105,7 +114,7 @@
 html {
     font-size: 16px;
     scroll-behavior: smooth;
-    color-scheme: light dark;
+    color-scheme: light;
 }
 
 body {
@@ -119,10 +128,30 @@ body {
     transition: background-color var(--transition-normale), color var(--transition-normale);
 }
 
+/* Liens texte : primary red pour visibilité et hiérarchie */
+a:not(.btn):not(.public-drawer-link):not(.public-tab):not(.public-brand) {
+    color: var(--couleur-primaire);
+    text-decoration: none;
+}
+a:not(.btn):not(.public-drawer-link):not(.public-tab):not(.public-brand):hover {
+    color: var(--couleur-primaire-hover);
+    text-decoration: underline;
+}
+a:not(.btn):not(.public-drawer-link):not(.public-tab):not(.public-brand):focus-visible {
+    outline: 2px solid var(--couleur-primaire);
+    outline-offset: 2px;
+}
+
 /* Focus visible pour accessibilité */
 :focus-visible {
     outline: 2px solid var(--couleur-primaire);
     outline-offset: 2px;
+}
+
+/* Liens importants = primary red */
+a[href].btn-primary,
+a.public-drawer-link {
+    color: var(--couleur-texte-inverse);
 }
 
 /* Scrollbar moderne */
@@ -144,103 +173,54 @@ body {
     background: var(--couleur-texte-tertiaire);
 }
 
-/* Bouton toggle de thème moderne */
+/* Bouton toggle de thème – style switch (fond bleu nuit + icône blanche) */
 .public-topbar-actions {
     display: flex;
     align-items: center;
     gap: var(--espace-sm);
 }
 
+/* Auth Theme Toggle - Consistent with Auth Layout */
+.auth-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--couleur-texte-secondaire);
+    border-radius: var(--rayon-md);
+    cursor: pointer;
+    transition: all var(--transition-rapide);
+}
+
+.auth-theme-toggle:hover {
+    color: var(--couleur-primaire);
+    background: color-mix(in srgb, var(--couleur-primaire) 10%, transparent);
+}
+
 .theme-toggle {
+    --theme-toggle-bg: var(--palette-dark-blue);
+    --theme-toggle-bg-hover: var(--palette-medium-blue);
+    --theme-toggle-icon: #ffffff;
+
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
-    background: var(--couleur-surface);
-    border: 1px solid var(--couleur-bordure);
+    background: var(--theme-toggle-bg);
+    border: none;
     border-radius: var(--rayon);
     cursor: pointer;
-    transition: all var(--transition-normale);
-    overflow: hidden;
-}
-
-.theme-toggle:hover {
-    background: var(--couleur-surface-elevee);
-    border-color: var(--couleur-primaire);
-    transform: translateY(-1px);
-    box-shadow: var(--ombre-md);
-}
-
-.theme-toggle:active {
-    transform: translateY(0);
-    box-shadow: var(--ombre-sm);
-}
-
-/* Icônes du thème avec animations */
-.theme-toggle .icon-sun,
-.theme-toggle .icon-moon {
-    position: absolute;
-    font-size: 18px;
-    transition: all var(--transition-normale);
-}
-
-[data-theme="dark"] .theme-toggle .icon-sun {
-    opacity: 0;
-    transform: rotate(180deg) scale(0.5);
-}
-
-[data-theme="dark"] .theme-toggle .icon-moon {
-    opacity: 1;
-    transform: rotate(0deg) scale(1);
-}
-
-[data-theme="light"] .theme-toggle .icon-sun {
-    opacity: 1;
-    transform: rotate(0deg) scale(1);
-}
-
-[data-theme="light"] .theme-toggle .icon-moon {
-    opacity: 0;
-    transform: rotate(-180deg) scale(0.5);
-}
-
-/* Mode auto - supprimé pour 2 modes seulement */
-
-/* Tooltip moderne */
-.theme-toggle[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: -35px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--couleur-surface-elevee);
-    color: var(--couleur-texte);
-    padding: var(--espace-xs) var(--espace-sm);
-    border-radius: var(--rayon-sm);
-    font-size: 12px;
-    white-space: nowrap;
-    box-shadow: var(--ombre-lg);
-    z-index: 1000;
-    pointer-events: none;
-}
-
-.theme-toggle {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: var(--couleur-surface);
-    border: 1px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    cursor: pointer;
-    transition: all var(--transition-normale);
     overflow: hidden;
     user-select: none;
-    font-size: 20px;
+    color: var(--theme-toggle-icon);
+    transition: background-color var(--transition-normale),
+                box-shadow var(--transition-normale),
+                transform var(--transition-normale);
 }
 
 .theme-toggle::before {
@@ -248,16 +228,16 @@ body {
     position: absolute;
     inset: 0;
     border-radius: var(--rayon);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent);
     opacity: 0;
     transition: opacity var(--transition-normale);
+    pointer-events: none;
 }
 
 .theme-toggle:hover {
-    background: var(--couleur-surface-elevee);
-    border-color: var(--couleur-primaire);
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: var(--ombre-lg);
+    background: var(--theme-toggle-bg-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .theme-toggle:hover::before {
@@ -265,55 +245,107 @@ body {
 }
 
 .theme-toggle:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: var(--ombre-sm);
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .theme-toggle .icon-sun,
 .theme-toggle .icon-moon {
     position: absolute;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle .icon-sun svg,
+.theme-toggle .icon-moon svg {
+    display: block;
+    color: #ffffff;
+    fill: #ffffff;
+    stroke: #ffffff;
+}
+
+/* Icône visible selon le thème courant */
+.theme-toggle[data-theme="light"] .icon-sun {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .theme-toggle[data-theme="light"] .icon-moon {
     opacity: 0;
-    transform: rotate(180deg) scale(0);
-}
-
-.theme-toggle[data-theme="light"] .icon-sun {
-    opacity: 1;
-    transform: rotate(0deg) scale(1);
+    transform: scale(0.8);
+    pointer-events: none;
 }
 
 .theme-toggle[data-theme="dark"] .icon-sun {
     opacity: 0;
-    transform: rotate(-180deg) scale(0);
+    transform: scale(0.8);
+    pointer-events: none;
 }
 
 .theme-toggle[data-theme="dark"] .icon-moon {
     opacity: 1;
-    transform: rotate(0deg) scale(1);
+    transform: scale(1);
 }
 
-.theme-toggle[data-theme="auto"] .icon-sun,
-.theme-toggle[data-theme="auto"] .icon-moon {
-    opacity: 0.8;
-    transform: scale(0.9);
+/* Fallback avant que le contrôleur ne définisse data-theme */
+html[data-theme="dark"] .theme-toggle:not([data-theme]) .icon-sun {
+    opacity: 0;
+    transform: scale(0.8);
 }
 
-/* Thème sombre - adaptation du bouton */
-[data-theme="dark"] .theme-toggle {
-    background: linear-gradient(135deg, #4a5568, #2d3748);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+html[data-theme="dark"] .theme-toggle:not([data-theme]) .icon-moon {
+    opacity: 1;
+    transform: scale(1);
 }
 
-[data-theme="dark"] .theme-toggle:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+/* Tooltip au survol */
+.theme-toggle[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--couleur-surface-elevee);
+    color: var(--couleur-texte);
+    padding: var(--espace-xs) var(--espace-sm);
+    border-radius: var(--rayon-sm);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    box-shadow: var(--ombre-lg);
+    z-index: 1000;
+    pointer-events: none;
+    border: 1px solid var(--couleur-bordure);
 }
 
-[data-theme="dark"] .theme-toggle:active {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+/* Thème sombre : toggle et drawer restent sur la palette */
+html[data-theme="dark"] .theme-toggle {
+    background: var(--palette-dark-blue);
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .theme-toggle:hover {
+    background: var(--palette-medium-blue);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme="dark"] .theme-toggle .icon-sun svg,
+html[data-theme="dark"] .theme-toggle .icon-moon svg {
+    color: #ffffff;
+    fill: #ffffff;
+    stroke: #ffffff;
+}
+
+/* Dark theme for auth theme toggle */
+html[data-theme="dark"] .auth-theme-toggle {
+    color: var(--couleur-texte-secondaire);
+}
+
+html[data-theme="dark"] .auth-theme-toggle:hover {
+    color: var(--couleur-primaire);
+    background: color-mix(in srgb, var(--couleur-primaire) 15%, transparent);
 }
 
 .public-toggle {
@@ -409,13 +441,31 @@ body {
 }
 
 .public-drawer-link {
+    --drawer-btn-bg: var(--palette-dark-blue);
+    --drawer-btn-bg-hover: var(--palette-medium-blue);
+
     display: inline-flex;
+    align-items: center;
     text-decoration: none;
-    color: var(--couleur-texte);
-    padding: 10px 10px;
-    border-radius: 12px;
-    border: 1px solid var(--couleur-bordure);
-    background: color-mix(in srgb, var(--couleur-fond) 86%, var(--couleur-texte) 14%);
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: var(--rayon);
+    border: none;
+    background: var(--drawer-btn-bg);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    transition: background-color var(--transition-normale), box-shadow var(--transition-normale);
+}
+
+.public-drawer-link:hover {
+    background: var(--drawer-btn-bg-hover);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.public-drawer-link-highlight {
+    font-weight: 700;
+    border: 2px solid rgba(255, 255, 255, 0.4);
 }
 
 .public-drawer-sep {
@@ -534,6 +584,69 @@ body {
     color: var(--couleur-texte-secondaire);
 }
 
+/* Utilitaires texte (alignés sur la palette) */
+.text-muted {
+    color: var(--couleur-texte-secondaire);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Aide de formulaire (remplace text-gray-500 dans les templates) */
+.form-help {
+    display: block;
+    margin-top: var(--espace-xs);
+    font-size: 0.8125rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+/* Champ de formulaire (design system) */
+.form-control {
+    width: 100%;
+    padding: var(--espace-sm) var(--espace-md);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--couleur-texte);
+    background: var(--couleur-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    transition: border-color var(--transition-rapide), box-shadow var(--transition-rapide);
+}
+
+.form-control::placeholder {
+    color: var(--couleur-texte-tertiaire);
+}
+
+.form-control:hover {
+    border-color: var(--couleur-texte-tertiaire);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 3px var(--couleur-primaire-clair);
+}
+
+/* Hiérarchie : titres et navigation en dark blue */
+h1, h2, h3, h4, h5, h6,
+.page-title,
+.dashboard-nav-title,
+.section-title {
+    color: var(--palette-dark-blue);
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .section-title {
+    color: var(--couleur-texte);
+}
+
 .page-title {
     margin: 0 0 6px;
     font-size: 28px;
@@ -615,12 +728,19 @@ body {
     outline-offset: 2px;
 }
 
-.btn:disabled {
+.btn:disabled,
+.btn-disabled {
     background: var(--couleur-bordure);
     color: var(--couleur-texte-tertiaire);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    pointer-events: none;
+}
+
+.btn-disabled {
+    pointer-events: auto;
+    cursor: not-allowed;
 }
 
 /* Variantes de boutons */
@@ -636,14 +756,15 @@ body {
 }
 
 .btn-secondary {
-    background: var(--couleur-surface);
-    border-color: var(--couleur-bordure);
-    color: var(--couleur-texte);
+    background: var(--couleur-secondaire);
+    border-color: var(--couleur-secondaire);
+    color: var(--couleur-texte-inverse);
 }
 
 .btn-secondary:hover {
-    background: var(--couleur-bordure);
-    color: var(--couleur-texte);
+    background: var(--couleur-secondaire-hover);
+    border-color: var(--couleur-secondaire-hover);
+    color: var(--couleur-texte-inverse);
 }
 
 .btn-success {
@@ -653,8 +774,8 @@ body {
 }
 
 .btn-success:hover {
-    background: #059669;
-    border-color: #059669;
+    background: var(--couleur-success-hover, #059669);
+    border-color: var(--couleur-success-hover, #059669);
 }
 
 .btn-danger {
@@ -664,8 +785,8 @@ body {
 }
 
 .btn-danger:hover {
-    background: #dc2626;
-    border-color: #dc2626;
+    background: var(--couleur-error-hover, #dc2626);
+    border-color: var(--couleur-error-hover, #dc2626);
 }
 
 .btn-outline {
@@ -740,8 +861,67 @@ body {
 }
 
 .table th {
-    color: var(--couleur-texte-secondaire);
+    color: var(--palette-dark-blue);
+    background: color-mix(in srgb, var(--palette-light-blue) 70%, var(--palette-light-green));
     font-weight: 600;
+}
+
+/* Pagination serveur (sous les tableaux) */
+.table-pagination {
+    margin-top: var(--espace-md);
+    padding-top: var(--espace-md);
+    border-top: 1px solid var(--couleur-bordure);
+}
+
+.pagination-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-md);
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.875rem;
+}
+
+/* Zone de recherche (au-dessus des tableaux) */
+.search-zone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espace-sm);
+    margin-bottom: var(--espace-md);
+    padding: var(--espace-sm) 0;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.search-zone-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--couleur-texte-secondaire);
+}
+
+.search-zone-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+}
+
+.pagination-link {
+    color: var(--couleur-primaire);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.pagination-link:hover {
+    text-decoration: underline;
+}
+
+.pagination-link.disabled {
+    color: var(--couleur-texte-tertiaire);
+    cursor: default;
+    text-decoration: none;
 }
 
 .pill {
@@ -917,7 +1097,7 @@ body {
 .stars-fill {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, #f59e0b, #f59e0b);
+    background: var(--couleur-warning);
 }
 
 .product-price {
@@ -1196,13 +1376,39 @@ body {
     display: none;
     cursor: pointer;
     font-weight: 700;
-    padding: 8px 10px;
+    padding: 10px 14px;
     border: 1px solid var(--couleur-bordure);
     border-radius: 12px;
+    background: var(--couleur-surface);
+    color: var(--couleur-texte);
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, border-color 0.2s;
+}
+.dashboard-burger:hover {
+    background: color-mix(in srgb, var(--couleur-surface) 92%, var(--couleur-texte) 8%);
+    border-color: var(--couleur-texte-secondaire);
+}
+.dashboard-burger-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.dashboard-burger-icon svg {
+    display: block;
+}
+.dashboard-burger-text {
+    white-space: nowrap;
 }
 
 .dashboard-topbar-title {
     font-weight: 800;
+}
+
+.dashboard-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-sm);
+    flex-wrap: wrap;
 }
 
 .dashboard-content {

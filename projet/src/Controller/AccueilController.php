@@ -38,8 +38,8 @@ final class AccueilController extends AbstractController
                 'ville' => $evenement->getVille(),
                 'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
                 'prix_min' => $evenement->getPrixSimple(),
-                'note' => $this->generateRandomNote(), // TODO: Implémenter vrai système d'avis
-                'avis' => rand(10, 200), // TODO: Compter les vrais avis
+                'note' => null,
+                'avis' => null,
                 'badge' => $this->getBadgeForEvent($evenement),
                 'places_disponibles' => $evenement->getPlacesRestantes(),
                 'places_total' => $evenement->getPlacesDisponibles(),
@@ -70,11 +70,5 @@ final class AccueilController extends AbstractController
 
         // Par défaut: recommandé
         return 'Recommandé';
-    }
-
-    private function generateRandomNote(): float
-    {
-        // Générer une note entre 3.5 et 5.0 avec 1 décimale
-        return round(3.5 + (rand(0, 15) / 10), 1);
     }
 }

@@ -56,7 +56,7 @@
 
                     <div class="card-actions">
                         <button type="submit" class="btn btn-primary">
-                            🛒 Ajouter au panier
+                            Ajouter au panier
                         </button>
                         <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn">
                             Retour aux détails
@@ -263,8 +263,8 @@
 .auth-required {
     text-align: center;
     padding: 2rem;
-    background: #fef3c7;
-    border: 1px solid #f59e0b;
+    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-fond));
+    border: 1px solid var(--couleur-warning);
     border-radius: var(--rayon);
 }
 

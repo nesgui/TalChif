@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class UserType extends AbstractType
 {
@@ -23,18 +24,29 @@ class UserType extends AbstractType
                 'label' => 'Email',
                 'constraints' => [
                     new NotBlank(message: 'L\'email est obligatoire'),
+                    new Length(max: 180, maxMessage: 'L\'email ne peut pas dépasser {{ limit }} caractères'),
                 ],
             ])
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
                 'constraints' => [
                     new NotBlank(message: 'Le nom est obligatoire'),
+                    new Length(max: 255, maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'),
+                    new Regex(
+                        pattern: '/^[\p{L}\p{M}\s\-\']+$/u',
+                        message: 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes'
+                    ),
                 ],
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
                 'constraints' => [
                     new NotBlank(message: 'Le prénom est obligatoire'),
+                    new Length(max: 255, maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères'),
+                    new Regex(
+                        pattern: '/^[\p{L}\p{M}\s\-\']+$/u',
+                        message: 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes'
+                    ),
                 ],
             ])
             ->add('telephone', TelType::class, [
@@ -42,6 +54,13 @@ class UserType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'placeholder' => '+235 XXXXXXXX',
+                ],
+                'constraints' => [
+                    new Length(max: 20, maxMessage: 'Le téléphone ne peut pas dépasser {{ limit }} caractères'),
+                    new Regex(
+                        pattern: '/^[\d\s+\-()]*$/',
+                        message: 'Le téléphone ne peut contenir que des chiffres, espaces, +, - et parenthèses'
+                    ),
                 ],
             ]);
 
@@ -55,7 +74,13 @@ class UserType extends AbstractType
                         new NotBlank(message: 'Le mot de passe est obligatoire'),
                         new Length(
                             min: 6,
-                            minMessage: 'Le mot de passe doit faire au moins {{ limit }} caractères'
+                            max: 4096,
+                            minMessage: 'Le mot de passe doit faire au moins {{ limit }} caractères',
+                            maxMessage: 'Le mot de passe ne peut pas dépasser {{ limit }} caractères'
+                        ),
+                        new Regex(
+                            pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/',
+                            message: 'Le mot de passe ne doit pas contenir de caractères de contrôle'
                         ),
                     ],
                 ])

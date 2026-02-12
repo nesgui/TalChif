@@ -156,7 +156,7 @@
     grid-template-columns: 120px 1fr;
     gap: 1rem;
     padding: 1.5rem;
-    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    background: linear-gradient(135deg, var(--couleur-fond), var(--couleur-surface));
 }
 
 .event-image {
@@ -182,12 +182,12 @@
 }
 
 .pill-used {
-    background: #ef4444;
+    background: var(--couleur-error);
     color: white;
 }
 
 .pill-not-used {
-    background: #f59e0b;
+    background: var(--couleur-warning);
     color: white;
 }
 
@@ -205,7 +205,7 @@
 
 .time-ago {
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .ticket-details {
@@ -243,8 +243,8 @@
 }
 
 .qr-code.used {
-    background: #fef2f2;
-    border-color: #ef4444;
+    background: color-mix(in srgb, var(--couleur-error) 12%, var(--couleur-fond));
+    border-color: var(--couleur-error);
 }
 
 .qr-code small {
@@ -284,7 +284,7 @@
 }
 
 .not-used-notice {
-    color: #f59e0b;
+    color: var(--couleur-warning);
     font-size: 0.75rem;
     text-align: right;
 }

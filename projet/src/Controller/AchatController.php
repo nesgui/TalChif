@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Billet;
 use App\Entity\Evenement;
 use App\Repository\EvenementRepository;
+use App\Service\Payment\PaymentInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,8 @@ final class AchatController extends AbstractController
 {
     public function __construct(
         private EvenementRepository $evenementRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private PaymentInterface $paymentService
     ) {
     }
 
@@ -79,18 +81,26 @@ final class AchatController extends AbstractController
     {
         $evenement = $this->evenementRepository->find($id);
 
-        if (!$evenement || $evenement->getSlug() !== $slug) {
+        if (!$evenement) {
             throw $this->createNotFoundException('Événement non trouvé');
+        }
+
+        // Redirection si l'URL contient un slug obsolète (après modification du nom)
+        if ($evenement->getSlug() !== $slug) {
+            return $this->redirectToRoute('achat.evenement', [
+                'slug' => $evenement->getSlug(),
+                'id' => $evenement->getId(),
+            ], Response::HTTP_MOVED_PERMANENTLY);
         }
 
         if (!$evenement->isIsActive()) {
             $this->addFlash('error', 'Cet événement n\'est pas disponible');
-            return $this->redirectToRoute('evenement.show', ['slug' => $slug, 'id' => $id]);
+            return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }
 
         if ($evenement->isComplet()) {
             $this->addFlash('error', 'Cet événement est complet');
-            return $this->redirectToRoute('evenement.show', ['slug' => $slug, 'id' => $id]);
+            return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }
 
         return $this->render('achat/evenement.html.twig', [
@@ -130,40 +140,48 @@ final class AchatController extends AbstractController
         $methodePaiement = $request->request->get('methode_paiement');
         $telephone = $request->request->get('telephone');
         
-        if (!in_array($methodePaiement, ['momo', 'airtel', 'orange']) || !$telephone) {
+        if (!$this->paymentService->supports($methodePaiement ?? '') || empty($telephone)) {
             $this->addFlash('error', 'Informations de paiement invalides');
             return $this->redirectToRoute('achat.index');
         }
 
-        // SIMULATION DE PAIEMENT - SANS API RÉELLE
-        $transactionId = 'TEST_' . strtoupper($methodePaiement) . '_' . uniqid();
         $total = 0;
+        $lignes = [];
 
         try {
-            // Étape 1: Simulation de validation du numéro de téléphone
-            if (!$this->validerTelephone($telephone)) {
-                throw new \Exception('Format du numéro de téléphone invalide');
-            }
-
-            // Étape 2: Simulation de la vérification du solde (toujours réussi en test)
-            $this->addFlash('info', "Vérification du solde {$methodePaiement}...");
-
-            // Étape 3: Simulation du processus de paiement
-            sleep(1); // Simuler un délai de traitement
-            
             foreach ($panier as $id => $quantite) {
                 $evenement = $this->evenementRepository->find($id);
-                
                 if (!$evenement || !$evenement->isIsActive()) {
                     continue;
                 }
-
-                // Vérifier les places disponibles
                 if ($quantite > $evenement->getPlacesRestantes()) {
                     throw new \Exception("Plus assez de places disponibles pour {$evenement->getNom()}");
                 }
+                $total += $evenement->getPrixSimple() * $quantite;
+                $lignes[] = ['evenement' => $evenement, 'quantite' => $quantite];
+            }
 
-                // Créer les billets
+            if ($total <= 0) {
+                $this->addFlash('error', 'Panier invalide ou événements indisponibles.');
+                return $this->redirectToRoute('achat.index');
+            }
+
+            $result = $this->paymentService->payer($total, $methodePaiement, [
+                'telephone' => $telephone,
+                'email' => $user->getUserIdentifier(),
+            ]);
+
+            if (!$result->isSuccess()) {
+                $this->addFlash('error', 'Paiement refusé : ' . $result->getMessage());
+                return $this->redirectToRoute('achat.index');
+            }
+
+            $transactionId = $result->getTransactionId();
+
+            foreach ($lignes as $ligne) {
+                $evenement = $ligne['evenement'];
+                $quantite = $ligne['quantite'];
+
                 for ($i = 0; $i < $quantite; $i++) {
                     $billet = new Billet();
                     $billet->setQrCode($this->generateQrCode());
@@ -175,52 +193,26 @@ final class AchatController extends AbstractController
                     $billet->setTransactionId($transactionId);
                     $billet->setStatutPaiement('PAYE');
                     $billet->validerPaiement();
-
                     $this->entityManager->persist($billet);
                 }
 
-                // Mettre à jour les places vendues
                 $evenement->setPlacesVendues($evenement->getPlacesVendues() + $quantite);
-                $total += $evenement->getPrixSimple() * $quantite;
             }
 
             $this->entityManager->flush();
 
-            // Étape 4: Simulation de confirmation SMS
             $this->addFlash('success', "📱 SMS de confirmation envoyé au {$telephone}");
-            $this->addFlash('success', "💳 Paiement de {$total} XAF effectué avec succès par {$methodePaiement} !");
-            $this->addFlash('info', "🎫 Vos billets ont été générés avec succès");
-
-            // Vider le panier
+            $this->addFlash('success', "💳 {$result->getMessage()}");
+            $this->addFlash('info', '🎫 Vos billets ont été générés avec succès.');
             $session->remove('panier');
-            
-            return $this->redirectToRoute('achat.confirmation', [
-                'transactionId' => $transactionId
-            ]);
 
+            return $this->redirectToRoute('achat.confirmation', [
+                'transactionId' => $transactionId,
+            ]);
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Erreur lors du paiement: ' . $e->getMessage());
+            $this->addFlash('error', 'Erreur lors du paiement : ' . $e->getMessage());
             return $this->redirectToRoute('achat.index');
         }
-    }
-
-    private function validerTelephone(string $telephone): bool
-    {
-        // Formats acceptés pour le Tchad
-        $patterns = [
-            '/^235\s\d{2}\s\d{2}\s\d{2}\s\d{2}$/', // 235 XX XX XX XX
-            '/^235\d{8}$/',                           // 235XXXXXXXX
-            '/^\+235\d{8}$/',                         // +235XXXXXXXX
-            '/^00\d{11}$/'                            // 00XXXXXXXXXXX
-        ];
-
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, preg_replace('/\s/', '', $telephone))) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     #[Route('/achat/confirmation/{transactionId}', name: 'achat.confirmation')]

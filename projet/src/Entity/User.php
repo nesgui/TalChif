@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -19,8 +20,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide')]
+    #[Assert\Length(max: 180)]
     private ?string $email = null;
 
+    /**
+     * Tableau des rôles Symfony (dérivé de la propriété role).
+     * @var array<int, string>
+     */
     #[ORM\Column]
     private array $roles = [];
 
@@ -31,12 +39,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '/^[\p{L}\p{M}\s\-\']+$/u', message: 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '/^[\p{L}\p{M}\s\-\']+$/u', message: 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes')]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\Length(max: 20)]
+    #[Assert\Regex(pattern: '/^[\d\s+\-()]*$/', message: 'Le téléphone ne peut contenir que des chiffres, espaces, +, - et parenthèses')]
     private ?string $telephone = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -91,35 +107,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * Rôles Symfony dérivés uniquement de la propriété role (source de vérité).
      * @see UserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        
-        // Synchroniser avec la propriété role
-        if (!in_array($this->role, $roles)) {
-            $roles[] = $this->role;
-        }
-        
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        $roleSymfony = 'ROLE_' . $this->role;
+        return array_unique(['ROLE_USER', $roleSymfony]);
     }
 
+    /**
+     * Définit les rôles Symfony. Le premier rôle métier trouvé (ROLE_ADMIN, ROLE_ORGANISATEUR, ROLE_CLIENT)
+     * est utilisé pour mettre à jour la propriété role.
+     */
     public function setRoles(array $roles): static
     {
-        $this->roles = $roles;
-        
-        // Mettre à jour la propriété role si un rôle principal est trouvé
-        foreach (['ROLE_ADMIN', 'ROLE_ORGANISATEUR', 'ROLE_CLIENT'] as $role) {
-            if (in_array($role, $roles)) {
-                $this->role = str_replace('ROLE_', '', $role);
-                break;
+        foreach (['ROLE_ADMIN', 'ROLE_ORGANISATEUR', 'ROLE_CLIENT'] as $r) {
+            if (in_array($r, $roles, true)) {
+                $this->role = str_replace('ROLE_', '', $r);
+                return $this;
             }
         }
-
         return $this;
     }
 
@@ -227,14 +235,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(string $role): static
     {
         $this->role = $role;
-        
-        // Synchroniser avec le tableau roles pour Symfony
-        $roleName = 'ROLE_' . $role;
-        $this->roles = array_filter($this->roles, function($r) use ($roleName) {
-            return !in_array($r, ['ROLE_ADMIN', 'ROLE_ORGANISATEUR', 'ROLE_CLIENT']);
-        });
-        $this->roles[] = $roleName;
-
+        $this->roles = ['ROLE_' . $role];
         return $this;
     }
 

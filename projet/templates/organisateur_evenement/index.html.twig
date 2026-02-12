@@ -16,7 +16,24 @@
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Mes événements</h2>
-        <p class="card-meta">Liste complète de vos événements avec tri, recherche et export</p>
+        <p class="card-meta">
+            {% if total > 0 %}
+                Affichage de {{ (page - 1) * limit + 1 }} à {{ (page - 1) * limit + evenements|length }} sur {{ total }} événements.
+                {% if totalPages > 1 %}Page {{ page }}/{{ totalPages }}.{% endif %}
+            {% else %}
+                Liste de vos événements (tri, recherche et export sur la page courante).
+            {% endif %}
+        </p>
+
+        <form method="get" action="{{ path('organisateur.evenement.index') }}" class="search-zone">
+            <input type="hidden" name="page" value="1">
+            <label for="event-search" class="search-zone-label">Rechercher</label>
+            <input type="search" id="event-search" name="q" value="{{ search|default('') }}" class="form-control search-zone-input" placeholder="Nom, lieu, ville ou description...">
+            <button type="submit" class="btn btn-primary btn-sm">Rechercher</button>
+            {% if search %}
+                <a href="{{ path('organisateur.evenement.index') }}" class="pagination-link">Effacer</a>
+            {% endif %}
+        </form>
         
         <table id="events-table" class="table">
             <thead>
@@ -72,6 +89,24 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if total > 0 %}
+            <nav class="table-pagination" aria-label="Pagination événements">
+                <div class="pagination-inner">
+                    {% if page > 1 %}
+                        <a href="{{ path('organisateur.evenement.index', {page: page - 1, q: search}) }}" class="pagination-link">← Précédent</a>
+                    {% else %}
+                        <span class="pagination-link disabled">← Précédent</span>
+                    {% endif %}
+                    <span class="pagination-info">Page {{ page }} / {{ totalPages }}</span>
+                    {% if page < totalPages %}
+                        <a href="{{ path('organisateur.evenement.index', {page: page + 1, q: search}) }}" class="pagination-link">Suivant →</a>
+                    {% else %}
+                        <span class="pagination-link disabled">Suivant →</span>
+                    {% endif %}
+                </div>
+            </nav>
+        {% endif %}
     </section>
 </div>
 

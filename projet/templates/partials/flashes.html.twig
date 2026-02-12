@@ -1,47 +1,34 @@
+{# Messages visibles immédiatement (fallback si JS désactivé ou erreur) #}
 {% for type, messages in app.flashes %}
     {% for message in messages %}
+        <div class="flash-message flash-{{ type }}" role="alert" data-flash-toast>
+            <strong>{{ type == 'success' ? 'Succès' : type == 'error' ? 'Erreur' : type == 'warning' ? 'Attention' : 'Information' }} :</strong> {{ message }}
+        </div>
         <script>
-            // Stocker les messages flash pour les afficher plus tard
-            console.log('Flash message trouvé:', { type: '{{ type }}', message: '{{ message|e('js') }}' });
-            if (!window.flashMessages) {
-                window.flashMessages = [];
-            }
-            window.flashMessages.push({
-                type: '{{ type }}',
-                message: '{{ message|e('js') }}'
-            });
+            if (!window.flashMessages) { window.flashMessages = []; }
+            window.flashMessages.push({ type: '{{ type }}', message: {{ message|json_encode|raw }} });
         </script>
     {% endfor %}
 {% endfor %}
-
 <script>
-// Traitement des messages flash après chargement du service
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM chargé, traitement des messages flash...');
-    console.log('Messages flash à traiter:', window.flashMessages);
-    console.log('NotificationService disponible:', window.NotificationService);
-    
-    setTimeout(function() {
-        console.log('Tentative d\'affichage des notifications...');
-        if (window.NotificationService && window.flashMessages) {
-            console.log('NotificationService et messages disponibles, affichage...');
-            window.flashMessages.forEach(function(flash) {
-                console.log('Affichage notification:', flash);
-                if (flash.type === 'success') {
-                    NotificationService.success('Succès', flash.message, { duration: 4000 });
-                } else if (flash.type === 'error') {
-                    NotificationService.error('Erreur', flash.message, { duration: 6000 });
-                } else if (flash.type === 'warning') {
-                    NotificationService.warning('Attention', flash.message, { duration: 5000 });
-                } else {
-                    NotificationService.info('Information', flash.message, { duration: 4000 });
-                }
-            });
-            // Vider les messages après traitement
-            window.flashMessages = [];
-        } else {
-            console.log('Problème: NotificationService:', !!window.NotificationService, 'Messages:', !!window.flashMessages);
-        }
-    }, 500); // Attendre 500ms que tout soit chargé
-});
+(function() {
+    function runToasts() {
+        if (!window.NotificationService || !window.flashMessages || window.flashMessages.length === 0) return;
+        window.flashMessages.forEach(function(flash) {
+            var title = flash.type === 'success' ? 'Succès' : flash.type === 'error' ? 'Erreur' : flash.type === 'warning' ? 'Attention' : 'Information';
+            var duration = flash.type === 'error' ? 6000 : flash.type === 'warning' ? 5000 : 4000;
+            if (flash.type === 'success') window.NotificationService.success(title, flash.message, { duration: duration });
+            else if (flash.type === 'error') window.NotificationService.error(title, flash.message, { duration: duration });
+            else if (flash.type === 'warning') window.NotificationService.warning(title, flash.message, { duration: duration });
+            else window.NotificationService.info(title, flash.message, { duration: duration });
+        });
+        window.flashMessages = [];
+        document.querySelectorAll('[data-flash-toast]').forEach(function(el) { el.remove(); });
+    }
+    if (window.NotificationService) {
+        runToasts();
+    } else {
+        document.addEventListener('DOMContentLoaded', function() { setTimeout(runToasts, 150); });
+    }
+})();
 </script>

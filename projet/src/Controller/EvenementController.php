@@ -20,8 +20,13 @@ final class EvenementController extends AbstractController
     public function index(Request $request): Response
     {
         $search = $request->query->get('q');
-
-        if ($search) {
+        // Limiter longueur et rejeter caractères de contrôle pour éviter données invalides
+        if ($search !== null && $search !== '') {
+            $search = trim($search);
+            $search = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $search);
+            $search = mb_substr($search, 0, 200);
+        }
+        if ($search !== null && $search !== '') {
             $evenements = $this->evenementRepository->searchEvents($search);
         } else {
             $evenements = $this->evenementRepository->findActiveEvents();
@@ -40,8 +45,8 @@ final class EvenementController extends AbstractController
                 'prix_simple' => $evenement->getPrixSimple(),
                 'prix_vip' => $evenement->getPrixVip(),
                 'prix_min' => $evenement->getPrixSimple(),
-                'note' => 4.5, // TODO: Implémenter système d'avis
-                'avis' => 0, // TODO: Compter les vrais avis
+                'note' => null,
+                'avis' => null,
                 'badge' => $this->getBadgeForEvent($evenement),
             ];
         }
@@ -63,8 +68,25 @@ final class EvenementController extends AbstractController
     {
         $evenement = $this->evenementRepository->find($id);
 
-        if (!$evenement || $evenement->getSlug() !== $slug) {
+        if (!$evenement) {
+            // Si l'id ne correspond à rien, tenter par slug (URL avec mauvais id mais bon slug)
+            $evenementBySlug = $this->evenementRepository->findOneBy(['slug' => $slug]);
+            if ($evenementBySlug) {
+                return $this->redirectToRoute('evenement.show', [
+                    'slug' => $evenementBySlug->getSlug(),
+                    'id' => $evenementBySlug->getId(),
+                ], Response::HTTP_MOVED_PERMANENTLY);
+            }
             throw $this->createNotFoundException('Événement non trouvé');
+        }
+
+        // Redirection canonique : si le slug en URL ne correspond plus (ex. après modification du nom),
+        // rediriger vers l'URL correcte au lieu de renvoyer une 404.
+        if ($evenement->getSlug() !== $slug) {
+            return $this->redirectToRoute('evenement.show', [
+                'slug' => $evenement->getSlug(),
+                'id' => $evenement->getId(),
+            ], Response::HTTP_MOVED_PERMANENTLY);
         }
 
         // Transformer l'entité en tableau pour le template existant
@@ -79,12 +101,12 @@ final class EvenementController extends AbstractController
             'ville' => $evenement->getVille(),
             'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
             'prix_min' => $evenement->getPrixSimple(),
-            'note' => 4.5, // TODO: Implémenter système d'avis
-            'avis' => 0, // TODO: Compter les vrais avis
+            'note' => null,
+            'avis' => null,
             'badge' => $this->getBadgeForEvent($evenement),
             'places_disponibles' => $evenement->getPlacesRestantes(),
             'places_total' => $evenement->getPlacesDisponibles(),
-            'organisateur' => $evenement->getOrganisateur()->getFullName(),
+            'organisateur' => $evenement->getOrganisateur() ? $evenement->getOrganisateur()->getFullName() : 'Non spécifié',
             'types_billets' => $this->getTicketTypes($evenement),
         ];
 

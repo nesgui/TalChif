@@ -21,7 +21,7 @@
         {% endfor %}
 
         {{ form_start(form, {'attr': {'class': 'form', 'enctype': 'multipart/form-data'}}) }}
-        
+
         <div class="form-group">
             {{ form_label(form.nom) }}
             {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
@@ -74,28 +74,28 @@
             {{ form_label(form.prixVip) }}
             {{ form_widget(form.prixVip, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.prixVip) }}
-            <small class="form-help text-gray-500 text-sm mt-1">Optionnel - Laissez vide si pas de billets VIP</small>
+            <small class="form-help">Optionnel - Laissez vide si pas de billets VIP</small>
         </div>
 
         <div class="form-group">
             {{ form_label(form.affichePrincipale) }}
             {{ form_widget(form.affichePrincipale, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.affichePrincipale) }}
-            <small class="form-help text-gray-500 text-sm mt-1">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB)</small>
+            <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB)</small>
         </div>
 
         <div class="form-group">
             {{ form_label(form.autresAffiches) }}
             {{ form_widget(form.autresAffiches, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.autresAffiches) }}
-            <small class="form-help text-gray-500 text-sm mt-1">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles</small>
+            <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles</small>
         </div>
 
         <div class="form-group">
             {{ form_label(form.imageBillet) }}
             {{ form_widget(form.imageBillet, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.imageBillet) }}
-            <small class="form-help text-gray-500 text-sm mt-1">Formats acceptés: JPEG, PNG, GIF, WebP (max 2MB)</small>
+            <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 2MB)</small>
         </div>
 
         <div class="form-group">

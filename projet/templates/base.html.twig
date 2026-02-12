@@ -15,8 +15,14 @@
 
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
-            <script src="{{ asset('services/notification_service.js') }}" defer></script>
-            <script src="{{ asset('services/datatables-service.js') }}" defer></script>
+            <!-- Load services via importmap to prevent module errors -->
+            <script type="module" src="{{ asset('services/notification_service.js') }}"></script>
+            <script type="module" src="{{ asset('services/theme_service.js') }}"></script>
+            <script type="module" src="{{ asset('services/datatables-service.js') }}"></script>
+            <!-- jQuery for DataTables buttons -->
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <!-- DataTables core -->
+            <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
             <!-- Bibliothèques pour les exports DataTables -->
             <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -32,17 +38,21 @@
                 <div class="container public-topbar">
                     <a class="public-brand" href="{{ path('accueil') }}">OCEA.td</a>
                     <div class="public-topbar-actions">
-                        <button 
-                            class="theme-toggle" 
-                            data-controller="theme" 
-                            data-action="click->theme#toggle"
-                            data-theme-target="toggle"
-                            type="button"
-                            aria-label="Changer le thème"
-                            title="Thème clair (cliquer pour thème sombre)"
-                        >
-                            <span class="icon-sun">☀️</span>
-                            <span class="icon-moon">🌙</span>
+                        <button class="auth-theme-toggle" id="theme-toggle" title="Basculer le thème">
+                            <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"/>
+                                <line x1="12" y1="1" x2="12" y2="3"/>
+                                <line x1="12" y1="21" x2="12" y2="23"/>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                <line x1="1" y1="12" x2="3" y2="12"/>
+                                <line x1="21" y1="12" x2="23" y2="12"/>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                            </svg>
+                            <svg class="theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                            </svg>
                         </button>
                         <label class="public-action" for="public-menu" aria-label="Ouvrir le menu">☰</label>
                     </div>
@@ -61,9 +71,14 @@
                                 Bonjour {{ app.user.prenom|default(app.user.email) }}
                             </span>
                             <div class="public-drawer-actions">
-                                <a class="public-drawer-link" href="{{ path('portefeuille.index') }}">Mon compte</a>
                                 {% if is_granted('ROLE_ORGANISATEUR') %}
-                                    <a class="public-drawer-link" href="{{ path('validation.index') }}">🎫 Validation</a>
+                                    <a class="public-drawer-link public-drawer-link-highlight" href="{{ path('organisateur.dashboard') }}">Espace organisateur</a>
+                                {% endif %}
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a class="public-drawer-link public-drawer-link-highlight" href="{{ path('admin.dashboard') }}">Administration</a>
+                                {% endif %}
+                                {% if is_granted('ROLE_ORGANISATEUR') %}
+                                    <a class="public-drawer-link" href="{{ path('validation.index') }}">Validation</a>
                                 {% endif %}
                                 <a class="public-drawer-link" href="{{ path('auth.logout') }}">Déconnexion</a>
                             </div>
@@ -107,6 +122,27 @@
                     </span>
                     <span class="public-tab-label">Panier</span>
                 </a>
+                {% if app.user %}
+                <a class="public-tab" href="{{ path('billet.index') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 7h15a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
+                            <path d="M20 10h-5a2 2 0 0 0 0 4h5" />
+                            <path d="M7 7V6a2 2 0 0 1 2-2h10" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Portefeuille</span>
+                </a>
+                <a class="public-tab" href="{{ path('portefeuille.index') }}">
+                    <span class="public-tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21a8 8 0 0 0-16 0" />
+                            <circle cx="12" cy="8" r="4" />
+                        </svg>
+                    </span>
+                    <span class="public-tab-label">Mon compte</span>
+                </a>
+                {% else %}
                 <a class="public-tab" href="{{ path('portefeuille.index') }}">
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -117,7 +153,6 @@
                     </span>
                     <span class="public-tab-label">Portefeuille</span>
                 </a>
-                {% if not app.user %}
                 <a class="public-tab" href="{{ path('auth.login') }}">
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -127,17 +162,7 @@
                     </span>
                     <span class="public-tab-label">Compte</span>
                 </a>
-            {% else %}
-                <a class="public-tab" href="{{ path('portefeuille.index') }}">
-                    <span class="public-tab-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21a8 8 0 0 0-16 0" />
-                            <circle cx="12" cy="8" r="4" />
-                        </svg>
-                    </span>
-                    <span class="public-tab-label">Mon compte</span>
-                </a>
-            {% endif %}
+                {% endif %}
             </nav>
         {% endblock %}
 
@@ -156,11 +181,11 @@
                 </div>
             </footer>
         {% endblock %}
+        <!-- Conteneur pour les notifications (toasts) - classe requise pour position fixed -->
+        <div id="notifications-container" class="notifications-container"
+             data-controller="notification"
+             data-notification-target="container"
+             data-turbo-permanent>
+        </div>
     </body>
-    
-    <!-- Conteneur pour les notifications -->
-    <div id="notifications-container" 
-         data-controller="notification" 
-         data-notification-target="container">
-    </div>
 </html>

@@ -10,71 +10,68 @@
 
 /* Bordures */
 .border { border-width: 1px; }
-.border-gray-300 { border-color: #d1d5db; }
+.border-gray-300 { border-color: var(--couleur-bordure); }
 .rounded-lg { border-radius: 0.5rem; }
 
-/* Focus */
-.focus\:ring-2:focus { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); }
-.focus\:ring-blue-500:focus { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); }
-.focus\:border-blue-500:focus { border-color: #3b82f6; }
+/* Focus - palette primary */
+.focus\:ring-2:focus { box-shadow: 0 0 0 2px var(--couleur-primaire-clair); }
+.focus\:ring-blue-500:focus { box-shadow: 0 0 0 2px var(--couleur-primaire-clair); }
+.focus\:border-blue-500:focus { border-color: var(--couleur-primaire); }
 
 /* Transitions */
 .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
 
 /* Texte */
-.text-gray-500 { color: #6b7280; }
+.text-gray-500 { color: var(--couleur-texte-secondaire); }
 .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
 
-/* Styles pour les champs de type fichier */
+/* Styles pour les champs de type fichier - palette OSEA */
 .file-input {
     width: 100%;
     padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--couleur-bordure);
     border-radius: 0.5rem;
-    background-color: white;
+    background-color: var(--couleur-fond);
     font-size: 0.875rem;
     line-height: 1.25rem;
     transition: all 150ms ease;
-    color: #111827;
+    color: var(--couleur-texte);
     height: 42px;
     box-sizing: border-box;
 }
 
 .file-input:hover {
-    border-color: #9ca3af;
-    background-color: white;
+    border-color: var(--palette-medium-blue);
+    background-color: var(--couleur-fond);
 }
 
 .file-input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-    background-color: white;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 2px var(--couleur-primaire-clair);
+    background-color: var(--couleur-fond);
 }
 
 /* Style pour le placeholder des champs de fichier */
 .file-input::file-selector-button {
-    background: white;
-    border: 1px solid #d1d5db;
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
     border-radius: 0.375rem;
     padding: 0.25rem 0.75rem;
     margin-right: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--couleur-texte);
     cursor: pointer;
     transition: all 150ms ease;
 }
 
 .file-input::file-selector-button:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    background: var(--palette-light-green);
+    border-color: var(--palette-medium-blue);
 }
 
 .file-input:focus-within::file-selector-button {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: var(--couleur-primaire);
+    background: var(--couleur-primaire-clair);
 }
-
-/* Importer les styles existants */
-@import 'app.css';

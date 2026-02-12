@@ -141,8 +141,8 @@
                     <div class="qr-info">
                         <p class="qr-code-text" id="modalQRText"></p>
                         <div class="qr-actions">
-                            <button class="btn btn-primary" onclick="copyQRCode()">📋 Copier</button>
-                            <button class="btn btn-secondary" onclick="downloadModalQR()">📥 Télécharger</button>
+                            <button class="btn btn-primary" onclick="copyQRCode()">Copier</button>
+                            <button class="btn btn-secondary" onclick="downloadModalQR()">Télécharger</button>
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0 0 1rem 0;
     display: flex;
     align-items: center;
@@ -173,25 +173,25 @@
 }
 
 .back-link {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
 }
 
 .back-link:hover {
-    color: #3b82f6;
+    color: var(--couleur-primaire);
 }
 
 .event-info h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0;
 }
 
 .event-meta {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
@@ -201,7 +201,7 @@
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -220,13 +220,13 @@
 
 .filter-group label {
     font-weight: 500;
-    color: #374151;
+    color: var(--couleur-texte);
     font-size: 0.875rem;
 }
 
 .search-input, .filter-select {
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--couleur-bordure);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: border-color 0.2s;
@@ -234,7 +234,7 @@
 
 .search-input:focus, .filter-select:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: var(--couleur-primaire);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -253,13 +253,13 @@
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     transition: all 0.2s ease;
 }
 
 .qr-card:hover {
-    border-color: #3b82f6;
+    border-color: var(--couleur-primaire);
     box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     transform: translateY(-2px);
 }
@@ -274,12 +274,12 @@
 .participant-info h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0 0 0.25rem 0;
 }
 
 .participant-email {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
     margin: 0;
 }
@@ -311,8 +311,8 @@
 .qr-code-container {
     width: 120px;
     height: 120px;
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
+    background: var(--couleur-surface);
+    border: 2px solid var(--couleur-bordure);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -322,13 +322,13 @@
 }
 
 .qr-code-container:hover {
-    border-color: #3b82f6;
+    border-color: var(--couleur-primaire);
     background: #eff6ff;
 }
 
 .qr-placeholder {
     font-size: 2rem;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .qr-details {
@@ -337,10 +337,10 @@
 
 .qr-code-text {
     font-family: 'Courier New', monospace;
-    background: #f8fafc;
+    background: var(--couleur-surface);
     padding: 0.75rem;
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--couleur-bordure);
     word-break: break-all;
     margin-bottom: 1rem;
     font-size: 0.75rem;
@@ -362,12 +362,12 @@
 }
 
 .btn-view {
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     color: white;
 }
 
 .btn-view:hover {
-    background: #2563eb;
+    background: var(--couleur-primaire-hover);
 }
 
 .btn-download {
@@ -391,12 +391,12 @@
 
 .price-amount {
     font-weight: 700;
-    color: #1e293b;
+    color: var(--couleur-texte);
     font-size: 1.125rem;
 }
 
 .price-currency {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.75rem;
     margin-left: 0.25rem;
 }
@@ -425,7 +425,7 @@
 .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .empty-icon {
@@ -444,22 +444,22 @@
 
 .page-link {
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--couleur-bordure);
     border-radius: 4px;
     text-decoration: none;
-    color: #374151;
+    color: var(--couleur-texte);
     transition: all 0.2s;
 }
 
 .page-link:hover {
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     color: white;
-    border-color: #3b82f6;
+    border-color: var(--couleur-primaire);
 }
 
 .page-current {
     padding: 0.5rem 0.75rem;
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     color: white;
     border-radius: 4px;
     font-weight: 600;
@@ -494,14 +494,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--couleur-bordure);
 }
 
 .modal-header h3 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
 }
 
 .modal-close {
@@ -509,13 +509,13 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     padding: 0.25rem;
     border-radius: 4px;
 }
 
 .modal-close:hover {
-    background: #f1f5f9;
+    background: var(--couleur-surface);
 }
 
 .modal-body {
@@ -531,8 +531,8 @@
 .qr-code-large {
     width: 200px;
     height: 200px;
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
+    background: var(--couleur-surface);
+    border: 2px solid var(--couleur-bordure);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -585,7 +585,7 @@ function initializeQRCodes() {
                 width: 100,
                 margin: 1,
                 color: {
-                    dark: '#1e293b',
+                    dark: '#1D3557',
                     light: '#ffffff'
                 }
             }, function(error, canvas) {
@@ -654,7 +654,7 @@ function viewQRCode(qrCode) {
         width: 200,
         margin: 2,
         color: {
-            dark: '#1e293b',
+            dark: '#1D3557',
             light: '#ffffff'
         }
     }, function(error, canvas) {
@@ -684,7 +684,7 @@ function downloadQR(qrCode, participantName) {
         width: 300,
         margin: 3,
         color: {
-            dark: '#1e293b',
+            dark: '#1D3557',
             light: '#ffffff'
         }
     }, function(error, canvas) {

@@ -48,6 +48,7 @@ final class PanierController extends AbstractController
                     'prix_min' => $prixMin,
                     'ville' => $evenement->getVille(),
                     'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
+                    'places_restantes' => $evenement->getPlacesRestantes(),
                 ],
                 'sous_total' => $sousTotal,
             ];
@@ -88,6 +89,37 @@ final class PanierController extends AbstractController
             return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }
 
+        return $this->redirectToRoute('panier.index');
+    }
+
+    #[Route('/panier/quantite/{id}', name: 'panier.quantite', requirements: ['id' => '\\d+'], methods: ['POST'])]
+    public function mettreAJourQuantite(int $id, Request $request, SessionInterface $session): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('panier_quantite', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide. Veuillez réessayer.');
+            return $this->redirectToRoute('panier.index');
+        }
+
+        $evenement = $this->evenementRepository->find($id);
+        if (!$evenement || !$evenement->isIsActive()) {
+            $this->addFlash('error', 'Événement non disponible');
+            return $this->redirectToRoute('panier.index');
+        }
+
+        $quantite = (int) $request->request->get('quantite', 1);
+        $quantite = max(0, min($quantite, $evenement->getPlacesRestantes()));
+
+        $panier = $session->get('panier', []);
+
+        if ($quantite <= 0) {
+            unset($panier[$id]);
+            $this->addFlash('success', 'Article retiré du panier');
+        } else {
+            $panier[$id] = $quantite;
+            $this->addFlash('success', 'Quantité mise à jour');
+        }
+
+        $session->set('panier', $panier);
         return $this->redirectToRoute('panier.index');
     }
 

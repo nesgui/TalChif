@@ -30,6 +30,8 @@ security:
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/organisateur, roles: ROLE_ORGANISATEUR }
+        - { path: ^/validation, roles: ROLE_ORGANISATEUR }
+        - { path: ^/mes-billets, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/evenements, roles: PUBLIC_ACCESS }

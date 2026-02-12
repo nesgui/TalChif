@@ -45,9 +45,9 @@
                             <div class="quantite-control">
                                 <span class="quantite-label">Quantité</span>
                                 <div class="quantite-buttons">
-                                    <button class="btn btn-sm" onclick="updateQuantite({{ ligne.id }}, -1, this)">-</button>
-                                    <span class="quantite-value" data-id="{{ ligne.id }}">{{ ligne.quantite }}</span>
-                                    <button class="btn btn-sm" onclick="updateQuantite({{ ligne.id }}, 1, this)">+</button>
+                                    <button class="btn btn-sm" type="button" onclick="updateQuantite({{ ligne.produit.id }}, {{ ligne.quantite }}, -1, {{ ligne.produit.places_restantes }})">−</button>
+                                    <span class="quantite-value" data-id="{{ ligne.produit.id }}">{{ ligne.quantite }}</span>
+                                    <button class="btn btn-sm" type="button" onclick="updateQuantite({{ ligne.produit.id }}, {{ ligne.quantite }}, 1, {{ ligne.produit.places_restantes }})">+</button>
                                 </div>
                             </div>
                             <div class="panier-sous-total">
@@ -125,7 +125,7 @@
     {% endif %}
 </div>
 
-<style>
+<style id="panier-index-styles">
 .panier-ligne {
     display: grid;
     grid-template-columns: 100px 1fr 120px;
@@ -288,8 +288,8 @@
 
 .auth-notice {
     padding: 1rem;
-    background: linear-gradient(135deg, #fef3c7, #fed7aa);
-    border: 1px solid #f59e0b;
+    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-fond));
+    border: 1px solid var(--couleur-warning);
     border-radius: var(--rayon);
     margin-bottom: 1rem;
 }
@@ -388,27 +388,25 @@
 </style>
 
 <script>
-function updateQuantite(id, change, button) {
-    const quantiteElement = button.parentElement.querySelector('.quantite-value');
-    const currentQuantite = parseInt(quantiteElement.textContent);
-    const newQuantite = Math.max(1, currentQuantite + change);
+function updateQuantite(id, currentQuantite, change, maxQuantite) {
+    const newQuantite = Math.max(0, Math.min(currentQuantite + change, maxQuantite));
     
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/panier/ajouter/${id}`;
+    form.action = "{{ path('panier.quantite', {id: 0}) }}".replace(/\/0$/, '/' + id);
     
     const quantiteInput = document.createElement('input');
     quantiteInput.type = 'hidden';
     quantiteInput.name = 'quantite';
     quantiteInput.value = newQuantite;
-    
-    const redirectInput = document.createElement('input');
-    redirectInput.type = 'hidden';
-    redirectInput.name = 'redirect';
-    redirectInput.value = 'precedent';
-    
     form.appendChild(quantiteInput);
-    form.appendChild(redirectInput);
+    
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = '_token';
+    tokenInput.value = "{{ csrf_token('panier_quantite') }}";
+    form.appendChild(tokenInput);
+    
     document.body.appendChild(form);
     form.submit();
 }

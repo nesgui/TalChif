@@ -1,8 +1,16 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Tableau de bord Organisateur{% endblock %}
 
-{% block body %}
+{% block dashboard_title %}Tableau de bord Organisateur{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn btn-primary" href="{{ path('organisateur.evenement.create') }}">Créer un événement</a>
+{% endblock %}
+
+{% block dashboard_content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1 class="page-title">Tableau de bord Organisateur</h1>
@@ -75,7 +83,7 @@
         <div class="section-header">
             <h2 class="section-title">Vos événements</h2>
             <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
-                ➕ Créer un événement
+                Créer un événement
             </a>
         </div>
 
@@ -131,15 +139,11 @@
                     </div>
                     
                     <div class="event-actions">
-                        <a href="{{ path('organisateur.evenement.stats', {id: evenement.id}) }}" class="btn btn-small btn-outline">
-                            📊 Statistiques
-                        </a>
-                        <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-small btn-outline">
-                            ✏️ Modifier
-                        </a>
-                        <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="btn btn-small btn-outline">
-                            👥 Participants
-                        </a>
+                        <a href="{{ path('organisateur.evenement.stats', {id: evenement.id}) }}" class="btn btn-small btn-outline">Stats</a>
+                        <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="btn btn-small btn-outline">Participants</a>
+                        <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id}) }}" class="btn btn-small btn-outline">QR Codes</a>
+                        <a href="{{ path('organisateur.evenement.performance', {id: evenement.id}) }}" class="btn btn-small btn-outline">Perf.</a>
+                        <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-small btn-outline">Modifier</a>
                     </div>
                 </div>
             </div>
@@ -149,7 +153,7 @@
                 <h3>Aucun événement</h3>
                 <p>Commencez par créer votre premier événement</p>
                 <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
-                    ➕ Créer un événement
+                    Créer un événement
                 </a>
             </div>
             {% endfor %}
@@ -161,7 +165,6 @@
         <h2 class="section-title">Actions rapides</h2>
         <div class="actions-grid">
             <a href="{{ path('organisateur.evenement.create') }}" class="action-card">
-                <div class="action-icon">➕</div>
                 <div class="action-content">
                     <h4>Créer un événement</h4>
                     <p>Ajouter un nouvel événement</p>
@@ -169,33 +172,16 @@
             </a>
             
             <a href="{{ path('validation.index') }}" class="action-card">
-                <div class="action-icon">📱</div>
                 <div class="action-content">
                     <h4>Scanner QR Codes</h4>
-                    <p>Valider les billets</p>
-                </div>
-            </a>
-            
-            <a href="#" class="action-card" onclick="alert('Rapports à implémenter')">
-                <div class="action-icon">📊</div>
-                <div class="action-content">
-                    <h4>Rapports</h4>
-                    <p>Exporter des rapports</p>
-                </div>
-            </a>
-            
-            <a href="#" class="action-card" onclick="alert('Paramètres à implémenter')">
-                <div class="action-icon">⚙️</div>
-                <div class="action-content">
-                    <h4>Paramètres</h4>
-                    <p>Configurer votre compte</p>
+                    <p>Valider les billets à l'entrée</p>
                 </div>
             </a>
         </div>
     </div>
 </div>
 
-<style>
+<style id="organisateur-dashboard-styles">
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;

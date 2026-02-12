@@ -8,7 +8,8 @@
 
 <div class="catalog">
     {% for evenement in evenements %}
-        {% set largeur_note = (evenement.note / 5) * 100 %}
+        {% set has_note = evenement.note is defined and evenement.note is not null %}
+        {% set largeur_note = has_note ? (evenement.note / 5) * 100 : 0 %}
         <article class="product-card">
             <a class="product-link" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
                 <div class="product-media">
@@ -26,10 +27,14 @@
                     </div>
 
                     <div class="product-rating">
-                        <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
-                            <span class="stars-fill" style="width: {{ largeur_note }}%"></span>
-                        </span>
-                        <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
+                        {% if has_note %}
+                            <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
+                                <span class="stars-fill" style="width: {{ largeur_note }}%"></span>
+                            </span>
+                            <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
+                        {% else %}
+                            <span class="product-rating-meta" aria-hidden="true">— Pas encore de note</span>
+                        {% endif %}
                     </div>
 
                     <div class="product-price">À partir de <strong>{{ evenement.prix_min }} XAF</strong></div>
