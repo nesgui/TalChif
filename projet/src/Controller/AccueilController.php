@@ -7,6 +7,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Page d'accueil : affiche les événements actifs (limite et badges via config).
+ */
 final class AccueilController extends AbstractController
 {
     public function __construct(
@@ -17,16 +20,10 @@ final class AccueilController extends AbstractController
     #[Route('/', name: 'accueil')]
     public function index(): Response
     {
-        // Récupérer les événements actifs pour la page d'accueil
-        $evenements = $this->evenementRepository->findActiveEvents(6);
-        
-        // Debug: Afficher les slugs récupérés
-        error_log('DEBUG: Slugs from database:');
-        foreach ($evenements as $e) {
-            error_log('DEBUG: ID ' . $e->getId() . ' -> Slug: ' . $e->getSlug());
-        }
+        $limite = $this->getParameter('app.accueil.evenements_limite');
+        $evenements = $this->evenementRepository->findActiveEvents($limite);
 
-        // Transformer les entités en tableaux avec badges
+        // Transformer les entités en tableaux pour le template (badges, etc.)
         $evenementsArray = [];
         foreach ($evenements as $evenement) {
             $evenementsArray[] = [
@@ -53,22 +50,17 @@ final class AccueilController extends AbstractController
 
     private function getBadgeForEvent($evenement): string
     {
-        // Événement complet
         if ($evenement->getPlacesRestantes() === 0) {
             return 'Complet';
         }
-
-        // Meilleure vente (plus de 50 places vendues)
-        if ($evenement->getPlacesVendues() > 50) {
+        $seuilVentes = $this->getParameter('app.badge.meilleure_vente_seuil');
+        if ($evenement->getPlacesVendues() > $seuilVentes) {
             return 'Meilleure vente';
         }
-
-        // Nouveau (créé il y a moins de 7 jours)
-        if ($evenement->getCreatedAt() > new \DateTimeImmutable('-7 days')) {
+        $joursNouveau = (int) $this->getParameter('app.badge.nouveau_jours');
+        if ($evenement->getCreatedAt() > new \DateTimeImmutable("-{$joursNouveau} days")) {
             return 'Nouveau';
         }
-
-        // Par défaut: recommandé
         return 'Recommandé';
     }
 }

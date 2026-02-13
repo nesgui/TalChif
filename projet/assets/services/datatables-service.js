@@ -1,11 +1,17 @@
 // DataTables configuration pour OSEA - Style personnalisé
-// Note: DataTables is loaded via CDN in templates, not as ES module
+// Version sans modules ES : on utilise la version jQuery
+// chargée via les CDN dans base.html.twig (jQuery + DataTables + Buttons).
+//
+// IMPORTANT :
+// - On suppose que jQuery et DataTables sont disponibles globalement
+//   (window.jQuery / window.$ et $.fn.DataTable).
+// - Ce fichier est chargé en type "module", mais on n'utilise ici que l'API globale.
+//
+// Objectif :
+// - Fournir une API simple `DataTableOS.init(selector, options)` pour initialiser
+//   les tableaux avec les réglages et le style OSEA.
 
-// Configuration globale DataTables avec style OSEA
-// Les tableaux reçoivent des données déjà paginées côté serveur (admin users, événements organisateur).
-// Le tri/recherche/export DataTables s'appliquent à la page courante uniquement.
-// Pour des millions de lignes, prévoir serverSide: true + endpoint AJAX (non implémenté ici).
-window.DataTableOS = {
+const DataTableOS = {
     // Style personnalisé pour les DataTables
     getSettings: function(options = {}) {
         return {
@@ -73,59 +79,85 @@ window.DataTableOS = {
 
     // Initialiser un tableau avec style OSEA
     init: function(selector, options = {}) {
-        const settings = this.getSettings(options);
-        const table = new DataTable(selector, settings);
-        
-        // Appliquer le style OSEA
-        this.applyStyle(table);
-        
-        return table;
+        try {
+            console.log('Initialisation de DataTables avec (OSEA):', selector);
+
+            if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
+                console.error('DataTables (jQuery) n\'est pas chargé. Vérifiez les scripts CDN dans base.html.twig.');
+                return null;
+            }
+
+            const settings = this.getSettings(options);
+            const table = jQuery(selector).DataTable(settings);
+
+            // Appliquer le style OSEA
+            this.applyStyle(table);
+
+            console.log('DataTables initialisé avec succès (OSEA)');
+            return table;
+        } catch (error) {
+            console.error('Erreur lors de l\'initialisation de DataTables:', error);
+            return null;
+        }
     },
 
     // Appliquer le style OSEA aux DataTables
     applyStyle: function(table) {
-        const wrapper = table.table().container();
-        const tableEl = wrapper ? wrapper.querySelector('table') : null;
-        if (tableEl) {
-            tableEl.classList.add('table', 'osea-datatable');
+        try {
+            const wrapper = table.table().container();
+            const tableEl = wrapper ? wrapper.querySelector('table') : null;
+            if (tableEl) {
+                tableEl.classList.add('table', 'osea-datatable');
+            }
+            this.customizeControls(table);
+            this.customizePagination(table);
+        } catch (error) {
+            console.error('Erreur lors de l\'application du style:', error);
         }
-        this.customizeControls(table);
-        this.customizePagination(table);
     },
 
-    // Personnaliser les contrôles (vanilla JS pour ne pas dépendre de jQuery)
+    // Personnaliser les contrôles (vanilla JS pour ne pas dépendre de jQuery dans le DOM)
     customizeControls: function(table) {
-        const wrapper = table.table().container();
-        if (!wrapper || !wrapper.querySelector) return;
+        try {
+            const wrapper = table.table().container();
+            if (!wrapper || !wrapper.querySelector) return;
 
-        const searchInput = wrapper.querySelector('input[type="search"]');
-        if (searchInput) {
-            searchInput.classList.add('form-control');
-            searchInput.setAttribute('placeholder', 'Rechercher...');
+            const searchInput = wrapper.querySelector('input[type="search"]');
+            if (searchInput) {
+                searchInput.classList.add('form-control');
+                searchInput.setAttribute('placeholder', 'Rechercher...');
+            }
+
+            const selects = wrapper.querySelectorAll('select');
+            selects.forEach(function(sel) { sel.classList.add('form-control'); });
+
+            const buttons = wrapper.querySelectorAll('.dt-button');
+            buttons.forEach(function(btn) { btn.classList.add('btn', 'btn-sm'); });
+        } catch (error) {
+            console.error('Erreur lors de la personnalisation des contrôles:', error);
         }
-
-        const selects = wrapper.querySelectorAll('select');
-        selects.forEach(function(sel) { sel.classList.add('form-control'); });
-
-        const buttons = wrapper.querySelectorAll('.dt-button');
-        buttons.forEach(function(btn) { btn.classList.add('btn', 'btn-sm'); });
     },
 
     // Personnaliser la pagination (vanilla JS)
     customizePagination: function(table) {
-        const wrapper = table.table().container();
-        if (!wrapper) return;
+        try {
+            const wrapper = table.table().container();
+            if (!wrapper) return;
 
-        wrapper.querySelectorAll('.paginate_button').forEach(function(btn) {
-            btn.classList.add('btn', 'btn-sm');
-            if (btn.classList.contains('current')) btn.classList.add('btn-primary');
-            if (btn.classList.contains('disabled')) btn.classList.add('btn-disabled');
-        });
+            wrapper.querySelectorAll('.paginate_button').forEach(function(btn) {
+                btn.classList.add('btn', 'btn-sm');
+                if (btn.classList.contains('current')) btn.classList.add('btn-primary');
+                if (btn.classList.contains('disabled')) btn.classList.add('btn-disabled');
+            });
+        } catch (error) {
+            console.error('Erreur lors de la personnalisation de la pagination:', error);
+        }
     }
 };
 
-// Exporter pour utilisation globale
+// Exporter pour utilisation dans les modules
 export default DataTableOS;
 
-// Also make available globally for non-module scripts
+// Le rendre aussi disponible globalement (au cas où on l'appelle sans import)
 window.DataTableOS = DataTableOS;
+

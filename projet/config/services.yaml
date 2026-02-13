@@ -23,5 +23,10 @@ services:
     App\Service\Payment\PaymentInterface:
         alias: App\Service\Payment\StubPaymentService
 
+    # Upload de fichiers : injection du répertoire projet
+    App\Service\Upload\ServiceUploadFichier:
+        arguments:
+            $repertoireProjet: '%kernel.project_dir%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

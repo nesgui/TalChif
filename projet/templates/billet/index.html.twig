@@ -41,7 +41,7 @@
             <div class="event-card">
                 <div class="event-header">
                     <img class="event-image" src="{{ data.evenement.affichePrincipale ?: '/images/evenements/default.svg' }}" 
-                         alt="{{ data.evenement.nom }}" />
+                         alt="Affiche de l'événement : {{ data.evenement.nom }}" loading="lazy" />
                     <div class="event-info">
                         <h3 class="event-title">{{ data.evenement.nom }}</h3>
                         <div class="event-meta">

@@ -1,0 +1,20 @@
+# Paramètres métier de l'application OSEA
+# Évite les valeurs en dur dans le code et permet de les surcharger par environnement.
+
+parameters:
+    # Taux de commission admin sur les ventes (ex: 0.10 = 10 %)
+    app.commission_taux: 0.10
+
+    # Fenêtre de validation des billets (avant / après l'événement)
+    # Format relatif : voir https://www.php.net/datetime.formats.relative
+    app.validation.debut_offset: '-2 hours'
+    app.validation.fin_offset: '+4 hours'
+
+    # Seuil de ventes pour le badge "Meilleure vente" (nombre de places vendues)
+    app.badge.meilleure_vente_seuil: 50
+
+    # Nombre de jours pour considérer un événement comme "Nouveau"
+    app.badge.nouveau_jours: 7
+
+    # Limite d'événements affichés sur la page d'accueil (null = tous)
+    app.accueil.evenements_limite: 6

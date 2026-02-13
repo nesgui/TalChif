@@ -84,6 +84,11 @@ final class AdminUserController extends AbstractController
 
             $this->addFlash('success', 'Utilisateur créé avec succès !');
             return $this->redirectToRoute('admin.user.index');
+        } else {
+            // Gérer les erreurs de validation
+            if ($form->isSubmitted()) {
+                $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez corriger les champs invalides.');
+            }
         }
 
         return $this->render('admin_user/create.html.twig', [
@@ -113,6 +118,11 @@ final class AdminUserController extends AbstractController
 
             $this->addFlash('success', 'Utilisateur modifié avec succès !');
             return $this->redirectToRoute('admin.user.index');
+        } else {
+            // Gérer les erreurs de validation
+            if ($form->isSubmitted()) {
+                $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez corriger les champs invalides.');
+            }
         }
 
         return $this->render('admin_user/edit.html.twig', [

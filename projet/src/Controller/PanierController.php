@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Evenement;
 use App\Repository\EvenementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -11,6 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Gestion du panier (session) : affichage, ajout, modification quantité, suppression.
+ * Les actions modifiant le panier sont protégées par CSRF où nécessaire.
+ */
 final class PanierController extends AbstractController
 {
     public function __construct(
@@ -29,7 +32,7 @@ final class PanierController extends AbstractController
         foreach ($panier as $id => $quantite) {
             $evenement = $this->evenementRepository->find($id);
             
-            if (!$evenement || !$evenement->isIsActive()) {
+            if (!$evenement || !$evenement->isActive()) {
                 continue;
             }
 
@@ -65,7 +68,7 @@ final class PanierController extends AbstractController
     {
         $evenement = $this->evenementRepository->find($id);
         
-        if (!$evenement || !$evenement->isIsActive()) {
+        if (!$evenement || !$evenement->isActive()) {
             $this->addFlash('error', 'Événement non disponible');
             return $this->redirectToRoute('evenement.index');
         }
@@ -101,7 +104,7 @@ final class PanierController extends AbstractController
         }
 
         $evenement = $this->evenementRepository->find($id);
-        if (!$evenement || !$evenement->isIsActive()) {
+        if (!$evenement || !$evenement->isActive()) {
             $this->addFlash('error', 'Événement non disponible');
             return $this->redirectToRoute('panier.index');
         }
@@ -124,10 +127,14 @@ final class PanierController extends AbstractController
     }
 
     #[Route('/panier/supprimer/{id}', name: 'panier.supprimer', requirements: ['id' => '\\d+'], methods: ['POST'])]
-    public function supprimer(int $id, SessionInterface $session): RedirectResponse
+    public function supprimer(int $id, Request $request, SessionInterface $session): RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('panier_supprimer_' . $id, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide. Veuillez réessayer.');
+            return $this->redirectToRoute('panier.index');
+        }
+
         $panier = $session->get('panier', []);
-        
         if (isset($panier[$id])) {
             unset($panier[$id]);
             $session->set('panier', $panier);
@@ -157,7 +164,7 @@ final class PanierController extends AbstractController
 
         foreach ($panier as $id => $quantite) {
             $evenement = $this->evenementRepository->find($id);
-            if ($evenement && $evenement->isIsActive()) {
+            if ($evenement && $evenement->isActive()) {
                 $total += $evenement->getPrixSimple() * $quantite;
             }
         }

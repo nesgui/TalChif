@@ -142,6 +142,27 @@ a:not(.btn):not(.public-drawer-link):not(.public-tab):not(.public-brand):focus-v
     outline-offset: 2px;
 }
 
+/* Skip link pour accessibilité (navigation clavier) */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: var(--espace-md);
+    z-index: 10000;
+    padding: var(--espace-sm) var(--espace-md);
+    background: var(--couleur-primaire);
+    color: var(--couleur-texte-inverse);
+    text-decoration: none;
+    border-radius: var(--rayon-sm);
+    font-weight: 600;
+    transition: top var(--transition-rapide);
+}
+
+.skip-link:focus {
+    top: var(--espace-md);
+    outline: 3px solid var(--couleur-primaire);
+    outline-offset: 2px;
+}
+
 /* Focus visible pour accessibilité */
 :focus-visible {
     outline: 2px solid var(--couleur-primaire);
@@ -437,7 +458,8 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
+    gap: 8px;
 }
 
 .public-drawer-link {
@@ -448,13 +470,15 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     align-items: center;
     text-decoration: none;
     color: #ffffff;
-    padding: 10px 16px;
+    padding: 12px 16px;
     border-radius: var(--rayon);
     border: none;
     background: var(--drawer-btn-bg);
     font-weight: 500;
     font-size: 0.9375rem;
     transition: background-color var(--transition-normale), box-shadow var(--transition-normale);
+    min-width: fit-content;
+    white-space: nowrap;
 }
 
 .public-drawer-link:hover {
@@ -495,6 +519,18 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     align-items: center;
 }
 
+/* Menu burger scrollable sur mobile */
+@media (max-width: 719px) {
+    .public-toggle:checked ~ .public-header .public-drawer {
+        flex-direction: column;
+        align-items: stretch;
+        max-height: calc(100dvh - 130px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 16px;
+    }
+}
+
 @media (min-width: 900px) {
     .public-action {
         display: none;
@@ -526,8 +562,8 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     border-top: 1px solid var(--couleur-bordure);
     backdrop-filter: blur(10px);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
 }
 
 .public-tab {
@@ -542,6 +578,8 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     background: color-mix(in srgb, var(--couleur-fond) 86%, var(--couleur-texte) 14%);
     font-weight: 700;
     font-size: 13px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .public-tab-icon {
@@ -558,6 +596,11 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
 .public-tab-label {
     font-size: 12px;
     line-height: 1.05;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .public-tab:hover {
@@ -599,6 +642,34 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     margin-top: var(--espace-xs);
     font-size: 0.8125rem;
     color: var(--couleur-texte-secondaire);
+}
+
+/* Groupe de formulaire */
+.form-group {
+    margin-bottom: var(--espace-md);
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--espace-xs);
+    font-weight: 500;
+    color: var(--couleur-texte);
+}
+
+/* Checkbox de formulaire */
+.form-checkbox {
+    width: auto;
+    margin-right: var(--espace-sm);
+    accent-color: var(--couleur-primaire);
+}
+
+.form-checkbox:focus {
+    outline: 2px solid var(--couleur-primaire);
+    outline-offset: 2px;
 }
 
 /* Champ de formulaire (design system) */
@@ -663,30 +734,41 @@ html[data-theme="dark"] .section-title {
     gap: 16px;
 }
 
+/* Décaler légèrement les cartes de détails sous le hero sur la page événement */
+.product-details-grid {
+    margin-top: 16px;
+}
+
+@media (min-width: 720px) {
+    .product-details-grid {
+        margin-top: 24px;
+    }
+}
+
 .card {
     grid-column: span 12;
     background: var(--couleur-surface);
     border: 1px solid var(--couleur-bordure);
     border-radius: var(--rayon);
-    padding: 16px;
+    padding: 12px;
     box-shadow: 0 10px 30px var(--couleur-ombre);
 }
 
 .card-title {
-    margin: 0 0 6px;
-    font-size: 16px;
+    margin: 0 0 4px;
+    font-size: 14px;
 }
 
 .card-meta {
     margin: 0;
     color: var(--couleur-texte-secondaire);
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .card-actions {
-    margin-top: 12px;
+    margin-top: 8px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
@@ -992,13 +1074,13 @@ html[data-theme="dark"] .section-title {
 .quick-card {
     text-decoration: none;
     color: var(--couleur-texte);
-    border-radius: 16px;
+    border-radius: 12px;
     border: 1px solid var(--couleur-bordure);
     background: var(--couleur-surface);
-    box-shadow: 0 10px 25px var(--couleur-ombre);
-    padding: 12px;
+    box-shadow: 0 8px 20px var(--couleur-ombre);
+    padding: 8px;
     display: grid;
-    gap: 6px;
+    gap: 4px;
 }
 
 .quick-title {
@@ -1018,9 +1100,9 @@ html[data-theme="dark"] .section-title {
 
 .product-card {
     border: 1px solid var(--couleur-bordure);
-    border-radius: 16px;
+    border-radius: 12px;
     background: var(--couleur-surface);
-    box-shadow: 0 10px 25px var(--couleur-ombre);
+    box-shadow: 0 8px 20px var(--couleur-ombre);
     overflow: hidden;
 }
 
@@ -1145,6 +1227,73 @@ html[data-theme="dark"] .section-title {
     gap: 8px;
 }
 
+/* Colonne buybox dans le hero (détail événement) */
+.product-hero-buybox {
+    background: var(--couleur-surface-elevee);
+    border-radius: var(--rayon);
+    border: 1px solid var(--couleur-bordure);
+    padding: 12px;
+    box-shadow: var(--ombre-md);
+    display: grid;
+    gap: 8px;
+    align-content: flex-start;
+}
+
+.product-hero-buybox-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--palette-dark-blue);
+}
+
+.product-hero-buybox-meta {
+    font-size: 0.85rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.product-hero-buybox-meta strong {
+    color: var(--couleur-texte);
+}
+
+/* Boutons de la buybox : pile verticale pleine largeur */
+.product-hero-buybox .card-actions {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.product-hero-buybox .card-actions .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Petites sections texte dans la buybox (description, billets, etc.) */
+.product-hero-buybox-section {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.product-hero-buybox-section h3 {
+    margin: 0 0 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.product-hero-buybox-section p {
+    margin: 0 0 0.25rem;
+}
+
+/* Lien inline discret (ex: Voir l'emplacement sur la carte) */
+.link-inline {
+    color: var(--couleur-primaire);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.link-inline:hover {
+    text-decoration: underline;
+}
+
 .panier-lignes {
     margin-top: 14px;
     display: grid;
@@ -1222,14 +1371,167 @@ html[data-theme="dark"] .section-title {
     }
 
     .product-hero {
-        grid-template-columns: 1fr 1fr;
-        align-items: start;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 0.9fr);
+        align-items: flex-start;
+    }
+}
+
+/* Styles pour tablettes et petits desktops */
+@media (min-width: 481px) and (max-width: 719px) {
+    .hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .hero-media-wrap {
+        order: 1;
+    }
+    
+    .hero-content {
+        order: 2;
+        padding: 16px;
+    }
+    
+    .hero-title {
+        font-size: 24px;
+    }
+}
+
+/* Styles pour mobile */
+@media (max-width: 480px) {
+    .hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .hero-media-wrap {
+        order: 1;
+        max-height: 200px;
+        overflow: hidden;
+    }
+    
+    .hero-media {
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .hero-content {
+        order: 2;
+        padding: 12px;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 20px;
+        line-height: 1.3;
+    }
+    
+    .hero-subtitle {
+        font-size: 14px;
+    }
+    
+    /* Amélioration du menu hamburger sur mobile */
+    .public-drawer-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .public-drawer-link {
+        justify-content: center;
+        font-size: 0.9rem;
+        padding: 12px 16px;
+        min-height: 44px; /* Taille minimale pour touchabilité */
+    }
+    
+    .public-drawer-actions {
+        justify-content: center;
+        margin-top: 8px !important;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Grille d'accès rapide : 1 colonne sur mobile */
+    .quick-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    /* Cartes rapides : taille tactile confortable */
+    .quick-card {
+        padding: 14px 16px;
+        min-height: 44px;
+    }
+
+    /* CTA principal en pleine largeur sur mobile */
+    .section-actions {
+        justify-content: stretch;
+    }
+
+    .section-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Boutons petits : taille tactile minimum sur mobile */
+    .btn-sm {
+        min-height: 44px;
+    }
+
+    /* Navigation inférieure : compacte pour 5 onglets */
+    .public-bottom-nav {
+        gap: 2px;
+        padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .public-tab {
+        padding: 8px 2px;
+        border-radius: 10px;
+        border: none;
+    }
+
+    .public-tab-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .public-tab-label {
+        font-size: 9px;
     }
 }
 
 @media (max-width: 380px) {
-    .quick-grid {
+    /* Catalogue en 1 colonne sur très petits écrans */
+    .catalog {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* Ajustements fins pour très petits écrans */
+    .hero-title {
+        font-size: 18px;
+    }
+    
+    .public-drawer-link {
+        font-size: 0.875rem;
+        padding: 10px 12px;
+    }
+    
+    /* Nav inférieure ultra-compacte */
+    .public-tab {
+        padding: 6px 2px;
+        border-radius: 8px;
+    }
+    
+    .public-tab-icon {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .public-tab-label {
+        font-size: 9px;
     }
 }
 
@@ -1411,6 +1713,12 @@ html[data-theme="dark"] .section-title {
     flex-wrap: wrap;
 }
 
+/* Theme toggle in dashboard context - positioned at far right */
+.dashboard-topbar-actions .auth-theme-toggle {
+    margin-left: var(--espace-md);
+    order: 10;
+}
+
 .dashboard-content {
     padding: 18px 16px 40px;
 }
@@ -1441,5 +1749,275 @@ html[data-theme="dark"] .section-title {
 
     .dashboard-toggle:checked ~ .dashboard .dashboard-sidebar {
         transform: translateX(0);
+    }
+}
+
+/* ============================================
+   AMÉLIORATIONS MODERNES 2026
+   ============================================ */
+
+/* Skeleton loaders pour les listes (perception de performance) */
+@keyframes skeleton-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--couleur-surface) 0%,
+        color-mix(in srgb, var(--couleur-surface) 80%, var(--couleur-bordure)) 50%,
+        var(--couleur-surface) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: var(--rayon-sm);
+}
+
+.skeleton-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--couleur-surface);
+}
+
+.skeleton-text {
+    height: 1em;
+    margin-bottom: var(--espace-xs);
+}
+
+.skeleton-text:last-child {
+    width: 60%;
+}
+
+.skeleton-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-sm);
+    padding: var(--espace-md);
+    background: var(--couleur-surface-elevee);
+    border-radius: var(--rayon);
+    border: 1px solid var(--couleur-bordure);
+}
+
+/* Loading state amélioré pour les boutons (micro-interaction) */
+.btn.loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+    cursor: wait;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ripple effect moderne sur les boutons (micro-interaction) */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    pointer-events: none;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+    transition: width 0s, height 0s;
+}
+
+/* Amélioration des transitions de hover (micro-interaction) */
+.btn,
+.card,
+.product-card {
+    transition: transform var(--transition-rapide),
+                box-shadow var(--transition-normale),
+                background-color var(--transition-rapide);
+}
+
+.btn:hover,
+.card:hover,
+.product-card:hover {
+    transform: translateY(-2px);
+}
+
+.btn:active,
+.card:active,
+.product-card:active {
+    transform: translateY(0);
+}
+
+/* View Transitions API (navigation fluide entre pages) */
+@supports (view-transition-name: none) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 0.3s;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Amélioration du contraste pour accessibilité */
+@media (prefers-contrast: high) {
+    :root {
+        --couleur-bordure: var(--palette-dark-blue);
+        --couleur-bordure-subtile: var(--palette-medium-blue);
+    }
+    
+    .btn {
+        border-width: 2px;
+    }
+}
+
+/* Réduction des animations pour préférence utilisateur */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .skeleton {
+        animation: none;
+    }
+}
+
+/* Amélioration du focus pour navigation clavier */
+.btn:focus-visible,
+a:focus-visible,
+input:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--couleur-primaire);
+    outline-offset: 3px;
+    border-radius: var(--rayon-sm);
+}
+
+/* États désactivés améliorés */
+.btn:disabled,
+.btn[disabled],
+input:disabled,
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Amélioration des images (lazy loading natif supporté) */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+    opacity: 1;
+}
+
+/* Amélioration de la recherche (focus state) */
+.public-search-input:focus {
+    outline: 2px solid var(--couleur-primaire);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--couleur-primaire-clair);
+}
+
+/* Amélioration des cartes produits (hover state) */
+.product-card {
+    transition: transform var(--transition-normale),
+                box-shadow var(--transition-normale);
+}
+
+.product-card:hover {
+    box-shadow: var(--ombre-lg);
+}
+
+.product-card:focus-within {
+    outline: 2px solid var(--couleur-primaire);
+    outline-offset: 4px;
+    border-radius: var(--rayon);
+}
+
+/* Amélioration de la bottom nav (indicateur actif) */
+.public-tab[aria-current="page"] {
+    color: var(--couleur-primaire);
+    font-weight: 600;
+}
+
+.public-tab[aria-current="page"] .public-tab-icon {
+    color: var(--couleur-primaire);
+}
+
+/* Amélioration des formulaires (états de validation) */
+input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: var(--couleur-error);
+    background: color-mix(in srgb, var(--couleur-error) 5%, var(--couleur-fond));
+}
+
+input:valid:not(:focus):not(:placeholder-shown) {
+    border-color: var(--couleur-success);
+}
+
+/* Amélioration des notifications (animation d'entrée) */
+.notification {
+    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification.removing {
+    animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideOutRight {
+    to {
+        transform: translateX(100%);
+        opacity: 0;
     }
 }

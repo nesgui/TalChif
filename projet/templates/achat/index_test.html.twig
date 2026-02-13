@@ -20,7 +20,7 @@
             <div class="panier-lignes">
                 {% for ligne in lignes %}
                     <article class="panier-ligne">
-                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="{{ ligne.produit.titre }}" />
+                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="Affiche de l'événement : {{ ligne.produit.titre }}" loading="lazy" />
                         <div class="panier-info">
                             <div class="panier-titre">{{ ligne.produit.titre }}</div>
                             <div class="panier-meta">

@@ -35,7 +35,7 @@ security:
         - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/evenements, roles: PUBLIC_ACCESS }
-        - { path: ^/panier, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/panier, roles: PUBLIC_ACCESS }
         - { path: ^/portefeuille, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/achat, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/$, roles: PUBLIC_ACCESS }

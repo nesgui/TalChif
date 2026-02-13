@@ -106,6 +106,8 @@ final class EvenementController extends AbstractController
             'badge' => $this->getBadgeForEvent($evenement),
             'places_disponibles' => $evenement->getPlacesRestantes(),
             'places_total' => $evenement->getPlacesDisponibles(),
+            // Nombre de billets déjà vendus (pour la social proof)
+            'ventes' => $evenement->getPlacesVendues(),
             'organisateur' => $evenement->getOrganisateur() ? $evenement->getOrganisateur()->getFullName() : 'Non spécifié',
             'types_billets' => $this->getTicketTypes($evenement),
         ];
@@ -115,31 +117,19 @@ final class EvenementController extends AbstractController
         ]);
     }
 
+    /**
+     * Redirection depuis une URL avec slug seul vers l'URL canonique (slug-id).
+     */
     #[Route('/evenements/{slug}', name: 'evenement.show.redirect')]
     public function showRedirect(string $slug): Response
     {
-        error_log('DEBUG: showRedirect called with slug: ' . $slug);
-
-        // Chercher l'événement par slug
         $evenement = $this->evenementRepository->findOneBy(['slug' => $slug]);
-
         if (!$evenement) {
-            error_log('DEBUG: Event not found for slug: ' . $slug);
-            // Lister tous les slugs disponibles pour debug
-            $allEvents = $this->evenementRepository->findAll();
-            error_log('DEBUG: Available slugs:');
-            foreach ($allEvents as $e) {
-                error_log('DEBUG:  - ID ' . $e->getId() . ' -> ' . $e->getSlug());
-            }
             throw $this->createNotFoundException('Événement non trouvé');
         }
-
-        error_log('DEBUG: Found event, redirecting to: ' . $evenement->getSlug() . '-' . $evenement->getId());
-
-        // Rediriger vers l'URL correcte
         return $this->redirectToRoute('evenement.show', [
             'slug' => $evenement->getSlug(),
-            'id' => $evenement->getId()
+            'id' => $evenement->getId(),
         ]);
     }
 
@@ -149,11 +139,12 @@ final class EvenementController extends AbstractController
             return 'Complet';
         }
 
-        if ($evenement->getPlacesVendues() > 50) {
+        $seuil = $this->getParameter('app.badge.meilleure_vente_seuil');
+        if ($evenement->getPlacesVendues() > $seuil) {
             return 'Meilleure vente';
         }
-
-        if ($evenement->getCreatedAt() > new \DateTimeImmutable('-7 days')) {
+        $jours = (int) $this->getParameter('app.badge.nouveau_jours');
+        if ($evenement->getCreatedAt() > new \DateTimeImmutable("-{$jours} days")) {
             return 'Nouveau';
         }
 

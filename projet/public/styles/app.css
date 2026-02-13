@@ -450,6 +450,18 @@ body {
     align-items: center;
 }
 
+/* Menu burger scrollable sur mobile */
+@media (max-width: 719px) {
+    .public-toggle:checked ~ .public-header .public-drawer {
+        flex-direction: column;
+        align-items: stretch;
+        max-height: calc(100dvh - 130px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 16px;
+    }
+}
+
 @media (min-width: 900px) {
     .public-action {
         display: none;
@@ -481,8 +493,8 @@ body {
     border-top: 1px solid var(--couleur-bordure);
     backdrop-filter: blur(10px);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
 }
 
 .public-tab {
@@ -497,6 +509,8 @@ body {
     background: color-mix(in srgb, var(--couleur-fond) 86%, var(--couleur-texte) 14%);
     font-weight: 700;
     font-size: 13px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .public-tab-icon {
@@ -513,6 +527,11 @@ body {
 .public-tab-label {
     font-size: 12px;
     line-height: 1.05;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .public-tab:hover {
@@ -1052,9 +1071,77 @@ body {
     }
 }
 
-@media (max-width: 380px) {
+/* Styles pour mobile */
+@media (max-width: 480px) {
+    /* Grille d'accès rapide : 1 colonne sur mobile */
     .quick-grid {
         grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    /* Cartes rapides : taille tactile confortable */
+    .quick-card {
+        padding: 14px 16px;
+        min-height: 44px;
+    }
+
+    /* CTA principal en pleine largeur sur mobile */
+    .section-actions {
+        justify-content: stretch;
+    }
+
+    .section-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Boutons petits : taille tactile minimum sur mobile */
+    .btn-sm {
+        min-height: 44px;
+    }
+
+    /* Navigation inférieure : compacte pour 5 onglets */
+    .public-bottom-nav {
+        gap: 2px;
+        padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .public-tab {
+        padding: 8px 2px;
+        border-radius: 10px;
+        border: none;
+    }
+
+    .public-tab-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .public-tab-label {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 380px) {
+    /* Catalogue en 1 colonne sur très petits écrans */
+    .catalog {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* Nav inférieure ultra-compacte */
+    .public-tab {
+        padding: 6px 2px;
+        border-radius: 8px;
+    }
+
+    .public-tab-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .public-tab-label {
+        font-size: 9px;
     }
 }
 

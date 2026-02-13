@@ -1,69 +1,168 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ evenement.titre }}{% endblock %}
+{% block title %}{{ evenement.titre }} - OCEA.td{% endblock %}
+
+{% block meta_description %}Découvrez {{ evenement.titre }} : {{ evenement.description|striptags|slice(0, 150) }}... Réservez vos billets dès maintenant.{% endblock %}
+
+{% block og_title %}{{ evenement.titre }}{% endblock %}
+{% block og_description %}{{ evenement.description|striptags|slice(0, 200) }}...{% endblock %}
+{% block og_image %}
+    <meta property="og:image" content="{{ app.request.schemeAndHttpHost ~ (evenement.image ?: '/images/placeholders/banniere-home.jpg') }}">
+{% endblock %}
+{% block og_type %}event{% endblock %}
 
 {% block body %}
 
 <section class="product-page">
     <div class="product-hero">
         <div class="product-hero-media">
-            <img class="product-hero-img" src="{{ evenement.image ?: '/images/placeholders/banniere-home.svg' }}" alt="{{ evenement.titre }}" />
+            <img class="product-hero-img" src="{{ evenement.image ?: '/images/placeholders/banniere-home.svg' }}" alt="Affiche principale de l'événement : {{ evenement.titre }}" />
         </div>
 
+        {# Colonne centrale : informations principales (résumé) #}
         <div class="product-hero-body">
             <h1 class="page-title">{{ evenement.titre }}</h1>
             <p class="page-subtitle">
                 <span class="pill">{{ evenement.date|date('d/m/Y H:i') }}</span>
                 <span class="pill">{{ evenement.lieu }}</span>
+                <span class="pill">{{ evenement.ville }}</span>
             </p>
 
-            <div class="product-price">À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong></div>
+            {# Résumé court directement sous le titre (comme sur une fiche produit) #}
+            <p class="card-meta">
+                <strong>Description :</strong>
+                {{ evenement.description }}
+            </p>
+            <p class="card-meta">
+                <strong>Billets disponibles :</strong>
+                Gestion complète des types de billets et réservations.
+            </p>
+            <p class="card-meta">
+                <strong>Types disponibles :</strong>
+                {{ evenement.types_billets is defined ? evenement.types_billets|length : 2 }}
+                — <strong>Places totales :</strong> {{ evenement.places_total }}
+            </p>
+        </div>
+
+        {# Colonne droite : buy box (inspirée d'Amazon) #}
+        <aside class="product-hero-buybox">
+            <div class="product-hero-buybox-price">
+                À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong>
+            </div>
+
+            <div class="product-hero-buybox-meta">
+                <p>
+                    <strong>Date :</strong> {{ evenement.date|date('d/m/Y H:i') }}<br>
+                    <strong>Lieu :</strong> {{ evenement.lieu }}, {{ evenement.ville }}
+                </p>
+                <p>
+                    <strong>Places restantes :</strong> {{ evenement.places_disponibles }}<br>
+                    <strong>Places totales :</strong> {{ evenement.places_total }}
+                </p>
+                <p>
+                    <strong>Organisateur :</strong> {{ evenement.organisateur }}
+                </p>
+                {% if evenement.ventes is defined and evenement.ventes > 0 %}
+                    <p>
+                        <strong>Popularité :</strong><br>
+                        {{ evenement.ventes }} personne{{ evenement.ventes > 1 ? 's' : '' }} ont déjà acheté un billet.
+                    </p>
+                {% endif %}
+            </div>
 
             <div class="card-actions">
-                <a class="btn btn-sm btn-secondary" href="{{ path('evenement.index') }}">Retour</a>
-                <a class="btn btn-sm btn-primary" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">Acheter</a>
-                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}">
+                <a class="btn btn-primary btn-block" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">
+                    Acheter maintenant
+                </a>
+                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" data-controller="loading" class="btn-block">
                     <input type="hidden" name="quantite" value="1" />
                     <input type="hidden" name="redirect" value="panier" />
-                    <button class="btn btn-sm btn-success" type="submit">Ajouter au panier</button>
+                    <button class="btn btn-secondary btn-block" type="submit" data-loading-target="submitButton">
+                        Ajouter au panier
+                    </button>
                 </form>
             </div>
-        </div>
+        </aside>
     </div>
 
-    <div class="grid">
+    <div class="grid product-details-grid">
+
+        {# Infos organisateur (détails complémentaires uniquement) #}
         <section class="card">
-            <h2 class="card-title">Description</h2>
-            <p class="card-meta">{{ evenement.description }}</p>
-        </section>
-
-        <section class="card">
-            <h2 class="card-title">Billets disponibles</h2>
-            <p class="card-meta">Gestion complète des types de billets et réservations</p>
-
-            <div class="tickets-preview">
-                <div class="preview-info">
-                    <h4>Types de billets disponibles</h4>
-                    <p>Consultez la page de gestion des billets pour voir tous les types, prix, disponibilités et l'historique des réservations.</p>
-                </div>
-
-                <div class="preview-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Types disponibles</span>
-                        <span class="stat-value">2</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Places totales</span>
-                        <span class="stat-value">250</span>
-                    </div>
-                </div>
-
-                <div class="preview-actions">
-                    <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-outline">
-                        Voir dans le dashboard
+            <h2 class="card-title">Infos organisateur</h2>
+            <div class="info-list">
+                <div class="info-row">
+                    <span class="info-label">Plus d'événements de cet organisateur</span>
+                    <a class="btn btn-sm btn-secondary"
+                       href="{{ path('evenement.index') ~ '?q=' ~ evenement.organisateur|url_encode }}">
+                        Voir les autres événements
                     </a>
                 </div>
             </div>
+        </section>
+
+        {# Contexte pratique (complément sous la buy box) #}
+        <section class="card">
+            <h2 class="card-title">Infos pratiques</h2>
+            <p class="card-meta">Lieu & accès</p>
+
+            <p class="card-meta" style="margin-top: 0.75rem;">
+                <strong>Dress code & âge minimum :</strong><br>
+                Les informations détaillées sont communiquées par l'organisateur. Pensez à vérifier l'email et le billet reçus.
+            </p>
+        </section>
+
+        {# Confiance / social proof #}
+        <section class="card">
+            <h2 class="card-title">Confiance & avis</h2>
+
+            <div class="info-list">
+                {% if evenement.note is defined and evenement.note is not null %}
+                    <div class="info-row">
+                        <span class="info-label">Note moyenne</span>
+                        <span class="info-value">
+                            {{ evenement.note }}/5
+                            {% if evenement.avis is defined and evenement.avis is not null %}
+                                ({{ evenement.avis }} avis)
+                            {% endif %}
+                        </span>
+                    </div>
+                {% else %}
+                    <p class="card-meta">Aucune note n'a encore été attribuée pour cet événement.</p>
+                {% endif %}
+
+                {% if evenement.ventes is defined and evenement.ventes > 0 %}
+                    <div class="info-row">
+                        <span class="info-label">Popularité</span>
+                        <span class="info-value">
+                            {{ evenement.ventes }} personne{{ evenement.ventes > 1 ? 's' : '' }} ont déjà acheté un billet.
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        {# Partage #}
+        <section class="card">
+            <h2 class="card-title">Partager l'événement</h2>
+            <p class="card-meta">Invite tes amis à te rejoindre.</p>
+
+            {% set url_evenement = app.request.uri %}
+            <div class="card-actions">
+                <button class="btn btn-sm btn-secondary" type="button"
+                        data-share="copy"
+                        data-share-url="{{ url_evenement }}">
+                    Copier le lien de l'événement
+                </button>
+            </div>
+            <p class="card-meta" style="margin-top: 0.5rem;">
+                Ou partager via
+                <a href="https://wa.me/?text={{ ('Je t’invite à découvrir cet événement : ' ~ url_evenement)|url_encode }}"
+                   target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                ·
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_evenement|url_encode }}"
+                   target="_blank" rel="noopener noreferrer">Facebook</a>
+            </p>
         </section>
     </div>
 </section>
@@ -83,6 +182,23 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         });
     }
+
+    // Partage : bouton "Copier le lien" avec Clipboard API
+    const copyButtons = document.querySelectorAll('[data-share="copy"]');
+    copyButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const url = btn.getAttribute('data-share-url') || window.location.href;
+            try {
+                await navigator.clipboard.writeText(url);
+                btn.textContent = 'Lien copié !';
+                setTimeout(() => {
+                    btn.textContent = 'Copier le lien';
+                }, 2000);
+            } catch (e) {
+                alert('Impossible de copier le lien. Vous pouvez le copier manuellement depuis la barre d’adresse.');
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

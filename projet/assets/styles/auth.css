@@ -78,8 +78,8 @@ html:not([data-theme="dark"]) {
         0 20px 25px color-mix(in srgb, var(--palette-dark-blue) 15%, transparent),
         0 10px 10px color-mix(in srgb, var(--palette-dark-blue) 10%, transparent);
     width: 100%;
-    max-width: 420px;
-    padding: var(--espace-2xl);
+    max-width: 280px;
+    padding: var(--espace-md);
     position: relative;
     z-index: 1;
 }
@@ -453,7 +453,7 @@ select.auth-input {
 
 .auth-card {
     width: 100%;
-    max-width: 420px;
+    max-width: 280px;
     background: var(--couleur-surface-elevee);
     border-radius: var(--rayon-xl);
     box-shadow: 
@@ -469,14 +469,14 @@ select.auth-input {
         var(--palette-light-blue) 0%, 
         color-mix(in srgb, var(--palette-medium-blue) 30%, var(--palette-light-blue)) 100%
     );
-    padding: var(--espace-xl) var(--espace-lg);
+    padding: var(--espace-sm) var(--espace-xs);
     text-align: center;
     border-bottom: 1px solid var(--couleur-bordure-subtile);
 }
 
 .auth-title {
-    margin: 0 0 var(--espace-sm);
-    font-size: 1.75rem;
+    margin: 0 0 1px;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--palette-dark-blue);
     letter-spacing: -0.025em;
@@ -485,17 +485,17 @@ select.auth-input {
 .auth-subtitle {
     margin: 0;
     color: var(--couleur-texte-secondaire);
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
 .auth-body {
-    padding: var(--espace-xl) var(--espace-lg);
+    padding: var(--espace-sm) var(--espace-xs);
 }
 
 .auth-form {
     display: grid;
-    gap: var(--espace-lg);
+    gap: var(--espace-xs);
 }
 
 .auth-form-group {
@@ -512,9 +512,9 @@ select.auth-input {
 
 .auth-input {
     width: 100%;
-    padding: var(--espace-md) var(--espace-lg);
-    font-size: 1rem;
-    line-height: 1.5;
+    padding: 6px var(--espace-sm);
+    font-size: 0.8rem;
+    line-height: 1.3;
     color: var(--couleur-texte);
     background: var(--couleur-fond);
     border: 2px solid var(--couleur-bordure-subtile);
@@ -561,14 +561,14 @@ select.auth-input {
 
 .auth-actions {
     display: grid;
-    gap: var(--espace-md);
-    margin-top: var(--espace-lg);
+    gap: var(--espace-xs);
+    margin-top: var(--espace-sm);
 }
 
 .auth-btn {
     width: 100%;
-    padding: var(--espace-md) var(--espace-xl);
-    font-size: 1rem;
+    padding: 6px var(--espace-sm);
+    font-size: 0.8rem;
     font-weight: 600;
     border-radius: 999px; /* Pill shape */
     border: none;
@@ -578,8 +578,8 @@ select.auth-input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--espace-sm);
-    min-height: 52px;
+    gap: 4px;
+    min-height: 36px;
     position: relative;
     overflow: hidden;
 }

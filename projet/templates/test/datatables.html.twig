@@ -1,0 +1,334 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Test DataTables & Notifications{% endblock %}
+
+{% block dashboard_title %}Test DataTables & Notifications{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="page-title">Test DataTables & Notifications</h1>
+        <p class="page-subtitle">Vérification du fonctionnement des DataTables et des notifications</p>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Test de Notifications</h2>
+        <div class="card-content">
+            <p>Les messages flash ont été ajoutés pour tester le système de notifications.</p>
+            <div class="actions-grid" style="margin-top: 1rem;">
+                <button onclick="testNotification()" class="btn btn-primary">
+                    📢 Tester Notification Manuelle
+                </button>
+                <button onclick="testThemeToggle()" class="btn btn-outline">
+                    🎨 Tester Basculement Thème
+                </button>
+                <a href="{{ path('test.datatables') }}" class="btn btn-outline">
+                    🔄 Recharger la Page
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Test DataTables</h2>
+        <div class="card-content">
+            <p>Tableau de test avec fonctionnalités DataTables activées.</p>
+            
+            <table id="test-table" class="osea-datatable" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Jean Dupont</td>
+                        <td>jean.dupont@example.com</td>
+                        <td>Admin</td>
+                        <td><span class="pill-success">Actif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Marie Martin</td>
+                        <td>marie.martin@example.com</td>
+                        <td>Organisateur</td>
+                        <td><span class="pill-success">Actif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Pierre Durand</td>
+                        <td>pierre.durand@example.com</td>
+                        <td>Client</td>
+                        <td><span class="pill-warning">Inactif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Sophie Bernard</td>
+                        <td>sophie.bernard@example.com</td>
+                        <td>Organisateur</td>
+                        <td><span class="pill-success">Actif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Lucas Petit</td>
+                        <td>lucas.petit@example.com</td>
+                        <td>Client</td>
+                        <td><span class="pill-success">Actif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Emma Leroy</td>
+                        <td>emma.leroy@example.com</td>
+                        <td>Admin</td>
+                        <td><span class="pill-success">Actif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Nicolas Rousseau</td>
+                        <td>nicolas.rousseau@example.com</td>
+                        <td>Client</td>
+                        <td><span class="pill-warning">Inactif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Camille Moreau</td>
+                        <td>camille.moreau@example.com</td>
+                        <td>Organisateur</td>
+                        <td><span class="pill-success">Actif</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">Modifier</button>
+                            <button class="btn btn-sm btn-outline">Voir</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Diagnostic JavaScript</h2>
+        <div class="card-content">
+            <div id="diagnostic-info">
+                <p>Chargement du diagnostic...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Test page loaded');
+    
+    // Initialiser DataTables
+    try {
+        if (window.DataTableOS) {
+            const table = window.DataTableOS.init('#test-table');
+            if (table) {
+                console.log('DataTables initialisé avec succès');
+            } else {
+                console.error('Échec de l\'initialisation de DataTables');
+            }
+        } else {
+            console.error('DataTableOS n\'est pas disponible');
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de DataTables:', error);
+    }
+    
+    // Diagnostic
+    runDiagnostic();
+});
+
+function testNotification() {
+    console.log('Test notification manuelle');
+    if (window.NotificationService) {
+        window.NotificationService.success('Test Manuel', 'Ceci est une notification de test générée manuellement');
+    } else {
+        alert('NotificationService non disponible');
+    }
+}
+
+function testThemeToggle() {
+    console.log('Test theme toggle');
+    if (window.themeToggle && window.themeToggle.toggleTheme) {
+        window.themeToggle.toggleTheme();
+    } else {
+        alert('ThemeToggle non disponible');
+    }
+}
+
+function runDiagnostic() {
+    const diagnostic = {
+        'NotificationService': !!window.NotificationService,
+        'ThemeToggle': !!(window.themeToggle || window.ThemeToggle),
+        'DataTableOS': !!window.DataTableOS,
+        'DataTables (CDN)': !!(window.DataTable || (window.$ && window.$.fn.dataTable)),
+        'jQuery': !!(window.$),
+        'Stimulus': !!(window.Stimulus),
+        'Flash Messages': window.flashMessages ? window.flashMessages.length : 0
+    };
+    
+    const diagnosticHtml = Object.entries(diagnostic)
+        .map(([key, value]) => {
+            const status = value === true ? '✅ OK' : value === false ? '❌ Manquant' : `ℹ️ ${value}`;
+            const color = value === true ? 'var(--couleur-success)' : value === false ? 'var(--couleur-error)' : 'var(--couleur-info)';
+            return `<div style="margin: 0.5rem 0; color: ${color};"><strong>${key}:</strong> ${status}</div>`;
+        })
+        .join('');
+    
+    document.getElementById('diagnostic-info').innerHTML = `
+        <h3>État des Services JavaScript:</h3>
+        ${diagnosticHtml}
+        <div style="margin-top: 1rem;">
+            <button onclick="runDiagnostic()" class="btn btn-sm btn-outline">🔄 Actualiser Diagnostic</button>
+        </div>
+    `;
+    
+    console.log('Diagnostic:', diagnostic);
+}
+</script>
+
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--espace-lg);
+}
+
+.card {
+    background: var(--couleur-surface);
+    border-radius: var(--rayon);
+    padding: var(--espace-lg);
+    border: 1px solid var(--couleur-bordure);
+    box-shadow: var(--ombre-md);
+    margin-bottom: var(--espace-xl);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin: 0 0 var(--espace-md) 0;
+}
+
+.card-content {
+    color: var(--couleur-texte-secondaire);
+    line-height: 1.6;
+}
+
+.actions-grid {
+    display: flex;
+    gap: var(--espace-md);
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: var(--espace-sm) var(--espace-lg);
+    border: none;
+    border-radius: var(--rayon-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all var(--transition-rapide);
+    white-space: nowrap;
+    user-select: none;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--espace-sm);
+}
+
+.btn-primary {
+    background: var(--couleur-primaire);
+    color: var(--couleur-texte-inverse);
+}
+
+.btn-primary:hover {
+    background: var(--couleur-primaire-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--ombre-md);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--couleur-texte-secondaire);
+    border: 1px solid var(--couleur-bordure);
+}
+
+.btn-outline:hover {
+    background: var(--couleur-surface);
+    border-color: var(--couleur-primaire);
+    color: var(--couleur-primaire);
+    transform: translateY(-1px);
+    box-shadow: var(--ombre-sm);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.pill-success {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--couleur-success);
+    color: white;
+}
+
+.pill-warning {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--couleur-warning);
+    color: white;
+}
+</style>
+{% endblock %}

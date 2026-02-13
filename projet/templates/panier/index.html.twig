@@ -24,7 +24,7 @@
             <div class="panier-lignes">
                 {% for ligne in lignes %}
                     <article class="panier-ligne">
-                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="{{ ligne.produit.titre }}" />
+                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="Affiche de l'événement : {{ ligne.produit.titre }}" loading="lazy" />
                         <div class="panier-info">
                             <div class="panier-titre">{{ ligne.produit.titre }}</div>
                             <div class="panier-meta">
@@ -37,6 +37,7 @@
                             <div class="card-actions">
                                 <a class="btn btn-sm" href="{{ path('evenement.show', {slug: ligne.produit.slug, id: ligne.produit.id}) }}">Voir</a>
                                 <form method="post" action="{{ path('panier.supprimer', {id: ligne.id}) }}" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('panier_supprimer_' ~ ligne.id) }}">
                                     <button class="btn btn-sm" type="submit" onclick="return confirm('Supprimer cet article ?')">Supprimer</button>
                                 </form>
                             </div>
@@ -97,8 +98,10 @@
             {% else %}
                 <div class="auth-notice">
                     <p class="card-meta">🔐 Connectez-vous pour finaliser votre achat</p>
+                    <p class="card-meta" style="margin-top: 4px; font-size: 0.8125rem;">Votre panier sera conservé après connexion.</p>
                     <div class="card-actions">
-                        <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
+                        {# Lien vers /achat : Symfony stocke l'URL et redirige ici après login #}
+                        <a class="btn btn-primary" href="{{ path('achat.index') }}">Se connecter</a>
                         <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
                     </div>
                 </div>
@@ -388,8 +391,18 @@
 </style>
 
 <script>
+/**
+ * Met à jour la quantité d'un article dans le panier avec feedback visuel.
+ */
 function updateQuantite(id, currentQuantite, change, maxQuantite) {
     const newQuantite = Math.max(0, Math.min(currentQuantite + change, maxQuantite));
+    
+    // Trouver les boutons de quantité pour l'article
+    const quantiteButtons = document.querySelectorAll(`[onclick*="updateQuantite(${id}"]`);
+    quantiteButtons.forEach(btn => {
+        btn.classList.add('loading');
+        btn.disabled = true;
+    });
     
     const form = document.createElement('form');
     form.method = 'POST';

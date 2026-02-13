@@ -1,0 +1,316 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Test du Système de Notifications{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 1200px; padding: 40px 20px;">
+    <h1 style="font-size: 2rem; font-weight: 700; color: var(--couleur-texte); margin-bottom: 1rem;">
+        🔔 Test du Système de Notifications
+    </h1>
+    <p style="color: var(--couleur-texte-secondaire); margin-bottom: 2rem;">
+        Ce système de notifications moderne est conforme WCAG 2.2 AA, utilise la palette OSEA et ne dépend d'aucune bibliothèque externe.
+    </p>
+
+    <!-- Section Flash Messages Symfony -->
+    <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--ombre-md);">
+        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
+            1. Flash Messages Symfony
+        </h2>
+        <p style="color: var(--couleur-texte-secondaire); margin-bottom: 1rem;">
+            Ces messages proviennent du serveur (Symfony) et sont automatiquement convertis en toasts :
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{{ path('test.notifications', {type: 'success'}) }}" 
+               class="btn-outline-primary">Tester Success</a>
+            <a href="{{ path('test.notifications', {type: 'error'}) }}" 
+               class="btn-outline-danger">Tester Error</a>
+            <a href="{{ path('test.notifications', {type: 'warning'}) }}" 
+               class="btn-outline-warning">Tester Warning</a>
+            <a href="{{ path('test.notifications', {type: 'info'}) }}" 
+               class="btn-outline-info">Tester Info</a>
+        </div>
+    </section>
+
+    <!-- Section Notifications JavaScript -->
+    <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--ombre-md);">
+        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
+            2. Notifications JavaScript
+        </h2>
+        <p style="color: var(--couleur-texte-secondaire); margin-bottom: 1rem;">
+            API JavaScript directe pour notifications côté client :
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="NotificationService.success('Succès !', 'Opération terminée avec succès')" 
+                    class="btn-success">Success</button>
+            <button onclick="NotificationService.error('Erreur !', 'Une erreur est survenue')" 
+                    class="btn-danger">Error</button>
+            <button onclick="NotificationService.warning('Attention !', 'Vérifiez vos informations')" 
+                    class="btn-warning">Warning</button>
+            <button onclick="NotificationService.info('Information', 'Voici une information utile')" 
+                    class="btn-info">Info</button>
+        </div>
+    </section>
+
+    <!-- Section Actions Inline -->
+    <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--ombre-md);">
+        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
+            3. Notifications avec Actions
+        </h2>
+        <p style="color: var(--couleur-texte-secondaire); margin-bottom: 1rem;">
+            Nouvelles fonctionnalités : actions inline, durée personnalisée, etc.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="testActionInline()" class="btn-primary">
+                Avec Action
+            </button>
+            <button onclick="testDurationInfinite()" class="btn-outline-primary">
+                Durée Infinie
+            </button>
+            <button onclick="testNoProgress()" class="btn-outline-secondary">
+                Sans Progression
+            </button>
+            <button onclick="testMultiple()" class="btn-outline-warning">
+                5 Notifications
+            </button>
+        </div>
+    </section>
+
+    <!-- Section Méthodes Utilitaires -->
+    <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--ombre-md);">
+        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
+            4. Méthodes Utilitaires Métier
+        </h2>
+        <p style="color: var(--couleur-texte-secondaire); margin-bottom: 1rem;">
+            Méthodes pré-configurées pour les actions courantes :
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="NotificationService.loginSuccess('Jean Dupont')" class="btn-outline-success">
+                Login Success
+            </button>
+            <button onclick="NotificationService.addToCartSuccess('Concert Rock 2026')" class="btn-outline-success">
+                Ajout Panier
+            </button>
+            <button onclick="NotificationService.accessDenied()" class="btn-outline-danger">
+                Accès Refusé
+            </button>
+            <button onclick="NotificationService.uploadProgress('document.pdf')" class="btn-outline-info">
+                Upload Progress
+            </button>
+            <button onclick="NotificationService.networkError()" class="btn-outline-danger">
+                Erreur Réseau
+            </button>
+            <button onclick="NotificationService.sessionExpired()" class="btn-outline-warning">
+                Session Expirée
+            </button>
+        </div>
+    </section>
+
+    <!-- Section Tests Accessibilité -->
+    <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--ombre-md);">
+        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
+            5. Tests d'Accessibilité
+        </h2>
+        <div style="color: var(--couleur-texte-secondaire); line-height: 1.6;">
+            <h3 style="font-weight: 600; color: var(--couleur-texte); margin-top: 1rem; margin-bottom: 0.5rem;">
+                ✅ Checklist WCAG 2.2 AA
+            </h3>
+            <ul style="margin-left: 1.5rem;">
+                <li>Attributs ARIA complets (<code>role</code>, <code>aria-live</code>, <code>aria-atomic</code>)</li>
+                <li>Labels accessibles sur tous les boutons</li>
+                <li>Icônes décoratives cachées (<code>aria-hidden="true"</code>)</li>
+                <li>Contraste suffisant (4.5:1 minimum)</li>
+                <li>Navigation clavier complète (Tab, Entrée, Espace)</li>
+                <li>Support lecteurs d'écran (NVDA, JAWS, VoiceOver)</li>
+            </ul>
+
+            <h3 style="font-weight: 600; color: var(--couleur-texte); margin-top: 1.5rem; margin-bottom: 0.5rem;">
+                🧪 Tests à Effectuer
+            </h3>
+            <ol style="margin-left: 1.5rem;">
+                <li>Déclencher une notification et utiliser <kbd>Tab</kbd> pour naviguer</li>
+                <li>Fermer avec <kbd>Entrée</kbd> ou <kbd>Espace</kbd></li>
+                <li>Tester avec un lecteur d'écran (les notifications doivent être annoncées)</li>
+                <li>Vérifier que le survol pause l'auto-dismiss</li>
+                <li>Tester en mode sombre (bouton thème en haut)</li>
+                <li>Tester sur mobile (responsive)</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- Section Contrôles -->
+    <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; box-shadow: var(--ombre-md);">
+        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
+            6. Contrôles
+        </h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="NotificationService.clear()" class="btn-danger">
+                🗑️ Tout Effacer
+            </button>
+            <button onclick="inspectService()" class="btn-outline-secondary">
+                🔍 Inspecter le Service
+            </button>
+        </div>
+    </section>
+</div>
+
+<script>
+// Fonctions de test
+function testActionInline() {
+    NotificationService.show('success', 'Article ajouté', 'L\'article a été ajouté à votre panier', {
+        action: {
+            label: 'Voir le panier',
+            callback: () => alert('Redirection vers le panier...')
+        }
+    });
+}
+
+function testDurationInfinite() {
+    NotificationService.show('warning', 'Action requise', 'Cette notification reste jusqu\'à fermeture manuelle', {
+        duration: 0
+    });
+}
+
+function testNoProgress() {
+    NotificationService.show('info', 'Sans barre', 'Notification sans barre de progression', {
+        progress: false
+    });
+}
+
+function testMultiple() {
+    for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+            NotificationService.info('Notification ' + i, 'Test de pile de notifications multiples');
+        }, i * 200);
+    }
+}
+
+function inspectService() {
+    console.group('📊 NotificationService Inspection');
+    console.log('Service disponible:', !!window.NotificationService);
+    console.log('Initialisé:', window.NotificationService.isInitialized);
+    console.log('Conteneur:', window.NotificationService.container);
+    console.log('Notifications actives:', window.NotificationService.notifications.size);
+    console.log('Max visible:', window.NotificationService.maxVisible);
+    console.groupEnd();
+    
+    NotificationService.info('Inspection', 'Voir la console (F12) pour les détails');
+}
+
+// Message de bienvenue au chargement
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        NotificationService.success(
+            'Système prêt !', 
+            'Le système de notifications v2.0 est opérationnel'
+        );
+    }, 500);
+});
+</script>
+
+<style>
+/* Styles pour les boutons de test */
+button, .btn-outline-primary, .btn-outline-danger, .btn-outline-warning, .btn-outline-info, .btn-outline-success, .btn-outline-secondary {
+    padding: 10px 20px;
+    border-radius: var(--rayon-sm);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition-rapide);
+    border: 2px solid;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-success {
+    background: var(--couleur-success);
+    color: white;
+    border-color: var(--couleur-success);
+}
+
+.btn-danger {
+    background: var(--couleur-primaire);
+    color: white;
+    border-color: var(--couleur-primaire);
+}
+
+.btn-warning {
+    background: var(--couleur-warning);
+    color: white;
+    border-color: var(--couleur-warning);
+}
+
+.btn-info {
+    background: var(--couleur-secondaire);
+    color: white;
+    border-color: var(--couleur-secondaire);
+}
+
+.btn-primary {
+    background: var(--couleur-primaire);
+    color: white;
+    border-color: var(--couleur-primaire);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--couleur-primaire);
+    border-color: var(--couleur-primaire);
+}
+
+.btn-outline-danger {
+    background: transparent;
+    color: var(--couleur-primaire);
+    border-color: var(--couleur-primaire);
+}
+
+.btn-outline-warning {
+    background: transparent;
+    color: var(--couleur-warning);
+    border-color: var(--couleur-warning);
+}
+
+.btn-outline-info {
+    background: transparent;
+    color: var(--couleur-secondaire);
+    border-color: var(--couleur-secondaire);
+}
+
+.btn-outline-success {
+    background: transparent;
+    color: var(--couleur-success);
+    border-color: var(--couleur-success);
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--couleur-texte-secondaire);
+    border-color: var(--couleur-bordure);
+}
+
+button:hover, [class*="btn-"]:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-md);
+}
+
+button:active, [class*="btn-"]:active {
+    transform: translateY(0);
+}
+
+kbd {
+    background: var(--couleur-surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.875rem;
+    border: 1px solid var(--couleur-bordure);
+}
+
+code {
+    background: var(--couleur-surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}

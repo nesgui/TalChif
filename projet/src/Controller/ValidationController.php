@@ -6,17 +6,25 @@ use App\Entity\Billet;
 use App\Repository\BilletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/**
+ * Contrôleur de validation des billets (scan QR par les organisateurs).
+ */
 final class ValidationController extends AbstractController
 {
     public function __construct(
         private BilletRepository $billetRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        #[Autowire(param: 'app.validation.debut_offset')]
+        private string $validationDebutOffset,
+        #[Autowire(param: 'app.validation.fin_offset')]
+        private string $validationFinOffset
     ) {
     }
 
@@ -109,14 +117,12 @@ final class ValidationController extends AbstractController
             ], 400);
         }
 
-        // Vérifier si l'événement est en cours
+        // Vérifier si l'événement est dans la fenêtre de validation (configurable)
         $evenement = $billet->getEvenement();
-        $now = new \DateTime();
+        $now = new \DateTimeImmutable();
         $eventDate = $evenement->getDateEvenement();
-        
-        // Autoriser la validation 2h avant et 4h après l'événement
-        $validationStart = (clone $eventDate)->modify('-2 hours');
-        $validationEnd = (clone $eventDate)->modify('+4 hours');
+        $validationStart = $eventDate->modify($this->validationDebutOffset);
+        $validationEnd = $eventDate->modify($this->validationFinOffset);
 
         if ($now < $validationStart) {
             return new JsonResponse([
@@ -148,7 +154,7 @@ final class ValidationController extends AbstractController
             ], 400);
         }
 
-        // Valider le billet
+        // Marquer le billet comme utilisé (date + utilisateur ayant validé)
         $billet->setUtilise(true);
         $billet->setDateUtilisation($now);
         $billet->setValidePar($this->getUser());

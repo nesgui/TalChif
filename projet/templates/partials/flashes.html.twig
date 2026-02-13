@@ -1,34 +1,111 @@
-{# Messages visibles immédiatement (fallback si JS désactivé ou erreur) #}
+{# 
+   Messages Flash OSEA.td
+   Système simplifié et moderne avec fallback sans JS
+   Compatible avec le nouveau NotificationService 2.0
+#}
+
+{# Messages visibles immédiatement (fallback si JS désactivé) #}
 {% for type, messages in app.flashes %}
     {% for message in messages %}
-        <div class="flash-message flash-{{ type }}" role="alert" data-flash-toast>
-            <strong>{{ type == 'success' ? 'Succès' : type == 'error' ? 'Erreur' : type == 'warning' ? 'Attention' : 'Information' }} :</strong> {{ message }}
+        <div class="flash-message flash-{{ type }}" role="alert">
+            <strong>
+                {%- if type == 'success' -%}
+                    Succès
+                {%- elseif type == 'error' or type == 'danger' -%}
+                    Erreur
+                {%- elseif type == 'warning' -%}
+                    Attention
+                {%- else -%}
+                    Information
+                {%- endif -%}
+            </strong> : {{ message }}
         </div>
-        <script>
-            if (!window.flashMessages) { window.flashMessages = []; }
-            window.flashMessages.push({ type: '{{ type }}', message: {{ message|json_encode|raw }} });
-        </script>
     {% endfor %}
 {% endfor %}
+
+{# Script simplifié pour convertir flash messages en notifications toast #}
+{% if app.flashes is not empty %}
 <script>
 (function() {
-    function runToasts() {
-        if (!window.NotificationService || !window.flashMessages || window.flashMessages.length === 0) return;
-        window.flashMessages.forEach(function(flash) {
-            var title = flash.type === 'success' ? 'Succès' : flash.type === 'error' ? 'Erreur' : flash.type === 'warning' ? 'Attention' : 'Information';
-            var duration = flash.type === 'error' ? 6000 : flash.type === 'warning' ? 5000 : 4000;
-            if (flash.type === 'success') window.NotificationService.success(title, flash.message, { duration: duration });
-            else if (flash.type === 'error') window.NotificationService.error(title, flash.message, { duration: duration });
-            else if (flash.type === 'warning') window.NotificationService.warning(title, flash.message, { duration: duration });
-            else window.NotificationService.info(title, flash.message, { duration: duration });
-        });
-        window.flashMessages = [];
-        document.querySelectorAll('[data-flash-toast]').forEach(function(el) { el.remove(); });
+    'use strict';
+    
+    // Éviter les doublons si script exécuté plusieurs fois
+    if (window.flashMessagesProcessed) {
+        return;
     }
-    if (window.NotificationService) {
-        runToasts();
+    window.flashMessagesProcessed = true;
+    
+    // Collecter tous les messages flash
+    const flashMessages = [];
+    
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            flashMessages.push({
+                type: '{{ type }}',
+                message: {{ message|json_encode|raw }}
+            });
+        {% endfor %}
+    {% endfor %}
+    
+    // Fonction pour afficher les notifications
+    function displayFlashNotifications() {
+        if (!window.NotificationService) {
+            return;
+        }
+        
+        const typeMapping = {
+            'success': 'success',
+            'error': 'error',
+            'danger': 'error',
+            'warning': 'warning',
+            'info': 'info'
+        };
+        
+        const titleMapping = {
+            'success': 'Succès',
+            'error': 'Erreur',
+            'danger': 'Erreur',
+            'warning': 'Attention',
+            'info': 'Information'
+        };
+        
+        flashMessages.forEach(function(flash) {
+            const type = typeMapping[flash.type] || 'info';
+            const title = titleMapping[flash.type] || 'Information';
+            
+            window.NotificationService.show(type, title, flash.message);
+        });
+        
+        // Masquer les messages inline une fois affichés en toast
+        document.querySelectorAll('.flash-message').forEach(function(el) {
+            el.style.display = 'none';
+        });
+    }
+    
+    // Attendre que NotificationService soit disponible
+    function waitForService(attempts) {
+        if (attempts === void 0) attempts = 0;
+        
+        if (window.NotificationService) {
+            displayFlashNotifications();
+        } else if (attempts < 50) { // Max 2.5 secondes d'attente
+            setTimeout(function() {
+                waitForService(attempts + 1);
+            }, 50);
+        } else {
+            // Timeout : garder les messages inline visibles
+            console.warn('[Flash] NotificationService non disponible après timeout');
+        }
+    }
+    
+    // Démarrer l'attente
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            waitForService();
+        });
     } else {
-        document.addEventListener('DOMContentLoaded', function() { setTimeout(runToasts, 150); });
+        waitForService();
     }
 })();
 </script>
+{% endif %}

@@ -271,7 +271,8 @@ class Evenement
         return $this;
     }
 
-    public function isIsActive(): bool
+    /** Indique si l'événement est actif (visible et en vente). */
+    public function isActive(): bool
     {
         return $this->isActive;
     }

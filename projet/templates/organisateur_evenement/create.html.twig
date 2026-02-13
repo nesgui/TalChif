@@ -2,6 +2,11 @@
 
 {% block title %}Créer un événement{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/auth.css') }}">
+{% endblock %}
+
 {% block body %}
 <h1 class="page-title">Créer un événement</h1>
 <p class="page-subtitle">Organisez votre événement</p>
@@ -11,107 +16,223 @@
         <h2 class="card-title">Informations de l'événement</h2>
         <p class="card-meta">Remplissez tous les champs pour créer votre événement</p>
 
-        {% for flash in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ flash }}
-            </div>
-        {% endfor %}
+        {% include 'partials/flashes.html.twig' %}
 
-        {% for flash in app.flashes('error') %}
-            <div class="alert alert-error">
-                {{ flash }}
-            </div>
-        {% endfor %}
+        {{ form_start(form, {'attr': {'class': 'auth-form', 'enctype': 'multipart/form-data'}}) }}
 
-        {{ form_start(form, {'attr': {'class': 'form', 'enctype': 'multipart/form-data'}}) }}
-
-        <div class="form-group">
-            {{ form_label(form.nom) }}
-            {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.nom) }}
+        <div class="auth-form-group">
+            {{ form_label(form.nom, 'Nom de l\'événement', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le nom de l\'événement'}}) }}
+            {% if form_errors(form.nom) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.nom) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.description) }}
-            {{ form_widget(form.description, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'rows': '4'}}) }}
-            {{ form_errors(form.description) }}
+        <div class="auth-form-group">
+            {{ form_label(form.description, 'Description', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'auth-input', 'placeholder': 'Décrivez votre événement en détail (minimum 10 caractères)', 'rows': '4'}}) }}
+            {% if form_errors(form.description) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.description) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.dateEvenement) }}
-            {{ form_widget(form.dateEvenement, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.dateEvenement) }}
+        <div class="auth-form-group">
+            {{ form_label(form.dateEvenement, 'Date de l\'événement', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.dateEvenement, {'attr': {'class': 'auth-input'}}) }}
+            {% if form_errors(form.dateEvenement) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.dateEvenement) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.lieu) }}
-            {{ form_widget(form.lieu, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.lieu) }}
+        <div class="auth-form-group">
+            {{ form_label(form.lieu, 'Lieu', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.lieu, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le lieu de l\'événement'}}) }}
+            {% if form_errors(form.lieu) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.lieu) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.adresse) }}
-            {{ form_widget(form.adresse, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.adresse) }}
+        <div class="auth-form-group">
+            {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.adresse, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez l\'adresse complète'}}) }}
+            {% if form_errors(form.adresse) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.adresse) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.ville) }}
-            {{ form_widget(form.ville, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.ville) }}
+        <div class="auth-form-group">
+            {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.ville, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez la ville'}}) }}
+            {% if form_errors(form.ville) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.ville) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.placesDisponibles) }}
-            {{ form_widget(form.placesDisponibles, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.placesDisponibles) }}
+        <div class="auth-form-group">
+            {{ form_label(form.placesDisponibles, 'Places disponibles', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.placesDisponibles, {'attr': {'class': 'auth-input', 'placeholder': 'Nombre de places disponibles'}}) }}
+            {% if form_errors(form.placesDisponibles) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.placesDisponibles) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.prixSimple) }}
-            {{ form_widget(form.prixSimple, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.prixSimple) }}
+        <div class="auth-form-group">
+            {{ form_label(form.prixSimple, 'Prix simple (XAF)', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.prixSimple, {'attr': {'class': 'auth-input', 'placeholder': 'Prix du billet simple'}}) }}
+            {% if form_errors(form.prixSimple) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.prixSimple) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.prixVip) }}
-            {{ form_widget(form.prixVip, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.prixVip) }}
+        <div class="auth-form-group">
+            {{ form_label(form.prixVip, 'Prix VIP (XAF)', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.prixVip, {'attr': {'class': 'auth-input', 'placeholder': 'Prix du billet VIP (optionnel)'}}) }}
+            {% if form_errors(form.prixVip) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.prixVip) }}
+                </div>
+            {% endif %}
             <small class="form-help">Optionnel - Laissez vide si pas de billets VIP</small>
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.affichePrincipale) }}
-            {{ form_widget(form.affichePrincipale, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.affichePrincipale) }}
+        <div class="auth-form-group">
+            {{ form_label(form.affichePrincipale, 'Affiche principale', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.affichePrincipale, {'attr': {'class': 'file-input'}}) }}
+            {% if form_errors(form.affichePrincipale) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.affichePrincipale) }}
+                </div>
+            {% endif %}
             <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB)</small>
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.autresAffiches) }}
-            {{ form_widget(form.autresAffiches, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.autresAffiches) }}
+        <div class="auth-form-group">
+            {{ form_label(form.autresAffiches, 'Autres affiches', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.autresAffiches, {'attr': {'class': 'file-input'}}) }}
+            {% if form_errors(form.autresAffiches) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.autresAffiches) }}
+                </div>
+            {% endif %}
             <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles</small>
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.imageBillet) }}
-            {{ form_widget(form.imageBillet, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.imageBillet) }}
+        <div class="auth-form-group">
+            {{ form_label(form.imageBillet, 'Image du billet', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.imageBillet, {'attr': {'class': 'file-input'}}) }}
+            {% if form_errors(form.imageBillet) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.imageBillet) }}
+                </div>
+            {% endif %}
             <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 2MB)</small>
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.isActive) }}
+        <div class="auth-form-group">
+            {{ form_label(form.isActive, 'Événement actif', {'label_attr': {'class': 'auth-label'}}) }}
             {{ form_widget(form.isActive, {'attr': {'class': 'form-checkbox'}}) }}
-            {{ form_errors(form.isActive) }}
+            {% if form_errors(form.isActive) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.isActive) }}
+                </div>
+            {% endif %}
             <small class="form-help">{{ form_help(form.isActive) }}</small>
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.isValide) }}
+        <div class="auth-form-group">
+            {{ form_label(form.isValide, 'Événement validé', {'label_attr': {'class': 'auth-label'}}) }}
             {{ form_widget(form.isValide, {'attr': {'class': 'form-checkbox'}}) }}
-            {{ form_errors(form.isValide) }}
+            {% if form_errors(form.isValide) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.isValide) }}
+                </div>
+            {% endif %}
             <small class="form-help">{{ form_help(form.isValide) }}</small>
         </div>
 

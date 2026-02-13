@@ -17,9 +17,19 @@ class EvenementRepository extends ServiceEntityRepository
         parent::__construct($registry, Evenement::class);
     }
 
-    public function findActiveEvents(): array
+    /**
+     * Retourne les événements actifs, triés par date.
+     *
+     * @param int|null $limite Nombre max de résultats (null = tous)
+     * @return list<Evenement>
+     */
+    public function findActiveEvents(?int $limite = null): array
     {
-        return $this->findBy(['isActive' => true], ['dateEvenement' => 'ASC']);
+        $ordre = ['dateEvenement' => 'ASC'];
+        if ($limite !== null) {
+            return $this->findBy(['isActive' => true], $ordre, $limite);
+        }
+        return $this->findBy(['isActive' => true], $ordre);
     }
 
     public function findUpcomingEvents(): array

@@ -9,14 +9,22 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * Requêtes pour l'entité Billet.
+ *
  * @extends ServiceEntityRepository<Billet>
  */
 class BilletRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire('%app.commission_taux%')]
+        float $commissionTaux = 0.10
+    ) {
         parent::__construct($registry, Billet::class);
+        $this->commissionTaux = $commissionTaux;
     }
+
+    private float $commissionTaux;
 
     public function findByClient(User $client): array
     {
@@ -97,7 +105,7 @@ class BilletRepository extends ServiceEntityRepository
             ->andWhere('e.dateEvenement > :now')
             ->setParameter('client', $client)
             ->setParameter('paid', 'PAYE')
-            ->setParameter('now', new \DateTime())
+            ->setParameter('now', new \DateTimeImmutable())
             ->orderBy('e.dateEvenement', 'ASC')
             ->getQuery()
             ->getResult();
@@ -112,7 +120,7 @@ class BilletRepository extends ServiceEntityRepository
             ->andWhere('e.dateEvenement <= :now')
             ->setParameter('client', $client)
             ->setParameter('paid', 'PAYE')
-            ->setParameter('now', new \DateTime())
+            ->setParameter('now', new \DateTimeImmutable())
             ->orderBy('e.dateEvenement', 'DESC')
             ->getQuery()
             ->getResult();
@@ -169,7 +177,7 @@ class BilletRepository extends ServiceEntityRepository
             ->andWhere('e.dateEvenement > :now')
             ->setParameter('organisateur', $organisateur)
             ->setParameter('paid', 'PAYE')
-            ->setParameter('now', new \DateTime())
+            ->setParameter('now', new \DateTimeImmutable())
             ->select('COUNT(b.id)')
             ->getQuery()
             ->getSingleScalarResult();
@@ -187,12 +195,11 @@ class BilletRepository extends ServiceEntityRepository
             ->getSingleScalarResult() ?? 0;
     }
 
+    /** Revenu net après commission admin (taux configuré dans app.commission_taux). */
     public function calculateNetRevenue(Evenement $evenement): int
     {
-        // Calcul avec commission admin (ex: 10%)
-        $grossRevenue = $this->calculateGrossRevenue($evenement);
-        $commissionRate = 0.10; // 10% de commission
-        return (int) ($grossRevenue * (1 - $commissionRate));
+        $brut = $this->calculateGrossRevenue($evenement);
+        return (int) ($brut * (1 - $this->commissionTaux));
     }
 
     public function findParticipantsByEvenement(Evenement $evenement, int $limit = 50, int $offset = 0): array

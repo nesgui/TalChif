@@ -4,6 +4,11 @@
 
 {% block title %}Admin - Créer un utilisateur{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/auth.css') }}">
+{% endblock %}
+
 {% block dashboard_title %}Créer un utilisateur{% endblock %}
 
 {% block dashboard_content %}
@@ -14,54 +19,113 @@
         <h2 class="card-title">Informations de l'utilisateur</h2>
         <p class="card-meta">Remplissez tous les champs pour créer un nouvel utilisateur</p>
 
-        {% for flash in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ flash }}
-            </div>
-        {% endfor %}
+        {% include 'partials/flashes.html.twig' %}
 
-        {{ form_start(form, {'attr': {'class': 'form'}}) }}
+        {{ form_start(form, {'attr': {'class': 'auth-form'}}) }}
 
-        <div class="form-group">
-            {{ form_label(form.email) }}
-            {{ form_widget(form.email, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.email) }}
+        <div class="auth-form-group">
+            {{ form_label(form.email, 'Adresse email', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.email, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez l\'adresse email'}}) }}
+            {% if form_errors(form.email) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.email) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.nom) }}
-            {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.nom) }}
+        <div class="auth-form-group">
+            {{ form_label(form.nom, 'Nom', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le nom'}}) }}
+            {% if form_errors(form.nom) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.nom) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.prenom) }}
-            {{ form_widget(form.prenom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.prenom) }}
+        <div class="auth-form-group">
+            {{ form_label(form.prenom, 'Prénom', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.prenom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le prénom'}}) }}
+            {% if form_errors(form.prenom) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.prenom) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.telephone) }}
-            {{ form_widget(form.telephone, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.telephone) }}
+        <div class="auth-form-group">
+            {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.telephone, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le numéro de téléphone'}}) }}
+            {% if form_errors(form.telephone) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.telephone) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.role) }}
-            {{ form_widget(form.role, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.role) }}
+        <div class="auth-form-group">
+            {{ form_label(form.role, 'Rôle', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.role, {'attr': {'class': 'auth-input'}}) }}
+            {% if form_errors(form.role) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.role) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.password) }}
-            {{ form_widget(form.password, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.password) }}
+        <div class="auth-form-group">
+            {{ form_label(form.password, 'Mot de passe', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.password, {'attr': {'class': 'auth-input', 'placeholder': 'Choisissez un mot de passe'}}) }}
+            {% if form_errors(form.password) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.password) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.password_confirm) }}
-            {{ form_widget(form.password_confirm, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.password_confirm) }}
+        <div class="auth-form-group">
+            {{ form_label(form.password_confirm, 'Confirmer le mot de passe', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.password_confirm, {'attr': {'class': 'auth-input', 'placeholder': 'Confirmez le mot de passe'}}) }}
+            {% if form_errors(form.password_confirm) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.password_confirm) }}
+                </div>
+            {% endif %}
         </div>
 
         <div class="card-actions">
