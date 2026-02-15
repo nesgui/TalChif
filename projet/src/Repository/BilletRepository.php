@@ -91,7 +91,6 @@ class BilletRepository extends ServiceEntityRepository
             ->setParameter('evenement', $evenement)
             ->setParameter('paid', 'PAYE')
             ->orderBy('c.nom', 'ASC')
-            ->addOrderBy('c.prenom', 'ASC')
             ->getQuery()
             ->getResult();
     }
@@ -211,7 +210,6 @@ class BilletRepository extends ServiceEntityRepository
             ->setParameter('evenement', $evenement)
             ->setParameter('paid', 'PAYE')
             ->orderBy('c.nom', 'ASC')
-            ->addOrderBy('c.prenom', 'ASC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()

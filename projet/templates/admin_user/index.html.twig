@@ -28,7 +28,7 @@
         <form method="get" action="{{ path('admin.user.index') }}" class="search-zone">
             <input type="hidden" name="page" value="1">
             <label for="user-search" class="search-zone-label">Rechercher</label>
-            <input type="search" id="user-search" name="q" value="{{ search|default('') }}" class="form-control search-zone-input" placeholder="Email, nom ou prénom...">
+            <input type="search" id="user-search" name="q" value="{{ search|default('') }}" class="form-control search-zone-input" placeholder="Email ou nom...">
             <button type="submit" class="btn btn-primary btn-sm">Rechercher</button>
             {% if search %}
                 <a href="{{ path('admin.user.index') }}" class="pagination-link">Effacer</a>
@@ -40,10 +40,10 @@
                 <tr>
                     <th>ID</th>
                     <th>Email</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
+                    <th>Nom complet</th>
                     <th>Téléphone</th>
                     <th>Rôle</th>
+                    <th>Statut</th>
                     <th>Date d'inscription</th>
                     <th>Actions</th>
                 </tr>
@@ -54,7 +54,6 @@
                     <td>{{ user.id }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.nom }}</td>
-                    <td>{{ user.prenom }}</td>
                     <td>{{ user.telephone ?: 'Non renseigné' }}</td>
                     <td>
                         {% if user.role == 'CLIENT' %}
@@ -65,16 +64,27 @@
                             <span class="pill pill-warning">Admin</span>
                         {% endif %}
                     </td>
+                    <td>
+                        {% if user.actif %}
+                            <span class="pill pill-success">Actif</span>
+                        {% else %}
+                            <span class="pill pill-danger">Désactivé</span>
+                        {% endif %}
+                    </td>
                     <td>{{ user.createdAt ? user.createdAt|date('d/m/Y') : 'N/A' }}</td>
                     <td>
                         <a href="{{ path('admin.user.edit', {id: user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
                         {% if user != app.user %}
-                            <form method="post" action="{{ path('admin.user.delete', {id: user.id}) }}" style="display: inline;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">Supprimer</button>
+                            <form method="post" action="{{ path('admin.user.toggle_actif', {id: user.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_actif' ~ user.id) }}">
+                                {% if user.actif %}
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Désactiver le compte de {{ user.nom }} ? Il ne pourra plus se connecter.')">Désactiver</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Réactiver le compte de {{ user.nom }} ?')">Activer</button>
+                                {% endif %}
                             </form>
                         {% else %}
-                            <button type="button" class="btn btn-sm btn-danger" disabled title="Vous ne pouvez pas supprimer votre propre compte">Supprimer</button>
+                            <button type="button" class="btn btn-sm" disabled title="Vous ne pouvez pas désactiver votre propre compte">Vous</button>
                         {% endif %}
                     </td>
                 </tr>
@@ -117,10 +127,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 null,
                 null,
                 null,
-                null,
-                { width: '120px', orderable: false },
-                { width: '120px' },
-                { width: '150px', orderable: false }
+                { width: '110px', orderable: false },
+                { width: '100px', orderable: false },
+                { width: '110px' },
+                { width: '180px', orderable: false }
             ]
         });
     }

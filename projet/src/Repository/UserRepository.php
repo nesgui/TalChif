@@ -108,8 +108,7 @@ class UserRepository extends ServiceEntityRepository
         $qb->andWhere(
             $qb->expr()->orX(
                 $qb->expr()->like('u.email', ':search'),
-                $qb->expr()->like('u.nom', ':search'),
-                $qb->expr()->like('u.prenom', ':search')
+                $qb->expr()->like('u.nom', ':search')
             )
         )->setParameter('search', $term);
     }

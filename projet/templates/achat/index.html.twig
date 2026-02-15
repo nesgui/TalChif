@@ -3,8 +3,13 @@
 {% block title %}Finaliser l'achat{% endblock %}
 
 {% block body %}
-<h1 class="page-title">Finaliser l'achat</h1>
-<p class="page-subtitle">Vérifiez votre commande et procédez au paiement</p>
+<div class="purchase-header">
+    <div class="payment-badge">
+        Paiement Mobile Money
+    </div>
+    <h1 class="page-title">Finaliser l'achat</h1>
+    <p class="page-subtitle">Renseignez votre méthode de paiement et confirmez votre commande.</p>
+</div>
 
 <div class="grid">
     <section class="card">
@@ -15,16 +20,24 @@
             <div class="panier-lignes">
                 {% for ligne in lignes %}
                     <article class="panier-ligne">
-                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="{{ ligne.produit.titre }}" />
+                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="Affiche de l'événement : {{ ligne.produit.titre }}" loading="lazy" />
                         <div class="panier-info">
                             <div class="panier-titre">{{ ligne.produit.titre }}</div>
                             <div class="panier-meta">
-                                <span class="pill">Quantité: {{ ligne.quantite }}</span>
-                                <span class="pill">Prix: {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</span>
-                                <span class="pill">Sous-total: {{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</span>
+                                <span class="pill">{{ ligne.produit.date|date('d/m') }}</span>
+                                <span class="pill">{{ ligne.produit.ville }}</span>
                             </div>
                             <div class="panier-details">
-                                <small>{{ ligne.produit.date|date('d/m/Y H:i') }} - {{ ligne.produit.ville }}</small>
+                                <small>{{ ligne.produit.date|date('H:i') }} • {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
+                            </div>
+                        </div>
+                        <div class="panier-quantite">
+                            <div class="quantite-display">
+                                <span class="quantite-label">Quantité</span>
+                                <span class="quantite-value">{{ ligne.quantite }}</span>
+                            </div>
+                            <div class="panier-sous-total">
+                                <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
                             </div>
                         </div>
                     </article>
@@ -39,7 +52,7 @@
     </section>
 
     <aside class="card">
-        <h2 class="card-title">Paiement</h2>
+        <h2 class="card-title">💳 Paiement</h2>
         
         {% if app.user %}
             <form method="post" action="{{ path('achat.paiement') }}">
@@ -49,17 +62,26 @@
                         <label class="payment-method">
                             <input type="radio" name="methode_paiement" value="momo" checked required>
                             <span class="payment-icon">📱</span>
-                            <span class="payment-name">MoMo</span>
+                            <div class="payment-info">
+                                <span class="payment-name">MoMo</span>
+                                <small>Mobile Money</small>
+                            </div>
                         </label>
                         <label class="payment-method">
                             <input type="radio" name="methode_paiement" value="airtel" required>
                             <span class="payment-icon">📱</span>
-                            <span class="payment-name">Airtel Money</span>
+                            <div class="payment-info">
+                                <span class="payment-name">Airtel Money</span>
+                                <small>Airtel Money</small>
+                            </div>
                         </label>
                         <label class="payment-method">
                             <input type="radio" name="methode_paiement" value="orange" required>
                             <span class="payment-icon">📱</span>
-                            <span class="payment-name">Orange Money</span>
+                            <div class="payment-info">
+                                <span class="payment-name">Orange Money</span>
+                                <small>Orange Money</small>
+                            </div>
                         </label>
                     </div>
                 </div>
@@ -68,12 +90,22 @@
                     <label class="form-label" for="telephone">Numéro de téléphone *</label>
                     <input type="tel" id="telephone" name="telephone" class="form-control" 
                            placeholder="235 00 00 00 00" pattern="[0-9\s]+" required>
-                    <small class="form-help">Format : 235 XX XX XX XX</small>
+                    <small class="form-help">
+                        Formats acceptés : 235 XX XX XX XX, 235XXXXXXXX, +235XXXXXXXX
+                    </small>
                 </div>
 
                 <table class="table">
                     <tbody>
                         <tr>
+                            <th>Sous-total</th>
+                            <td>{{ total|number_format(0, '.', ' ') }} XAF</td>
+                        </tr>
+                        <tr>
+                            <th>Frais de service</th>
+                            <td>0 XAF</td>
+                        </tr>
+                        <tr class="total-row">
                             <th>Total à payer</th>
                             <td><strong>{{ total|number_format(0, '.', ' ') }} XAF</strong></td>
                         </tr>
@@ -81,7 +113,7 @@
                 </table>
 
                 <div class="card-actions">
-                    <button type="submit" class="btn btn-primary" onclick="return confirmPaiement()">
+                    <button type="submit" class="btn btn-primary btn-large" onclick="return confirmPaiement()">
                         Confirmer le paiement
                     </button>
                     <a href="{{ path('panier.index') }}" class="btn">Retour au panier</a>
@@ -89,7 +121,7 @@
             </form>
         {% else %}
             <div class="auth-required">
-                <p class="card-meta">Vous devez être connecté pour effectuer un achat</p>
+                <p class="card-meta">🔐 Connectez-vous pour effectuer un achat</p>
                 <div class="card-actions">
                     <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
                     <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
@@ -100,22 +132,38 @@
 </div>
 
 <style>
+.purchase-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.payment-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
 .payment-methods {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
     margin-top: 8px;
 }
 
 .payment-method {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 1rem;
+    padding: 1rem;
     border: 2px solid var(--couleur-bordure);
     border-radius: var(--rayon);
     cursor: pointer;
     transition: all 0.2s ease;
-    flex: 1;
 }
 
 .payment-method:hover {
@@ -127,22 +175,87 @@
     margin: 0;
 }
 
-.payment-method input[type="radio"]:checked + .payment-icon,
-.payment-method input[type="radio"]:checked + .payment-icon + .payment-name {
-    color: var(--couleur-primaire);
-}
-
-.payment-icon {
-    font-size: 1.2em;
+.payment-info {
+    display: flex;
+    flex-direction: column;
 }
 
 .payment-name {
-    font-weight: 500;
+    font-weight: 600;
+    color: var(--couleur-texte);
+}
+
+.payment-info small {
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.875rem;
+}
+
+.total-row {
+    border-top: 2px solid var(--couleur-bordure);
+    font-size: 1.1rem;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+    border-radius: var(--rayon);
+    transition: all 0.2s ease;
+}
+
+.btn-large:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .auth-required {
     text-align: center;
-    padding: 20px;
+    padding: 2rem;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: var(--rayon);
+}
+
+.panier-ligne {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.panier-img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--rayon);
+}
+
+.quantite-display {
+    text-align: right;
+}
+
+.quantite-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--couleur-texte-secondaire);
+    text-transform: uppercase;
+}
+
+.quantite-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--couleur-primaire);
+}
+
+.panier-sous-total {
+    text-align: right;
+    color: var(--couleur-texte);
+    font-weight: 600;
 }
 </style>
 
@@ -156,9 +269,10 @@ function confirmPaiement() {
         return false;
     }
     
-    // Validation simple du numéro de téléphone
-    if (!/^235\s\d{2}\s\d{2}\s\d{2}\s\d{2}$/.test(telephone.replace(/\s/g, ''))) {
-        alert('Format du numéro de téléphone invalide. Utilisez: 235 XX XX XX XX');
+    // Validation du numéro de téléphone
+    const cleanPhone = telephone.replace(/\s/g, '');
+    if (!/^235\d{8}$/.test(cleanPhone) && !/^\+235\d{8}$/.test(cleanPhone)) {
+        alert('Format du numéro de téléphone invalide. Format attendu : 235 XX XX XX XX');
         return false;
     }
     

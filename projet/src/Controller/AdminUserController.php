@@ -131,20 +131,22 @@ final class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/utilisateurs/{id}/supprimer', name: 'admin.user.delete', methods: ['POST'])]
+    #[Route('/admin/utilisateurs/{id}/toggle-actif', name: 'admin.user.toggle_actif', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function delete(User $user, Request $request): Response
+    public function toggleActif(User $user, Request $request): Response
     {
-        // Empêcher la suppression de soi-même
+        // Empêcher la désactivation de soi-même
         if ($user === $this->getUser()) {
-            $this->addFlash('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+            $this->addFlash('error', 'Vous ne pouvez pas désactiver votre propre compte.');
             return $this->redirectToRoute('admin.user.index');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
-            $this->userRepository->remove($user, true);
+        if ($this->isCsrfTokenValid('toggle_actif' . $user->getId(), $request->request->get('_token'))) {
+            $user->setActif(!$user->isActif());
+            $this->userRepository->save($user, true);
 
-            $this->addFlash('success', 'Utilisateur supprimé avec succès !');
+            $statut = $user->isActif() ? 'activé' : 'désactivé';
+            $this->addFlash('success', "Le compte de {$user->getNom()} a été {$statut}.");
         }
 
         return $this->redirectToRoute('admin.user.index');

@@ -130,7 +130,7 @@
                     {% if app.user %}
                         <div class="public-drawer-content">
                             <span class="public-drawer-welcome">
-                                Bonjour {{ app.user.prenom|default(app.user.email) }}
+                                Bonjour {{ app.user.nom|default(app.user.email) }}
                             </span>
                             <div class="public-drawer-actions">
                                 {% if is_granted('ROLE_ORGANISATEUR') %}

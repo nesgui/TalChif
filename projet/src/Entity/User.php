@@ -39,16 +39,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
-    #[Assert\Length(max: 255)]
+    #[Assert\NotBlank(message: 'Le nom complet est obligatoire')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Le nom complet doit faire au moins {{ limit }} caractères')]
     #[Assert\Regex(pattern: '/^[\p{L}\p{M}\s\-\']+$/u', message: 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes')]
     private ?string $nom = null;
-
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
-    #[Assert\Length(max: 255)]
-    #[Assert\Regex(pattern: '/^[\p{L}\p{M}\s\-\']+$/u', message: 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes')]
-    private ?string $prenom = null;
 
     #[ORM\Column(length: 20)]
     #[Assert\Length(max: 20)]
@@ -66,6 +60,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $role = 'CLIENT'; // CLIENT, ORGANISATEUR, ADMIN
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $actif = true;
 
     #[ORM\OneToMany(mappedBy: 'organisateur', targetEntity: Evenement::class)]
     private Collection $evenementsOrganises;
@@ -167,18 +164,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
-
-    public function setPrenom(string $prenom): static
-    {
-        $this->prenom = $prenom;
-
-        return $this;
-    }
-
     public function getTelephone(): ?string
     {
         return $this->telephone;
@@ -253,7 +238,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getFullName(): string
     {
-        return trim($this->prenom . ' ' . $this->nom);
+        return trim($this->nom ?? '');
     }
 
     public function isClient(): bool
@@ -269,6 +254,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isAdmin(): bool
     {
         return $this->role === 'ADMIN';
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
+
+        return $this;
     }
 
     /**

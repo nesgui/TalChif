@@ -51,10 +51,10 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.nom, 'Nom', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_label(form.nom, 'Nom complet', {'label_attr': {'class': 'auth-label'}}) }}
             {{ form_widget(form.nom, {'attr': {
                 'class': 'auth-input',
-                'placeholder': 'Entrez votre nom'
+                'placeholder': 'Entrez votre nom complet'
             }}) }}
             {% if form_errors(form.nom) %}
                 <div class="auth-error-message">
@@ -64,24 +64,6 @@
                         <line x1="12" y1="16" x2="12.01" y2="16"/>
                     </svg>
                     {{ form_errors(form.nom) }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="auth-form-group">
-            {{ form_label(form.prenom, 'Prénom', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.prenom, {'attr': {
-                'class': 'auth-input',
-                'placeholder': 'Entrez votre prénom'
-            }}) }}
-            {% if form_errors(form.prenom) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.prenom) }}
                 </div>
             {% endif %}
         </div>

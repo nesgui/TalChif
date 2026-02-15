@@ -62,7 +62,7 @@ final class AchatController extends AbstractController
             ];
         }
 
-        return $this->render('achat/index_test.html.twig', [
+        return $this->render('achat/index.html.twig', [
             'lignes' => $lignes,
             'total' => $total,
         ]);

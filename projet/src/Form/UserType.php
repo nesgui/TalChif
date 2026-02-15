@@ -28,24 +28,18 @@ class UserType extends AbstractType
                 ],
             ])
             ->add('nom', TextType::class, [
-                'label' => 'Nom',
+                'label' => 'Nom complet',
                 'constraints' => [
-                    new NotBlank(message: 'Le nom est obligatoire'),
-                    new Length(max: 255, maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'),
+                    new NotBlank(message: 'Le nom complet est obligatoire'),
+                    new Length(
+                        min: 2,
+                        max: 255,
+                        minMessage: 'Le nom complet doit faire au moins {{ limit }} caractères',
+                        maxMessage: 'Le nom complet ne peut pas dépasser {{ limit }} caractères'
+                    ),
                     new Regex(
                         pattern: '/^[\p{L}\p{M}\s\-\']+$/u',
                         message: 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes'
-                    ),
-                ],
-            ])
-            ->add('prenom', TextType::class, [
-                'label' => 'Prénom',
-                'constraints' => [
-                    new NotBlank(message: 'Le prénom est obligatoire'),
-                    new Length(max: 255, maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères'),
-                    new Regex(
-                        pattern: '/^[\p{L}\p{M}\s\-\']+$/u',
-                        message: 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes'
                     ),
                 ],
             ])
