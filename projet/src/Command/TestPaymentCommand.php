@@ -28,7 +28,7 @@ class TestPaymentCommand extends Command
         $output->writeln('<info>🧪 Test du système de paiement Mobile Money...</info>');
 
         // Récupérer un client
-        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@osea.td']);
+        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@talchif.td']);
         
         if (!$client) {
             $output->writeln('<error>❌ Client non trouvé. Exécutez d\'abord: php bin/console app:create-test-data</error>');
@@ -86,7 +86,7 @@ class TestPaymentCommand extends Command
         
         $output->writeln('<info>📱 SMS de confirmation simulé...</info>');
         $output->writeln("<info>   Destinataire: {$telephone}</info>");
-        $output->writeln("<info>   Message: OSEA - Paiement de {$evenement->getPrixSimple()} XAF confirmé. Billet: {$billet->getQrCode()}</info>");
+        $output->writeln("<info>   Message: TalChif - Paiement de {$evenement->getPrixSimple()} XAF confirmé. Billet: {$billet->getQrCode()}</info>");
 
         $output->writeln('<info>🌐 URLs de test:</info>');
         $output->writeln("<info>   - Panier: http://127.0.0.1:8000/panier</info>");

@@ -1,4 +1,4 @@
-/* DataTables - Style personnalisé OSEA (palette cohérente) */
+/* DataTables - Style personnalisé TalChif (palette cohérente) */
 
 /* Conteneur principal */
 .dataTables_wrapper {
@@ -9,7 +9,7 @@
 }
 
 /* Tableau principal */
-.osea-datatable {
+.talchif-datatable {
     width: 100% !important;
     border-collapse: separate;
     border-spacing: 0;
@@ -19,7 +19,7 @@
 }
 
 /* En-têtes - dark blue / light blue */
-.osea-datatable thead th {
+.talchif-datatable thead th {
     background: var(--palette-light-blue);
     color: var(--palette-dark-blue);
     font-weight: 600;
@@ -32,18 +32,18 @@
     transition: background-color 0.15s ease;
 }
 
-.osea-datatable thead th:hover {
+.talchif-datatable thead th:hover {
     background: color-mix(in srgb, var(--palette-medium-blue) 25%, var(--palette-light-blue));
 }
 
-.osea-datatable thead th.sorting_asc,
-.osea-datatable thead th.sorting_desc {
+.talchif-datatable thead th.sorting_asc,
+.talchif-datatable thead th.sorting_desc {
     background: color-mix(in srgb, var(--palette-medium-blue) 35%, var(--palette-light-blue));
     color: var(--palette-dark-blue);
 }
 
 /* Lignes du tableau */
-.osea-datatable tbody td {
+.talchif-datatable tbody td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--couleur-bordure-subtile);
     color: var(--couleur-texte);
@@ -51,15 +51,15 @@
     vertical-align: middle;
 }
 
-.osea-datatable tbody tr:hover td {
+.talchif-datatable tbody tr:hover td {
     background: var(--palette-light-green);
 }
 
-.osea-datatable tbody tr.odd {
+.talchif-datatable tbody tr.odd {
     background: var(--couleur-surface-elevee, #fff);
 }
 
-.osea-datatable tbody tr.even {
+.talchif-datatable tbody tr.even {
     background: color-mix(in srgb, var(--palette-light-green) 60%, var(--couleur-surface-elevee));
 }
 
@@ -213,7 +213,7 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.osea-datatable tbody tr {
+.talchif-datatable tbody tr {
     animation: fadeIn 0.3s ease-out;
 }
 
@@ -284,67 +284,68 @@
 }
 
 .dataTables_wrapper .dt-button.btn-outline:hover {
-    background: var(--palette-light-green);
-    border-color: var(--palette-medium-blue);
+background: var(--palette-light-green);
+border-color: var(--palette-medium-blue);
 }
 
 /* Intégration avec les pills existants */
-.osea-datatable .pill {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.talchif-datatable .pill {
+display: inline-block;
+padding: 0.25rem 0.75rem;
+border-radius: 9999px;
+font-size: 0.75rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.05em;
 }
 
-.osea-datatable .pill-success {
-    background: var(--couleur-success);
-    color: white;
+.talchif-datatable .pill-success {
+background: var(--couleur-success);
+color: white;
 }
 
-.osea-datatable .pill-warning {
-    background: var(--couleur-warning);
-    color: white;
+.talchif-datatable .pill-warning {
+background: var(--couleur-warning);
+color: white;
 }
 
-.osea-datatable .pill-error {
-    background: var(--couleur-error);
-    color: white;
+.talchif-datatable .pill-error {
+background: var(--couleur-error);
+color: white;
 }
 
 /* Boutons d'action dans les tableaux */
-.osea-datatable .btn {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    border: 1px solid transparent;
+.talchif-datatable .btn {
+display: inline-block;
+padding: 0.25rem 0.75rem;
+border-radius: 0.375rem;
+font-size: 0.75rem;
+font-weight: 500;
+text-decoration: none;
+transition: all 0.15s ease;
+border: 1px solid transparent;
 }
 
-.osea-datatable .btn-primary {
-    background: var(--couleur-primaire);
-    color: white;
-    border-color: var(--couleur-primaire);
+.talchif-datatable .btn-primary {
+background: var(--couleur-primaire);
+color: white;
+border-color: var(--couleur-primaire);
 }
 
-.osea-datatable .btn-primary:hover {
-    background: var(--couleur-primaire-hover);
-    border-color: var(--couleur-primaire-hover);
+.talchif-datatable .btn-primary:hover {
+background: var(--couleur-primaire-hover);
+border-color: var(--couleur-primaire-hover);
 }
 
-.osea-datatable .btn-sm {
-    padding: 0.125rem 0.5rem;
-    font-size: 0.75rem;
+.talchif-datatable .btn-sm {
+padding: 0.125rem 0.5rem;
+font-size: 0.75rem;
 }
 
 /* DataTables 2 (datatables.net-dt) : pagination et contrôles visibles */
 div.dt-container {
+position: relative;
+clear: both;
     position: relative;
     clear: both;
 }

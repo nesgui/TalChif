@@ -1,7 +1,7 @@
 import './stimulus_bootstrap.js';
 
 /**
- * Fichier principal JavaScript de l'application OSEA.td.
+ * Fichier principal JavaScript de l'application TalChif.
  * 
  * Initialise les fonctionnalités modernes :
  * - View Transitions API pour navigation fluide

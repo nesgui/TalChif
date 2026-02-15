@@ -1,4 +1,4 @@
-// DataTables configuration pour OSEA - Style personnalisé
+// DataTables configuration pour TalChif - Style personnalisé
 // Version sans modules ES : on utilise la version jQuery
 // chargée via les CDN dans base.html.twig (jQuery + DataTables + Buttons).
 //
@@ -9,7 +9,7 @@
 //
 // Objectif :
 // - Fournir une API simple `DataTableOS.init(selector, options)` pour initialiser
-//   les tableaux avec les réglages et le style OSEA.
+//   les tableaux avec les réglages et le style TalChif.
 
 const DataTableOS = {
     // Style personnalisé pour les DataTables
@@ -40,7 +40,7 @@ const DataTableOS = {
             // Style personnalisé
             dom: 'Blfrtip',
             // Classes personnalisées
-            className: 'osea-datatable',
+            className: 'talchif-datatable',
             // Boutons d'export
             buttons: [
                 {
@@ -77,10 +77,10 @@ const DataTableOS = {
         };
     },
 
-    // Initialiser un tableau avec style OSEA
+    // Initialiser un tableau avec style TalChif
     init: function(selector, options = {}) {
         try {
-            console.log('Initialisation de DataTables avec (OSEA):', selector);
+            console.log('Initialisation de DataTables (TalChif):', selector);
 
             if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
                 console.error('DataTables (jQuery) n\'est pas chargé. Vérifiez les scripts CDN dans base.html.twig.');
@@ -90,10 +90,10 @@ const DataTableOS = {
             const settings = this.getSettings(options);
             const table = jQuery(selector).DataTable(settings);
 
-            // Appliquer le style OSEA
+            // Appliquer le style TalChif
             this.applyStyle(table);
 
-            console.log('DataTables initialisé avec succès (OSEA)');
+            console.log('DataTables initialisé avec succès (TalChif)');
             return table;
         } catch (error) {
             console.error('Erreur lors de l\'initialisation de DataTables:', error);
@@ -101,13 +101,13 @@ const DataTableOS = {
         }
     },
 
-    // Appliquer le style OSEA aux DataTables
+    // Appliquer le style TalChif aux DataTables
     applyStyle: function(table) {
         try {
             const wrapper = table.table().container();
             const tableEl = wrapper ? wrapper.querySelector('table') : null;
             if (tableEl) {
-                tableEl.classList.add('table', 'osea-datatable');
+                tableEl.classList.add('table', 'talchif-datatable');
             }
             this.customizeControls(table);
             this.customizePagination(table);

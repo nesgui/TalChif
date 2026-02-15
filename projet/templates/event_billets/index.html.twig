@@ -700,9 +700,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const statNumbers = document.querySelectorAll('.stat-number');
     statNumbers.forEach(stat => {
         const finalValue = stat.textContent;
-        const isNumber = /^\d/.test(finalValue);
+        const looksNumeric = /^\d/.test(finalValue);
         
-        if (isNumber) {
+        if (looksNumeric) {
             const target = parseInt(finalValue.replace(/\D/g, ''));
             let current = 0;
             const increment = target / 50;

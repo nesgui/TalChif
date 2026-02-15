@@ -1004,3 +1004,17 @@ html[data-theme="dark"] .auth-input:focus {
         padding-bottom: 80px;
     }
 }
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding-bottom: calc(200px + env(safe-area-inset-bottom));
+    }
+
+    .auth-card {
+        margin-bottom: var(--espace-xl);
+    }
+
+    .auth-bottom-footer {
+        padding-bottom: calc(var(--espace-lg) + env(safe-area-inset-bottom));
+    }
+}

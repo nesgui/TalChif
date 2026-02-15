@@ -28,7 +28,7 @@ class CreatePastTicketCommand extends Command
         $output->writeln('<info>Création d\'un billet passé...</info>');
 
         // Récupérer un client et un événement
-        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@osea.td']);
+        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@talchif.td']);
         $evenement = $this->entityManager->getRepository(Evenement::class)->findOneBy(['isActive' => true]);
         
         if (!$client || !$evenement) {

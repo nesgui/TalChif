@@ -1,4 +1,4 @@
-# Analyse UI/UX et design – OSEA.td
+# Analyse UI/UX et design – TalChif
 
 ## 1. Synthèse
 
@@ -64,7 +64,7 @@ L’application repose sur un **design system cohérent** (variables CSS, thème
 ### 4.1 Fichiers à base de couleurs en dur
 
 - **datatables.css** : fond, texte et bordures en `#f9fafb`, `#374151`, `#e5e7eb`, etc. En mode sombre, les DataTables restent en thème clair.
-  - **Recommandation** : Soit refactoriser les couleurs en variables CSS (avec préfixe `.osea-datatable` dans un bloc `[data-theme="dark"]`), soit charger une variante “dark” du thème DataTables si disponible.
+  - **Recommandation** : Soit refactoriser les couleurs en variables CSS (avec préfixe `.talchif-datatable` dans un bloc `[data-theme="dark"]`), soit charger une variante “dark” du thème DataTables si disponible.
 - **tailwind-forms.css** : `.border-gray-300`, `.focus:ring-blue-500`, `.text-gray-500`, `.file-input` avec couleurs fixes.
   - **Recommandation** : À terme, remplacer par des classes qui utilisent les variables (ex. `.form-control` déjà ajouté pour les champs standards).
 

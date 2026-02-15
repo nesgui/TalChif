@@ -25,7 +25,7 @@
 .text-gray-500 { color: var(--couleur-texte-secondaire); }
 .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
 
-/* Styles pour les champs de type fichier - palette OSEA */
+/* Styles pour les champs de type fichier - palette TalChif */
 .file-input {
     width: 100%;
     padding: 0.5rem 1rem;

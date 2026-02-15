@@ -1,5 +1,5 @@
 /**
- * Service de Notifications Moderne - OSEA.td
+ * Service de Notifications Moderne - TalChif
  * Système centralisé, accessible (WCAG 2.2) et performant
  * Sans dépendances externes (Toastr remplacé)
  * @version 2.0 - Février 2026

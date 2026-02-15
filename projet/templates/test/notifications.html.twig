@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Test du Système de Notifications{% endblock %}
+{% block title %}Système de Notifications{% endblock %}
 
 {% block body %}
 <div class="container" style="max-width: 1200px; padding: 40px 20px;">
     <h1 style="font-size: 2rem; font-weight: 700; color: var(--couleur-texte); margin-bottom: 1rem;">
-        🔔 Test du Système de Notifications
+        🔔 Système de Notifications
     </h1>
     <p style="color: var(--couleur-texte-secondaire); margin-bottom: 2rem;">
-        Ce système de notifications moderne est conforme WCAG 2.2 AA, utilise la palette OSEA et ne dépend d'aucune bibliothèque externe.
+        Ce système de notifications moderne est conforme WCAG 2.2 AA, utilise la palette TalChif et ne dépend d'aucune bibliothèque externe.
     </p>
 
     <!-- Section Flash Messages Symfony -->
@@ -20,14 +20,14 @@
             Ces messages proviennent du serveur (Symfony) et sont automatiquement convertis en toasts :
         </p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{{ path('test.notifications', {type: 'success'}) }}" 
-               class="btn-outline-primary">Tester Success</a>
-            <a href="{{ path('test.notifications', {type: 'error'}) }}" 
-               class="btn-outline-danger">Tester Error</a>
-            <a href="{{ path('test.notifications', {type: 'warning'}) }}" 
-               class="btn-outline-warning">Tester Warning</a>
-            <a href="{{ path('test.notifications', {type: 'info'}) }}" 
-               class="btn-outline-info">Tester Info</a>
+            <a href="{{ path('test.notifications', {type: 'success'}) }}"
+               class="btn-outline-primary">Déclencher Success</a>
+            <a href="{{ path('test.notifications', {type: 'error'}) }}"
+               class="btn-outline-danger">Déclencher Error</a>
+            <a href="{{ path('test.notifications', {type: 'warning'}) }}"
+               class="btn-outline-warning">Déclencher Warning</a>
+            <a href="{{ path('test.notifications', {type: 'info'}) }}"
+               class="btn-outline-info">Déclencher Info</a>
         </div>
     </section>
 
@@ -60,16 +60,16 @@
             Nouvelles fonctionnalités : actions inline, durée personnalisée, etc.
         </p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button onclick="testActionInline()" class="btn-primary">
+            <button onclick="demoActionInline()" class="btn-primary">
                 Avec Action
             </button>
-            <button onclick="testDurationInfinite()" class="btn-outline-primary">
+            <button onclick="demoDurationInfinite()" class="btn-outline-primary">
                 Durée Infinie
             </button>
-            <button onclick="testNoProgress()" class="btn-outline-secondary">
+            <button onclick="demoNoProgress()" class="btn-outline-secondary">
                 Sans Progression
             </button>
-            <button onclick="testMultiple()" class="btn-outline-warning">
+            <button onclick="demoMultiple()" class="btn-outline-warning">
                 5 Notifications
             </button>
         </div>
@@ -105,10 +105,10 @@
         </div>
     </section>
 
-    <!-- Section Tests Accessibilité -->
+    <!-- Section Accessibilité -->
     <section style="background: var(--couleur-surface-elevee); border-radius: var(--rayon); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--ombre-md);">
         <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--couleur-texte); margin-bottom: 1rem;">
-            5. Tests d'Accessibilité
+            5. Accessibilité
         </h2>
         <div style="color: var(--couleur-texte-secondaire); line-height: 1.6;">
             <h3 style="font-weight: 600; color: var(--couleur-texte); margin-top: 1rem; margin-bottom: 0.5rem;">
@@ -124,15 +124,15 @@
             </ul>
 
             <h3 style="font-weight: 600; color: var(--couleur-texte); margin-top: 1.5rem; margin-bottom: 0.5rem;">
-                🧪 Tests à Effectuer
+                🧪 Vérifications à effectuer
             </h3>
             <ol style="margin-left: 1.5rem;">
                 <li>Déclencher une notification et utiliser <kbd>Tab</kbd> pour naviguer</li>
                 <li>Fermer avec <kbd>Entrée</kbd> ou <kbd>Espace</kbd></li>
-                <li>Tester avec un lecteur d'écran (les notifications doivent être annoncées)</li>
+                <li>Vérifier avec un lecteur d'écran (les notifications doivent être annoncées)</li>
                 <li>Vérifier que le survol pause l'auto-dismiss</li>
-                <li>Tester en mode sombre (bouton thème en haut)</li>
-                <li>Tester sur mobile (responsive)</li>
+                <li>Vérifier en mode sombre (bouton thème en haut)</li>
+                <li>Vérifier sur mobile (responsive)</li>
             </ol>
         </div>
     </section>
@@ -154,8 +154,8 @@
 </div>
 
 <script>
-// Fonctions de test
-function testActionInline() {
+// Fonctions de démonstration
+function demoActionInline() {
     NotificationService.show('success', 'Article ajouté', 'L\'article a été ajouté à votre panier', {
         action: {
             label: 'Voir le panier',
@@ -164,22 +164,22 @@ function testActionInline() {
     });
 }
 
-function testDurationInfinite() {
+function demoDurationInfinite() {
     NotificationService.show('warning', 'Action requise', 'Cette notification reste jusqu\'à fermeture manuelle', {
         duration: 0
     });
 }
 
-function testNoProgress() {
+function demoNoProgress() {
     NotificationService.show('info', 'Sans barre', 'Notification sans barre de progression', {
         progress: false
     });
 }
 
-function testMultiple() {
+function demoMultiple() {
     for (let i = 1; i <= 5; i++) {
         setTimeout(() => {
-            NotificationService.info('Notification ' + i, 'Test de pile de notifications multiples');
+            NotificationService.info('Notification ' + i, 'Pile de notifications multiples');
         }, i * 200);
     }
 }
@@ -208,7 +208,7 @@ window.addEventListener('load', () => {
 </script>
 
 <style>
-/* Styles pour les boutons de test */
+/* Styles pour les boutons */
 button, .btn-outline-primary, .btn-outline-danger, .btn-outline-warning, .btn-outline-info, .btn-outline-success, .btn-outline-secondary {
     padding: 10px 20px;
     border-radius: var(--rayon-sm);

@@ -29,7 +29,7 @@ class CreateTestDataCommand extends Command
 
         // Créer un admin
         $admin = new User();
-        $admin->setEmail('admin@osea.td');
+        $admin->setEmail('admin@talchif.td');
         $admin->setNom('Admin');
         $admin->setPrenom('System');
         $admin->setTelephone('23500000000');
@@ -40,7 +40,7 @@ class CreateTestDataCommand extends Command
 
         // Créer un organisateur
         $org = new User();
-        $org->setEmail('org1@osea.td');
+        $org->setEmail('org1@talchif.td');
         $org->setNom('Ngarté');
         $org->setPrenom('Marie');
         $org->setTelephone('23561234567');
@@ -51,7 +51,7 @@ class CreateTestDataCommand extends Command
 
         // Créer un client
         $client = new User();
-        $client->setEmail('client1@osea.td');
+        $client->setEmail('client1@talchif.td');
         $client->setNom('Hassane');
         $client->setPrenom('Ali');
         $client->setTelephone('23561111111');
@@ -65,9 +65,9 @@ class CreateTestDataCommand extends Command
         $output->writeln('<success>Données de test créées avec succès !</success>');
         $output->writeln('');
         $output->writeln('<info>Comptes créés :</info>');
-        $output->writeln('  Admin: admin@osea.td / admin123');
-        $output->writeln('  Organisateur: org1@osea.td / org123');
-        $output->writeln('  Client: client1@osea.td / client123');
+        $output->writeln('  Admin: admin@talchif.td / admin123');
+        $output->writeln('  Organisateur: org1@talchif.td / org123');
+        $output->writeln('  Client: client1@talchif.td / client123');
 
         return Command::SUCCESS;
     }

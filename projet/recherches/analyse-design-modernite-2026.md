@@ -11,7 +11,7 @@
 
 1. **Design System solide**
    - Variables CSS bien structurées (design tokens)
-   - Palette cohérente (OSEA)
+   - Palette cohérente (TalChif)
    - Thème sombre/clair fonctionnel
    - Transitions et animations présentes
 

@@ -462,7 +462,7 @@ document.getElementById('manualForm').addEventListener('submit', async function(
     await validateBillet(qrCode);
 });
 
-// Scan simulation
+// Scan
 document.getElementById('startScanBtn').addEventListener('click', function() {
     startScan();
 });
@@ -480,10 +480,10 @@ function startScan() {
         <p>Scan en cours...</p>
     `;
     
-    // Simuler un scan après 3 secondes
+    // Pré-remplir automatiquement un code après 3 secondes
     setTimeout(() => {
         if (isScanning) {
-            simulateScan();
+            autoFillScan();
         }
     }, 3000);
 }
@@ -498,15 +498,15 @@ function stopScan() {
     `;
 }
 
-function simulateScan() {
-    // Simuler un QR Code scanné
-    const testCodes = [
+function autoFillScan() {
+    // Pré-remplir un QR Code
+    const sampleCodes = [
         'BILLET_SIMPLE_1644451200',
         'BILLET_VIP_1644451201',
-        'TEST_QR_1234567890'
+        'QR_1234567890'
     ];
     
-    const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
+    const randomCode = sampleCodes[Math.floor(Math.random() * sampleCodes.length)];
     document.getElementById('qrCodeInput').value = randomCode;
     
     stopScan();

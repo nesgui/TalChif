@@ -1,5 +1,5 @@
 /**
- * Système de Notifications OSEA.td - Design System 2026
+ * Système de Notifications TalChif - Design System 2026
  * Accessible WCAG 2.2 AA | Responsive | Mode Sombre
  */
 
@@ -60,7 +60,7 @@
 }
 
 /* ============================================
-   TYPES DE NOTIFICATIONS (Palette OSEA)
+   TYPES DE NOTIFICATIONS (Palette TalChif)
    ============================================ */
 
 /* Success - Vert */
@@ -73,7 +73,7 @@
     background: color-mix(in srgb, var(--couleur-success) 15%, transparent);
 }
 
-/* Error - Rouge OSEA (#E63946) */
+/* Error - Rouge primaire (#E63946) */
 .notification-error {
     border-left-color: var(--couleur-primaire);
 }
@@ -93,7 +93,7 @@
     background: color-mix(in srgb, var(--couleur-warning) 15%, transparent);
 }
 
-/* Info - Bleu OSEA (#457B9D) */
+/* Info - Bleu secondaire (#457B9D) */
 .notification-info {
     border-left-color: var(--couleur-secondaire);
 }

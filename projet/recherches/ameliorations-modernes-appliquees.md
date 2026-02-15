@@ -175,7 +175,7 @@
 
 ### ✅ Design System
 - Variables CSS (design tokens) ✅
-- Palette cohérente (OSEA) ✅
+- Palette cohérente (TalChif) ✅
 - Thème sombre/clair ✅
 - Transitions fluides ✅
 
@@ -223,7 +223,7 @@
 ## 📝 Notes Importantes
 
 ### Identité Visuelle Préservée
-- ✅ Palette de couleurs inchangée (OSEA)
+- ✅ Palette de couleurs inchangée (TalChif)
 - ✅ Typographie conservée
 - ✅ Espacements identiques
 - ✅ Design général non modifié

@@ -35,7 +35,7 @@ class TestEventBilletsCommand extends Command
         }
 
         // Créer des billets de différents types pour tester
-        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@osea.td']);
+        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@talchif.td']);
         
         if (!$client) {
             $output->writeln('<error>❌ Client non trouvé. Exécutez d\'abord: php bin/console app:create-test-data</error>');

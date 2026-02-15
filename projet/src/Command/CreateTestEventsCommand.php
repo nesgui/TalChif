@@ -27,7 +27,7 @@ class CreateTestEventsCommand extends Command
         $output->writeln('<info>Création des événements de test...</info>');
 
         // Récupérer l'organisateur
-        $organisateur = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'org1@osea.td']);
+        $organisateur = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'org1@talchif.td']);
         
         if (!$organisateur) {
             $output->writeln('<error>Organisateur non trouvé. Exécutez d\'abord app:create-test-data</error>');

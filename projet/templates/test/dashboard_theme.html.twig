@@ -2,19 +2,19 @@
 
 {% set section = 'organisateur' %}
 
-{% block title %}Test Theme Persistence{% endblock %}
+{% block title %}Thème{% endblock %}
 
-{% block dashboard_title %}Test Theme Persistence{% endblock %}
+{% block dashboard_title %}Thème{% endblock %}
 
 {% block dashboard_content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1 class="page-title">Test de Persistance du Thème</h1>
+        <h1 class="page-title">Gestion du thème</h1>
         <p class="page-subtitle">Vérification que le thème s'applique correctement dans le layout dashboard</p>
     </div>
 
     <div class="card">
-        <h2 class="card-title">Instructions de Test</h2>
+        <h2 class="card-title">Instructions</h2>
         <div class="card-content">
             <ol style="line-height: 1.8;">
                 <li><strong>Étape 1:</strong> Allez sur la <a href="{{ path('accueil') }}" style="color: var(--couleur-primaire);">page d'accueil</a></li>
@@ -64,11 +64,11 @@
     </div>
 
     <div class="section-header">
-        <h2 class="section-title">Actions de Test</h2>
+        <h2 class="section-title">Actions</h2>
     </div>
 
     <div class="actions-grid">
-        <button onclick="testThemeToggle()" class="btn btn-primary">
+        <button onclick="toggleThemeManual()" class="btn btn-primary">
             🔄 Forcer le Basculement du Thème
         </button>
         <button onclick="checkThemeStatus()" class="btn btn-outline">
@@ -84,9 +84,9 @@
 </div>
 
 <script>
-// Test script for theme persistence
+// Script de démonstration de la persistance du thème
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Dashboard theme test page loaded');
+    console.log('Dashboard theme demo page loaded');
     checkThemeStatus();
     
     // Check theme every 2 seconds for debugging
@@ -99,7 +99,7 @@ function checkThemeStatus() {
     document.getElementById('current-theme').textContent = currentTheme === 'dark' ? 'SOMBRE' : 'CLAIR';
     
     // Check localStorage
-    const storedTheme = localStorage.getItem('osea-theme') || localStorage.getItem('theme') || 'non défini';
+    const storedTheme = localStorage.getItem('talchif-theme') || localStorage.getItem('theme') || 'non défini';
     document.getElementById('storage-status').textContent = storedTheme.substring(0, 8).toUpperCase();
     
     // Check if theme service is loaded
@@ -113,7 +113,7 @@ function checkThemeStatus() {
     });
 }
 
-function testThemeToggle() {
+function toggleThemeManual() {
     console.log('Manual theme toggle triggered');
     
     // Try multiple methods to toggle theme
@@ -135,7 +135,7 @@ function testThemeToggle() {
             document.documentElement.style.colorScheme = 'light';
         }
         
-        localStorage.setItem('osea-theme', newTheme);
+        localStorage.setItem('talchif-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         
         console.log('Manual toggle completed:', newTheme);

@@ -107,7 +107,7 @@ class ThemeToggle {
         debugLog('Setting up theme...');
         
         // Load and apply saved theme
-        const savedTheme = localStorage.getItem('osea-theme') || localStorage.getItem('theme') || 'light';
+        const savedTheme = localStorage.getItem('talchif-theme') || localStorage.getItem('theme') || 'light';
         debugLog('Saved theme from localStorage:', savedTheme);
         debugLog('Available localStorage keys:', Object.keys(localStorage));
         
@@ -142,7 +142,7 @@ class ThemeToggle {
         debugLog('Theme actually applied:', appliedTheme);
         
         // Save to both storage keys for compatibility
-        localStorage.setItem('osea-theme', theme);
+        localStorage.setItem('talchif-theme', theme);
         localStorage.setItem('theme', theme);
         debugLog('Theme saved to localStorage');
         

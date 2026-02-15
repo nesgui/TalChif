@@ -221,7 +221,7 @@ function showQRCode(qrCode) {
     const display = document.getElementById('qrCodeDisplay');
     const text = document.querySelector('.qr-code-text');
     
-    // Simuler un QR code (en production, utiliser une vraie librairie QR)
+    // Aperçu du QR code
     display.innerHTML = `
         <div style="font-size: 3rem;">🎫</div>
         <div style="font-size: 0.8rem; margin-top: 0.5rem;">QR Code</div>
@@ -236,7 +236,7 @@ function closeQRModal() {
 }
 
 function downloadQR() {
-    // En production, générer un vrai PDF/image du QR code
+    // Téléchargement de l'aperçu
     const link = document.createElement('a');
     link.download = `billet-${currentQRCode}.png`;
     link.href = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';

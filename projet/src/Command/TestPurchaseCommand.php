@@ -28,8 +28,8 @@ class TestPurchaseCommand extends Command
         $output->writeln('<info>Test du système d\'achat...</info>');
 
         // Récupérer un client et un organisateur
-        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@osea.td']);
-        $organisateur = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'org1@osea.td']);
+        $client = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'client1@talchif.td']);
+        $organisateur = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'org1@talchif.td']);
 
         if (!$client) {
             $output->writeln('<error>Client non trouvé. Exécutez d\'abord app:create-test-data</error>');

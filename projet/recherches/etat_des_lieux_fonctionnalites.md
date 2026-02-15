@@ -1,4 +1,4 @@
-# État des lieux – Fonctionnalités OCEA.td
+# État des lieux – Fonctionnalités TalChif
 
 Document de référence : comparaison README / feuille de route vs implémentation réelle. Objectif : cohérence des menus et affichage de ce qui fonctionne uniquement.
 
@@ -12,7 +12,7 @@ Document de référence : comparaison README / feuille de route vs implémentati
 | 1.2 Détail événement | ✅ Fait | `/evenements/{slug}-{id}` : affiches, date, lieu, types billets, prix, description |
 | 1.3 Création compte / Connexion | ✅ Fait | `/inscription`, `/connexion` (nom, email, mot de passe) |
 | 1.4 Achat de billets | ✅ Fait | Panier + sélection événement, type (SIMPLE/VIP), quantité |
-| 1.5 Paiement | ⚠️ Stub | Mobile Money / Carte : `StubPaymentService` (simulation), à remplacer par API réelle |
+| 1.5 Paiement | ⚠️ Stub | Mobile Money / Carte : `StubPaymentService` (intégration à brancher), à remplacer par API réelle |
 | 1.6 Billet électronique | ✅ Fait | QR Code unique, email + espace personnel (`/mes-billets`, `/achat/confirmation`) |
 | 1.7 Portefeuille client | ✅ Fait | `/portefeuille`, `/mes-billets` (avenir, passés) : tous les billets + QR |
 | 1.8 Notifications (optionnel) | ☐ Non fait | Alerte nouvel événement : non implémenté |
@@ -38,12 +38,12 @@ Document de référence : comparaison README / feuille de route vs implémentati
 
 | Tâche | Statut | Détail |
 |-------|--------|--------|
-| 3.1 Tableau de bord global | ⚠️ Prototype UI | `/admin` : indicateurs et accès en dur (42 événements, 8120 billets, etc.) |
+| 3.1 Tableau de bord global | ⚠️ Indicateurs en dur | `/admin` : indicateurs et accès en dur (42 événements, 8120 billets, etc.) |
 | 3.2 Graphiques et stats | ☐ Non fait | Pas de graphiques/camemberts réels en admin |
-| 3.3 Gestion organisateurs | ⚠️ Prototype UI | `/admin/organisateurs` : tableau statique (données fictives) |
-| 3.4 Gestion événements | ⚠️ Partiel | `/admin/evenements` : liste statique (prototype) ; `/admin/evenements/creer` existe mais le README indique que l’admin ne crée pas les événements (rôle organisateur) |
-| 3.5 Gestion financière | ⚠️ Prototype UI | `/admin/finance` : commission 10 %, tableau transactions fictif |
-| 3.6 Sécurité & anti-fraude | ⚠️ Prototype UI | `/admin/securite` : liens vers validation + historique (réels) + tableaux de contrôle fictifs |
+| 3.3 Gestion organisateurs | ⚠️ Tableau statique | `/admin/organisateurs` : tableau statique (données à brancher) |
+| 3.4 Gestion événements | ⚠️ Partiel | `/admin/evenements` : liste statique (données à brancher) ; `/admin/evenements/creer` existe mais le README indique que l’admin ne crée pas les événements (rôle organisateur) |
+| 3.5 Gestion financière | ⚠️ Tableau statique | `/admin/finance` : commission 10 %, tableau transactions à brancher |
+| 3.6 Sécurité & anti-fraude | ⚠️ Tableau statique | `/admin/securite` : liens vers validation + historique (réels) + tableaux de contrôle à brancher |
 | 3.7 Support & communication | ☐ Non fait | Notifications organisateurs, messagerie, support : non implémenté |
 
 **Fonctionnel en admin :**  
@@ -70,10 +70,10 @@ Document de référence : comparaison README / feuille de route vs implémentati
 - **Portefeuille** : pour `ROLE_ADMIN`, lien « Créer un événement » remplacé par « Back-office admin » → `/admin` (conformément au README : l’admin supervise, ne crée pas les événements).
 - **Sidebar organisateur** (layout dashboard) :  
   - « Ventes effectuées » et « Vue globale » doublons → un seul lien « Vue globale » vers le tableau de bord.  
-  - « Participants (prototype) » retiré du menu (les participants sont accessibles par événement depuis les cartes du dashboard).
+  - « Participants » retiré du menu (les participants sont accessibles par événement depuis les cartes du dashboard).
 - **Sidebar admin** :  
-  - Finance : un seul lien « Finance » (suppression du doublon « Commission (prototype) »).  
-  - Sécurité : un seul lien « Sécurité & anti-fraude » (suppression du doublon « Logs (prototype) »).
+  - Finance : un seul lien « Finance » (suppression du doublon « Commission »).  
+  - Sécurité : un seul lien « Sécurité & anti-fraude » (suppression du doublon « Logs »).
 - **Dashboard organisateur** : suppression des cartes « Rapports » et « Paramètres » (alertes non implémentées) pour ne garder que les actions fonctionnelles (Créer un événement, Scanner QR Codes).
 - **Sécurité** : règles d’accès explicites pour `/mes-billets` (IS_AUTHENTICATED_FULLY) et `/validation` (ROLE_ORGANISATEUR déjà géré dans les contrôleurs).
 
@@ -81,9 +81,9 @@ Document de référence : comparaison README / feuille de route vs implémentati
 
 ## 6. Résumé : ce qui est réellement utilisable
 
-- **Client** : navigation, détail événement, inscription/connexion, panier, achat (paiement simulé), billets avec QR, portefeuille, mes billets (avenir / passés).
+- **Client** : navigation, détail événement, inscription/connexion, panier, achat (paiement), billets avec QR, portefeuille, mes billets (avenir / passés).
 - **Organisateur** : tableau de bord, création/édition/suppression d’événements, stats par événement, participants, QR codes, export, performance (graphiques), validation des billets (scan + historique).
-- **Admin** : tableau de bord (UI prototype), utilisateurs (CRUD réel), événements (liste prototype + formulaire de création à réattribuer ou restreindre), finance (prototype), sécurité (prototype + liens vers validation/historique).
+- **Admin** : tableau de bord (indicateurs en dur), utilisateurs (CRUD réel), événements (liste statique + formulaire de création à réattribuer ou restreindre), finance (tableau statique), sécurité (tableau statique + liens vers validation/historique).
 
 Pour une version « propre » orientée production, il est recommandé de :  
 - brancher les pages admin (dashboard, événements, organisateurs, finance, sécurité) sur des données réelles ou de les masquer jusqu’à implémentation ;  

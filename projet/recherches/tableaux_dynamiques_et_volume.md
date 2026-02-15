@@ -10,7 +10,7 @@
 | **Organisateur – Mes événements** | `OrganisateurEvenementController::index()` | Pagination 100 par page (`findPaginatedByOrganisateur`), liens Précédent/Suivant. Idem DataTables sur la page courante. |
 | **Validation – Historique** | `ValidationController::historique()` | Pagination 50 par page (`findUsedTickets($limit, $offset)`), liens Précédent/Suivant. Pas de DataTables en mode "Tous" ; seulement les 50 lignes de la page. |
 
-### Tableaux en données statiques (prototype)
+### Tableaux en données statiques (données à brancher)
 
 - **Admin – Événements** : 2 lignes en dur, pas de données BDD.
 - **Admin – Organisateurs** : 5 lignes en dur.

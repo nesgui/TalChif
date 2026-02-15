@@ -1,4 +1,4 @@
-/* Thème par défaut (clair) - Palette OSEA cohérente et accessible */
+/* Thème par défaut (clair) - Palette TalChif cohérente et accessible */
 :root {
     /* Design tokens - palette fournie */
     --palette-primary-red: #E63946;
@@ -68,7 +68,7 @@
     --espace-3xl: 64px;
 }
 
-/* Thème sombre - Même palette OSEA, variantes sombres */
+/* Thème sombre - Même palette TalChif, variantes sombres */
 html[data-theme="dark"] {
     color-scheme: dark;
     --couleur-fond: #0d1321;
@@ -119,7 +119,7 @@ html {
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: Aptos, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     background: var(--couleur-fond);
     color: var(--couleur-texte);
     line-height: 1.6;
@@ -2019,5 +2019,233 @@ input:valid:not(:focus):not(:placeholder-shown) {
     to {
         transform: translateX(100%);
         opacity: 0;
+    }
+}
+
+/* ========================================================================== */
+/* Responsive hardening (AJOUTS UNIQUEMENT)
+/* Objectif: solidifier l'affichage sur tous écrans sans casser l'existant.
+/* ========================================================================== */
+
+/* Base: éviter les débordements imprévus (icônes, images, longs textes) */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+img,
+svg,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+svg {
+    display: block;
+}
+
+.card,
+.product-card,
+.panier-ligne {
+    overflow-wrap: anywhere;
+}
+
+/* Accessibilité mobile: zones cliquables confortables */
+.btn,
+.public-tab,
+.public-action,
+.public-drawer-link {
+    min-height: 44px;
+}
+
+button.btn {
+    cursor: pointer;
+}
+
+/* Formulaires inline dans les barres/actions: éviter l'overflow */
+.card-actions form {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Tables: éviter le zoom/overflow horizontal sur mobile */
+.table {
+    table-layout: auto;
+}
+
+.table th,
+.table td {
+    word-break: break-word;
+}
+
+@media (max-width: 720px) {
+    .table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Barre du bas (5 onglets): stabilisation sur petits écrans */
+@media (max-width: 420px) {
+    .public-bottom-nav {
+        gap: 6px;
+        padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .public-tab {
+        padding: 8px 6px;
+        border-radius: 12px;
+    }
+
+    .public-tab-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .public-tab-label {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 360px) {
+    .public-tab-label {
+        display: none;
+    }
+
+    .public-tab {
+        gap: 0;
+    }
+}
+
+/* Topbar + recherche: confort mobile */
+@media (max-width: 520px) {
+    .public-topbar {
+        padding: 10px 0 8px;
+    }
+
+    .public-search-input {
+        padding: 11px 12px;
+    }
+}
+
+/* Catalogue / cartes produit: densité adaptée */
+@media (max-width: 420px) {
+    .catalog {
+        gap: 10px;
+    }
+
+    .product-body {
+        padding: 10px;
+    }
+
+    .product-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 360px) {
+    .catalog {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Quick cards: éviter 3 colonnes trop serrées */
+@media (max-width: 520px) {
+    .quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Panier: lisibilité sur très petits écrans */
+@media (max-width: 420px) {
+    .panier-ligne {
+        grid-template-columns: 80px 1fr;
+        padding: 10px;
+        border-radius: 14px;
+    }
+
+    .panier-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+    }
+}
+
+/* Layout container: réduire légèrement la marge sur très petits écrans */
+@media (max-width: 360px) {
+    .container {
+        width: min(1100px, calc(100% - 20px));
+    }
+}
+
+/* ========================================================================== */
+/* Stability fixes (AJOUTS UNIQUEMENT)
+/* Objectif: corriger les cas de casse UX (overflow, boutons, formulaires).
+/* ========================================================================== */
+
+/* Les formulaires inline (POST) ne doivent pas faire déborder les barres d'actions */
+.product-actions form,
+.card-actions form {
+    max-width: 100%;
+}
+
+.product-actions form button,
+.card-actions form button {
+    max-width: 100%;
+}
+
+/* Sur mobile, éviter les boutons écrasés dans les rangées d'actions */
+@media (max-width: 520px) {
+    .card-actions,
+    .product-actions {
+        align-items: stretch;
+    }
+
+    .card-actions > a,
+    .card-actions > button,
+    .card-actions > form,
+    .product-actions > a,
+    .product-actions > button,
+    .product-actions > form {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .card-actions > form > button,
+    .product-actions > form > button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dashboard: empêcher le débordement horizontal sur écrans étroits */
+.dashboard-main,
+.dashboard-content {
+    min-width: 0;
+}
+
+.dashboard-content {
+    overflow-x: hidden;
+}
+
+/* DataTables: éviter que le wrapper provoque un overflow sur mobile */
+@media (max-width: 720px) {
+    .dataTables_wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .dataTables_wrapper table {
+        min-width: 700px;
+    }
+}
+
+/* Bottom nav: renforcer l'espace de respiration quand l'écran est très petit */
+@media (max-width: 360px) {
+    .site-main {
+        padding-bottom: 120px;
     }
 }

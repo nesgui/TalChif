@@ -1,4 +1,4 @@
-# Feuille de route – OSEA (Application de gestion des événements nationaux)
+# Feuille de route – TalChif (Application de gestion des événements nationaux)
 
 Structure stratégique des étapes et objectifs par tâches. Cocher à chaque évolution validée.
 
@@ -61,10 +61,10 @@ Structure stratégique des étapes et objectifs par tâches. Cocher à chaque é
 | 4.3 | Abstraction paiement | Interface + stub pour Mobile Money / Carte (préparation intégration réelle) | ☑ |
 | 4.4 | Validation QR & anti-fraude | Vérification organisateur/événement, billet valide, fenêtre horaire, journalisation | ☑ |
 | 4.5 | Système d’avis (optionnel) | Notes et avis sur les événements | ☐ |
-| 4.6 | Tests automatisés | Tests fonctionnels (liste événements, auth, achat) | ☑ * |
+| 4.6 | Vérifications automatisées | Vérifications fonctionnelles (liste événements, auth, achat) | ☑ * |
 | 4.7 | Documentation | readme_fr.md à jour à chaque modification validée | ☑ |
 
-* 4.6 : Tests EvenementController et StubPaymentService en place.
+* 4.6 : Vérifications EvenementController et StubPaymentService en place.
 * 2.7 (Statistiques) : validé — cocher ☑ manuellement si l’affichage indique encore ☐.
 
 ---

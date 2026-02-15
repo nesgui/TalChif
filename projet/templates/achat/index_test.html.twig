@@ -1,20 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Finaliser l'achat (Test){% endblock %}
+{% block title %}Finaliser l'achat{% endblock %}
 
 {% block body %}
 <div class="purchase-header">
-    <div class="test-badge">
-        🧪 MODE TEST - Simulation Mobile Money
+    <div class="payment-badge">
+        Paiement Mobile Money
     </div>
     <h1 class="page-title">Finaliser l'achat</h1>
-    <p class="page-subtitle">Test du système de paiement Mobile Money (sans API réelle)</p>
+    <p class="page-subtitle">Renseignez votre méthode de paiement et confirmez votre commande.</p>
 </div>
 
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Votre commande</h2>
-        <p class="card-meta">Dernière vérification avant paiement simulé</p>
+        <p class="card-meta">Dernière vérification avant paiement</p>
 
         {% if lignes|length > 0 %}
             <div class="panier-lignes">
@@ -52,20 +52,9 @@
     </section>
 
     <aside class="card">
-        <h2 class="card-title">💳 Paiement Test</h2>
+        <h2 class="card-title">💳 Paiement</h2>
         
         {% if app.user %}
-            <div class="test-notice">
-                <h4>🧪 Environnement de Test</h4>
-                <p>Ceci est une simulation du paiement Mobile Money. Aucune transaction réelle ne sera effectuée.</p>
-                <ul>
-                    <li>✅ Validation du format de téléphone</li>
-                    <li>✅ Simulation de vérification de solde</li>
-                    <li>✅ Génération de billets de test</li>
-                    <li>✅ Notifications de confirmation</li>
-                </ul>
-            </div>
-
             <form method="post" action="{{ path('achat.paiement') }}">
                 <div class="form-group">
                     <label class="form-label">Méthode de paiement *</label>
@@ -106,16 +95,16 @@
                     </small>
                 </div>
 
-                <div class="test-examples">
-                    <h4>📞 Numéros de test</h4>
+                <div class="payment-examples">
+                    <h4>📞 Exemples de numéros</h4>
                     <div class="example-numbers">
-                        <button type="button" class="btn btn-sm" onclick="setTestNumber('235 66 01 02 03')">
+                        <button type="button" class="btn btn-sm" onclick="setExampleNumber('235 66 01 02 03')">
                             235 66 01 02 03
                         </button>
-                        <button type="button" class="btn btn-sm" onclick="setTestNumber('235 99 88 77 66')">
+                        <button type="button" class="btn btn-sm" onclick="setExampleNumber('235 99 88 77 66')">
                             235 99 88 77 66
                         </button>
-                        <button type="button" class="btn btn-sm" onclick="setTestNumber('+235 77 44 33 22')">
+                        <button type="button" class="btn btn-sm" onclick="setExampleNumber('+235 77 44 33 22')">
                             +235 77 44 33 22
                         </button>
                     </div>
@@ -139,8 +128,8 @@
                 </table>
 
                 <div class="card-actions">
-                    <button type="submit" class="btn btn-primary btn-large" onclick="return confirmTestPaiement()">
-                        Simuler le paiement
+                    <button type="submit" class="btn btn-primary btn-large" onclick="return confirmPaiement()">
+                        Confirmer le paiement
                     </button>
                     <a href="{{ path('panier.index') }}" class="btn">Retour au panier</a>
                 </div>
@@ -163,7 +152,7 @@
     margin-bottom: 2rem;
 }
 
-.test-badge {
+.payment-badge {
     display: inline-block;
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
@@ -180,7 +169,7 @@
     50% { opacity: 0.8; }
 }
 
-.test-notice {
+.payment-notice {
     background: linear-gradient(135deg, #f0fdf4, #dcfce7);
     border: 1px solid #86efac;
     border-radius: var(--rayon);
@@ -188,23 +177,23 @@
     margin-bottom: 1.5rem;
 }
 
-.test-notice h4 {
+.payment-notice h4 {
     margin: 0 0 0.5rem 0;
     color: #16a34a;
 }
 
-.test-notice p {
+.payment-notice p {
     margin: 0 0 1rem 0;
     color: #15803d;
 }
 
-.test-notice ul {
+.payment-notice ul {
     margin: 0;
     padding-left: 1.5rem;
     color: #15803d;
 }
 
-.test-notice li {
+.payment-notice li {
     margin-bottom: 0.25rem;
 }
 
@@ -250,14 +239,14 @@
     font-size: 0.875rem;
 }
 
-.test-examples {
+.payment-examples {
     margin: 1rem 0;
     padding: 1rem;
     background: var(--couleur-surface);
     border-radius: var(--rayon);
 }
 
-.test-examples h4 {
+.payment-examples h4 {
     margin: 0 0 0.75rem 0;
     font-size: 0.875rem;
     color: var(--couleur-texte-secondaire);
@@ -344,11 +333,11 @@
 </style>
 
 <script>
-function setTestNumber(number) {
+function setExampleNumber(number) {
     document.getElementById('telephone').value = number;
 }
 
-function confirmTestPaiement() {
+function confirmPaiement() {
     const telephone = document.getElementById('telephone').value;
     const methode = document.querySelector('input[name="methode_paiement"]:checked').value;
     
@@ -360,11 +349,11 @@ function confirmTestPaiement() {
     // Validation simple du numéro de téléphone
     const cleanPhone = telephone.replace(/\s/g, '');
     if (!/^235\d{8}$/.test(cleanPhone) && !/^\+235\d{8}$/.test(cleanPhone)) {
-        alert('Format du numéro de téléphone invalide. Utilisez un des numéros de test proposés.');
+        alert('Format du numéro de téléphone invalide. Utilisez un des exemples proposés.');
         return false;
     }
     
-    return confirm(`🧪 SIMULATION DE PAIEMENT\n\nConfirmer la simulation de paiement de {{ total|number_format(0, '.', ' ') }} XAF par ${methode.toUpperCase()} ?\n\nAucune transaction réelle ne sera effectuée.`);
+    return confirm(`Confirmer le paiement de {{ total|number_format(0, '.', ' ') }} XAF par ${methode.toUpperCase()} ?`);
 }
 </script>
 {% endblock %}

@@ -16,7 +16,7 @@
 | Code de debug en production | `EvenementController`, `AccueilController`, `OrganisateurEvenementController` | Fuite d’informations, bruit en logs |
 | Paiement sans transaction | `AchatController::paiement` | Double réservation, incohérence places / billets |
 | Upload de fichiers non sécurisé | Contrôleurs événement | Risque path traversal, types MIME non contrôlés |
-| Routes de test exposées | `TestController` | Accès à des pages de test en production |
+| Routes de démonstration exposées | `TestController` | Accès à des pages internes en production |
 
 ### 1.2 Élevée
 
@@ -81,7 +81,7 @@
 
 - **Contrôleur :** `AchatController::paiement` délègue à `ServiceAchat::traiterAchat` et ne fait plus que redirections et messages flash.
 
-**Pourquoi :** Garantir la cohérence des données (pas de paiement sans billets, pas de double réservation) et une base testable.
+**Pourquoi :** Garantir la cohérence des données (pas de paiement sans billets, pas de double réservation) et une base robuste.
 
 ---
 
@@ -97,7 +97,7 @@
 
 ---
 
-### 2.5 Protection des routes de test
+### 2.5 Protection des routes de démonstration
 
 - **TestController :**  
   Injection de l’environnement (`kernel.environment`). Une méthode `refuserSiPasDev()` est appelée au début de chaque action ; en environnement autre que `dev`, une `AccessDeniedException` est levée.
@@ -168,7 +168,7 @@
 - **Sécurité :**  
   - Upload : validation MIME, noms sécurisés, taille limitée.  
   - CSRF sur les actions sensibles (suppression panier déjà en place sur les autres).  
-  - Routes de test limitées au dev.  
+  - Routes internes limitées au dev.  
   - Documentation pour `APP_SECRET` sans committer de secret.
 
 - **Performance / fiabilité :**  
@@ -204,11 +204,11 @@
 ## 6. Vérifications recommandées avant mise en production
 
 1. Définir `APP_SECRET` dans `.env.local` (ou via secrets) et ne jamais le committer.
-2. Exécuter les tests existants (`php bin/phpunit`).
-3. Tester un parcours complet : ajout au panier → paiement → confirmation et billets.
+2. Exécuter les suites existantes (`php bin/phpunit`).
+3. Valider un parcours complet : ajout au panier → paiement → confirmation et billets.
 4. Vérifier en environnement `dev` que les routes `/test/*` sont accessibles, et en `prod` qu’elles renvoient bien un accès refusé.
 5. Vérifier que les uploads d’images (création / édition d’événements) fonctionnent et que les types non autorisés sont bien rejetés.
 
 ---
 
-*Document rédigé dans le cadre de la préparation à la mise en production du projet OSEA.td.*
+*Document rédigé dans le cadre de la préparation à la mise en production du projet TalChif.*

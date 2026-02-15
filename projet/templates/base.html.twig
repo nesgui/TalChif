@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}OCEA.td{% endblock %}</title>
+        <title>{% block title %}TalChif{% endblock %}</title>
 
         {# Indicateur JS pour gérer l'affichage des messages flash (fallback vs toasts) #}
         <script>
@@ -34,7 +34,7 @@
         {# Meta tags SEO modernes (2026) #}
         <meta name="description" content="{% block meta_description %}Plateforme de billetterie en ligne pour événements au Tchad. Découvrez et réservez vos billets pour concerts, festivals et soirées.{% endblock %}">
         <meta name="keywords" content="{% block meta_keywords %}événements, billetterie, Tchad, concerts, festivals, réservation{% endblock %}">
-        <meta name="author" content="OCEA.td">
+        <meta name="author" content="TalChif">
         <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
         
         {# Open Graph / Facebook #}
@@ -44,7 +44,7 @@
         <meta property="og:url" content="{{ app.request.uri }}">
         {% block og_image %}<meta property="og:image" content="{{ app.request.schemeAndHttpHost }}/images/placeholders/banniere-home.jpg">{% endblock %}
         <meta property="og:locale" content="fr_FR">
-        <meta property="og:site_name" content="OCEA.td">
+        <meta property="og:site_name" content="TalChif">
         
         {# Twitter Card #}
         <meta name="twitter:card" content="summary_large_image">
@@ -98,7 +98,7 @@
 
             <header class="public-header">
                 <div class="container public-topbar">
-                    <a class="public-brand" href="{{ path('accueil') }}">OCEA.td</a>
+                    <a class="public-brand" href="{{ path('accueil') }}">TalChif</a>
                     <div class="public-topbar-actions">
                         <button class="auth-theme-toggle" id="theme-toggle" title="Basculer le thème">
                             <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -237,8 +237,8 @@
 
             <footer class="site-footer">
                 <div class="container footer-inner">
-                    <div class="muted">Prototype Frontend Twig</div>
-                    <div class="muted">OCEA.td</div>
+                    <div class="muted">TalChif</div>
+                    <div class="muted">TalChif</div>
                 </div>
             </footer>
         {% endblock %}

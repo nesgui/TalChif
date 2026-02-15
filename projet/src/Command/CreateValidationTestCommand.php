@@ -34,7 +34,7 @@ class CreateValidationTestCommand extends Command
         $output->writeln('<info>🎫 Création de billets de test pour la validation...</info>');
 
         // Récupérer ou créer un organisateur
-        $organisateur = $this->userRepository->findOneBy(['email' => 'organisateur@osea.td']);
+        $organisateur = $this->userRepository->findOneBy(['email' => 'organisateur@talchif.td']);
         
         if (!$organisateur) {
             $output->writeln('<error>❌ Organisateur non trouvé. Exécutez d\'abord: php bin/console app:create-test-data</error>');
@@ -49,7 +49,7 @@ class CreateValidationTestCommand extends Command
             $evenement->setNom('Concert de Test Validation');
             $evenement->setDescription('Événement de test pour le système de validation');
             $evenement->setDateEvenement(new \DateTimeImmutable('+2 hours')); // Dans 2 heures
-            $evenement->setLieu('Salle de Test OSEA');
+            $evenement->setLieu('Salle de Test TalChif');
             $evenement->setVille('N\'Djamena');
             $evenement->setPrixSimple(5000);
             $evenement->setPrixVip(15000);

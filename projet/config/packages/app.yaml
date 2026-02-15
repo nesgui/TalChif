@@ -1,4 +1,4 @@
-# Paramètres métier de l'application OSEA
+# Paramètres métier de l'application TalChif
 # Évite les valeurs en dur dans le code et permet de les surcharger par environnement.
 
 parameters:

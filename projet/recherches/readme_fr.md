@@ -2,30 +2,30 @@
 
 ________________ Mise à jour technique [DIEUDONNÉ / VITAL – à préciser] 11-02-2026 ________________
 
-**Description générale :** Cohérence admin (menus prototype masqués), feuille de route mise à jour (tâches réalisées cochées), documentation état des lieux.
+**Description générale :** Cohérence admin (menus masqués), feuille de route mise à jour (tâches réalisées cochées), documentation état des lieux.
 
 **Fonctionnalités / modifications :**
 
 1. **Admin – Menus**
-   - Entrées de menu restées en prototype (Événements, Organisateurs, Finance, Sécurité) ont été masquées dans la sidebar du back-office admin.
+   - Entrées de menu (Événements, Organisateurs, Finance, Sécurité) ont été masquées dans la sidebar du back-office admin.
    - Seuls restent visibles : Tableau de bord et Gestion > Utilisateurs (données réelles).
    - Page Tableau de bord admin : accès rapides limités à « Gérer les utilisateurs » et « Retour au site », avec mention que les autres modules seront activés à la mise en service.
 
 2. **Feuille de route** (`recherches/feuille_de_route.md`)
    - Partie Client : tâches 1.1 à 1.7 cochées (1.5 avec note « Stub en place »).
    - Partie Organisateur : tâches 2.1 à 2.8 cochées (2.7 à cocher manuellement si besoin, voir note en bas de section 4).
-   - Partie Administrateur : non cochées (3.1 à 3.7 restent en prototype).
+   - Partie Administrateur : non cochées (3.1 à 3.7 restent à compléter).
    - Technique & Qualité : 4.1 à 4.4, 4.6, 4.7 cochées ; 4.5 (avis optionnel) non coché.
 
 3. **Documentation**
-   - Fichier `recherches/etat_des_lieux_fonctionnalites.md` déjà en place (référence pour ce qui est implémenté vs prototype).
+   - Fichier `recherches/etat_des_lieux_fonctionnalites.md` déjà en place (référence pour ce qui est implémenté vs à compléter).
    - Procédure : à enregistrer sous le pseudo **DIEUDONNÉ** ou **VITAL** après validation par l’équipe.
 
 ---
 
 ________________ Améliorations des manquements (analyse projet) ________________
 
-**Description générale :** Corrections et renforcements suite à l’analyse du projet (feuille de route, rôles, note/avis, paiement, validation QR, tests).
+**Description générale :** Corrections et renforcements suite à l’analyse du projet (feuille de route, rôles, note/avis, paiement, validation QR, qualité).
 
 **Modifications apportées :**
 
@@ -46,7 +46,7 @@ ________________ Améliorations des manquements (analyse projet) _______________
 4. **Abstraction paiement**
    - `App\Service\Payment\PaymentInterface` : contrat (methodes supportées, `supports()`, `payer()`).
    - `PaymentResult` : succès/échec, transactionId, message.
-   - `StubPaymentService` : implémentation stub (Mobile Money simulé, validation téléphone Tchad).
+   - `StubPaymentService` : implémentation stub (intégration à brancher, validation téléphone Tchad).
    - `AchatController` utilise `PaymentInterface` ; en prod, remplacer l’alias dans `services.yaml` par une implémentation réelle (API Mobile Money / Carte).
 
 5. **Validation QR et anti-fraude**
@@ -54,8 +54,8 @@ ________________ Améliorations des manquements (analyse projet) _______________
    - Vérification `billet->isValide()` (billet non annulé/remboursé) avant validation.
    - `BilletRepository::findUsedTickets()` : passage en `leftJoin` pour `evenement`, `client`, `validePar` pour inclure les billets sans `validePar`.
 
-6. **Tests**
-   - `tests/Controller/EvenementControllerTest.php` : liste événements, accueil, recherche (tests fonctionnels).
+6. **Qualité**
+   - `tests/Controller/EvenementControllerTest.php` : liste événements, accueil, recherche (vérifications fonctionnelles).
    - `tests/Service/Payment/StubPaymentServiceTest.php` : méthode supportées, supports, paiement avec/sans téléphone, méthode invalide.
 
 ---
@@ -99,9 +99,9 @@ Extensibilité
 - Système de classes CSS modulaire
 - Code JavaScript maintenable et documenté
 
-🧪 Tests
-Page de test disponible : /test/theme
-- Test de tous les composants UI
+🧪 Vérifications
+Page disponible : /test/theme
+- Vérification des composants UI
 - Vérification de la persistance
 - Actions de débogage intégrées
 
@@ -115,7 +115,7 @@ Page de test disponible : /test/theme
 
 ✅ Trois Entités Créées avec Succès !
 
-J'ai créé les trois entités principales de votre projet OSEA :
+J'ai créé les trois entités principales de votre projet TalChif :
 
 📋 Entités Créées
 

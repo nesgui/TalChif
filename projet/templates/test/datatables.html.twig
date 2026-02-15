@@ -2,27 +2,27 @@
 
 {% set section = 'admin' %}
 
-{% block title %}Test DataTables & Notifications{% endblock %}
+{% block title %}DataTables & Notifications{% endblock %}
 
-{% block dashboard_title %}Test DataTables & Notifications{% endblock %}
+{% block dashboard_title %}DataTables & Notifications{% endblock %}
 
 {% block dashboard_content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1 class="page-title">Test DataTables & Notifications</h1>
+        <h1 class="page-title">DataTables & Notifications</h1>
         <p class="page-subtitle">Vérification du fonctionnement des DataTables et des notifications</p>
     </div>
 
     <div class="card">
-        <h2 class="card-title">Test de Notifications</h2>
+        <h2 class="card-title">Notifications</h2>
         <div class="card-content">
-            <p>Les messages flash ont été ajoutés pour tester le système de notifications.</p>
+            <p>Les messages flash permettent de valider le bon fonctionnement des notifications.</p>
             <div class="actions-grid" style="margin-top: 1rem;">
-                <button onclick="testNotification()" class="btn btn-primary">
-                    📢 Tester Notification Manuelle
+                <button onclick="triggerNotification()" class="btn btn-primary">
+                    📢 Déclencher une notification
                 </button>
-                <button onclick="testThemeToggle()" class="btn btn-outline">
-                    🎨 Tester Basculement Thème
+                <button onclick="triggerThemeToggle()" class="btn btn-outline">
+                    🎨 Basculer le thème
                 </button>
                 <a href="{{ path('test.datatables') }}" class="btn btn-outline">
                     🔄 Recharger la Page
@@ -32,11 +32,11 @@
     </div>
 
     <div class="card">
-        <h2 class="card-title">Test DataTables</h2>
+        <h2 class="card-title">DataTables</h2>
         <div class="card-content">
-            <p>Tableau de test avec fonctionnalités DataTables activées.</p>
+            <p>Tableau avec fonctionnalités DataTables activées.</p>
             
-            <table id="test-table" class="osea-datatable" style="width: 100%;">
+            <table id="demo-table" class="talchif-datatable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -153,12 +153,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Test page loaded');
+    console.log('Demo page loaded');
     
     // Initialiser DataTables
     try {
         if (window.DataTableOS) {
-            const table = window.DataTableOS.init('#test-table');
+            const table = window.DataTableOS.init('#demo-table');
             if (table) {
                 console.log('DataTables initialisé avec succès');
             } else {
@@ -175,17 +175,17 @@ document.addEventListener('DOMContentLoaded', function() {
     runDiagnostic();
 });
 
-function testNotification() {
-    console.log('Test notification manuelle');
+function triggerNotification() {
+    console.log('Manual notification');
     if (window.NotificationService) {
-        window.NotificationService.success('Test Manuel', 'Ceci est une notification de test générée manuellement');
+        window.NotificationService.success('Notification', 'Ceci est une notification déclenchée manuellement');
     } else {
         alert('NotificationService non disponible');
     }
 }
 
-function testThemeToggle() {
-    console.log('Test theme toggle');
+function triggerThemeToggle() {
+    console.log('Theme toggle');
     if (window.themeToggle && window.themeToggle.toggleTheme) {
         window.themeToggle.toggleTheme();
     } else {
