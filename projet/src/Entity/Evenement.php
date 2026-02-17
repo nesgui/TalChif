@@ -93,6 +93,9 @@ class Evenement
     #[ORM\OneToMany(mappedBy: 'evenement', targetEntity: Billet::class, cascade: ['persist', 'remove'])]
     private Collection $billets;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $organisateurPaye = false;
+
     public function __construct()
     {
         $this->billets = new ArrayCollection();
@@ -382,6 +385,17 @@ class Evenement
     public function isComplet(): bool
     {
         return $this->getPlacesRestantes() <= 0;
+    }
+
+    public function isOrganisateurPaye(): bool
+    {
+        return $this->organisateurPaye;
+    }
+
+    public function setOrganisateurPaye(bool $organisateurPaye): static
+    {
+        $this->organisateurPaye = $organisateurPaye;
+        return $this;
     }
 
     public function hasVip(): bool

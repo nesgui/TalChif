@@ -5,6 +5,16 @@ parameters:
     # Taux de commission admin sur les ventes (ex: 0.10 = 10 %)
     app.commission_taux: 0.10
 
+    # Mobile Money - numéro business plateforme
+    app.momo.numero: '63519678'
+    app.momo.beneficiaire: 'TALCHIF'
+
+    # Commande : durée avant expiration (minutes)
+    app.commande.expiration_minutes: 10
+
+    # Antifraude : blocage après X tentatives de validation échouées
+    app.antifraude.tentatives_max: 3
+
     # Fenêtre de validation des billets (avant / après l'événement)
     # Format relatif : voir https://www.php.net/datetime.formats.relative
     app.validation.debut_offset: '-2 hours'

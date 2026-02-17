@@ -75,7 +75,8 @@ final class AuthController extends AbstractController
             $user->setPassword(
                 $this->passwordHasher->hashPassword($user, $password)
             );
-            $user->setRole('CLIENT'); // Par défaut, tout le monde est client
+            // Règle métier : inscription depuis la page de connexion (sans auth) = client
+            $user->setRole('CLIENT');
             $user->setIsVerified(false); // TODO: Implémenter l'email de vérification
 
             // Sauvegarder en base

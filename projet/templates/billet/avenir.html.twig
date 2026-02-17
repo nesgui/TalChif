@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="tickets-header">
-    <h1 class="page-title">📅 Billets à Venir</h1>
+<h1 class="page-title">Billets à Venir</h1>
     <p class="page-subtitle">Vos événements futurs</p>
 </div>
 
@@ -13,10 +13,10 @@
         📋 Tous les billets
     </a>
     <a href="{{ path('billet.avenir') }}" class="nav-btn active">
-        📅 À venir
+        À venir
     </a>
     <a href="{{ path('billet.passes') }}" class="nav-btn">
-        ⏰ Passés
+        Passés
     </a>
 </div>
 
@@ -44,7 +44,7 @@
                 <div class="ticket-details">
                     <div class="ticket-qr">
                         <div class="qr-code">
-                            🎫
+                            
                             <small>QR Code</small>
                         </div>
                         <div class="qr-text">{{ billet.qrCode }}</div>
@@ -76,7 +76,7 @@
     </div>
 {% else %}
     <div class="empty-tickets">
-        <div class="empty-icon">📅</div>
+        <div class="empty-icon"></div>
         <h3>Aucun billet à venir</h3>
         <p>Vous n'avez pas de billets pour des événements futurs</p>
         <div class="card-actions">
@@ -314,7 +314,7 @@
 function copyQRCode(qrCode) {
     navigator.clipboard.writeText(qrCode).then(() => {
         const notification = document.createElement('div');
-        notification.textContent = '📋 QR Code copié !';
+        notification.textContent = 'QR Code copié !';
         notification.style.cssText = `
             position: fixed;
             top: 20px;

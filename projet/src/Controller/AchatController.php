@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Billet;
+use App\Entity\Commande;
+use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
-use App\Service\Achat\ServiceAchat;
+use App\Service\Commande\ServiceCommande;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,15 +15,16 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Contrôleur des achats : page panier/checkout, paiement et confirmation.
- * La logique métier (paiement + billets) est déléguée à ServiceAchat (transactions, cohérence).
+ * Contrôleur des achats : panier, création commande Mobile Money, instructions, confirmation.
+ * Workflow : créer commande → instructions paiement → validation admin → billets.
  */
 final class AchatController extends AbstractController
 {
     public function __construct(
         private EvenementRepository $evenementRepository,
+        private CommandeRepository $commandeRepository,
         private EntityManagerInterface $entityManager,
-        private ServiceAchat $serviceAchat
+        private ServiceCommande $serviceCommande
     ) {
     }
 
@@ -134,7 +137,7 @@ final class AchatController extends AbstractController
         }
 
         try {
-            $resultat = $this->serviceAchat->traiterAchat(
+            $commande = $this->serviceCommande->creerCommande(
                 $panier,
                 $user,
                 (string) $methodePaiement,
@@ -146,16 +149,68 @@ final class AchatController extends AbstractController
         }
 
         $session->remove('panier');
-        $this->addFlash('success', '📱 SMS de confirmation envoyé au ' . trim((string) $telephone));
-        $this->addFlash('success', '💳 ' . $resultat->getMessagePaiement());
-        $this->addFlash('info', '🎫 Vos billets ont été générés avec succès.');
+        $this->addFlash('info', 'Effectuez le transfert Mobile Money dans les 10 minutes. Mettez la référence dans le message.');
 
-        return $this->redirectToRoute('achat.confirmation', [
-            'transactionId' => $resultat->getIdTransaction(),
+        return $this->redirectToRoute('achat.instructions', [
+            'reference' => $commande->getReference(),
         ]);
     }
 
-    #[Route('/achat/confirmation/{transactionId}', name: 'achat.confirmation')]
+    #[Route('/mes-commandes', name: 'achat.commandes')]
+    public function mesCommandes(): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('auth.login');
+        }
+        $commandes = $this->commandeRepository->findByClient($user);
+        $pending = array_filter($commandes, fn ($c) => $c->isPending() && !$c->estExpiree());
+        $paid = array_filter($commandes, fn ($c) => $c->isPaid());
+        $expired = array_filter($commandes, fn ($c) => $c->isExpired());
+        $rejected = array_filter($commandes, fn ($c) => $c->isRejected());
+        return $this->render('achat/mes_commandes.html.twig', [
+            'pending' => $pending,
+            'paid' => $paid,
+            'expired' => $expired,
+            'rejected' => $rejected,
+        ]);
+    }
+
+    #[Route('/achat/instructions/{reference}', name: 'achat.instructions', requirements: ['reference' => '[A-Z0-9\-]+'])]
+    public function instructions(string $reference): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('auth.login');
+        }
+
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande || $commande->getClient()->getId() !== $user->getId()) {
+            throw $this->createNotFoundException('Commande non trouvée');
+        }
+
+        return $this->render('achat/instructions_paiement.html.twig', [
+            'commande' => $commande,
+            'momoNumero' => $this->serviceCommande->getMomoNumero(),
+            'momoBeneficiaire' => $this->serviceCommande->getMomoBeneficiaire(),
+        ]);
+    }
+
+    #[Route('/api/commande/statut/{reference}', name: 'api.commande.statut', requirements: ['reference' => '[A-Z0-9\-]+'], methods: ['GET'])]
+    public function statutCommande(string $reference): Response
+    {
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande) {
+            return $this->json(['statut' => 'NotFound'], 404);
+        }
+        $user = $this->getUser();
+        if (!$user || $commande->getClient()->getId() !== $user->getId()) {
+            return $this->json(['statut' => 'Forbidden'], 403);
+        }
+        return $this->json(['statut' => $commande->getStatut()]);
+    }
+
+    #[Route('/achat/confirmation/{transactionId}', name: 'achat.confirmation', requirements: ['transactionId' => '[A-Za-z0-9_\-\.]+'])]
     public function confirmation(string $transactionId): Response
     {
         $user = $this->getUser();
@@ -168,6 +223,17 @@ final class AchatController extends AbstractController
             'client' => $user,
         ]);
         if (empty($billets)) {
+            $commande = $this->commandeRepository->findByReference($transactionId);
+            if ($commande && $commande->getClient()->getId() === $user->getId()) {
+                if ($commande->isPending()) {
+                    $this->addFlash('warning', 'Votre paiement est en attente de validation.');
+                    return $this->redirectToRoute('achat.instructions', ['reference' => $transactionId]);
+                }
+                if ($commande->isExpired()) {
+                    $this->addFlash('error', 'Cette commande a expiré.');
+                    return $this->redirectToRoute('panier.index');
+                }
+            }
             throw $this->createNotFoundException('Transaction non trouvée');
         }
 

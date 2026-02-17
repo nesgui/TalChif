@@ -60,7 +60,7 @@
             </div>
         {% else %}
             <div class="empty-cart">
-                <div class="empty-icon">🛒</div>
+                <div class="empty-icon"></div>
                 <h3>Votre panier est vide</h3>
                 <p>Découvrez nos événements et ajoutez des billets à votre panier</p>
                 <div class="card-actions">
@@ -91,11 +91,7 @@
                 </tbody>
             </table>
 
-            {% if app.user %}
-                <div class="user-info">
-                    <p class="card-meta">Connecté en tant que <strong>{{ app.user.fullName }}</strong></p>
-                </div>
-            {% else %}
+            {% if not app.user %}
                 <div class="auth-notice">
                     <p class="card-meta">🔐 Connectez-vous pour finaliser votre achat</p>
                     <p class="card-meta" style="margin-top: 4px; font-size: 0.8125rem;">Votre panier sera conservé après connexion.</p>
@@ -110,7 +106,7 @@
             <div class="card-actions">
                 {% if app.user %}
                     <a class="btn btn-primary btn-large" href="{{ path('achat.index') }}">
-                        🚀 Finaliser la commande
+                        Finaliser la commande
                     </a>
                 {% endif %}
                 <a class="btn" href="{{ path('evenement.index') }}">Continuer mes achats</a>
@@ -119,9 +115,8 @@
             <div class="payment-info">
                 <h4>Moyens de paiement acceptés</h4>
                 <div class="payment-methods">
-                    <span class="payment-method">📱 MoMo</span>
-                    <span class="payment-method">📱 Airtel Money</span>
-                    <span class="payment-method">📱 Orange Money</span>
+                    <span class="payment-method">Moov Money</span>
+                    <span class="payment-method">Airtel Money</span>
                 </div>
             </div>
         </aside>

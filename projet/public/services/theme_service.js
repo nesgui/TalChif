@@ -1,6 +1,7 @@
 /**
  * Theme Toggle Controller
  * Handles light/dark theme switching for authentication pages and main layout
+ * Compatible Turbo : ré-attache le listener après chaque navigation SPA
  */
 
 // Prevent duplicate script loading
@@ -91,7 +92,6 @@ class ThemeToggle {
         
         if (this.themeToggle && !this.themeToggle.hasAttribute('data-theme-listener')) {
             debugLog('Adding click listener to theme toggle');
-            // Add click handler if toggle exists and doesn't already have a listener
             this.themeToggle.addEventListener('click', (e) => {
                 debugLog('THEME TOGGLE CLICKED!');
                 e.preventDefault();
@@ -103,6 +103,20 @@ class ThemeToggle {
         } else if (this.themeToggle) {
             debugLog('Theme toggle already has listener');
         }
+    }
+
+    /** Rafraîchit les références DOM après une navigation Turbo (bouton/icônes remplacés) */
+    refreshForTurbo() {
+        debugLog('Refreshing theme toggle for Turbo navigation');
+        this.themeToggle = null;
+        this.themeIconLight = null;
+        this.themeIconDark = null;
+        this.findElements();
+        this.setTheme(this.getCurrentTheme());
+    }
+
+    getCurrentTheme() {
+        return document.documentElement.getAttribute('data-theme') || 'light';
     }
     
     setupTheme() {
@@ -187,22 +201,41 @@ class ThemeToggle {
     }
 }
 
+// Instance unique pour pouvoir appeler refreshForTurbo après navigation Turbo
+let themeToggleInstance = null;
+
 // Initialize theme toggle immediately if DOM is ready, otherwise wait for DOMContentLoaded
 function initThemeToggle() {
     debugLog('initThemeToggle called');
     debugLog('window.themeToggleInitialized:', window.themeToggleInitialized);
     
-    // Prevent multiple instances
-    if (window.themeToggleInitialized) {
-        debugLog('Theme toggle already initialized, skipping');
-        return;
+    if (!themeToggleInstance) {
+        debugLog('Creating new ThemeToggle instance...');
+        themeToggleInstance = new ThemeToggle();
+        window.themeToggleInitialized = true;
+        debugLog('Theme toggle initialization marked as complete');
     }
-    
-    debugLog('Creating new ThemeToggle instance...');
-    new ThemeToggle();
-    window.themeToggleInitialized = true;
-    debugLog('Theme toggle initialization marked as complete');
 }
+
+/** Ré-attache le bouton thème après une navigation Turbo (page partielle) */
+function onTurboRender() {
+    if (themeToggleInstance) {
+        themeToggleInstance.refreshForTurbo();
+    } else {
+        initThemeToggle();
+    }
+}
+
+    // Lancer l'initialisation : immédiatement si DOM prêt, sinon après DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initThemeToggle);
+    } else {
+        initThemeToggle();
+    }
+
+    // Compatible Turbo : ré-initialiser le bouton après chaque navigation SPA
+    document.addEventListener('turbo:render', onTurboRender);
+    document.addEventListener('turbo:load', onTurboRender);
 
 } // Close the else block from duplicate check
 

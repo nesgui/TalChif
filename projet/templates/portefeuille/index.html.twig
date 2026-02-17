@@ -44,6 +44,9 @@
                 <a href="{{ path('billet.index') }}" class="btn btn-primary">
                     Mes billets
                 </a>
+                <a href="{{ path('achat.commandes') }}" class="btn">
+                    Mes commandes
+                </a>
                 
                 {% if is_granted('ROLE_ORGANISATEUR') %}
                     <a href="{{ path('organisateur.dashboard') }}" class="btn">Gestion des événements</a>

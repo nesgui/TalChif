@@ -79,7 +79,7 @@
 
             <div class="event-details">
                 <div class="detail-row">
-                    <span class="detail-icon">📅</span>
+                    <span class="detail-icon"></span>
                     <div class="detail-content">
                         <strong>Date</strong><br>
                         {{ evenement.date|date('d/m/Y à H:i') }}
@@ -87,7 +87,7 @@
                 </div>
 
                 <div class="detail-row">
-                    <span class="detail-icon">📍</span>
+                    <span class="detail-icon"></span>
                     <div class="detail-content">
                         <strong>Lieu</strong><br>
                         {{ evenement.lieu }} - {{ evenement.ville }}
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="detail-row">
-                    <span class="detail-icon">🎫</span>
+                    <span class="detail-icon"></span>
                     <div class="detail-content">
                         <strong>Places disponibles</strong><br>
                         {{ evenement.places_restantes }} / {{ evenement.places_restantes + (evenement.places_restantes * 0.2)|round }}
@@ -120,9 +120,9 @@
             <div class="payment-methods">
                 <h4>Moyens de paiement acceptés</h4>
                 <div class="payment-list">
-                    <span class="payment-method">📱 MoMo</span>
-                    <span class="payment-method">📱 Airtel Money</span>
-                    <span class="payment-method">📱 Orange Money</span>
+                    <span class="payment-method">MoMo</span>
+                    <span class="payment-method">Airtel Money</span>
+                    <span class="payment-method">Orange Money</span>
                 </div>
             </div>
         </section>

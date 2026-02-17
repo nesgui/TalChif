@@ -6,8 +6,10 @@ use App\Entity\Billet;
 use App\Entity\Evenement;
 use App\Repository\BilletRepository;
 use App\Repository\EvenementRepository;
+use App\Repository\LogSecuriteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,8 +22,44 @@ final class OrganisateurDashboardController extends AbstractController
     public function __construct(
         private EvenementRepository $evenementRepository,
         private BilletRepository $billetRepository,
-        private EntityManagerInterface $entityManager
+        private LogSecuriteRepository $logSecuriteRepository,
+        private EntityManagerInterface $entityManager,
+        #[Autowire('%app.commission_taux%')]
+        private float $commissionTaux
     ) {
+    }
+
+    #[Route('/organisateur/reglements', name: 'organisateur.reglements')]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function reglements(): Response
+    {
+        $user = $this->getUser();
+        /** @var \App\Entity\User $user */
+
+        $evenementsPayes = $this->evenementRepository->findBy(
+            ['organisateur' => $user, 'organisateurPaye' => true],
+            ['dateEvenement' => 'DESC']
+        );
+
+        $reglements = [];
+        foreach ($evenementsPayes as $evenement) {
+            $montantNet = $this->billetRepository->calculateNetRevenue($evenement);
+            $log = $this->logSecuriteRepository->findOneBy(
+                ['action' => 'SETTLE_ORGANISATEUR', 'referenceCommande' => $evenement->getSlug()],
+                ['createdAt' => 'DESC']
+            );
+
+            $reglements[] = [
+                'evenement' => $evenement,
+                'montantNet' => $montantNet,
+                'datePaiement' => $log?->getCreatedAt(),
+                'admin' => $log?->getUtilisateur(),
+            ];
+        }
+
+        return $this->render('organisateur_dashboard/reglements.html.twig', [
+            'reglements' => $reglements,
+        ]);
     }
 
     #[Route('/organisateur', name: 'organisateur.dashboard')]
@@ -30,12 +68,18 @@ final class OrganisateurDashboardController extends AbstractController
     {
         $user = $this->getUser();
         $evenements = $this->evenementRepository->findBy(['organisateur' => $user], ['dateEvenement' => 'DESC']);
-        
+
+        $totalBrut = $this->billetRepository->calculateTotalRevenueByOrganisateur($user);
+        $totalCommission = (float) round($totalBrut * $this->commissionTaux, 2);
+        $soldeNet = $totalBrut - $totalCommission;
+
         // Statistiques globales
         $stats = [
             'total_evenements' => count($evenements),
             'total_billets_vendus' => $this->billetRepository->countSoldTicketsByOrganisateur($user),
-            'total_revenus' => $this->billetRepository->calculateTotalRevenueByOrganisateur($user),
+            'total_revenus' => $totalBrut,
+            'total_commission' => $totalCommission,
+            'solde_net' => $soldeNet,
             'billets_a_venir' => $this->billetRepository->countUpcomingTicketsByOrganisateur($user),
         ];
 

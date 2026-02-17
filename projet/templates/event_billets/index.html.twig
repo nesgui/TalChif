@@ -15,10 +15,10 @@
                         <h1 class="event-title">{{ evenement.nom }}</h1>
                         <div class="event-meta">
                             <span class="meta-item">
-                                📅 {{ evenement.dateEvenement|date('d/m/Y H:i') }}
+                                {{ evenement.dateEvenement|date('d/m/Y H:i') }}
                             </span>
                             <span class="meta-item">
-                                📍 {{ evenement.lieu }}, {{ evenement.ville }}
+                                {{ evenement.lieu }}, {{ evenement.ville }}
                             </span>
                         </div>
                     </div>
@@ -27,14 +27,14 @@
             
             <div class="stats-dashboard">
                 <div class="stat-card primary">
-                    <div class="stat-icon">🎫</div>
+                    <div class="stat-icon"></div>
                     <div class="stat-content">
                         <span class="stat-number">{{ totalBilletsVendus }}</span>
                         <span class="stat-label">Billets vendus</span>
                     </div>
                 </div>
                 <div class="stat-card success">
-                    <div class="stat-icon">💰</div>
+                    <div class="stat-icon"></div>
                     <div class="stat-content">
                         <span class="stat-number">{{ totalRevenus|number_format(0, '.', ' ') }}</span>
                         <span class="stat-label">Revenus totaux</span>
@@ -57,7 +57,7 @@
         <section class="tickets-section">
             <div class="section-header">
                 <h2 class="section-title">
-                    <span class="title-icon">🎫</span>
+                    <span class="title-icon"></span>
                     Types de billets disponibles
                 </h2>
                 <p class="section-subtitle">Choisissez le type de billet qui vous convient</p>
@@ -68,7 +68,7 @@
                     <div class="ticket-card {{ info.statut == 'Épuisé' ? 'sold-out' : info.statut == 'Limité' ? 'limited' : 'available' }}">
                         <div class="ticket-header">
                             <div class="ticket-type-badge">
-                                <span class="badge-icon">{{ type == 'Simple' ? '🎫' : '⭐' }}</span>
+                                <span class="badge-icon"></span>
                                 <h3 class="ticket-type">{{ type }}</h3>
                             </div>
                             <div class="ticket-price">

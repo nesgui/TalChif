@@ -7,7 +7,6 @@
     <div class="validation-container">
         <div class="validation-header">
             <h1 class="page-title">
-                <span class="title-icon">🎫</span>
                 Validation des Billets
             </h1>
             <p class="page-subtitle">Scannez ou saisissez le QR Code pour valider l'entrée</p>
@@ -544,12 +543,12 @@ function showResultModal(type, data) {
     const modalBody = document.getElementById('modalBody');
     
     if (type === 'success') {
-        modalTitle.innerHTML = '✅ Validation Réussie';
+        modalTitle.innerHTML = 'Validation Réussie';
         modalTitle.style.color = 'var(--couleur-success)';
         
         modalBody.innerHTML = `
             <div class="success-content">
-                <div class="success-icon">✅</div>
+                <div class="success-icon"></div>
                 <h4>Billet Validé</h4>
                 <div class="billet-info">
                     <p><strong>QR Code:</strong> ${data.billet.qrCode}</p>
@@ -562,7 +561,7 @@ function showResultModal(type, data) {
             </div>
         `;
     } else {
-        modalTitle.innerHTML = '❌ Validation Échouée';
+        modalTitle.innerHTML = 'Validation Échouée';
         modalTitle.style.color = 'var(--couleur-error)';
         
         let errorMessage = data.message;
@@ -582,7 +581,7 @@ function showResultModal(type, data) {
         
         modalBody.innerHTML = `
             <div class="error-content">
-                <div class="error-icon">❌</div>
+                <div class="error-icon"></div>
                 <h4>${errorMessage}</h4>
                 ${errorDetails}
             </div>

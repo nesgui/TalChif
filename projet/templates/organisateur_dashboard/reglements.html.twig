@@ -1,0 +1,59 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block title %}Règlements{% endblock %}
+
+{% block dashboard_title %}Règlements{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="page-title">Règlements</h1>
+        <p class="page-subtitle">Suivi des paiements effectués par la plateforme</p>
+    </div>
+
+    {% if reglements|length > 0 %}
+        <section class="card">
+            <h2 class="card-title">Règlements effectués ({{ reglements|length }})</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Événement</th>
+                            <th>Date de l'événement</th>
+                            <th>Montant net</th>
+                            <th>Date de paiement</th>
+                            <th>Validé par</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in reglements %}
+                            {% set evenement = item.evenement %}
+                            <tr>
+                                <td>{{ evenement.nom }}</td>
+                                <td>{{ evenement.dateEvenement|date('d/m/Y H:i') }}</td>
+                                <td>{{ item.montantNet|number_format(0, '.', ' ') }} FCFA</td>
+                                <td>
+                                    {% if item.datePaiement %}
+                                        {{ item.datePaiement|date('d/m/Y H:i') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.admin ? item.admin.email : '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% else %}
+        <section class="card">
+            <p class="card-meta">Aucun règlement enregistré pour le moment.</p>
+            <a href="{{ path('organisateur.dashboard') }}" class="btn btn-primary">Retour au tableau de bord</a>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}
+

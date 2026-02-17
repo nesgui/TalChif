@@ -89,29 +89,29 @@
                         <td class="status-cell">
                             <span class="status-badge {{ participant.statutPaiement == 'PAYE' ? 'paid' : 'pending' }}">
                                 {% if participant.statutPaiement == 'PAYE' %}
-                                    ✅ Payé
+                                    Payé
                                 {% else %}
-                                    ⏳ En attente
+                                    En attente
                                 {% endif %}
                             </span>
                         </td>
                         <td class="status-cell">
                             <span class="status-badge {{ participant.utilise ? 'used' : 'available' }}">
                                 {% if participant.utilise %}
-                                    ❌ Utilisé
+                                    Utilisé
                                 {% else %}
-                                    ✅ Disponible
+                                    Disponible
                                 {% endif %}
                             </span>
                         </td>
                         <td class="actions-cell">
                             <div class="action-buttons">
                                 <button class="btn-small btn-view" onclick="viewQRCode('{{ participant.qrCode }}')">
-                                    📱 QR Code
+                                    QR Code
                                 </button>
                                 {% if not participant.utilise %}
                                     <button class="btn-small btn-validate" onclick="validateTicket('{{ participant.id }}')">
-                                        ✅ Valider
+                                        Valider
                                     </button>
                                 {% endif %}
                             </div>
@@ -328,13 +328,13 @@
 }
 
 .ticket-type-badge.standard {
-    background: #dbeafe;
-    color: #1e40af;
+    background: color-mix(in srgb, var(--couleur-info, var(--couleur-primaire)) 15%, var(--couleur-surface));
+    color: var(--couleur-texte);
 }
 
 .ticket-type-badge.vip {
-    background: #fef3c7;
-    color: #d97706;
+    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface));
+    color: var(--couleur-texte);
 }
 
 .price-amount {

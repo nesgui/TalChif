@@ -5,805 +5,278 @@
 {% block meta_description %}Découvrez les prochains événements près de chez vous au Tchad. Concerts, festivals, soirées - Réservez vos billets en ligne.{% endblock %}
 
 {% block body %}
-<section class="hero hero-modern" aria-label="Bannière d'accueil">
-    <div class="hero-media-wrap">
-        <img class="hero-media" src="/images/placeholders/banniere-home.jpg" alt="Bannière d'accueil TalChif - Plateforme de billetterie événements" />
-        <div class="hero-media-overlay"></div>
-        <div class="confetti-container" id="confetti-container"></div>
-        <div class="stars-container" id="stars-container"></div>
-        <div class="glitter-container" id="glitter-container"></div>
-    </div>
-    <div class="hero-content">
-        <h1 class="hero-title">Trouve ton prochain événement près de chez toi !</h1>
-        <p class="hero-subtitle">Des soirées aux festivals, tout est à portée de clic.</p>
-    </div>
-</section>
-
-<style id="accueil-page-styles">
-/* --- Confetti Animation --- */
-.confetti-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 10;
+<style id="accueil-apple-style">
+.hero-apple {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 3rem;
+    align-items: center;
+    padding: 3rem 2rem;
+    border-radius: 24px;
+    background: radial-gradient(circle at top left, var(--couleur-primaire) 0%, var(--couleur-fond) 55%);
+    color: var(--couleur-texte-inverse);
+    margin-bottom: 3rem;
 }
-
-.confetti {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24, #f0932b, #eb4d4b, #6ab04c, #c44569);
-    background-size: 400% 400%;
-    animation: confettiFall linear infinite, confettiColor 3s ease-in-out infinite;
-    opacity: 1;
-    box-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(0,0,0,0.3);
+.hero-apple-text h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
 }
-
-.confetti:nth-child(odd) {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    box-shadow: 0 0 12px rgba(255,255,255,0.8), 0 0 20px rgba(0,0,0,0.4);
-}
-
-.confetti:nth-child(even) {
-    width: 16px;
-    height: 8px;
-    border-radius: 2px;
-    transform: rotate(45deg);
-    box-shadow: 0 0 10px rgba(255,255,255,0.7), 0 0 18px rgba(0,0,0,0.35);
-}
-
-.confetti:nth-child(3n) {
-    width: 20px;
-    height: 6px;
-    border-radius: 1px;
-    background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
-    box-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 22px rgba(0,0,0,0.45);
-}
-
-@keyframes confettiFall {
-    0% {
-        transform: translateY(-20px) rotate(0deg) translateX(0);
-        opacity: 0;
-    }
-    10% {
-        opacity: 0.8;
-    }
-    50% {
-        transform: translateY(140px) rotate(180deg) translateX(var(--drift-amount, 0));
-    }
-    90% {
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(280px) rotate(360deg) translateX(calc(var(--drift-amount, 0) * 2));
-        opacity: 0;
-    }
-}
-
-@keyframes confettiColor {
-    0%, 100% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-}
-
-@keyframes confettiBounce {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    25% {
-        transform: translateX(-2px);
-    }
-    75% {
-        transform: translateX(2px);
-    }
-}
-
-/* --- Stars Animation --- */
-.stars-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 5;
-}
-
-.star {
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-right: 6px solid transparent;
-    border-bottom: 4px solid #ffd700;
-    border-left: 6px solid transparent;
-    transform: rotate(35deg);
-    animation: starTwinkle 2s ease-in-out infinite, starFloat 6s ease-in-out infinite;
-    opacity: 1;
-    filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 16px rgba(255,215,0,0.6));
-}
-
-.star:before {
-    content: '';
-    position: absolute;
-    height: 0;
-    width: 0;
-    top: -2px;
-    left: -4px;
-    border-bottom: 4px solid #ffd700;
-    border-left: 2px solid transparent;
-    border-right: 2px solid transparent;
-    transform: rotate(-35deg);
-}
-
-.star:after {
-    content: '';
-    position: absolute;
-    top: 1px;
-    left: -6px;
-    width: 0;
-    height: 0;
-    border-right: 6px solid transparent;
-    border-bottom: 4px solid #ffd700;
-    border-left: 6px solid transparent;
-    transform: rotate(-70deg);
-}
-
-.star:nth-child(2n) {
-    border-bottom-color: #ffed4e;
-    animation-delay: 0.5s;
-}
-
-.star:nth-child(2n):before,
-.star:nth-child(2n):after {
-    border-bottom-color: #ffed4e;
-}
-
-.star:nth-child(3n) {
-    border-bottom-color: #fff59d;
-    animation-delay: 1s;
-}
-
-.star:nth-child(3n):before,
-.star:nth-child(3n):after {
-    border-bottom-color: #fff59d;
-}
-
-.star:nth-child(4n) {
-    border-bottom-color: #ffeb3b;
-    animation-delay: 1.5s;
-}
-
-.star:nth-child(4n):before,
-.star:nth-child(4n):after {
-    border-bottom-color: #ffeb3b;
-}
-
-@keyframes starTwinkle {
-    0%, 100% {
-        opacity: 0;
-        transform: rotate(35deg) scale(0.5);
-    }
-    50% {
-        opacity: 1;
-        transform: rotate(35deg) scale(1);
-    }
-}
-
-@keyframes starFloat {
-    0%, 100% {
-        transform: translateY(0) rotate(35deg);
-    }
-    25% {
-        transform: translateY(-5px) rotate(40deg);
-    }
-    75% {
-        transform: translateY(5px) rotate(30deg);
-    }
-}
-
-/* --- Glitter/Payettes Animation --- */
-.glitter-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 8;
-}
-
-.glitter {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,215,0,0.8) 40%, rgba(255,255,255,0.6) 70%, transparent 100%);
-    border-radius: 50%;
-    animation: glitterSparkle 1.5s ease-in-out infinite, glitterFloat 8s ease-in-out infinite;
-    opacity: 1;
-    box-shadow: 0 0 12px rgba(255,215,0,1), 0 0 24px rgba(255,255,255,0.8), 0 0 36px rgba(255,215,0,0.4);
-}
-
-.glitter:nth-child(2n) {
-    width: 6px;
-    height: 6px;
-    background: radial-gradient(circle, rgba(255,223,0,1) 0%, rgba(255,193,7,0.8) 40%, rgba(255,236,179,0.6) 70%, transparent 100%);
-    animation-delay: 0.3s;
-    box-shadow: 0 0 10px rgba(255,193,7,1), 0 0 20px rgba(255,223,0,0.8), 0 0 30px rgba(255,193,7,0.4);
-}
-
-.glitter:nth-child(3n) {
-    width: 10px;
-    height: 10px;
-    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(192,192,192,0.8) 40%, rgba(255,255,255,0.6) 70%, transparent 100%);
-    animation-delay: 0.6s;
-    box-shadow: 0 0 14px rgba(192,192,192,1), 0 0 28px rgba(255,255,255,0.8), 0 0 42px rgba(192,192,192,0.4);
-}
-
-.glitter:nth-child(4n) {
-    width: 4px;
-    height: 4px;
-    background: radial-gradient(circle, rgba(255,105,180,1) 0%, rgba(255,182,193,0.8) 40%, rgba(255,218,224,0.6) 70%, transparent 100%);
-    animation-delay: 0.9s;
-    box-shadow: 0 0 8px rgba(255,105,180,1), 0 0 16px rgba(255,182,193,0.8), 0 0 24px rgba(255,105,180,0.4);
-}
-
-.glitter:nth-child(5n) {
-    width: 12px;
-    height: 12px;
-    background: radial-gradient(circle, rgba(138,43,226,1) 0%, rgba(186,85,211,0.8) 40%, rgba(230,230,250,0.6) 70%, transparent 100%);
-    animation-delay: 1.2s;
-    box-shadow: 0 0 16px rgba(138,43,226,1), 0 0 32px rgba(186,85,211,0.8), 0 0 48px rgba(138,43,226,0.4);
-}
-
-@keyframes glitterSparkle {
-    0%, 100% {
-        opacity: 0;
-        transform: scale(0.3) rotate(0deg);
-        filter: brightness(1);
-    }
-    25% {
-        opacity: 0.3;
-        transform: scale(0.6) rotate(90deg);
-        filter: brightness(1.2);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.2) rotate(180deg);
-        filter: brightness(1.5);
-    }
-    75% {
-        opacity: 0.6;
-        transform: scale(0.9) rotate(270deg);
-        filter: brightness(1.3);
-    }
-}
-
-@keyframes glitterFloat {
-    0%, 100% {
-        transform: translateY(0) translateX(0) scale(0.3);
-    }
-    20% {
-        transform: translateY(-8px) translateX(3px) scale(0.6);
-    }
-    40% {
-        transform: translateY(-15px) translateX(-2px) scale(1);
-    }
-    60% {
-        transform: translateY(-10px) translateX(4px) scale(0.8);
-    }
-    80% {
-        transform: translateY(-5px) translateX(-3px) scale(0.5);
-    }
-}
-
-/* --- Bannière moderne animée --- */
-.hero-modern {
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-    max-height: 280px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-}
-
-.hero-media-wrap {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    min-height: 200px;
-}
-
-.hero-media {
-    max-height: 200px !important;
-    width: 100%;
-    object-fit: cover;
-    animation: heroImageReveal 1.2s ease-out forwards;
-}
-
-.hero-media-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 45%, transparent 70%);
-    pointer-events: none;
-}
-
-.hero-modern .hero-content {
-    padding: 12px 16px !important;
-    gap: 8px !important;
-    animation: heroContentReveal 0.6s ease-out 0.3s both;
-}
-
-.hero-title {
-    margin-bottom: 4px !important;
-    animation: heroTitleIn 0.7s ease-out 0.4s both;
-    letter-spacing: -0.02em;
-}
-
-.hero-subtitle {
-    margin-bottom: 8px !important;
-    animation: heroSubtitleIn 0.6s ease-out 0.55s both;
+.hero-apple-text p {
+    font-size: 1.05rem;
+    max-width: 28rem;
     opacity: 0.9;
+    margin-bottom: 1.5rem;
 }
-
-.hero-actions {
+.hero-apple-actions {
     display: flex;
-    gap: 10px;
+    gap: 1rem;
     flex-wrap: wrap;
-    animation: heroActionsIn 0.5s ease-out 0.7s both;
+}
+.hero-apple-actions .btn {
+    border-radius: 999px;
+}
+.hero-apple-media {
+    display: flex;
+    justify-content: center;
+}
+.hero-apple-card {
+    background: var(--couleur-surface);
+    border-radius: 24px;
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+    max-width: 360px;
+    width: 100%;
+}
+.hero-apple-card img {
+    width: 100%;
+    border-radius: 18px;
+    margin-bottom: 1.25rem;
+    object-fit: cover;
+}
+.hero-apple-card h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.35rem;
+    color: var(--couleur-texte);
+}
+.hero-apple-card p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--couleur-texte-secondaire);
 }
 
-.hero-btn {
-    padding: 0.35rem 1rem;
-    font-size: 0.8125rem;
-    line-height: 1.2;
-    border-radius: 10px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+.lineup {
+    margin-bottom: 3rem;
+}
+.lineup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+.lineup-card {
+    border-radius: 18px;
+    padding: 1.5rem;
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+}
+.lineup-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+.lineup-card p {
+    font-size: 0.95rem;
+    color: var(--couleur-texte-secondaire);
+    margin-bottom: 1rem;
 }
 
-.hero-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.apple-catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.75rem;
+}
+.apple-card {
+    background: var(--couleur-surface);
+    border-radius: 20px;
+    padding: 1.25rem 1.25rem 1.5rem;
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.apple-card img {
+    border-radius: 16px;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+.apple-card-title {
+    font-weight: 600;
+    font-size: 0.98rem;
+}
+.apple-card-meta {
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
+}
+.apple-card-price {
+    margin-top: 0.35rem;
+    font-size: 0.95rem;
 }
 
-@keyframes heroImageReveal {
-    from {
-        opacity: 0;
-        transform: scale(1.05);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+.why-card {
+    padding: 1.5rem;
+    border-radius: 18px;
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+}
+.why-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+}
+.why-card p {
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
 }
 
-@keyframes heroContentReveal {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+.organisateur-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: center;
+    padding: 2.5rem 2rem;
+    border-radius: 22px;
+    background: var(--couleur-surface-elevated, var(--couleur-surface));
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+}
+.organisateur-block ul {
+    padding-left: 1.1rem;
+    margin: 0.75rem 0 0;
+    font-size: 0.95rem;
+}
+.organisateur-block li {
+    margin-bottom: 0.25rem;
 }
 
-@keyframes heroTitleIn {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
+@media (max-width: 920px) {
+    .hero-apple {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 2.5rem 1.5rem;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .hero-apple-media {
+        justify-content: flex-start;
     }
-}
-
-@keyframes heroSubtitleIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 0.9;
-        transform: translateY(0);
-    }
-}
-
-@keyframes heroActionsIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Réduction hauteur bannière */
-.hero {
-    max-height: 280px !important;
-}
-
-.btn-xs {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8125rem;
-    line-height: 1;
-}
-
-/* ===== Responsive bannière mobile : texte superposé sur l'image ===== */
-@media (max-width: 719px) {
-    /* Layout overlay : l'image remplit la bannière, le texte flotte par-dessus */
-    .hero.hero-modern {
-        max-height: none !important;
-        display: block;
-        border-radius: var(--rayon, 12px);
-    }
-
-    .hero.hero-modern .hero-media-wrap {
-        position: absolute;
-        inset: 0;
-        min-height: 0;
-        max-height: none;
-        overflow: hidden;
-        z-index: 1;
-    }
-
-    .hero.hero-modern .hero-media {
-        max-height: none !important;
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    /* Dégradé bas → haut pour lisibilité du texte sur l'image */
-    .hero.hero-modern .hero-media-overlay {
-        background: linear-gradient(
-            to top,
-            rgba(0, 0, 0, 0.74) 0%,
-            rgba(0, 0, 0, 0.40) 45%,
-            rgba(0, 0, 0, 0.08) 100%
-        );
-        z-index: 2;
-    }
-
-    /* Effets décoratifs au-dessus de l'overlay */
-    .hero.hero-modern .confetti-container,
-    .hero.hero-modern .stars-container,
-    .hero.hero-modern .glitter-container {
-        z-index: 3;
-    }
-
-    /* Contenu texte : positionné en bas avec flex, pleine largeur */
-    .hero.hero-modern .hero-content {
-        position: relative;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        min-height: 240px;
-        padding: 28px 20px !important;
-        gap: 10px !important;
-        text-align: left;
-    }
-
-    .hero.hero-modern .hero-title {
-        color: #ffffff !important;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-        font-size: 1.375rem !important; /* 22px */
-        line-height: 1.25;
-        margin-bottom: 4px !important;
-    }
-
-    .hero.hero-modern .hero-subtitle {
-        color: rgba(255, 255, 255, 0.93) !important;
-        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-        font-size: 0.9375rem !important; /* 15px */
-        line-height: 1.45;
-        margin-bottom: 0 !important;
-        opacity: 1;
-    }
-
-    /* Boutons bannière adaptés au tactile mobile */
-    .hero.hero-modern .hero-actions {
-        gap: 12px;
-    }
-
-    .hero.hero-modern .hero-btn {
-        padding: 0.625rem 1.25rem; /* 10px 20px */
-        font-size: 0.875rem;
-        min-height: 44px;
-        border-radius: var(--rayon, 12px);
-        color: #ffffff;
-        text-shadow: none;
-    }
-}
-
-/* Tablettes petites et grands mobiles */
-@media (max-width: 480px) {
-    .hero.hero-modern {
-        border-radius: var(--rayon-sm, 8px);
-    }
-
-    .hero.hero-modern .hero-content {
-        min-height: 210px;
-        padding: 24px 16px !important;
-    }
-
-    .hero.hero-modern .hero-title {
-        font-size: 1.25rem !important; /* 20px */
-    }
-
-    .hero.hero-modern .hero-subtitle {
-        font-size: 0.875rem !important; /* 14px */
-    }
-}
-
-/* Très petits écrans (< 380px) */
-@media (max-width: 380px) {
-    .hero.hero-modern .hero-content {
-        min-height: 190px;
-        padding: 20px 12px !important;
-    }
-
-    .hero.hero-modern .hero-title {
-        font-size: 1.125rem !important; /* 18px */
-    }
-
-    .hero.hero-modern .hero-subtitle {
-        font-size: 0.8125rem !important; /* 13px */
+    .organisateur-block {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 2rem 1.5rem;
     }
 }
 </style>
 
-<section class="section">
-    <h2 class="section-title">Accès rapide</h2>
-    <div class="quick-grid">
-        <a class="quick-card" href="{{ path('evenement.index') }}">
-            <div class="quick-title">Événements</div>
-            <div class="quick-meta">Voir le catalogue</div>
-        </a>
-        <a class="quick-card" href="{{ path('portefeuille.index') }}">
-            <div class="quick-title">Portefeuille</div>
-            <div class="quick-meta">Mes billets</div>
-        </a>
-        <a class="quick-card" href="{{ path('auth.login') }}">
-            <div class="quick-title">Compte</div>
-            <div class="quick-meta">Connexion / inscription</div>
-        </a>
+<section class="hero-apple">
+    <div class="hero-apple-text">
+        <h1>La façon moderne d’acheter vos billets au Tchad.</h1>
+        <p>TalChif simplifie l’achat et la validation des billets pour les concerts, soirées, matchs et événements près de chez vous.</p>
+        <div class="hero-apple-actions">
+            <a href="{{ path('evenement.index') }}" class="btn btn-primary">Voir les événements</a>
+            <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
+        </div>
+    </div>
+    <div class="hero-apple-media">
+        <div class="hero-apple-card">
+            <img src="/images/placeholders/banniere-home.jpg" alt="Aperçu d'événements TalChif">
+            <h2>Billets numériques sécurisés</h2>
+            <p>QR code, contrôle antifraude et validation en moins d’une seconde à l’entrée.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section lineup">
+    <h2 class="section-title">Découvrez les événements</h2>
+    <div class="lineup-grid">
+        <article class="lineup-card">
+            <h3>Événements à la une</h3>
+            <p>Une sélection d’événements populaires, choisis pour leur ambiance et leur qualité.</p>
+            <a href="{{ path('evenement.index') }}" class="btn btn-xs btn-primary">Voir la sélection</a>
+        </article>
+        <article class="lineup-card">
+            <h3>Concerts & soirées</h3>
+            <p>Clubbing, live, DJs, soirées privées : réservez vos places en quelques clics.</p>
+        </article>
+        <article class="lineup-card">
+            <h3>Sport & culture</h3>
+            <p>Matchs, compétitions, conférences, spectacles… tout ce qui fait vibrer votre ville.</p>
+        </article>
     </div>
 </section>
 
 <section class="section">
-    <h2 class="section-title">Recommandations</h2>
-    <div class="catalog">
+    <h2 class="section-title">Recommandations pour vous</h2>
+    <div class="apple-catalog">
         {% for evenement in evenements %}
-        <article class="product-card">
-            <a class="product-link" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
-                <div class="product-media">
-                    <img class="product-img" src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy" />
-                    <span class="product-badge">{{ evenement.badge }}</span>
-                </div>
-                <div class="product-body">
-                    <h3 class="product-title">{{ evenement.titre }}</h3>
-                    <div class="product-rating">
-                        {% if evenement.note is defined and evenement.note is not null %}
-                            <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
-                                <span class="stars-fill" style="width: {{ (evenement.note / 5 * 100)|round }}%"></span>
-                            </span>
-                            <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
-                        {% else %}
-                            <span class="product-rating-meta">— Pas encore de note</span>
-                        {% endif %}
+            <article class="apple-card">
+                <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="product-link">
+                    <img src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy">
+                    <div class="apple-card-title">{{ evenement.titre }}</div>
+                    <div class="apple-card-meta">
+                        {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
                     </div>
-                    <div class="product-price">À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong></div>
-                </div>
-            </a>
-        </article>
+                    <div class="apple-card-price">
+                        À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong>
+                    </div>
+                </a>
+            </article>
         {% else %}
-        <p class="text-center text-muted">Aucun événement disponible pour le moment.</p>
+            <p class="text-center text-muted">Aucun événement disponible pour le moment.</p>
         {% endfor %}
     </div>
     <div class="section-actions">
-        <a class="btn btn-primary" href="{{ path('evenement.index') }}">Voir tout</a>
+        <a class="btn btn-primary" href="{{ path('evenement.index') }}">Voir tous les événements</a>
     </div>
 </section>
 
-<script>
-// Confetti Animation
-document.addEventListener('DOMContentLoaded', function() {
-    const confettiContainer = document.getElementById('confetti-container');
-    const starsContainer = document.getElementById('stars-container');
-    const glitterContainer = document.getElementById('glitter-container');
-    if (!confettiContainer || !starsContainer || !glitterContainer) return;
-    
-    // Détection mobile pour réduire les animations (performance)
-    const estMobile = window.matchMedia('(max-width: 719px)').matches;
-    
-    // --- Confetti Animation ---
-    const confettiCount = estMobile ? 15 : 50;
-    const confettiElements = [];
-    
-    // Create confetti elements
-    for (let i = 0; i < confettiCount; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        
-        // Random starting position
-        const startX = Math.random() * 100;
-        const startDelay = Math.random() * 8; // Plus de variation dans les délais
-        
-        // Random animation duration for natural variation
-        const duration = 4 + Math.random() * 6; // 4-10 seconds pour plus de variation
-        const rotationSpeed = 0.5 + Math.random() * 1.5;
-        const bounceAmount = Math.random() * 20 - 10;
-        
-        confetti.style.left = startX + '%';
-        confetti.style.top = '-20px';
-        confetti.style.animationDelay = startDelay + 's';
-        confetti.style.animationDuration = duration + 's';
-        
-        // Add custom rotation and bounce
-        confetti.style.setProperty('--rotation-speed', rotationSpeed + 's');
-        confetti.style.setProperty('--bounce-amount', bounceAmount + 'px');
-        
-        // Random horizontal drift
-        const drift = (Math.random() - 0.5) * 40; // Plus de drift
-        confetti.style.setProperty('--drift-amount', drift + 'px');
-        
-        confettiContainer.appendChild(confetti);
-        confettiElements.push(confetti);
-    }
-    
-    // Enhanced animation with bounce and rotation variations
-    confettiElements.forEach((confetti, index) => {
-        const baseAnimation = confetti.style.animation;
-        const bounceAnimation = `confettiBounce ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 3}s infinite`;
-        confetti.style.animation = `${baseAnimation}, ${bounceAnimation}`;
-    });
-    
-    // Continuous regeneration - reset individual confetti when they finish
-    confettiElements.forEach((confetti, index) => {
-        const duration = parseFloat(confetti.style.animationDuration) * 1000;
-        const delay = parseFloat(confetti.style.animationDelay) * 1000;
-        const totalCycle = duration + delay;
-        
-        setInterval(() => {
-            // Réinitialiser l'animation individuelle
-            confetti.style.animation = 'none';
-            confetti.offsetHeight; // Trigger reflow
-            
-            // Nouvelles valeurs aléatoires pour la prochaine chute
-            const newStartX = Math.random() * 100;
-            const newDuration = 4 + Math.random() * 6;
-            const newDelay = Math.random() * 2;
-            const newDrift = (Math.random() - 0.5) * 40;
-            
-            confetti.style.left = newStartX + '%';
-            confetti.style.animationDuration = newDuration + 's';
-            confetti.style.animationDelay = newDelay + 's';
-            confetti.style.setProperty('--drift-amount', newDrift + 'px');
-            
-            // Restaurer l'animation
-            const bounceAnimation = `confettiBounce ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 3}s infinite`;
-            confetti.style.animation = `confettiFall ${newDuration}s linear ${newDelay}s infinite, confettiColor 3s ease-in-out infinite, ${bounceAnimation}`;
-        }, totalCycle);
-    });
-    
-    // --- Stars Animation ---
-    const starsCount = estMobile ? 8 : 25;
-    const starElements = [];
-    
-    // Create star elements
-    for (let i = 0; i < starsCount; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        
-        // Random position across the banner
-        const posX = Math.random() * 90 + 5; // 5% to 95% to avoid edges
-        const posY = Math.random() * 80 + 10; // 10% to 90% height
-        
-        star.style.left = posX + '%';
-        star.style.top = posY + '%';
-        
-        // Random size variation
-        const scale = 0.5 + Math.random() * 1; // 0.5x to 1.5x scale
-        star.style.transform = `rotate(35deg) scale(${scale})`;
-        
-        // Random animation delay for staggered twinkling
-        const twinkleDelay = Math.random() * 4;
-        const floatDelay = Math.random() * 6;
-        star.style.animationDelay = `${twinkleDelay}s, ${floatDelay}s`;
-        
-        starsContainer.appendChild(star);
-        starElements.push(star);
-    }
-    
-    // Continuous star regeneration with new positions
-    starElements.forEach((star, index) => {
-        setInterval(() => {
-            // New random position
-            const newPosX = Math.random() * 90 + 5;
-            const newPosY = Math.random() * 80 + 10;
-            const newScale = 0.5 + Math.random() * 1;
-            
-            star.style.left = newPosX + '%';
-            star.style.top = newPosY + '%';
-            star.style.transform = `rotate(35deg) scale(${newScale})`;
-            
-            // New animation delays
-            const newTwinkleDelay = Math.random() * 4;
-            const newFloatDelay = Math.random() * 6;
-            star.style.animationDelay = `${newTwinkleDelay}s, ${newFloatDelay}s`;
-        }, 8000 + Math.random() * 4000); // 8-12 seconds cycle
-    });
-    
-    // --- Glitter/Payettes Animation ---
-    const glitterCount = estMobile ? 18 : 60;
-    const glitterElements = [];
-    
-    // Create glitter elements
-    for (let i = 0; i < glitterCount; i++) {
-        const glitter = document.createElement('div');
-        glitter.className = 'glitter';
-        
-        // Random position across the banner
-        const posX = Math.random() * 95 + 2.5; // 2.5% to 97.5% to avoid edges
-        const posY = Math.random() * 85 + 7.5; // 7.5% to 92.5% height
-        
-        glitter.style.left = posX + '%';
-        glitter.style.top = posY + '%';
-        
-        // Random animation delays for staggered sparkling
-        const sparkleDelay = Math.random() * 2;
-        const floatDelay = Math.random() * 8;
-        glitter.style.animationDelay = `${sparkleDelay}s, ${floatDelay}s`;
-        
-        // Random opacity variation
-        const baseOpacity = 0.4 + Math.random() * 0.6; // 0.4 to 1.0
-        glitter.style.setProperty('--base-opacity', baseOpacity);
-        
-        glitterContainer.appendChild(glitter);
-        glitterElements.push(glitter);
-    }
-    
-    // Continuous glitter regeneration with new positions and properties
-    glitterElements.forEach((glitter, index) => {
-        setInterval(() => {
-            // New random position
-            const newPosX = Math.random() * 95 + 2.5;
-            const newPosY = Math.random() * 85 + 7.5;
-            
-            // New animation delays
-            const newSparkleDelay = Math.random() * 2;
-            const newFloatDelay = Math.random() * 8;
-            
-            // New opacity
-            const newBaseOpacity = 0.4 + Math.random() * 0.6;
-            
-            glitter.style.left = newPosX + '%';
-            glitter.style.top = newPosY + '%';
-            glitter.style.animationDelay = `${newSparkleDelay}s, ${newFloatDelay}s`;
-            glitter.style.setProperty('--base-opacity', newBaseOpacity);
-            
-            // Brief flash effect
-            glitter.style.filter = 'brightness(2)';
-            setTimeout(() => {
-                glitter.style.filter = 'brightness(1)';
-            }, 100);
-            
-        }, 6000 + Math.random() * 6000); // 6-12 seconds cycle
-    });
-});
-</script>
+<section class="section">
+    <h2 class="section-title">Pourquoi acheter avec TalChif&nbsp;?</h2>
+    <div class="why-grid">
+        <article class="why-card">
+            <h3>Paiement Mobile Money encadré</h3>
+            <p>Référence unique obligatoire, vérification manuelle des paiements et anti‑fraude intégré.</p>
+        </article>
+        <article class="why-card">
+            <h3>Billets QR sécurisés</h3>
+            <p>Chaque billet possède un QR code unique, utilisable une seule fois à l’entrée.</p>
+        </article>
+        <article class="why-card">
+            <h3>Support humain</h3>
+            <p>Support WhatsApp visible, et suivi des commandes dans votre espace personnel.</p>
+        </article>
+        <article class="why-card">
+            <h3>Dashboard organisateur</h3>
+            <p>Statistiques de ventes, commission transparente, statut de règlement par événement.</p>
+        </article>
+    </div>
+</section>
+
+<section class="section">
+    <div class="organisateur-block">
+        <div>
+            <h2>Pour les organisateurs</h2>
+            <p>TalChif vous aide à vendre plus et à garder le contrôle : vue globale des ventes, billets sécurisés, validation rapide à l’entrée.</p>
+            <ul>
+                <li>Suivi des ventes en temps réel</li>
+                <li>Commission fixe et claire</li>
+                <li>Statut de règlement par événement</li>
+            </ul>
+        </div>
+        <div>
+            <a href="{{ path('auth.register') }}" class="btn btn-primary">Devenir organisateur</a>
+        </div>
+    </div>
+</section>
+
+<!-- Effet 3D désactivé : carte statique -->
 {% endblock %}

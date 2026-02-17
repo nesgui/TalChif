@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="text-center">
-    <div class="success-icon">✅</div>
+    <div class="success-icon"></div>
     <h1 class="page-title">Paiement réussi !</h1>
     <p class="page-subtitle">Vos billets ont été générés avec succès</p>
 </div>
@@ -53,14 +53,14 @@
     <h2 class="card-title">Instructions importantes</h2>
     <div class="instructions">
         <div class="instruction-item">
-            <span class="instruction-icon">📱</span>
+            <span class="instruction-icon"></span>
             <div class="instruction-text">
                 <strong>Conservez vos QR codes</strong><br>
                 Présentez-les à l'entrée de l'événement
             </div>
         </div>
         <div class="instruction-item">
-            <span class="instruction-icon">🔒</span>
+            <span class="instruction-icon"></span>
             <div class="instruction-text">
                 <strong>Sécurité</strong><br>
                 Ne partagez jamais vos QR codes avec d'autres personnes
@@ -89,7 +89,7 @@
             <button class="modal-close" onclick="closeQRModal()">&times;</button>
         </div>
         <div class="modal-body text-center">
-            <div id="qrCodeDisplay"></div>
+        <div id="qrCodeDisplay"></div>
             <p class="qr-code-text"></p>
             <button class="btn btn-primary" onclick="downloadQR()">Télécharger</button>
         </div>
@@ -223,7 +223,6 @@ function showQRCode(qrCode) {
     
     // Aperçu du QR code
     display.innerHTML = `
-        <div style="font-size: 3rem;">🎫</div>
         <div style="font-size: 0.8rem; margin-top: 0.5rem;">QR Code</div>
     `;
     text.textContent = qrCode;

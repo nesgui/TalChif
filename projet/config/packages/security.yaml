@@ -32,13 +32,18 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/organisateur, roles: ROLE_ORGANISATEUR }
         - { path: ^/validation, roles: ROLE_ORGANISATEUR }
+        - { path: ^/api/organisateur, roles: ROLE_ORGANISATEUR }
+        - { path: ^/api/validation, roles: ROLE_ORGANISATEUR }
         - { path: ^/mes-billets, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/mes-commandes, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/evenements, roles: PUBLIC_ACCESS }
         - { path: ^/panier, roles: PUBLIC_ACCESS }
         - { path: ^/portefeuille, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/achat, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/commande, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/$, roles: PUBLIC_ACCESS }
 
 when@test:

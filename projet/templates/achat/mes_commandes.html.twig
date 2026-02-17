@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes commandes{% endblock %}
+
+{% block body %}
+<div class="commandes-header">
+    <h1 class="page-title">Mes commandes</h1>
+    <p class="page-subtitle">Suivez vos demandes d'achat et accédez à vos billets</p>
+</div>
+
+<div class="commandes-nav">
+    <a href="{{ path('portefeuille.index') }}" class="btn">Mon portefeuille</a>
+    <a href="{{ path('billet.index') }}" class="btn btn-primary">Mes billets</a>
+</div>
+
+{% if pending|length > 0 %}
+<section class="card commandes-section">
+    <h2 class="card-title">En attente de paiement ({{ pending|length }})</h2>
+    <p class="card-meta">Effectuez le transfert Mobile Money et mettez la référence dans le message</p>
+    <div class="commandes-list">
+        {% for c in pending %}
+        <div class="commande-item pending">
+            <div class="commande-info">
+                <strong>{{ c.reference }}</strong>
+                <span>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</span>
+                <span class="commande-meta">Expire à {{ c.dateExpiration|date('H:i') }} • {{ c.lignes|length }} ligne(s)</span>
+            </div>
+            <div class="commande-actions">
+                <a href="{{ path('achat.instructions', {reference: c.reference}) }}" class="btn btn-primary">
+                    Voir les instructions
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if paid|length > 0 %}
+<section class="card commandes-section">
+    <h2 class="card-title">Payées ({{ paid|length }})</h2>
+    <p class="card-meta">Vos billets sont disponibles</p>
+    <div class="commandes-list">
+        {% for c in paid %}
+        <div class="commande-item paid">
+            <div class="commande-info">
+                <strong>{{ c.reference }}</strong>
+                <span>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</span>
+                <span class="commande-meta">Validé le {{ c.dateValidation|date('d/m/Y H:i') }}</span>
+            </div>
+            <div class="commande-actions">
+                <a href="{{ path('achat.confirmation', {transactionId: c.reference}) }}" class="btn btn-primary">
+                    Voir mes billets
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if expired|length > 0 or rejected|length > 0 %}
+<section class="card commandes-section">
+    <h2 class="card-title">Historique</h2>
+    <p class="card-meta">Commandes expirées ou rejetées</p>
+    <div class="commandes-list">
+        {% for c in expired %}
+        <div class="commande-item expired">
+            <div class="commande-info">
+                <strong>{{ c.reference }}</strong>
+                <span>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</span>
+                <span class="commande-meta">Expirée</span>
+            </div>
+        </div>
+        {% endfor %}
+        {% for c in rejected %}
+        <div class="commande-item rejected">
+            <div class="commande-info">
+                <strong>{{ c.reference }}</strong>
+                <span>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</span>
+                <span class="commande-meta">Rejetée</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if pending|length == 0 and paid|length == 0 and expired|length == 0 and rejected|length == 0 %}
+<div class="card empty-state">
+    <p class="card-meta">Vous n'avez aucune commande.</p>
+    <a href="{{ path('evenement.index') }}" class="btn btn-primary">Découvrir les événements</a>
+</div>
+{% endif %}
+
+<style>
+.commandes-header { margin-bottom: 1.5rem; }
+.commandes-nav { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.commandes-section { margin-bottom: 2rem; }
+.commande-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: var(--rayon);
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-surface);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.commande-item.pending { border-left: 4px solid var(--couleur-warning); }
+.commande-item.paid { border-left: 4px solid var(--couleur-success); }
+.commande-item.expired, .commande-item.rejected { opacity: 0.8; border-left: 4px solid var(--couleur-texte-secondaire); }
+.commande-info { display: flex; flex-direction: column; gap: 0.25rem; }
+.commande-meta { font-size: 0.875rem; color: var(--couleur-texte-secondaire); }
+.empty-state { text-align: center; padding: 2rem; }
+</style>
+{% endblock %}

@@ -40,7 +40,7 @@
         <!-- Carte revenus -->
         <div class="stat-card revenue">
             <div class="stat-header">
-                <h3>💰 Revenus générés</h3>
+                <h3>Revenus générés</h3>
             </div>
             <div class="stat-content">
                 <div class="revenue-row">
@@ -60,7 +60,7 @@
         <!-- Carte types de billets -->
         <div class="stat-card ticket-types">
             <div class="stat-header">
-                <h3>🎫 Billets par type</h3>
+                <h3>Billets par type</h3>
             </div>
             <div class="stat-content">
                 <div class="ticket-type-row">
@@ -147,25 +147,25 @@
 }
 
 .back-link {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
 }
 
 .back-link:hover {
-    color: #3b82f6;
+    color: var(--couleur-primaire);
 }
 
 .event-info h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin: 0;
 }
 
 .event-meta {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
@@ -234,7 +234,7 @@
 
 .progress-fill {
     height: 100%;
-    background: #10b981;
+    background: var(--couleur-success);
     border-radius: 4px;
     transition: width 0.3s ease;
 }
@@ -290,11 +290,11 @@
 }
 
 .revenue-amount.gross {
-    color: #fbbf24;
+    color: var(--couleur-warning);
 }
 
 .revenue-amount.net {
-    color: #10b981;
+    color: var(--couleur-success);
 }
 
 .commission-info {
@@ -310,7 +310,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
 }
 
 .ticket-type-row:last-child {
@@ -350,18 +350,18 @@
 
 .percentage-fill {
     height: 100%;
-    background: #3b82f6;
+    background: var(--couleur-primaire);
     transition: width 0.3s ease;
 }
 
 .percentage-fill.vip {
-    background: #f59e0b;
+    background: var(--couleur-warning);
 }
 
 .percentage-text {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
 }
 
 .actions-section {
@@ -371,7 +371,7 @@
 .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--couleur-texte);
     margin-bottom: 1rem;
 }
 

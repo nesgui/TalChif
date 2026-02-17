@@ -62,7 +62,7 @@
             
             <div class="qr-body">
                 <div class="qr-code-container" data-qr="{{ billet.qrCode }}">
-                    <div class="qr-placeholder">📱</div>
+                    <div class="qr-placeholder"></div>
                 </div>
                 <div class="qr-details">
                     <p class="qr-code-text">{{ billet.qrCode }}</p>
@@ -85,9 +85,9 @@
                 <div class="status-info">
                     <span class="status-badge {{ billet.utilise ? 'used' : 'available' }}">
                         {% if billet.utilise %}
-                            ❌ Utilisé le {{ billet.dateUtilisation ? billet.dateUtilisation|date('d/m/Y H:i') : '' }}
+                            Utilisé le {{ billet.dateUtilisation ? billet.dateUtilisation|date('d/m/Y H:i') : '' }}
                         {% else %}
-                            ✅ Disponible
+                            Disponible
                         {% endif %}
                     </span>
                 </div>
@@ -95,7 +95,7 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <div class="empty-icon">📱</div>
+            <div class="empty-icon"></div>
             <h3>Aucun QR Code trouvé</h3>
             <p>Aucun billet n'a été vendu pour cet événement.</p>
         </div>
@@ -293,13 +293,13 @@
 }
 
 .ticket-type-badge.standard {
-    background: #dbeafe;
-    color: #1e40af;
+    background: color-mix(in srgb, var(--couleur-info, var(--couleur-primaire)) 15%, var(--couleur-surface));
+    color: var(--couleur-texte);
 }
 
 .ticket-type-badge.vip {
-    background: #fef3c7;
-    color: #d97706;
+    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface));
+    color: var(--couleur-texte);
 }
 
 .qr-body {
@@ -590,7 +590,7 @@ function initializeQRCodes() {
                 }
             }, function(error, canvas) {
                 if (error) {
-                    container.innerHTML = '<div class="qr-error">❌</div>';
+                    container.innerHTML = '<div class="qr-error"></div>';
                 } else {
                     container.innerHTML = '';
                     container.appendChild(canvas);

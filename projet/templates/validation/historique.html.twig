@@ -23,21 +23,21 @@
             {% if billets|length > 0 %}
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">✅</div>
+                    <div class="stat-icon"></div>
                         <div class="stat-content">
                             <h3>{{ billets|length }}</h3>
                             <p>Billets validés</p>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">📅</div>
+                    <div class="stat-icon"></div>
                         <div class="stat-content">
                             <h3>{{ "now"|date("d/m/Y") }}</h3>
                             <p>Aujourd'hui</p>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">💰</div>
+                    <div class="stat-icon"></div>
                         <div class="stat-content">
                             <h3>{{ billets|reduce((total, billet) => total + billet.prix, 0)|number_format(0, '.', ' ') }}</h3>
                             <p>Valeur totale (XAF)</p>

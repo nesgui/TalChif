@@ -11,11 +11,11 @@
                 <h1 class="event-title">{{ billet.evenement.nom }}</h1>
                 <div class="event-details">
                     <span class="detail-item">
-                        <span class="icon">📅</span>
+                        <span class="icon"></span>
                         {{ billet.evenement.dateEvenement|date('d F Y') }}
                     </span>
                     <span class="detail-item">
-                        <span class="icon">📍</span>
+                        <span class="icon"></span>
                         {{ billet.evenement.lieu }}
                     </span>
                 </div>
@@ -67,9 +67,9 @@
             <div class="footer-left">
                 <div class="status-badge {{ billet.isPaye() ? 'paid' : 'pending' }}">
                     {% if billet.isPaye() %}
-                        ✅ Payé
+                        Payé
                     {% else %}
-                        ⏳ En attente
+                        En attente
                     {% endif %}
                 </div>
             </div>
@@ -173,20 +173,20 @@
 
 .label {
     font-weight: 600;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
 }
 
 .value {
     font-weight: 500;
-    color: #1e293b;
+    color: var(--couleur-texte);
     text-align: right;
 }
 
 .ticket-price {
     text-align: center;
     padding: 1.5rem;
-    background: #f8fafc;
+    background: var(--couleur-surface);
     border-radius: 12px;
     margin-top: 1rem;
 }
@@ -195,14 +195,14 @@
     display: block;
     font-size: 2rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--couleur-texte);
     line-height: 1;
 }
 
 .price-currency {
     display: block;
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     margin-top: 0.25rem;
 }
 
@@ -219,8 +219,8 @@
 .qr-code {
     width: 160px;
     height: 160px;
-    background: white;
-    border: 2px solid #e2e8f0;
+    background: var(--couleur-surface);
+    border: 2px solid var(--couleur-bordure);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -230,7 +230,7 @@
 }
 
 .qr-loading {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 12px;
 }
 
@@ -242,7 +242,7 @@
     display: block;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     margin-bottom: 0.5rem;
     letter-spacing: 0.05em;
 }
@@ -276,17 +276,17 @@
 }
 
 .status-badge.paid {
-    background: #dcfce7;
-    color: #16a34a;
+    background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface));
+    color: var(--couleur-success);
 }
 
 .status-badge.pending {
-    background: #fef3c7;
-    color: #d97706;
+    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface));
+    color: var(--couleur-warning);
 }
 
 .footer-text {
-    color: #64748b;
+    color: var(--couleur-texte-secondaire);
     font-size: 0.875rem;
     font-style: italic;
 }
@@ -399,7 +399,7 @@ function generateQRCode() {
     }, function (error) {
         if (error) {
             console.error('Erreur génération QR Code:', error);
-            container.innerHTML = '<div class="qr-error">❌ Erreur</div>';
+            container.innerHTML = '<div class="qr-error">Erreur</div>';
         } else {
             console.log('QR Code généré avec succès');
         }

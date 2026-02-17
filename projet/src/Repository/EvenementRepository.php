@@ -58,6 +58,23 @@ class EvenementRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Événements passés dont l'organisateur n'a pas encore été payé.
+     */
+    public function findPastEventsNonPayes(): array
+    {
+        $now = new \DateTimeImmutable();
+        return $this->createQueryBuilder('e')
+            ->where('e.dateEvenement < :now')
+            ->andWhere('e.organisateurPaye = :false')
+            ->andWhere('e.placesVendues > 0')
+            ->setParameter('now', $now)
+            ->setParameter('false', false)
+            ->orderBy('e.dateEvenement', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findByOrganisateur(User $organisateur): array
     {
         return $this->findBy(['organisateur' => $organisateur], ['createdAt' => 'DESC']);

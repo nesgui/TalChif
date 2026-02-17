@@ -34,7 +34,7 @@
 
         <div class="stat-card success">
             <div class="stat-header">
-                <h3>🎫 Billets vendus</h3>
+                <h3>Billets vendus</h3>
             </div>
             <div class="stat-content">
                 <div class="big-number">
@@ -49,22 +49,25 @@
 
         <div class="stat-card revenue">
             <div class="stat-header">
-                <h3>💰 Revenus</h3>
+                <h3>Ventes</h3>
             </div>
             <div class="stat-content">
                 <div class="big-number">
                     <span class="number">{{ stats.total_revenus|number_format(0, '.', ' ') }}</span>
-                    <span class="label">XAF générés</span>
+                    <span class="label">FCFA (brut)</span>
                 </div>
                 <div class="trend-indicator">
-                    <span class="trend-text">Revenus totaux</span>
+                    <span class="trend-text">Commission plateforme : {{ stats.total_commission|number_format(0, '.', ' ') }} FCFA</span>
+                </div>
+                <div class="trend-indicator">
+                    <span class="trend-text">Solde à payer : {{ stats.solde_net|number_format(0, '.', ' ') }} FCFA</span>
                 </div>
             </div>
         </div>
 
         <div class="stat-card info">
             <div class="stat-header">
-                <h3>📅 À venir</h3>
+                <h3>À venir</h3>
             </div>
             <div class="stat-content">
                 <div class="big-number">
@@ -95,7 +98,7 @@
                         <img src="{{ evenement.affichePrincipale }}" alt="Affiche de l'événement : {{ evenement.nom }}" loading="lazy" />
                     {% else %}
                         <div class="event-placeholder">
-                            <span>📅</span>
+                            <span></span>
                         </div>
                     {% endif %}
                 </div>
@@ -105,24 +108,24 @@
                         <h3 class="event-title">{{ evenement.nom }}</h3>
                         <div class="event-status">
                             {% if evenement.isActive and evenement.isValide %}
-                                <span class="status-badge active">✅ Actif</span>
+                                <span class="status-badge active">Actif</span>
                             {% else %}
-                                <span class="status-badge inactive">⏸️ Inactif</span>
+                                <span class="status-badge inactive">Inactif</span>
                             {% endif %}
                         </div>
                     </div>
                     
                     <div class="event-meta">
                         <div class="meta-item">
-                            <span class="meta-icon">📅</span>
+                            <span class="meta-icon"></span>
                             <span class="meta-text">{{ evenement.dateEvenement|date('d/m/Y H:i') }}</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-icon">📍</span>
+                            <span class="meta-icon"></span>
                             <span class="meta-text">{{ evenement.lieu }}</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-icon">💰</span>
+                            <span class="meta-icon"></span>
                             <span class="meta-text">{{ evenement.prixSimple|number_format(0, '.', ' ') }} XAF</span>
                         </div>
                     </div>
@@ -137,7 +140,15 @@
                             <span class="stat-label">disponibles</span>
                         </div>
                     </div>
-                    
+
+                    <div class="reglement-status">
+                        {% if evenement.isOrganisateurPaye %}
+                            <span class="status-badge reglement-paid">Règlement effectué</span>
+                        {% else %}
+                            <span class="status-badge reglement-pending">Règlement en attente</span>
+                        {% endif %}
+                    </div>
+
                     <div class="event-actions">
                         <a href="{{ path('organisateur.evenement.stats', {id: evenement.id}) }}" class="btn btn-small btn-outline">Stats</a>
                         <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="btn btn-small btn-outline">Participants</a>
@@ -149,7 +160,7 @@
             </div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">📅</div>
+                <div class="empty-icon"></div>
                 <h3>Aucun événement</h3>
                 <p>Commencez par créer votre premier événement</p>
                 <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
@@ -175,6 +186,13 @@
                 <div class="action-content">
                     <h4>Scanner QR Codes</h4>
                     <p>Valider les billets à l'entrée</p>
+                </div>
+            </a>
+
+            <a href="{{ path('organisateur.reglements') }}" class="action-card">
+                <div class="action-content">
+                    <h4>Règlements</h4>
+                    <p>Voir les paiements effectués par la plateforme</p>
                 </div>
             </a>
         </div>
@@ -243,6 +261,20 @@
 
 .stat-card.info {
     background: var(--couleur-info);
+    color: var(--couleur-texte-inverse);
+}
+
+.reglement-status {
+    margin: var(--espace-md) 0;
+}
+
+.status-badge.reglement-paid {
+    background: var(--couleur-success);
+    color: var(--couleur-texte-inverse);
+}
+
+.status-badge.reglement-pending {
+    background: var(--couleur-warning);
     color: var(--couleur-texte-inverse);
 }
 

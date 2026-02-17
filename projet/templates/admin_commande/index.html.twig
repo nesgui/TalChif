@@ -1,0 +1,219 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Commandes & Validation paiements{% endblock %}
+
+{% block dashboard_title %}Commandes & validation Mobile Money{% endblock %}
+
+{% block dashboard_actions %}
+<a href="{{ path('admin.commande.export') }}" class="btn btn-secondary">Export CSV</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Validation manuelle des paiements Mobile Money.</p>
+
+<div class="admin-stats">
+    <div class="stat-card">
+        <span class="stat-label">Total encaissé</span>
+        <span class="stat-value">{{ totalEncaisse|number_format(0, '.', ' ') }} FCFA</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Total commission (10%)</span>
+        <span class="stat-value">{{ totalCommission|number_format(0, '.', ' ') }} FCFA</span>
+    </div>
+</div>
+
+<div class="admin-sections">
+    <section class="card">
+        <h2 class="card-title">Commandes Pending ({{ pending|length }})</h2>
+        <p class="card-meta">En attente de validation - Vérifier dashboard opérateur Mobile Money</p>
+        {% if pending|length > 0 %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Réf.</th>
+                        <th>Client</th>
+                        <th>Tél.</th>
+                        <th>Montant</th>
+                        <th>Expire</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in pending %}
+                    <tr>
+                        <td><code>{{ c.reference }}</code></td>
+                        <td>{{ c.client.email }}</td>
+                        <td>{{ c.numeroClient }}</td>
+                        <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                        <td>{{ c.dateExpiration|date('H:i') }}</td>
+                        <td>
+                            <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline validate-form">
+                                <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
+                                <input type="number" name="montant_recu" step="1" min="0" value="{{ c.montantTotal }}" required placeholder="Montant reçu">
+                                <input type="text" name="numero_expediteur" value="{{ c.numeroClient }}" required placeholder="Num. expéditeur">
+                                <button type="submit" class="btn btn-primary btn-sm">Valider</button>
+                            </form>
+                            <form method="post" action="{{ path('admin.commande.rejeter', {reference: c.reference}) }}" class="form-inline" onsubmit="return confirm('Rejeter cette commande ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('rejeter_' ~ c.reference) }}">
+                                <input type="text" name="raison" placeholder="Raison (optionnel)">
+                                <button type="submit" class="btn btn-error btn-sm">Rejeter</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="card-meta">Aucune commande en attente.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Commandes Paid</h2>
+        <p class="card-meta">{{ paid|length }} paiement(s) validé(s)</p>
+        {% if paid|length > 0 %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Réf.</th>
+                        <th>Client</th>
+                        <th>Montant</th>
+                        <th>Commission</th>
+                        <th>Validé par</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in paid %}
+                    <tr>
+                        <td><code>{{ c.reference }}</code></td>
+                        <td>{{ c.client.email }}</td>
+                        <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                        <td>{{ c.commissionPlateforme|number_format(0, '.', ' ') }} FCFA</td>
+                        <td>{{ c.validePar ? c.validePar.email : '-' }}</td>
+                        <td>{{ c.dateValidation ? c.dateValidation|date('d/m H:i') : '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="card-meta">Aucun paiement validé.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Paiements organisateurs</h2>
+        <p class="card-meta">Événements terminés - Valider après transfert Mobile Money</p>
+        {% if evenementsAPayer|length > 0 %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Événement</th>
+                        <th>Organisateur</th>
+                        <th>Tél.</th>
+                        <th>Ventes</th>
+                        <th>Solde net</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in evenementsAPayer %}
+                    {% set evt = item.evenement %}
+                    <tr>
+                        <td>{{ evt.nom }}</td>
+                        <td>{{ evt.organisateur ? evt.organisateur.email : '-' }}</td>
+                        <td>{{ evt.organisateur ? evt.organisateur.telephone : '-' }}</td>
+                        <td>{{ evt.placesVendues }} billets</td>
+                        <td>{{ item.soldeNet|number_format(0, '.', ' ') }} FCFA</td>
+                        <td>
+                            <form method="post" action="{{ path('admin.commande.settle', {id: evt.id}) }}" onsubmit="return confirm('Confirmer le règlement vers l\'organisateur ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('settle_' ~ evt.id) }}">
+                                <button type="submit" class="btn btn-primary btn-sm">Valider événement</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="card-meta">Aucun événement en attente de règlement.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Commandes Expired</h2>
+        <p class="card-meta">{{ expired|length }} commande(s) expirée(s)</p>
+        {% if expired|length > 0 %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Réf.</th>
+                        <th>Montant</th>
+                        <th>Date création</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in expired %}
+                    <tr>
+                        <td><code>{{ c.reference }}</code></td>
+                        <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                        <td>{{ c.createdAt|date('d/m/Y H:i') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Logs sécurité</h2>
+        <p class="card-meta">Historique des actions admin</p>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Réf.</th>
+                        <th>Détails</th>
+                        <th>Utilisateur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.createdAt|date('d/m H:i:s') }}</td>
+                        <td><span class="pill pill-{{ log.action starts with 'VALIDATION_OK' ? 'success' : (log.action starts with 'VALIDATION_' ? 'warning' : 'info') }}">{{ log.action }}</span></td>
+                        <td><code>{{ log.referenceCommande }}</code></td>
+                        <td>{{ log.details|default('-') }}</td>
+                        <td>{{ log.utilisateur ? log.utilisateur.email : '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<style>
+.admin-stats { display: flex; gap: 1rem; margin-bottom: 2rem; }
+.stat-card { flex: 1; padding: 1.5rem; background: var(--couleur-surface); border-radius: var(--rayon); border: 1px solid var(--couleur-bordure); }
+.stat-label { display: block; font-size: 0.875rem; color: var(--couleur-texte-secondaire); }
+.stat-value { font-size: 1.5rem; font-weight: 700; }
+.form-inline { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.25rem 0; }
+.form-inline input[type="number"],
+.form-inline input[type="text"] { max-width: 140px; padding: 0.25rem 0.5rem; }
+.btn-error { background: var(--couleur-error); color: white; }
+.table-responsive { overflow-x: auto; }
+</style>
+{% endblock %}

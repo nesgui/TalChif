@@ -61,26 +61,18 @@
                     <div class="payment-methods">
                         <label class="payment-method">
                             <input type="radio" name="methode_paiement" value="momo" checked required>
-                            <span class="payment-icon">📱</span>
+                            <span class="payment-icon"></span>
                             <div class="payment-info">
-                                <span class="payment-name">MoMo</span>
-                                <small>Mobile Money</small>
+                                <span class="payment-name">Moov Money</span>
+                                <small>Mobile Money (Moov)</small>
                             </div>
                         </label>
                         <label class="payment-method">
                             <input type="radio" name="methode_paiement" value="airtel" required>
-                            <span class="payment-icon">📱</span>
+                            <span class="payment-icon"></span>
                             <div class="payment-info">
                                 <span class="payment-name">Airtel Money</span>
                                 <small>Airtel Money</small>
-                            </div>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="methode_paiement" value="orange" required>
-                            <span class="payment-icon">📱</span>
-                            <div class="payment-info">
-                                <span class="payment-name">Orange Money</span>
-                                <small>Orange Money</small>
                             </div>
                         </label>
                     </div>
@@ -112,6 +104,16 @@
                     </tbody>
                 </table>
 
+                <div class="trust-section">
+                    <p class="trust-title">Sécurité & confiance</p>
+                    <div class="trust-badges">
+                        <span>Transaction vérifiée manuellement</span>
+                        <span>Référence unique obligatoire</span>
+                        <span>Billet garanti après validation</span>
+                    </div>
+                    <p class="support-whatsapp">Besoin d'aide ? <a href="https://wa.me/23563519678" target="_blank" rel="noopener">Support WhatsApp</a></p>
+                </div>
+
                 <div class="card-actions">
                     <button type="submit" class="btn btn-primary btn-large" onclick="return confirmPaiement()">
                         Confirmer le paiement
@@ -132,22 +134,6 @@
 </div>
 
 <style>
-.purchase-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.payment-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
 .payment-methods {
     display: grid;
     grid-template-columns: 1fr;
@@ -210,11 +196,23 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+.trust-section {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--couleur-success) 16%, var(--couleur-surface));
+    border: 1px solid var(--couleur-success);
+    border-radius: var(--rayon);
+}
+.trust-title { font-weight: 600; margin: 0 0 0.5rem 0; }
+.trust-badges { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; color: var(--couleur-texte); }
+.support-whatsapp { margin-top: 0.75rem; font-size: 0.9rem; }
+.support-whatsapp a { color: var(--couleur-primaire); }
+
 .auth-required {
     text-align: center;
     padding: 2rem;
-    background: #fef3c7;
-    border: 1px solid #f59e0b;
+    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-fond));
+    border: 1px solid var(--couleur-warning);
     border-radius: var(--rayon);
 }
 

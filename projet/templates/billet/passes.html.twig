@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="tickets-header">
-    <h1 class="page-title">⏰ Billets Passés</h1>
+<h1 class="page-title">Billets Passés</h1>
     <p class="page-subtitle">Vos événements terminés</p>
 </div>
 
@@ -13,10 +13,10 @@
         📋 Tous les billets
     </a>
     <a href="{{ path('billet.avenir') }}" class="nav-btn">
-        📅 À venir
+        À venir
     </a>
     <a href="{{ path('billet.passes') }}" class="nav-btn active">
-        ⏰ Passés
+        Passés
     </a>
 </div>
 
@@ -49,7 +49,7 @@
                     <div class="ticket-summary">
                         <div class="ticket-qr">
                             <div class="qr-code {{ billet.isUtilise() ? 'used' : '' }}">
-                                {{ billet.isUtilise() ? '❌' : '🎫' }}
+                                {{ billet.isUtilise() ? 'Utilisé' : 'Valide' }}
                                 <small>{{ billet.isUtilise() ? 'Utilisé' : 'QR' }}</small>
                             </div>
                             <div class="qr-text">{{ billet.qrCode }}</div>
@@ -66,7 +66,7 @@
                     <div class="ticket-actions">
                         {% if not billet.isUtilise() %}
                             <div class="not-used-notice">
-                                <small>⚠️ Billet non utilisé</small>
+                                <small>Billet non utilisé</small>
                             </div>
                         {% endif %}
                         
@@ -88,7 +88,7 @@
     </div>
 {% else %}
     <div class="empty-tickets">
-        <div class="empty-icon">⏰</div>
+        <div class="empty-icon"></div>
         <h3>Aucun billet passé</h3>
         <p>Vous n'avez pas participé à des événements passés</p>
         <div class="card-actions">
@@ -345,7 +345,7 @@
 function copyQRCode(qrCode) {
     navigator.clipboard.writeText(qrCode).then(() => {
         const notification = document.createElement('div');
-        notification.textContent = '📋 QR Code copié !';
+        notification.textContent = 'QR Code copié !';
         notification.style.cssText = `
             position: fixed;
             top: 20px;

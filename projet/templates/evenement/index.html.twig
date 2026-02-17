@@ -5,62 +5,171 @@
 {% block meta_description %}Parcourez notre catalogue d'événements au Tchad. Trouvez votre prochain concert, festival ou soirée et réservez vos billets en ligne.{% endblock %}
 
 {% block body %}
-<h1 class="page-title">Événements</h1>
-<p class="page-subtitle">Découvrez les événements disponibles et réservez vos billets.</p>
+<style id="evenements-apple-style">
+.catalog-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.catalog-header {
+    padding: 1.5rem 0 1rem;
+}
+.catalog-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.25rem;
+}
+.catalog-header p {
+    margin: 0;
+    color: var(--couleur-texte-secondaire);
+}
+.catalog-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0 1.5rem;
+    border-bottom: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+.toolbar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.toolbar-title {
+    font-size: 0.95rem;
+    color: var(--couleur-texte-secondaire);
+}
+.toolbar-count {
+    font-size: 0.95rem;
+}
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.toolbar-right select {
+    min-width: 190px;
+}
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.75rem;
+}
+.catalog-card {
+    background: var(--couleur-surface);
+    border-radius: 18px;
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    padding: 1.25rem 1.25rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.catalog-card img {
+    border-radius: 12px;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+.catalog-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.catalog-card-meta {
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
+}
+.catalog-card-price {
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+}
+.catalog-card-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.catalog-card-actions .btn {
+    width: 100%;
+    justify-content: center;
+}
+@media (max-width: 600px) {
+    .catalog-toolbar {
+        align-items: flex-start;
+    }
+    .toolbar-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+</style>
 
-<div class="catalog">
-    {% for evenement in evenements %}
-        {% set has_note = evenement.note is defined and evenement.note is not null %}
-        {% set largeur_note = has_note ? (evenement.note / 5) * 100 : 0 %}
-        <article class="product-card">
-            <a class="product-link" href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
-                <div class="product-media">
-                    <img class="product-img" src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy" />
-                    {% if evenement.badge %}
-                        <span class="product-badge">{{ evenement.badge }}</span>
-                    {% endif %}
-                </div>
+<section class="catalog-page">
+    <header class="catalog-header">
+        <h1>Événements</h1>
+        <p>Parcourez tous les événements disponibles et réservez vos billets en ligne.</p>
+    </header>
 
-                <div class="product-body">
-                    <h2 class="product-title">{{ evenement.titre }}</h2>
-                    <div class="product-meta">
-                        <span class="pill">{{ evenement.ville }}</span>
-                        <span class="pill">{{ evenement.date }}</span>
-                    </div>
+    <div class="catalog-toolbar">
+        <div class="toolbar-left">
+            <span class="toolbar-title">Tout le catalogue</span>
+            <span class="toolbar-count">{{ evenements|length }} événement(s)</span>
+        </div>
+        <div class="toolbar-right">
+            <label for="tri" class="sr-only">Trier par</label>
+            <span style="font-size: 0.9rem; color: var(--couleur-texte-secondaire);">Trier par</span>
+            <select id="tri" class="form-select">
+                <option>Recommandés</option>
+                <option>Date la plus proche</option>
+                <option>Prix croissant</option>
+                <option>Prix décroissant</option>
+            </select>
+        </div>
+    </div>
 
-                    <div class="product-rating">
+    {% if evenements|length > 0 %}
+        <div class="catalog-grid">
+            {% for evenement in evenements %}
+                {% set has_note = evenement.note is defined and evenement.note is not null %}
+                {% set largeur_note = has_note ? (evenement.note / 5) * 100 : 0 %}
+                <article class="catalog-card">
+                    <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="product-link">
+                        <img src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy">
+                        <div class="catalog-card-title">{{ evenement.titre }}</div>
+                        <div class="catalog-card-meta">
+                            {{ evenement.ville }} • {{ evenement.date }}
+                        </div>
                         {% if has_note %}
-                            <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
-                                <span class="stars-fill" style="width: {{ largeur_note }}%"></span>
-                            </span>
-                            <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
-                        {% else %}
-                            <span class="product-rating-meta" aria-hidden="true">— Pas encore de note</span>
+                            <div class="product-rating" style="margin-top: 0.3rem;">
+                                <span class="stars" aria-label="Note {{ evenement.note }} sur 5">
+                                    <span class="stars-fill" style="width: {{ largeur_note }}%"></span>
+                                </span>
+                                <span class="product-rating-meta">{{ evenement.note }} ({{ evenement.avis }})</span>
+                            </div>
                         {% endif %}
+                        <div class="catalog-card-price">
+                            À partir de <strong>{{ evenement.prix_min }} XAF</strong>
+                        </div>
+                    </a>
+                    <div class="catalog-card-actions">
+                        <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-secondary">Voir les détails</a>
+                        <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" data-controller="loading">
+                            <input type="hidden" name="quantite" value="1" />
+                            <input type="hidden" name="redirect" value="precedent" />
+                            <button class="btn btn-primary" type="submit" data-loading-target="submitButton">Ajouter au panier</button>
+                        </form>
                     </div>
-
-                    <div class="product-price">À partir de <strong>{{ evenement.prix_min }} XAF</strong></div>
-
-                    <div class="product-actions">
-                        <span class="btn">Détails</span>
-                        <span class="btn btn-primary">Acheter</span>
-                    </div>
-                </div>
-            </a>
-
-            <div class="product-actions" style="padding: 0 12px 12px;">
-                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" style="width: 100%;" data-controller="loading">
-                    <input type="hidden" name="quantite" value="1" />
-                    <input type="hidden" name="redirect" value="precedent" />
-                    <button class="btn" type="submit" style="width: 100%; justify-content: center;" data-loading-target="submitButton">Ajouter au panier</button>
-                </form>
-            </div>
-        </article>
+                </article>
+            {% endfor %}
+        </div>
     {% else %}
         <div class="card">
             <h2 class="card-title">Aucun événement</h2>
             <p class="card-meta">La liste est vide pour le moment.</p>
         </div>
-    {% endfor %}
-</div>
+    {% endif %}
+</section>
 {% endblock %}

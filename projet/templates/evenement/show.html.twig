@@ -19,28 +19,23 @@
             <img class="product-hero-img" src="{{ evenement.image ?: '/images/placeholders/banniere-home.svg' }}" alt="Affiche principale de l'événement : {{ evenement.titre }}" />
         </div>
 
-        {# Colonne centrale : informations principales (résumé) #}
+        {# Colonne centrale : informations principales (résumé, façon fiche produit Apple) #}
         <div class="product-hero-body">
             <h1 class="page-title">{{ evenement.titre }}</h1>
             <p class="page-subtitle">
-                <span class="pill">{{ evenement.date|date('d/m/Y H:i') }}</span>
-                <span class="pill">{{ evenement.lieu }}</span>
-                <span class="pill">{{ evenement.ville }}</span>
+                {{ evenement.date|date('d/m/Y H:i') }} • {{ evenement.lieu }}, {{ evenement.ville }}
             </p>
 
-            {# Résumé court directement sous le titre (comme sur une fiche produit) #}
+            {# Résumé court directement sous le titre #}
             <p class="card-meta">
-                <strong>Description :</strong>
-                {{ evenement.description }}
+                {{ evenement.description|striptags|slice(0, 220) ~ (evenement.description|length > 220 ? '…' : '') }}
             </p>
+
             <p class="card-meta">
-                <strong>Billets disponibles :</strong>
-                Gestion complète des types de billets et réservations.
-            </p>
-            <p class="card-meta">
-                <strong>Types disponibles :</strong>
-                {{ evenement.types_billets is defined ? evenement.types_billets|length : 2 }}
-                — <strong>Places totales :</strong> {{ evenement.places_total }}
+                <strong>À propos de l’événement</strong><br>
+                Types de billets : {{ evenement.types_billets is defined ? evenement.types_billets|length : 2 }}&nbsp;
+                · Places totales : {{ evenement.places_total }}&nbsp;
+                · Places restantes : {{ evenement.places_disponibles }}
             </p>
         </div>
 
@@ -84,6 +79,33 @@
             </div>
         </aside>
     </div>
+    {% if evenement.types_billets is defined and evenement.types_billets|length > 0 %}
+    <section class="card" style="margin-top: 1.5rem;">
+        <h2 class="card-title">Choisissez votre type de billet</h2>
+        <div class="ticket-options-grid">
+            {% for type in evenement.types_billets %}
+                <div class="ticket-option">
+                    <div class="ticket-option-header">
+                        <span class="ticket-option-name">
+                            {{ type.code == 'VIP' ? 'Billet VIP' : 'Billet simple' }}
+                        </span>
+                        <span class="ticket-option-price">
+                            {{ type.prix|number_format(0, '.', ' ') }} XAF
+                        </span>
+                    </div>
+                    <p class="ticket-option-meta">
+                        {{ type.code == 'VIP'
+                            ? 'Accès privilégié et expérience améliorée (selon l’organisateur).'
+                            : 'Accès standard à l’événement.' }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+        <p class="card-meta" style="margin-top: 0.75rem;">
+            Vous pourrez sélectionner le type de billet et la quantité à l’étape d’achat.
+        </p>
+    </section>
+    {% endif %}
 
     <div class="grid product-details-grid">
 
@@ -166,6 +188,38 @@
         </section>
     </div>
 </section>
+
+<style>
+.ticket-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.ticket-option {
+    border-radius: var(--rayon);
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    padding: 0.9rem 1rem;
+    background: var(--couleur-surface);
+}
+.ticket-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+.ticket-option-name {
+    font-weight: 600;
+}
+.ticket-option-price {
+    font-weight: 600;
+}
+.ticket-option-meta {
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
+    margin: 0;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
