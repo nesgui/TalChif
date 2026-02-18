@@ -219,6 +219,20 @@
     color: var(--couleur-texte-secondaire);
     margin: 0;
 }
+
+/* Harmoniser la hauteur des cards de la grille de détails */
+.product-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+}
+
+.product-details-grid > .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 </style>
 
 <script>

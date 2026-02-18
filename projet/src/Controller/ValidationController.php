@@ -154,9 +154,8 @@ final class ValidationController extends AbstractController
             ], 400);
         }
 
-        // Marquer le billet comme utilisé (date + utilisateur ayant validé)
-        $billet->setUtilise(true);
-        $billet->setDateUtilisation($now);
+        // Marquer le billet comme utilisé (un scan = billet utilisé, non réutilisable)
+        $billet->marquerCommeUtilise();
         $billet->setValidePar($this->getUser());
 
         $this->entityManager->flush();

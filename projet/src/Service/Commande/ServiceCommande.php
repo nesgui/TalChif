@@ -55,11 +55,17 @@ final class ServiceCommande
 
     /**
      * Crée une commande en statut Pending Payment.
+     * Le numéro client est validé (format Tchad 235 XX XX XX XX) avant création.
      *
      * @param array<int, int> $panier [id_evenement => quantite]
      */
     public function creerCommande(array $panier, User $client, string $methodePaiement, string $numeroClient): Commande
     {
+        $numeroClient = trim($numeroClient);
+        if (!$this->numeroClientValide($numeroClient)) {
+            throw new \RuntimeException('Format du numéro de téléphone invalide. Utilisez un numéro tchadien : 235 XX XX XX XX (8 chiffres après 235).');
+        }
+
         $this->entityManager->beginTransaction();
         try {
             $total = 0.0;
@@ -248,6 +254,15 @@ final class ServiceCommande
     private function normaliserNumero(string $numero): string
     {
         return preg_replace('/\D/', '', $numero);
+    }
+
+    /**
+     * Vérifie que le numéro est un format Tchad valide (235 + 8 chiffres).
+     */
+    private function numeroClientValide(string $numero): bool
+    {
+        $cleaned = $this->normaliserNumero($numero);
+        return preg_match('/^235\d{8}$/', $cleaned) === 1;
     }
 
     private function log(string $action, ?string $ref, ?string $details, ?User $user = null): void
