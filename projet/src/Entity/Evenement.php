@@ -93,12 +93,16 @@ class Evenement
     #[ORM\OneToMany(mappedBy: 'evenement', targetEntity: Billet::class, cascade: ['persist', 'remove'])]
     private Collection $billets;
 
+    #[ORM\OneToMany(mappedBy: 'evenement', targetEntity: TicketDesign::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $ticketDesigns;
+
     #[ORM\Column(type: 'boolean')]
     private bool $organisateurPaye = false;
 
     public function __construct()
     {
         $this->billets = new ArrayCollection();
+        $this->ticketDesigns = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -359,6 +363,35 @@ class Evenement
             // set the owning side to null (unless already changed)
             if ($billet->getEvenement() === $this) {
                 $billet->setEvenement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TicketDesign>
+     */
+    public function getTicketDesigns(): Collection
+    {
+        return $this->ticketDesigns;
+    }
+
+    public function addTicketDesign(TicketDesign $ticketDesign): static
+    {
+        if (!$this->ticketDesigns->contains($ticketDesign)) {
+            $this->ticketDesigns->add($ticketDesign);
+            $ticketDesign->setEvenement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicketDesign(TicketDesign $ticketDesign): static
+    {
+        if ($this->ticketDesigns->removeElement($ticketDesign)) {
+            if ($ticketDesign->getEvenement() === $this) {
+                $ticketDesign->setEvenement(null);
             }
         }
 

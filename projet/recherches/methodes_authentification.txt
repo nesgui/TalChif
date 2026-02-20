@@ -1,0 +1,73 @@
+MÉTHODES D’AUTHENTIFICATION (état actuel du projet)
+
+1) Où sont stockés les comptes ?
+- Table/entité: App\Entity\User (src/Entity/User.php)
+- Champs clés:
+  - email (identifiant de connexion)
+  - password (hash du mot de passe)
+  - role (rôle “métier”): CLIENT | ORGANISATEUR | ADMIN
+  - roles (array): présent en DB mais, dans ce projet, la “source de vérité” est surtout role
+  - actif (bool): permet de bloquer la connexion
+  - isVerified (bool): présent mais pas encore utilisé en blocage (inscription le met à false)
+
+2) Quels types de comptes existent et comment ils sont représentés ?
+- Compte “user” = CLIENT (dans le code, c’est la valeur role='CLIENT')
+- Compte “organisateur” = ORGANISATEUR (role='ORGANISATEUR')
+- Compte “admin” = ADMIN (role='ADMIN')
+
+Symfony Security (les permissions réelles) ne se base pas directement sur role, mais sur getRoles().
+Dans User::getRoles():
+- Retourne toujours ['ROLE_USER', 'ROLE_' + role]
+  Exemples:
+  - CLIENT -> ROLE_CLIENT
+  - ORGANISATEUR -> ROLE_ORGANISATEUR
+  - ADMIN -> ROLE_ADMIN
+
+3) Comment les comptes sont créés actuellement ?
+
+3.1) Inscription publique (création CLIENT)
+Fichier: src/Controller/AuthController.php
+Route: /inscription (auth.register)
+Procédure:
+- Crée un new User()
+- Formulaire: UserType (avec option include_password=true)
+- Vérifie que password == password_confirm
+- Hash du mot de passe via UserPasswordHasherInterface
+- Fixe le rôle métier à CLIENT:
+  $user->setRole('CLIENT');
+- Fixe isVerified à false (pas d’email de vérification encore)
+- Sauvegarde en base via UserRepository
+
+Conséquence:
+- Toute personne qui s’inscrit via /inscription devient CLIENT.
+
+
+
+Important:
+- Dans l’entité User, setRoles() s’attend à recevoir des rôles Symfony (ex: ROLE_ADMIN). Or ici le code lui passe une valeur métier (ex: 'ADMIN').
+- Mais ce bug est partiellement “masqué” car getRoles() ne lit pas $this->roles; il reconstruit les rôles depuis $this->role.
+- Donc l’accès fonctionne surtout grâce à $this->role.
+
+5.2) Corriger la confusion role vs roles
+Problème:
+- Le projet mélange:
+  - role (métier): CLIENT/ORGANISATEUR/ADMIN
+  - roles (Symfony): ROLE_CLIENT/ROLE_ORGANISATEUR/ROLE_ADMIN
+
+
+Inconvénients / risques:
+- Confusion role vs roles (source d’erreurs)
+- isVerified non appliqué (inscription potentiellement “non vérifiée” mais utilisable)
+- Si un dev met role à une valeur inattendue, getRoles() générera un ROLE_XXXX
+
+
+Production (recommandations):
+- Forcer HTTPS (reverse proxy / serveur web)
+- Activer l’email de vérification pour les comptes importants (organisateurs)
+- Mettre des politiques de mot de passe (longueur min, etc.)
+- Ajouter une limitation de tentatives (login throttling) si pas déjà activée
+- Ne pas permettre la création ORGANISATEUR libre sans validation (anti-fraude)
+- Éventuellement 2FA pour ADMIN
+
+CREER UN ADMIN LOCAL
+php bin/console app:create-admin admin@gmail.com "Admin1234!"

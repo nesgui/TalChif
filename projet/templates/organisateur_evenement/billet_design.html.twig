@@ -1,0 +1,201 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block title %}Design billet - {{ evenement.nom }}{% endblock %}
+
+{% block dashboard_title %}Design billet - {{ evenement.nom }}{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}">Retour</a>
+{% endblock %}
+
+{% block dashboard_content %}
+    {% include 'partials/flashes.html.twig' %}
+
+    <form method="post" enctype="multipart/form-data" class="auth-form">
+        <div class="grid" style="grid-template-columns: 1fr; gap: var(--espace-lg);">
+            <section class="card">
+                <h2 class="card-title">Design billet</h2>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="typeBillet">Type billet</label>
+                    <select class="auth-input" id="typeBillet" name="typeBillet">
+                        <option value="SIMPLE" {% if typeBillet == 'SIMPLE' %}selected{% endif %}>SIMPLE</option>
+                        <option value="VIP" {% if typeBillet == 'VIP' %}selected{% endif %}>VIP</option>
+                    </select>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="designPng">Upload PNG</label>
+                    <input class="file-input" type="file" id="designPng" name="designPng" accept="image/png" />
+                    {% if ticketDesign.designPath %}
+                        <p class="mt-2"><small>Design actuel : </small> <a href="{{ ticketDesign.designPath }}" target="_blank">ouvrir</a></p>
+                        <p><small>Taille : {{ ticketDesign.designWidth }} x {{ ticketDesign.designHeight }}</small></p>
+                    {% endif %}
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="mode">Mode QR</label>
+                    <select class="auth-input" id="mode" name="mode">
+                        <option value="manual" selected>Mode A - Rectangle</option>
+                        <option value="auto">Mode B - Détection marqueur</option>
+                    </select>
+                </div>
+
+                <div class="auth-form-group" id="marker-color-group" style="display:none;">
+                    <label class="auth-label" for="markerColor">Couleur marqueur</label>
+                    <input class="auth-input" type="text" id="markerColor" name="markerColor" value="{{ ticketDesign.markerColor ?? '#0d1321' }}" />
+                    <small class="form-help">Hex attendu (ex: #0d1321). Le carré de cette couleur doit être là où tu veux le QR.</small>
+                </div>
+
+                <input type="hidden" name="qrX" id="qrX" value="{{ ticketDesign.qrX ?? '' }}">
+                <input type="hidden" name="qrY" id="qrY" value="{{ ticketDesign.qrY ?? '' }}">
+                <input type="hidden" name="qrW" id="qrW" value="{{ ticketDesign.qrW ?? '' }}">
+                <input type="hidden" name="qrH" id="qrH" value="{{ ticketDesign.qrH ?? '' }}">
+
+                <div class="card-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </section>
+
+            <section class="card" id="preview-card" {% if not ticketDesign.designPath %}style="display:none;"{% endif %}>
+                <h2 class="card-title">Prévisualisation & zone QR (Mode A)</h2>
+
+                <div id="preview-container" style="position:relative; display:inline-block; max-width: 100%;">
+                    {% if ticketDesign.designPath %}
+                        <img id="design-preview" src="{{ ticketDesign.designPath }}" alt="Design billet" style="max-width:100%; height:auto; display:block;" />
+                    {% endif %}
+                    <div id="qr-rect" style="position:absolute; border:2px dashed #ff3b30; display:none; pointer-events:none;"></div>
+                </div>
+
+                <p class="page-subtitle" style="margin-top: var(--espace-md);">
+                    Clique-glisse sur l’image pour définir le rectangle.
+                </p>
+            </section>
+        </div>
+    </form>
+
+    <script>
+    (function () {
+        const modeSelect = document.getElementById('mode');
+        const markerGroup = document.getElementById('marker-color-group');
+        const previewCard = document.getElementById('preview-card');
+        const img = document.getElementById('design-preview');
+        const rect = document.getElementById('qr-rect');
+
+        const inputX = document.getElementById('qrX');
+        const inputY = document.getElementById('qrY');
+        const inputW = document.getElementById('qrW');
+        const inputH = document.getElementById('qrH');
+
+        function updateModeUi() {
+            const mode = modeSelect.value;
+            const isManual = mode === 'manual';
+            markerGroup.style.display = isManual ? 'none' : 'block';
+            if (previewCard) {
+                previewCard.style.display = isManual ? '' : 'none';
+            }
+        }
+
+        modeSelect.addEventListener('change', updateModeUi);
+        updateModeUi();
+
+        if (!img || !rect) {
+            return;
+        }
+
+        let isDown = false;
+        let startX = 0;
+        let startY = 0;
+
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+        }
+
+        function getRelativePos(e) {
+            const bounds = img.getBoundingClientRect();
+            const x = clamp(e.clientX - bounds.left, 0, bounds.width);
+            const y = clamp(e.clientY - bounds.top, 0, bounds.height);
+            return { x, y, bounds };
+        }
+
+        img.addEventListener('mousedown', function (e) {
+            isDown = true;
+            const pos = getRelativePos(e);
+            startX = pos.x;
+            startY = pos.y;
+            rect.style.display = 'block';
+            rect.style.left = startX + 'px';
+            rect.style.top = startY + 'px';
+            rect.style.width = '0px';
+            rect.style.height = '0px';
+        });
+
+        window.addEventListener('mousemove', function (e) {
+            if (!isDown) return;
+            const pos = getRelativePos(e);
+            const x1 = Math.min(startX, pos.x);
+            const y1 = Math.min(startY, pos.y);
+            const x2 = Math.max(startX, pos.x);
+            const y2 = Math.max(startY, pos.y);
+            rect.style.left = x1 + 'px';
+            rect.style.top = y1 + 'px';
+            rect.style.width = (x2 - x1) + 'px';
+            rect.style.height = (y2 - y1) + 'px';
+        });
+
+        window.addEventListener('mouseup', function (e) {
+            if (!isDown) return;
+            isDown = false;
+
+            const bounds = img.getBoundingClientRect();
+            const leftPx = parseFloat(rect.style.left || '0');
+            const topPx = parseFloat(rect.style.top || '0');
+            const widthPx = parseFloat(rect.style.width || '0');
+            const heightPx = parseFloat(rect.style.height || '0');
+
+            const naturalW = img.naturalWidth;
+            const naturalH = img.naturalHeight;
+
+            const scaleX = naturalW / bounds.width;
+            const scaleY = naturalH / bounds.height;
+
+            const x = Math.round(leftPx * scaleX);
+            const y = Math.round(topPx * scaleY);
+            const w = Math.round(widthPx * scaleX);
+            const h = Math.round(heightPx * scaleY);
+
+            inputX.value = x;
+            inputY.value = y;
+            inputW.value = w;
+            inputH.value = h;
+        });
+
+        // If existing zone, draw it.
+        window.addEventListener('load', function () {
+            const x = parseInt(inputX.value || '', 10);
+            const y = parseInt(inputY.value || '', 10);
+            const w = parseInt(inputW.value || '', 10);
+            const h = parseInt(inputH.value || '', 10);
+
+            if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+                return;
+            }
+
+            const bounds = img.getBoundingClientRect();
+            const naturalW = img.naturalWidth;
+            const naturalH = img.naturalHeight;
+
+            const scaleX = bounds.width / naturalW;
+            const scaleY = bounds.height / naturalH;
+
+            rect.style.display = 'block';
+            rect.style.left = Math.round(x * scaleX) + 'px';
+            rect.style.top = Math.round(y * scaleY) + 'px';
+            rect.style.width = Math.round(w * scaleX) + 'px';
+            rect.style.height = Math.round(h * scaleY) + 'px';
+        });
+    })();
+    </script>
+{% endblock %}

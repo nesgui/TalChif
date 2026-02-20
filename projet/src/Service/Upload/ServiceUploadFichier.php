@@ -31,6 +31,7 @@ final class ServiceUploadFichier
     /** Sous-dossiers publics pour les uploads */
     private const DOSSIER_EVENEMENTS = 'evenements';
     private const DOSSIER_BILLETS = 'billets';
+    private const DOSSIER_TICKET_DESIGNS = 'ticket-designs';
 
     public function __construct(
         private SluggerInterface $slugger,
@@ -74,6 +75,26 @@ final class ServiceUploadFichier
         return $this->uploaderImageEvenement($fichier, self::DOSSIER_BILLETS);
     }
 
+    public function uploaderTicketDesignPng(UploadedFile $fichier): string
+    {
+        $this->validerFichierPngUniquement($fichier);
+
+        $nomSecurise = $this->genererNomSecurise($fichier);
+        $repertoireCible = $this->repertoireProjet . '/public/images/' . self::DOSSIER_TICKET_DESIGNS;
+
+        if (!is_dir($repertoireCible)) {
+            mkdir($repertoireCible, 0755, true);
+        }
+
+        try {
+            $fichier->move($repertoireCible, $nomSecurise);
+        } catch (FileException $e) {
+            throw new FileException('Échec de l\'enregistrement du fichier : ' . $e->getMessage());
+        }
+
+        return '/images/' . self::DOSSIER_TICKET_DESIGNS . '/' . $nomSecurise;
+    }
+
     /**
      * Vérifie le type MIME réel et la taille du fichier.
      */
@@ -96,6 +117,24 @@ final class ServiceUploadFichier
             throw new FileException(
                 'Le fichier ne doit pas dépasser 5 Mo.'
             );
+        }
+    }
+
+    private function validerFichierPngUniquement(UploadedFile $fichier): void
+    {
+        $chemin = $fichier->getPathname();
+        if (!is_readable($chemin)) {
+            throw new FileException('Fichier illisible.');
+        }
+
+        $typeMime = mime_content_type($chemin) ?: '';
+        if ($typeMime !== 'image/png') {
+            throw new FileException('Type de fichier non autorisé. Utilisez une image PNG.');
+        }
+
+        $taille = $fichier->getSize();
+        if ($taille > self::TAILLE_MAX_OCTETS) {
+            throw new FileException('Le fichier ne doit pas dépasser 5 Mo.');
         }
     }
 

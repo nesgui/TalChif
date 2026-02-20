@@ -60,6 +60,9 @@ class Billet
     #[ORM\Column(length: 50)]
     private ?string $statutPaiement = 'EN_ATTENTE'; // EN_ATTENTE, PAYE, REMBOURSE
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $renderedPngPath = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -217,6 +220,18 @@ class Billet
     public function setStatutPaiement(string $statutPaiement): static
     {
         $this->statutPaiement = $statutPaiement;
+
+        return $this;
+    }
+
+    public function getRenderedPngPath(): ?string
+    {
+        return $this->renderedPngPath;
+    }
+
+    public function setRenderedPngPath(?string $renderedPngPath): static
+    {
+        $this->renderedPngPath = $renderedPngPath;
 
         return $this;
     }
