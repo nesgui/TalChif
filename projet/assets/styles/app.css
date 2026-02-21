@@ -8,8 +8,8 @@
     --palette-dark-blue: #1D3557;
 
     /* Couleurs de fond (hiérarchie visuelle) */
-    --couleur-fond: var(--palette-light-green);
-    --couleur-surface: var(--palette-light-blue);
+    --couleur-fond: #ffffff;
+    --couleur-surface: color-mix(in srgb, var(--palette-light-green) 20%, #ffffff);
     --couleur-surface-elevee: #ffffff;
     --couleur-bordure: color-mix(in srgb, var(--palette-dark-blue) 25%, var(--palette-light-blue));
     --couleur-bordure-subtile: color-mix(in srgb, var(--palette-light-blue) 80%, var(--palette-light-green));
@@ -21,11 +21,11 @@
     --couleur-texte-inverse: #ffffff;
 
     /* Primaire = actions principales, CTAs (#E63946) */
-    --couleur-primaire: var(--palette-primary-red);
-    --couleur-primaire-hover: #c92a37;
-    --couleur-primaire-active: #b02430;
-    --couleur-primaire-clair: color-mix(in srgb, var(--palette-primary-red) 18%, var(--palette-light-green));
-    --couleur-primaire-fonce: var(--palette-primary-red);
+    --couleur-primaire: var(--palette-dark-blue);
+    --couleur-primaire-hover: #162a45;
+    --couleur-primaire-active: #102036;
+    --couleur-primaire-clair: color-mix(in srgb, var(--palette-dark-blue) 15%, #ffffff);
+    --couleur-primaire-fonce: var(--palette-dark-blue);
 
     /* Secondaire = icônes, boutons secondaires, hover (#457B9D) */
     --couleur-secondaire: var(--palette-medium-blue);
@@ -80,13 +80,13 @@ html[data-theme="dark"] {
     --couleur-texte: var(--palette-light-green);
     --couleur-texte-secondaire: var(--palette-light-blue);
     --couleur-texte-tertiaire: var(--palette-medium-blue);
-    --couleur-texte-inverse: var(--palette-dark-blue);
+    --couleur-texte-inverse: #ffffff;
 
-    --couleur-primaire: var(--palette-primary-red);
-    --couleur-primaire-hover: #f0505d;
-    --couleur-primaire-active: #ff6b78;
-    --couleur-primaire-clair: color-mix(in srgb, var(--palette-primary-red) 30%, var(--palette-dark-blue));
-    --couleur-primaire-fonce: var(--palette-primary-red);
+    --couleur-primaire: var(--palette-dark-blue);
+    --couleur-primaire-hover: color-mix(in srgb, var(--palette-medium-blue) 65%, var(--palette-dark-blue));
+    --couleur-primaire-active: color-mix(in srgb, var(--palette-medium-blue) 45%, var(--palette-dark-blue));
+    --couleur-primaire-clair: color-mix(in srgb, var(--palette-medium-blue) 25%, transparent);
+    --couleur-primaire-fonce: var(--palette-dark-blue);
 
     --couleur-secondaire: var(--palette-medium-blue);
     --couleur-secondaire-hover: var(--palette-light-blue);
@@ -562,7 +562,7 @@ html[data-theme="dark"] .auth-theme-toggle:hover {
     border-top: 1px solid var(--couleur-bordure);
     backdrop-filter: blur(10px);
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     gap: 6px;
 }
 

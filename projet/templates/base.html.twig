@@ -205,15 +205,6 @@
                     <span class="public-tab-label">Mon compte</span>
                 </a>
                 {% else %}
-                <a class="public-tab" href="{{ path('evenement.index') }}" {% if app.request.attributes.get('_route') starts with 'evenement.' %}aria-current="page"{% endif %}>
-                    <span class="public-tab-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                    </span>
-                    <span class="public-tab-label">Recherche</span>
-                </a>
                 <a class="public-tab" href="{{ path('auth.login') }}" {% if app.request.attributes.get('_route') starts with 'auth.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

@@ -1,51 +1,12 @@
 /* Global Form Styles - Reuse auth input design across all forms */
 
-/* Dark Theme Variables */
-html[data-theme="dark"] {
-    --couleur-primaire: #4dabf7;
-    --couleur-secondaire: #69db7c;
-    --couleur-accent: #ffd43b;
-    --couleur-fond: #1a1a1a;
-    --couleur-surface: #2d2d2d;
-    --couleur-surface-elevee: #404040;
-    --couleur-texte: #ffffff;
-    --couleur-texte-secondaire: #b0b0b0;
-    --couleur-texte-tertiaire: #808080;
-    --couleur-texte-inverse: #000000;
-    --couleur-bordure: #555555;
-    --couleur-error: #ff6b6b;
-    --couleur-success: #51cf66;
-    --couleur-warning: #ffd43b;
-    --palette-light-blue: #1e3a8a;
-    --palette-dark-blue: #60a5fa;
-    --palette-light-green: #14532d;
-    --palette-dark-green: #4ade80;
-}
-
-/* Light Theme Variables (Default) */
-html:not([data-theme="dark"]) {
-    --couleur-primaire: #0066cc;
-    --couleur-secondaire: #28a745;
+/* Auth Container - Full screen centered layout */
+.auth-container {
     --couleur-accent: #ffc107;
-    --couleur-fond: #ffffff;
-    --couleur-surface: #f8f9fa;
-    --couleur-surface-elevee: #ffffff;
-    --couleur-texte: #333333;
-    --couleur-texte-secondaire: #666666;
-    --couleur-texte-tertiaire: #999999;
-    --couleur-texte-inverse: #ffffff;
-    --couleur-bordure: #e0e0e0;
-    --couleur-error: #dc3545;
-    --couleur-success: #28a745;
-    --couleur-warning: #ffc107;
     --palette-light-blue: #e3f2fd;
     --palette-dark-blue: #1976d2;
     --palette-light-green: #e8f5e8;
     --palette-dark-green: #388e3c;
-}
-
-/* Auth Container - Full screen centered layout */
-.auth-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -53,6 +14,14 @@ html:not([data-theme="dark"]) {
     padding: var(--espace-lg);
     position: relative;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html[data-theme="dark"] .auth-container {
+    --couleur-accent: #ffd43b;
+    --palette-light-blue: #1e3a8a;
+    --palette-dark-blue: #60a5fa;
+    --palette-light-green: #14532d;
+    --palette-dark-green: #4ade80;
 }
 
 /* Auth Background - Subtle gradient like Microsoft */
