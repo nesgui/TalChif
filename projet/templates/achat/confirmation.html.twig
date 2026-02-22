@@ -13,7 +13,7 @@
     <h2 class="card-title">Détails de la transaction</h2>
     <p class="card-meta">Transaction ID: {{ transactionId }}</p>
     
-    <table class="table">
+    <table class="table" id="achat-confirmation-billets-table">
         <thead>
             <tr>
                 <th>Événement</th>
@@ -246,6 +246,21 @@ function downloadQR() {
 document.getElementById('qrModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeQRModal();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    if (document.querySelector('#achat-confirmation-billets-table')) {
+        DataTableOS.init('#achat-confirmation-billets-table', {
+            paging: false,
+            searching: false,
+            info: false,
+            order: [],
+        });
     }
 });
 </script>

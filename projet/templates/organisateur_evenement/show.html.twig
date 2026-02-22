@@ -32,7 +32,13 @@
             </div>
         {% endif %}
         
-        <table class="table">
+        <table class="table" id="organisateur-evenement-infos-table">
+            <thead>
+                <tr>
+                    <th>Champ</th>
+                    <th>Valeur</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
                     <th>Nom</th>
@@ -70,7 +76,13 @@
     
     <section class="card">
         <h2 class="card-title">Billets et prix</h2>
-        <table class="table">
+        <table class="table" id="organisateur-evenement-billets-table">
+            <thead>
+                <tr>
+                    <th>Champ</th>
+                    <th>Valeur</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
                     <th>Places disponibles</th>
@@ -94,4 +106,30 @@
         </table>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    if (document.querySelector('#organisateur-evenement-infos-table')) {
+        DataTableOS.init('#organisateur-evenement-infos-table', {
+            paging: false,
+            searching: false,
+            info: false,
+            order: [],
+        });
+    }
+
+    if (document.querySelector('#organisateur-evenement-billets-table')) {
+        DataTableOS.init('#organisateur-evenement-billets-table', {
+            paging: false,
+            searching: false,
+            info: false,
+            order: [],
+        });
+    }
+});
+</script>
 {% endblock %}

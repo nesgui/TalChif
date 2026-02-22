@@ -74,7 +74,13 @@
         <aside class="card">
             <h2 class="card-title">Récapitulatif</h2>
             
-            <table class="table">
+            <table class="table" id="panier-recap-table">
+                <thead>
+                    <tr>
+                        <th>Libellé</th>
+                        <th>Valeur</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
                         <th>Sous-total</th>
@@ -418,5 +424,20 @@ function updateQuantite(id, currentQuantite, change, maxQuantite) {
     document.body.appendChild(form);
     form.submit();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    if (document.querySelector('#panier-recap-table')) {
+        DataTableOS.init('#panier-recap-table', {
+            paging: false,
+            searching: false,
+            info: false,
+            order: [],
+        });
+    }
+});
 </script>
 {% endblock %}

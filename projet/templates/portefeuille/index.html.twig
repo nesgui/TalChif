@@ -10,7 +10,13 @@
         
         <div class="user-info">
             <h2>Informations du compte</h2>
-            <table class="table">
+            <table class="table" id="portefeuille-compte-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Valeur</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
                         <th>Email</th>
@@ -63,4 +69,21 @@
         </div>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    if (document.querySelector('#portefeuille-compte-table')) {
+        DataTableOS.init('#portefeuille-compte-table', {
+            paging: false,
+            searching: false,
+            info: false,
+            order: [],
+        });
+    }
+});
+</script>
 {% endblock %}

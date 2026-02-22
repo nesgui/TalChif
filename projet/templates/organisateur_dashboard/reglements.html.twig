@@ -17,7 +17,7 @@
         <section class="card">
             <h2 class="card-title">Règlements effectués ({{ reglements|length }})</h2>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" id="reglements-table">
                     <thead>
                         <tr>
                             <th>Événement</th>
@@ -55,5 +55,19 @@
         </section>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    if (document.querySelector('#reglements-table')) {
+        DataTableOS.init('#reglements-table', {
+            order: [[3, 'desc']],
+        });
+    }
+});
+</script>
 {% endblock %}
 

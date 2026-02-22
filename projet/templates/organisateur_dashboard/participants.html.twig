@@ -49,7 +49,7 @@
     <!-- Tableau des participants -->
     <div class="table-container">
         <div class="table-wrapper">
-            <table class="participants-table">
+            <table class="participants-table" id="participants-table">
                 <thead>
                     <tr>
                         <th>Nom complet</th>
@@ -132,30 +132,6 @@
             </table>
         </div>
     </div>
-
-    <!-- Pagination -->
-    {% if totalPages > 1 %}
-    <div class="pagination">
-        {% if currentPage > 1 %}
-            <a href="{{ path('organisateur.evenement.participants', {id: evenement.id, page: currentPage - 1}) }}" class="page-link">←</a>
-        {% endif %}
-        
-        {% set startPage = max(1, currentPage - 2) %}
-        {% set endPage = min(totalPages, currentPage + 2) %}
-        
-        {% for page in startPage..endPage %}
-            {% if page == currentPage %}
-                <span class="page-current">{{ page }}</span>
-            {% else %}
-                <a href="{{ path('organisateur.evenement.participants', {id: evenement.id, page: page}) }}" class="page-link">{{ page }}</a>
-            {% endif %}
-        {% endfor %}
-        
-        {% if currentPage < totalPages %}
-            <a href="{{ path('organisateur.evenement.participants', {id: evenement.id, page: currentPage + 1}) }}" class="page-link">→</a>
-        {% endif %}
-    </div>
-    {% endif %}
 
     <!-- Modal QR Code -->
     <div id="qrModal" class="modal" style="display: none;">
@@ -598,44 +574,51 @@
 </style>
 
 <script>
-// Fonctions de recherche et filtrage
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    const tableEl = document.querySelector('#participants-table');
+    if (!tableEl) {
+        return;
+    }
+
+    const dt = DataTableOS.init('#participants-table', {
+        order: [[4, 'desc']],
+        columnDefs: [
+            { targets: [7], orderable: false }
+        ]
+    });
+
+    if (!dt) {
+        return;
+    }
+
     const searchInput = document.getElementById('search');
     const typeFilter = document.getElementById('type-filter');
     const statusFilter = document.getElementById('status-filter');
-    const rows = document.querySelectorAll('.participant-row');
 
-    function filterTable() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const typeValue = typeFilter.value;
-        const statusValue = statusFilter.value;
-
-        rows.forEach(row => {
-            const name = row.dataset.name;
-            const email = row.dataset.email;
-            const type = row.dataset.type;
-            
-            let showRow = true;
-
-            // Filtrage par recherche
-            if (searchTerm && !name.includes(searchTerm) && !email.includes(searchTerm)) {
-                showRow = false;
-            }
-
-            // Filtrage par type
-            if (typeValue && type !== typeValue) {
-                showRow = false;
-            }
-
-            // Filtrage par statut (à implémenter avec les données réelles)
-            
-            row.style.display = showRow ? '' : 'none';
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            dt.search(this.value).draw();
         });
     }
 
-    searchInput.addEventListener('input', filterTable);
-    typeFilter.addEventListener('change', filterTable);
-    statusFilter.addEventListener('change', filterTable);
+    if (typeFilter) {
+        typeFilter.addEventListener('change', function() {
+            const val = (this.value || '').toUpperCase();
+            dt.column(2).search(val).draw();
+        });
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            const val = this.value;
+            dt.column(5).search(val === 'paid' ? 'Payé' : '').draw();
+            dt.column(6).search(val === 'used' ? 'Utilisé' : '').draw();
+        });
+    }
 });
 
 function viewQRCode(qrCode) {

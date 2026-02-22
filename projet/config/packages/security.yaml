@@ -21,7 +21,7 @@ security:
             form_login:
                 login_path: auth.login
                 check_path: auth.login
-                default_target_path: portefeuille.index
+                success_handler: App\Security\LoginSuccessHandler
                 username_parameter: email
                 password_parameter: password
             logout:

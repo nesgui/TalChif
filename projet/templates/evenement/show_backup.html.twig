@@ -144,18 +144,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser DataTables pour les billets
     if (typeof DataTableOS !== 'undefined') {
-        DataTableOS.init('#tickets-table', {
-            order: [[1, 'asc']], // Tri par prix (croissant)
-            columns: [
-                { width: '80px', orderable: false },
-                null,
-                { width: '100px' },
-                { width: '120px', orderable: false },
-                { width: '150px', orderable: false }
-            ]
-        });
+        if (document.querySelector('#tickets-table')) {
+            DataTableOS.init('#tickets-table', {
+                order: [[1, 'asc']], // Tri par prix (croissant)
+                columns: [
+                    { width: '80px', orderable: false },
+                    null,
+                    { width: '100px' },
+                    { width: '120px', orderable: false },
+                    { width: '150px', orderable: false }
+                ]
+            });
+        }
 
         // Initialiser DataTables pour les réservations
         DataTableOS.init('#reservations-table', {

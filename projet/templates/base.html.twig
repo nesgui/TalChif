@@ -63,10 +63,12 @@
         <link rel="dns-prefetch" href="https://cdn.datatables.net">
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
-            <link rel="stylesheet" href="{{ asset('styles/notifications.css') }}">
-            <link rel="stylesheet" href="{{ asset('styles/tailwind-forms.css') }}">
-            <link rel="stylesheet" href="{{ asset('styles/datatables.css') }}">
-            <link rel="stylesheet" href="{{ asset('styles/buttons-uniform.css') }}">
+
+            {% if section is defined and section == 'admin' %}
+                <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
+            {% elseif section is defined and section == 'organisateur' %}
+                <link rel="stylesheet" href="{{ asset('styles/organisateur.css') }}">
+            {% endif %}
         {% endblock %}
 
         {% block javascripts %}

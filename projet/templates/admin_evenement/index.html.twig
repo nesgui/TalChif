@@ -10,7 +10,7 @@
 <p class="page-subtitle">Liste globale des événements publiés.</p>
 
 <div class="card">
-    <table class="table">
+    <table class="table" id="admin-evenements-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -38,4 +38,21 @@
         </tbody>
     </table>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+
+    if (document.querySelector('#admin-evenements-table')) {
+        DataTableOS.init('#admin-evenements-table', {
+            order: [[0, 'asc']],
+            columnDefs: [
+                { targets: [4], orderable: false }
+            ]
+        });
+    }
+});
+</script>
 {% endblock %}

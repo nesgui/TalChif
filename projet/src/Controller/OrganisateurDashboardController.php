@@ -119,19 +119,12 @@ final class OrganisateurDashboardController extends AbstractController
     {
         $this->denyAccessUnlessGranted('EDIT', $evenement);
 
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = 50;
-        $offset = ($page - 1) * $limit;
-
-        $participants = $this->billetRepository->findParticipantsByEvenement($evenement, $limit, $offset);
-        $totalParticipants = $this->billetRepository->countSoldByEvenement($evenement);
-        $totalPages = ceil($totalParticipants / $limit);
+        $participants = $this->billetRepository->findParticipantsByEvenement($evenement, null, null);
+        $totalParticipants = count($participants);
 
         return $this->render('organisateur_dashboard/participants.html.twig', [
             'evenement' => $evenement,
             'participants' => $participants,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
             'totalParticipants' => $totalParticipants
         ]);
     }

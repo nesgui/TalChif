@@ -201,17 +201,25 @@ class BilletRepository extends ServiceEntityRepository
         return (int) ($brut * (1 - $this->commissionTaux));
     }
 
-    public function findParticipantsByEvenement(Evenement $evenement, int $limit = 50, int $offset = 0): array
+    public function findParticipantsByEvenement(Evenement $evenement, ?int $limit = 50, ?int $offset = 0): array
     {
-        return $this->createQueryBuilder('b')
+        $qb = $this->createQueryBuilder('b')
             ->join('b.client', 'c')
             ->where('b.evenement = :evenement')
             ->andWhere('b.statutPaiement = :paid')
             ->setParameter('evenement', $evenement)
             ->setParameter('paid', 'PAYE')
-            ->orderBy('c.nom', 'ASC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
+            ->orderBy('c.nom', 'ASC');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        if ($offset !== null) {
+            $qb->setFirstResult($offset);
+        }
+
+        return $qb
             ->getQuery()
             ->getResult();
     }
