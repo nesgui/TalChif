@@ -92,8 +92,9 @@
 
 .apple-catalog {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, 280px);
     gap: 1.25rem;
+    justify-content: start;
 }
 .apple-card {
     background: var(--couleur-surface);
@@ -118,15 +119,31 @@
     position: relative;
     border-radius: 14px;
     overflow: hidden;
-    background: var(--couleur-surface);
+    background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--event-dominant, rgba(0,0,0,0.18)) 45%, transparent) 0%, var(--couleur-surface) 62%);
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--event-dominant, rgba(0,0,0,0.25)) 42%, transparent);
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+}
+
+.apple-card-media::after {
+    content: '';
+    position: absolute;
+    inset: -18%;
+    background: radial-gradient(closest-side at 50% 40%, color-mix(in srgb, var(--event-dominant, rgba(0,0,0,0.22)) 55%, transparent) 0%, transparent 70%);
+    filter: blur(22px);
+    opacity: 0.95;
+    pointer-events: none;
 }
 
 .apple-card-media img {
     width: 100%;
-    aspect-ratio: 16 / 9;
-    height: auto;
-    object-fit: cover;
+    height: 100%;
+    object-fit: contain;
     display: block;
+    position: relative;
+    z-index: 1;
+    transform: scale(0.98);
 }
 
 .event-badge {
@@ -303,7 +320,7 @@
             <article class="apple-card">
                 <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="product-link" style="text-decoration:none; color:inherit;">
                     <div class="apple-card-media">
-                        <img src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy">
+                        <img src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy" data-dominant-color>
                         {% if evenement.badge %}
                             <span class="event-badge {{ evenement.badge == 'Complet' ? 'is-full' : '' }}">{{ evenement.badge }}</span>
                         {% endif %}
@@ -332,46 +349,75 @@
     </div>
 </section>
 
-<section class="section">
-    <h2 class="section-title">Pourquoi acheter avec TalChif&nbsp;?</h2>
-    <div class="why-grid">
-        <article class="why-card">
-            <h3>Paiement Mobile Money encadré</h3>
-            <p>Référence unique obligatoire, vérification manuelle des paiements et anti‑fraude intégré.</p>
-        </article>
-        <article class="why-card">
-            <h3>Billets QR sécurisés</h3>
-            <p>Chaque billet possède un QR code unique, utilisable une seule fois à l’entrée.</p>
-        </article>
-        <article class="why-card">
-            <h3>Support humain</h3>
-            <p>Support WhatsApp visible, et suivi des commandes dans votre espace personnel.</p>
-        </article>
-        <article class="why-card">
-            <h3>Dashboard organisateur</h3>
-            <p>Statistiques de ventes, commission transparente, statut de règlement par événement.</p>
-        </article>
-    </div>
-</section>
+<script>
+(function() {
+    function computeDominantColor(img) {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return null;
 
-<section class="section">
-    <div class="organisateur-block">
-        <div>
-            <h2>Pour les organisateurs</h2>
-            <p>TalChif vous aide à vendre plus et à garder le contrôle : vue globale des ventes, billets sécurisés, validation rapide à l’entrée.</p>
-            <ul>
-                <li>Suivi des ventes en temps réel</li>
-                <li>Commission fixe et claire</li>
-                <li>Statut de règlement par événement</li>
-            </ul>
-        </div>
-        <div>
-            <a href="https://wa.me/23563519678" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                Devenir organisateur
-            </a>
-        </div>
-    </div>
-</section>
+        var w = 32;
+        var h = 32;
+        canvas.width = w;
+        canvas.height = h;
+
+        ctx.drawImage(img, 0, 0, w, h);
+        var data = ctx.getImageData(0, 0, w, h).data;
+
+        var r = 0, g = 0, b = 0, count = 0;
+        for (var i = 0; i < data.length; i += 4) {
+            var a = data[i + 3];
+            if (a < 40) continue;
+
+            var rr = data[i];
+            var gg = data[i + 1];
+            var bb = data[i + 2];
+
+            if (rr > 245 && gg > 245 && bb > 245) continue;
+            if (rr < 10 && gg < 10 && bb < 10) continue;
+
+            r += rr;
+            g += gg;
+            b += bb;
+            count++;
+        }
+
+        if (!count) return null;
+        r = Math.round(r / count);
+        g = Math.round(g / count);
+        b = Math.round(b / count);
+        return 'rgb(' + r + ' ' + g + ' ' + b + ')';
+    }
+
+    function apply(img) {
+        try {
+            var color = computeDominantColor(img);
+            if (!color) return;
+            var media = img.closest('.apple-card-media');
+            if (!media) return;
+            media.style.setProperty('--event-dominant', color);
+        } catch (e) {
+            return;
+        }
+    }
+
+    function init() {
+        document.querySelectorAll('img[data-dominant-color]').forEach(function(img) {
+            if (img.complete && img.naturalWidth) {
+                apply(img);
+            } else {
+                img.addEventListener('load', function() { apply(img); }, { once: true });
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
 
 <!-- Effet 3D désactivé : carte statique -->
 {% endblock %}

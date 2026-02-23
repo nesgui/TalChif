@@ -209,17 +209,56 @@
                     <span class="public-tab-label">Mon compte</span>
                 </a>
                 {% else %}
-                <a class="public-tab" href="{{ path('auth.login') }}" {% if app.request.attributes.get('_route') starts with 'auth.' %}aria-current="page"{% endif %}>
+                <a class="public-tab public-me-trigger" href="{{ path('public.me') }}" aria-haspopup="menu" aria-expanded="false" {% if app.request.attributes.get('_route') starts with 'public.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20 21a8 8 0 0 0-16 0" />
                             <circle cx="12" cy="8" r="4" />
                         </svg>
                     </span>
-                    <span class="public-tab-label">Connexion</span>
+                    <span class="public-tab-label">Moi</span>
                 </a>
                 {% endif %}
             </nav>
+
+            {% if not app.user %}
+                <div class="public-me-dropdown" id="public-me-dropdown" role="menu" aria-hidden="true">
+                    <div class="public-me-dropdown-head">
+                        <div class="public-me-dropdown-title">Veuillez vous connecter</div>
+                        <a class="btn btn-xs btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
+                    </div>
+                    <div class="public-me-dropdown-list">
+                        <a class="public-me-dropdown-item" role="menuitem" href="{{ path('public.devenir_organisateur') }}">
+                            <span class="public-me-dropdown-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20" />
+                                    <path d="M2 12h20" />
+                                </svg>
+                            </span>
+                            <span>Devenir Organisateur</span>
+                        </a>
+                        <a class="public-me-dropdown-item" role="menuitem" href="{{ path('public.infos') }}">
+                            <span class="public-me-dropdown-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 16v-4" />
+                                    <path d="M12 8h.01" />
+                                </svg>
+                            </span>
+                            <span>Plus d'informations</span>
+                        </a>
+                        <a class="public-me-dropdown-item" role="menuitem" href="{{ path('public.a_propos') }}">
+                            <span class="public-me-dropdown-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                                </svg>
+                            </span>
+                            <span>A propos de nous</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
         {% endblock %}
 
         {% block site_main %}
