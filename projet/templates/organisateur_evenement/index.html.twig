@@ -63,20 +63,21 @@
                         </td>
                         <td>{{ evenement.placesVendues }}/{{ evenement.placesDisponibles }}</td>
                         <td>
-                            <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-sm btn-primary">Voir</a>
-                            <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
-                            
-                            {% if evenement.isActive and evenement.isValide %}
-                                <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'deactivate'}) }}" style="display: inline;">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Désactiver cet événement ?')">Désactiver</button>
-                                </form>
-                            {% else %}
-                                <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'activate'}) }}" style="display: inline;">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Activer cet événement ?')">Activer</button>
-                                </form>
-                            {% endif %}
+                            <div class="actions-cell">
+                                <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                                <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
+                                {% if evenement.isActive and evenement.isValide %}
+                                    <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'deactivate'}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Désactiver cet événement ?')">Désactiver</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'activate'}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Activer cet événement ?')">Activer</button>
+                                    </form>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
@@ -142,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 null,
                 null,
                 { width: '100px' },
-                { width: '150px', orderable: false }
+                { width: '180px', orderable: false }
             ]
         });
     }
