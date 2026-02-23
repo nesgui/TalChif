@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import des styles personnalisés TalChif */
+@import './app.css';

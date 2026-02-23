@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,8 @@
             <script src="{{ asset('services/auth_service.js') }}" defer></script>
             <!-- Load services via importmap to prevent module errors -->
             <script type="module" src="{{ asset('services/notification_service.js') }}"></script>
+            <!-- Load Stimulus controllers -->
+            <script type="module" src="{{ asset('assets/controllers/theme_controller.js') }}"></script>
         {% endblock %}
     </head>
     <body>
@@ -37,7 +39,10 @@
                                 <span>Retour</span>
                             </a>
                         </div>
-                        <button class="auth-theme-toggle" id="theme-toggle" aria-label="Basculer le thème">
+                        <button class="auth-theme-toggle" id="theme-toggle" 
+                        data-controller="theme" 
+                        data-action="click->theme#toggle" 
+                        aria-label="Basculer le thème">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 12.79A9 9 0 0 0-9 9H21"/>
                                 <path d="M12 6v6a4 4 0 0-4-4h4a7 7 0 0 0 7 7h4"/>
