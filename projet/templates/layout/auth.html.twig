@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,8 @@
             <!-- Load services via importmap to prevent module errors -->
             <script type="module" src="{{ asset('services/notification_service.js') }}"></script>
             <script type="module" src="{{ asset('services/theme_service.js') }}"></script>
+            <!-- Load Stimulus controllers -->
+            <script type="module" src="{{ asset('assets/controllers/theme_controller.js') }}"></script>
         {% endblock %}
     </head>
     <body>
@@ -35,7 +37,10 @@
                             </svg>
                             <span>Accueil</span>
                         </a>
-                        <button class="auth-theme-toggle" id="theme-toggle" title="Basculer le thème">
+                        <button class="auth-theme-toggle" id="theme-toggle" 
+                        data-controller="theme" 
+                        data-action="click->theme#toggle" 
+                        title="Basculer le thème">
                             <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="5"/>
                                 <line x1="12" y1="1" x2="12" y2="3"/>

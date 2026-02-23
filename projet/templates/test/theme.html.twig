@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Test Mode Sombre - TalChif{% endblock %}
+
+{% block body %}
+<div class="container" style="padding: 20px 0;">
+    <h1>Test du Mode Sombre</h1>
+    <p>Cette page permet de tester les corrections du mode sombre.</p>
+    
+    <section style="margin: 30px 0;">
+        <h2>Éléments de navigation</h2>
+        <p>Testez les icônes dans la barre de navigation et le menu du thème.</p>
+    </section>
+
+    <section style="margin: 30px 0;">
+        <h2>Boutons et liens</h2>
+        <button class="btn btn-primary">Bouton primaire</button>
+        <button class="btn btn-secondary">Bouton secondaire</button>
+        <a href="#" class="btn btn-outline">Lien outline</a>
+    </section>
+
+    <section style="margin: 30px 0;">
+        <h2>Cartes et contenu</h2>
+        <div class="card">
+            <h3 class="card-title">Carte de test</h3>
+            <p class="card-meta">Contenu de la carte avec texte secondaire</p>
+            <div class="card-actions">
+                <button class="btn btn-sm">Action</button>
+            </div>
+        </div>
+    </section>
+
+    <section style="margin: 30px 0;">
+        <h2>Formulaires</h2>
+        <div class="form-group">
+            <label>Champ de test</label>
+            <input type="text" class="form-control" placeholder="Testez le contraste...">
+            <span class="form-help">Texte d'aide secondaire</span>
+        </div>
+    </section>
+
+    <section style="margin: 30px 0;">
+        <h2>Badges et pills</h2>
+        <span class="pill pill-info">Info</span>
+        <span class="pill pill-success">Succès</span>
+        <span class="pill pill-warning">Attention</span>
+        <span class="pill pill-danger">Danger</span>
+    </section>
+
+    <section style="margin: 30px 0;">
+        <h2>Instructions</h2>
+        <ol>
+            <li>Cliquez sur le bouton du thème (☀️/🌙) en haut à droite</li>
+            <li>Vérifiez que tous les textes et icônes restent lisibles</li>
+            <li>Testez la navigation en bas de page</li>
+            <li>Ouvrez le menu burger sur mobile</li>
+        </ol>
+    </section>
+</div>
+{% endblock %}

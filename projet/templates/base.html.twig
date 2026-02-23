@@ -104,7 +104,10 @@
                 <div class="container public-topbar">
                     <a class="public-brand" href="{{ path('accueil') }}">TalChif</a>
                     <div class="public-topbar-actions">
-                        <button class="auth-theme-toggle" id="theme-toggle" title="Basculer le thème">
+                        <button class="auth-theme-toggle" id="theme-toggle" 
+                                data-controller="theme" 
+                                data-action="click->theme#toggle" 
+                                title="Basculer le thème">
                             <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="5"/>
                                 <line x1="12" y1="1" x2="12" y2="3"/>
