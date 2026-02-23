@@ -63,15 +63,6 @@ final class AdminEvenementController extends AbstractController
             }
             $evenement->setAutresAffiches($autresAffichesUrls);
 
-            $imageBilletFile = $form->get('imageBillet')->getData();
-            if ($imageBilletFile instanceof UploadedFile) {
-                try {
-                    $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBilletFile));
-                } catch (FileException $e) {
-                    $this->addFlash('error', $e->getMessage());
-                }
-            }
-
             $evenement->setSlug($this->evenementRepository->generateUniqueSlug((string) $slugger->slug($evenement->getNom())));
             $this->evenementRepository->save($evenement, true);
 

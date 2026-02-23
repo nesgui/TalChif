@@ -19,9 +19,13 @@ class TicketDesignRepository extends ServiceEntityRepository
 
     public function findOneForEvenementAndType(Evenement $evenement, string $typeBillet): ?TicketDesign
     {
-        return $this->findOneBy([
-            'evenement' => $evenement,
-            'typeBillet' => $typeBillet,
-        ]);
+        return $this->createQueryBuilder('td')
+            ->andWhere('td.evenement = :evenement')
+            ->andWhere('UPPER(td.typeBillet) = :typeBillet')
+            ->setParameter('evenement', $evenement)
+            ->setParameter('typeBillet', strtoupper($typeBillet))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

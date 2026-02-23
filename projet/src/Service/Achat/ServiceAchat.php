@@ -9,6 +9,7 @@ use App\Entity\Evenement;
 use App\Entity\User;
 use App\Repository\EvenementRepository;
 use App\Service\Payment\PaymentInterface;
+use App\Service\Ticket\TicketRenderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\LockMode;
 
@@ -24,7 +25,8 @@ final class ServiceAchat
     public function __construct(
         private EvenementRepository $evenementRepository,
         private EntityManagerInterface $entityManager,
-        private PaymentInterface $servicePaiement
+        private PaymentInterface $servicePaiement,
+        private TicketRenderService $ticketRenderService
     ) {
     }
 
@@ -94,6 +96,11 @@ final class ServiceAchat
                     $billet->setTransactionId($transactionId);
                     $billet->setStatutPaiement('PAYE');
                     $billet->validerPaiement();
+
+                    $renderedPath = $this->ticketRenderService->renderAndStoreBilletPng($billet);
+                    if ($renderedPath) {
+                        $billet->setRenderedPngPath($renderedPath);
+                    }
                     $this->entityManager->persist($billet);
                 }
 

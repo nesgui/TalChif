@@ -188,25 +188,6 @@ class EvenementType extends AbstractType
                     ],
                     'help' => 'Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles',
                 ])
-                ->add('imageBillet', FileType::class, [
-                    'label' => 'Image du billet',
-                    'required' => false,
-                    'mapped' => false,
-                    'constraints' => [
-                        new File(
-                            maxSize: '5M',
-                            mimeTypes: [
-                                'image/jpeg',
-                                'image/png',
-                                'image/gif',
-                                'image/webp'
-                            ],
-                            mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG, GIF, WebP)',
-                            maxSizeMessage: 'L\'image ne doit pas dépasser 5MB'
-                        )
-                    ],
-                    'help' => 'Image de fond utilisée pour générer/afficher le billet (optionnel)',
-                ])
                 ->add('isActive', CheckboxType::class, [
                     'label' => 'Événement actif (visible par les utilisateurs)',
                     'required' => false,

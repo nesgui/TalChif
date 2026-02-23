@@ -35,21 +35,6 @@ class TicketDesign
     #[ORM\Column(type: 'integer')]
     private ?int $designHeight = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $qrX = null;
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $qrY = null;
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $qrW = null;
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $qrH = null;
-
-    #[ORM\Column(length: 7)]
-    private ?string $markerColor = '#0d1321';
-
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -116,61 +101,6 @@ class TicketDesign
         return $this;
     }
 
-    public function getQrX(): ?int
-    {
-        return $this->qrX;
-    }
-
-    public function setQrX(?int $qrX): static
-    {
-        $this->qrX = $qrX;
-        return $this;
-    }
-
-    public function getQrY(): ?int
-    {
-        return $this->qrY;
-    }
-
-    public function setQrY(?int $qrY): static
-    {
-        $this->qrY = $qrY;
-        return $this;
-    }
-
-    public function getQrW(): ?int
-    {
-        return $this->qrW;
-    }
-
-    public function setQrW(?int $qrW): static
-    {
-        $this->qrW = $qrW;
-        return $this;
-    }
-
-    public function getQrH(): ?int
-    {
-        return $this->qrH;
-    }
-
-    public function setQrH(?int $qrH): static
-    {
-        $this->qrH = $qrH;
-        return $this;
-    }
-
-    public function getMarkerColor(): ?string
-    {
-        return $this->markerColor;
-    }
-
-    public function setMarkerColor(string $markerColor): static
-    {
-        $this->markerColor = $markerColor;
-        return $this;
-    }
-
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
@@ -191,13 +121,5 @@ class TicketDesign
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    public function hasManualQrZone(): bool
-    {
-        return $this->qrX !== null
-            && $this->qrY !== null
-            && $this->qrW !== null
-            && $this->qrH !== null;
     }
 }

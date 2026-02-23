@@ -71,9 +71,6 @@ class Evenement
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $autresAffiches = [];
 
-    #[ORM\Column(length: 500, nullable: true)]
-    private ?string $imageBillet = null;
-
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
@@ -262,18 +259,6 @@ class Evenement
     public function setAutresAffiches(?array $autresAffiches): static
     {
         $this->autresAffiches = $autresAffiches;
-
-        return $this;
-    }
-
-    public function getImageBillet(): ?string
-    {
-        return $this->imageBillet;
-    }
-
-    public function setImageBillet(?string $imageBillet): static
-    {
-        $this->imageBillet = $imageBillet;
 
         return $this;
     }

@@ -3,14 +3,128 @@
 {% block title %}Billet - {{ billet.evenement.nom }}{% endblock %}
 
 {% block body %}
+{% if billet.renderedPngPath %}
+<div class="ticket-wrapper" id="ticket-for-print">
+    <div class="ticket-actions no-print">
+        <button type="button" class="btn-print" onclick="window.print()">
+            Imprimer / Enregistrer en PDF
+        </button>
+        {% if billet.isUtilise %}
+            <span class="ticket-badge used">Billet déjà utilisé</span>
+        {% elseif billet.isPaye %}
+            <span class="ticket-badge valid">Présentez ce billet à l'entrée</span>
+        {% endif %}
+    </div>
+
+    <div class="ticket-rendered">
+        <img src="{{ billet.renderedPngPath }}" alt="Billet - {{ billet.evenement.nom }}" class="ticket-rendered-img" />
+    </div>
+</div>
+
+<style>
+body:has(#ticket-for-print) .public-header,
+body:has(#ticket-for-print) .public-bottom-nav,
+body:has(#ticket-for-print) .site-footer {
+    display: none !important;
+}
+
+body:has(#ticket-for-print) .site-main,
+body:has(#ticket-for-print) #main-content .container {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ticket-wrapper {
+    padding: 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.ticket-rendered {
+    width: 100%;
+    max-width: 740px;
+}
+
+.ticket-rendered-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+@media print {
+    .skip-link,
+    .public-header,
+    .public-bottom-nav,
+    .site-footer,
+    #notifications-container,
+    .no-print {
+        display: none !important;
+    }
+
+    #main-content .container > *:not(#ticket-for-print) {
+        display: none !important;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffff !important;
+    }
+
+    .ticket-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ticket-rendered {
+        width: 150mm;
+    }
+
+    .ticket-rendered-img {
+        width: 150mm;
+        height: auto;
+        border: none;
+        box-shadow: none;
+    }
+}
+</style>
+{% else %}
 <div class="ticket-wrapper" id="ticket-for-print">
     <div class="ticket-container">
         <!-- Partie gauche : zone image + infos texte -->
         <div class="ticket-left">
             <div class="ticket-image-zone">
-                {% if billet.evenement.imageBillet %}
+                {% if billet.renderedPngPath %}
                     <img
-                        src="{{ asset(billet.evenement.imageBillet) }}"
+                        src="{{ billet.renderedPngPath }}"
+                        alt="{{ billet.evenement.nom }}"
+                        class="ticket-event-image"
+                    />
+                {% elseif billet.evenement.affichePrincipale %}
+                    <img
+                        src="{{ billet.evenement.affichePrincipale }}"
                         alt="{{ billet.evenement.nom }}"
                         class="ticket-event-image"
                     />
@@ -514,3 +628,4 @@ body:has(#ticket-for-print) #main-content .container {
 })();
 </script>
 {% endblock %}
+{% endif %}

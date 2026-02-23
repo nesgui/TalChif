@@ -39,11 +39,10 @@
 | Élément | Dimensions recommandées | Format | Notes |
 |---------|------------------------|--------|-------|
 | **Image PNG du billet** | **1000 × 400 px** (ratio 5:2) | PNG uniquement | Fond opaque, pas de transparence requise |
-| **Zone QR Code** | minimum **150 × 150 px** | — | Positionnée via l'outil de sélection sur la page dédiée |
+| **Zone QR Code** | minimum **150 × 150 px** | — | La plateforme réserve automatiquement une zone fixe pour le QR code |
 
 ### Conseils pour le design de billet
-- Laisser un espace libre d'au moins **150 × 150 px** pour le QR code
-- Éviter de placer du texte important dans la zone QR (il sera recouvert)
+- Éviter de placer du texte important dans la zone QR (elle est réservée par la plateforme)
 - Le format paysage (horizontal) est recommandé pour une bonne lisibilité sur mobile
 - Poids maximum : **5 Mo**
 

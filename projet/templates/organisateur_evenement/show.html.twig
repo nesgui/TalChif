@@ -9,8 +9,6 @@
 {% block dashboard_actions %}
     <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.index') }}">Retour</a>
     <a class="btn btn-sm btn-primary" href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}">Modifier</a>
-    <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id}) }}">Design billet</a>
-    
     {% if evenement.placesVendues == 0 %}
         <form method="post" action="{{ path('organisateur.evenement.delete', {id: evenement.id}) }}" style="display: inline;">
             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
@@ -20,91 +18,145 @@
 {% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Détails de l'événement</p>
+{% set designSimple = null %}
+{% set designVip = null %}
+{% for d in evenement.ticketDesigns %}
+    {% if d.typeBillet|upper == 'SIMPLE' %}{% set designSimple = d %}{% endif %}
+    {% if d.typeBillet|upper == 'VIP' %}{% set designVip = d %}{% endif %}
+{% endfor %}
 
-<div class="grid">
-    <section class="card">
+<div class="grid" style="gap: var(--espace-lg);">
+
+    {# ══════════════════════════════════════════════════════════
+       SECTION 1 : Informations générales (affiche + infos)
+       ══════════════════════════════════════════════════════════ #}
+    <section class="card" style="grid-column: 1 / -1;">
         <h2 class="card-title">Informations générales</h2>
-        
-        {% if evenement.affichePrincipale %}
-            <div class="text-center mb-6">
-                <img src="{{ evenement.affichePrincipale }}" alt="{{ evenement.nom }}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+
+        <div style="display: flex; gap: var(--espace-xl); flex-wrap: wrap; align-items: flex-start;">
+
+            {# Affiche événement #}
+            <div style="flex: 0 0 auto; width: 220px;">
+                {% if evenement.affichePrincipale %}
+                    <img src="{{ evenement.affichePrincipale }}" alt="{{ evenement.nom }}"
+                         style="width: 100%; border-radius: 10px; border: 1px solid var(--couleur-bordure); box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                {% else %}
+                    <div style="width: 100%; aspect-ratio: 3/4; background: var(--couleur-surface-elevee); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--couleur-texte-secondaire); font-size: 0.85rem; border: 1px dashed var(--couleur-bordure);">
+                        Pas d'affiche
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
-        
-        <table class="table" id="organisateur-evenement-infos-table">
-            <thead>
-                <tr>
-                    <th>Champ</th>
-                    <th>Valeur</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>Nom</th>
-                    <td>{{ evenement.nom }}</td>
-                </tr>
-                <tr>
-                    <th>Date</th>
-                    <td>{{ evenement.dateEvenement|date('d/m/Y H:i') }}</td>
-                </tr>
-                <tr>
-                    <th>Lieu</th>
-                    <td>{{ evenement.lieu }}</td>
-                </tr>
-                <tr>
-                    <th>Adresse</th>
-                    <td>{{ evenement.adresse }}, {{ evenement.ville }}</td>
-                </tr>
-                <tr>
-                    <th>Description</th>
-                    <td>{{ evenement.description }}</td>
-                </tr>
-                <tr>
-                    <th>Statut</th>
-                    <td>
+
+            {# Infos texte #}
+            <div style="flex: 1 1 280px; min-width: 0;">
+                <dl style="display: grid; grid-template-columns: auto 1fr; gap: 8px 20px; font-size: 0.9rem;">
+                    <dt style="font-weight: 600; color: var(--couleur-texte-secondaire);">Date</dt>
+                    <dd style="margin: 0;">{{ evenement.dateEvenement|date('d/m/Y H:i') }}</dd>
+
+                    <dt style="font-weight: 600; color: var(--couleur-texte-secondaire);">Lieu</dt>
+                    <dd style="margin: 0;">{{ evenement.lieu }}</dd>
+
+                    <dt style="font-weight: 600; color: var(--couleur-texte-secondaire);">Adresse</dt>
+                    <dd style="margin: 0;">{{ evenement.adresse }}, {{ evenement.ville }}</dd>
+
+                    <dt style="font-weight: 600; color: var(--couleur-texte-secondaire);">Statut</dt>
+                    <dd style="margin: 0;">
                         {% if evenement.isActive and evenement.isValide %}
                             <span class="pill pill-success">Publié</span>
                         {% else %}
                             <span class="pill pill-warning">Brouillon</span>
                         {% endif %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-    
-    <section class="card">
-        <h2 class="card-title">Billets et prix</h2>
-        <table class="table" id="organisateur-evenement-billets-table">
-            <thead>
-                <tr>
-                    <th>Champ</th>
-                    <th>Valeur</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>Places disponibles</th>
-                    <td>{{ evenement.placesVendues }} / {{ evenement.placesDisponibles }}</td>
-                </tr>
-                <tr>
-                    <th>Places restantes</th>
-                    <td>{{ evenement.placesRestantes }}</td>
-                </tr>
-                <tr>
-                    <th>Prix billet simple</th>
-                    <td>{{ evenement.prixSimple }} XAF</td>
-                </tr>
-                {% if evenement.prixVip %}
-                <tr>
-                    <th>Prix billet VIP</th>
-                    <td>{{ evenement.prixVip }} XAF</td>
-                </tr>
+                    </dd>
+                </dl>
+
+                {% if evenement.description %}
+                    <p style="margin-top: var(--espace-md); font-size: 0.88rem; color: var(--couleur-texte-secondaire); line-height: 1.5;">
+                        {{ evenement.description|length > 200 ? evenement.description[:200] ~ '…' : evenement.description }}
+                    </p>
                 {% endif %}
-            </tbody>
-        </table>
+            </div>
+        </div>
     </section>
+
+    {# ══════════════════════════════════════════════════════════
+       SECTION 2 : Billetterie (places + prix)
+       ══════════════════════════════════════════════════════════ #}
+    <section class="card">
+        <h2 class="card-title">Billetterie</h2>
+
+        <div style="display: flex; gap: var(--espace-lg); flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 140px; padding: var(--espace-md); background: var(--couleur-surface-elevee); border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.6rem; font-weight: 700; color: var(--couleur-primaire);">{{ evenement.placesRestantes }}</div>
+                <div style="font-size: 0.78rem; color: var(--couleur-texte-secondaire); margin-top: 2px;">Places restantes</div>
+            </div>
+            <div style="flex: 1; min-width: 140px; padding: var(--espace-md); background: var(--couleur-surface-elevee); border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.6rem; font-weight: 700;">{{ evenement.placesVendues }}</div>
+                <div style="font-size: 0.78rem; color: var(--couleur-texte-secondaire); margin-top: 2px;">Vendues / {{ evenement.placesDisponibles }}</div>
+            </div>
+            <div style="flex: 1; min-width: 140px; padding: var(--espace-md); background: var(--couleur-surface-elevee); border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.6rem; font-weight: 700;">{{ evenement.prixSimple }}</div>
+                <div style="font-size: 0.78rem; color: var(--couleur-texte-secondaire); margin-top: 2px;">XAF — SIMPLE</div>
+            </div>
+            {% if evenement.prixVip %}
+            <div style="flex: 1; min-width: 140px; padding: var(--espace-md); background: var(--couleur-surface-elevee); border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.6rem; font-weight: 700;">{{ evenement.prixVip }}</div>
+                <div style="font-size: 0.78rem; color: var(--couleur-texte-secondaire); margin-top: 2px;">XAF — VIP</div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {# ══════════════════════════════════════════════════════════
+       SECTION 3 : Design des billets (statut + actions)
+       ══════════════════════════════════════════════════════════ #}
+    <section class="card">
+        <h2 class="card-title">Design des billets</h2>
+        <p class="card-meta">Le design est combiné avec un QR code unique pour chaque acheteur.</p>
+
+        <div style="display: flex; flex-direction: column; gap: var(--espace-md); margin-top: var(--espace-md);">
+
+            {# Ligne SIMPLE #}
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--espace-sm); padding: var(--espace-sm) var(--espace-md); background: var(--couleur-surface-elevee); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: var(--espace-sm);">
+                    <strong style="font-size: 0.9rem;">SIMPLE</strong>
+                    {% if designSimple and designSimple.designPath %}
+                        <span class="pill pill-success" style="font-size: 0.7rem;">Configuré</span>
+                    {% else %}
+                        <span class="pill pill-warning" style="font-size: 0.7rem;">Non configuré</span>
+                    {% endif %}
+                </div>
+                <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id, typeBillet: 'SIMPLE'}) }}">
+                    {% if designSimple and designSimple.designPath %}Modifier{% else %}Configurer{% endif %}
+                </a>
+            </div>
+
+            {# Ligne VIP #}
+            {% if evenement.hasVip %}
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--espace-sm); padding: var(--espace-sm) var(--espace-md); background: var(--couleur-surface-elevee); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: var(--espace-sm);">
+                    <strong style="font-size: 0.9rem;">VIP</strong>
+                    {% if designVip and designVip.designPath %}
+                        <span class="pill pill-success" style="font-size: 0.7rem;">Configuré</span>
+                    {% else %}
+                        <span class="pill pill-warning" style="font-size: 0.7rem;">Non configuré</span>
+                    {% endif %}
+                </div>
+                <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id, typeBillet: 'VIP'}) }}">
+                    {% if designVip and designVip.designPath %}Modifier{% else %}Configurer{% endif %}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Bouton principal : Aperçu des billets #}
+        <div style="margin-top: var(--espace-lg); text-align: center;">
+            <a class="btn btn-primary" href="{{ path('organisateur.evenement.apercu_billets', {id: evenement.id}) }}" style="padding: 10px 28px; font-size: 0.95rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Aperçu des billets
+            </a>
+        </div>
+    </section>
+
 </div>
 
 {% endblock %}

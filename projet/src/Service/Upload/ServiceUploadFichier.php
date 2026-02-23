@@ -30,7 +30,6 @@ final class ServiceUploadFichier
 
     /** Sous-dossiers publics pour les uploads */
     private const DOSSIER_EVENEMENTS = 'evenements';
-    private const DOSSIER_BILLETS = 'billets';
     private const DOSSIER_TICKET_DESIGNS = 'ticket-designs';
 
     public function __construct(
@@ -67,17 +66,9 @@ final class ServiceUploadFichier
         return '/images/' . $sousDossier . '/' . $nomSecurise;
     }
 
-    /**
-     * Enregistre une image de billet (template billet).
-     */
-    public function uploaderImageBillet(UploadedFile $fichier): string
-    {
-        return $this->uploaderImageEvenement($fichier, self::DOSSIER_BILLETS);
-    }
-
     public function uploaderTicketDesignPng(UploadedFile $fichier): string
     {
-        $this->validerFichierPngUniquement($fichier);
+        $this->validerFichierImage($fichier);
 
         $nomSecurise = $this->genererNomSecurise($fichier);
         $repertoireCible = $this->repertoireProjet . '/public/images/' . self::DOSSIER_TICKET_DESIGNS;
@@ -120,7 +111,7 @@ final class ServiceUploadFichier
         }
     }
 
-    private function validerFichierPngUniquement(UploadedFile $fichier): void
+    private function validerFichierImage(UploadedFile $fichier): void
     {
         $chemin = $fichier->getPathname();
         if (!is_readable($chemin)) {
@@ -128,8 +119,9 @@ final class ServiceUploadFichier
         }
 
         $typeMime = mime_content_type($chemin) ?: '';
-        if ($typeMime !== 'image/png') {
-            throw new FileException('Type de fichier non autorisé. Utilisez une image PNG.');
+        $typesAutorises = ['image/png', 'image/jpeg', 'image/webp'];
+        if (!\in_array($typeMime, $typesAutorises, true)) {
+            throw new FileException('Type de fichier non autorisé. Utilisez une image PNG, JPEG ou WebP.');
         }
 
         $taille = $fichier->getSize();

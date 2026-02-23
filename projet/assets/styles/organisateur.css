@@ -602,6 +602,27 @@ turbo-frame.dashboard-main,
     margin: 0;
 }
 
+/* Actions cell in tables - boutons pleine largeur */
+.actions-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.actions-cell .btn,
+.actions-cell form {
+    width: 100%;
+}
+
+.actions-cell form .btn {
+    width: 100%;
+}
+
+.actions-cell .btn {
+    text-align: center;
+    white-space: nowrap;
+}
+
 /* Responsive dashboard organisateur */
 @media (max-width: 768px) {
     .dashboard-container {

@@ -206,17 +206,6 @@ final class OrganisateurEvenementController extends AbstractController
             }
         }
         $evenement->setAutresAffiches($urls);
-
-        if ($form->has('imageBillet')) {
-            $imageBillet = $form->get('imageBillet')->getData();
-            if ($imageBillet instanceof UploadedFile) {
-                try {
-                    $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBillet));
-                } catch (FileException $e) {
-                    $this->addFlash('error', $e->getMessage());
-                }
-            }
-        }
     }
 
     /**
@@ -249,17 +238,6 @@ final class OrganisateurEvenementController extends AbstractController
                     }
                 }
                 $evenement->setAutresAffiches($urls);
-            }
-        }
-
-        if ($form->has('imageBillet')) {
-            $imageBillet = $form->get('imageBillet')->getData();
-            if ($imageBillet instanceof UploadedFile) {
-                try {
-                    $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBillet));
-                } catch (FileException $e) {
-                    $this->addFlash('error', $e->getMessage());
-                }
             }
         }
     }

@@ -6,6 +6,7 @@ use App\Entity\Evenement;
 use App\Entity\TicketDesign;
 use App\Entity\User;
 use App\Repository\TicketDesignRepository;
+use App\Service\Ticket\TicketRenderService;
 use App\Service\Upload\ServiceUploadFichier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +24,7 @@ final class OrganisateurTicketDesignController extends AbstractController
         private TicketDesignRepository $ticketDesignRepository,
         private EntityManagerInterface $entityManager,
         private ServiceUploadFichier $serviceUploadFichier,
+        private TicketRenderService $ticketRenderService,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir
     ) {
@@ -53,12 +55,6 @@ final class OrganisateurTicketDesignController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $mode = (string) $request->request->get('mode', 'manual');
-            $mode = $mode === 'auto' ? 'auto' : 'manual';
-
-            $markerColor = (string) $request->request->get('markerColor', $ticketDesign->getMarkerColor() ?? '#0d1321');
-            $ticketDesign->setMarkerColor($markerColor);
-
             $fichier = $request->files->get('designPng');
             if ($fichier instanceof UploadedFile) {
                 try {
@@ -84,40 +80,21 @@ final class OrganisateurTicketDesignController extends AbstractController
                 return $this->redirectToRoute('organisateur.evenement.billet_design', ['id' => $evenement->getId(), 'typeBillet' => $typeBillet]);
             }
 
-            if ($mode === 'manual') {
-                $qrX = $request->request->getInt('qrX', -1);
-                $qrY = $request->request->getInt('qrY', -1);
-                $qrW = $request->request->getInt('qrW', -1);
-                $qrH = $request->request->getInt('qrH', -1);
-
-                if ($qrX < 0 || $qrY < 0 || $qrW <= 0 || $qrH <= 0) {
-                    $this->addFlash('error', 'Veuillez sélectionner la zone QR (rectangle).');
-                    return $this->redirectToRoute('organisateur.evenement.billet_design', ['id' => $evenement->getId(), 'typeBillet' => $typeBillet]);
+            try {
+                $this->entityManager->flush();
+            } catch (\Throwable $e) {
+                $msg = $e->getMessage();
+                if (str_contains($msg, 'no such column')) {
+                    $this->addFlash('error', 'Le schéma de base de données n\'est pas à jour. Exécutez : php bin/console doctrine:migrations:migrate');
+                } else {
+                    $this->addFlash('error', 'Impossible d\'enregistrer le design. ' . $msg);
                 }
-
-                $ticketDesign
-                    ->setQrX($qrX)
-                    ->setQrY($qrY)
-                    ->setQrW($qrW)
-                    ->setQrH($qrH);
-            } else {
-                try {
-                    $zone = $this->detectMarkerZone($ticketDesign);
-                    $ticketDesign
-                        ->setQrX($zone['x'])
-                        ->setQrY($zone['y'])
-                        ->setQrW($zone['w'])
-                        ->setQrH($zone['h']);
-                } catch (\RuntimeException $e) {
-                    $this->addFlash('error', $e->getMessage());
-                    return $this->redirectToRoute('organisateur.evenement.billet_design', ['id' => $evenement->getId(), 'typeBillet' => $typeBillet]);
-                }
+                return $this->redirectToRoute('organisateur.evenement.billet_design', ['id' => $evenement->getId(), 'typeBillet' => $typeBillet]);
             }
 
-            $this->entityManager->flush();
-            $this->addFlash('success', 'Design billet enregistré.');
+            $this->addFlash('success', 'Design billet enregistré. L\'aperçu est visible ci-dessous.');
 
-            return $this->redirectToRoute('organisateur.evenement.billet_design', ['id' => $evenement->getId(), 'typeBillet' => $typeBillet]);
+            return $this->redirectToRoute('organisateur.evenement.show', ['id' => $evenement->getId()]);
         }
 
         return $this->render('organisateur_evenement/billet_design.html.twig', [
@@ -127,78 +104,57 @@ final class OrganisateurTicketDesignController extends AbstractController
         ]);
     }
 
-    /**
-     * @return array{x:int,y:int,w:int,h:int}
-     */
-    private function detectMarkerZone(TicketDesign $ticketDesign): array
+    #[Route('/organisateur/evenement/{id}/apercu-billets', name: 'organisateur.evenement.apercu_billets')]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function apercuBillets(Evenement $evenement): Response
     {
-        $designPath = $ticketDesign->getDesignPath();
-        if (!$designPath) {
-            throw new \RuntimeException('Aucun design chargé.');
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($evenement->getOrganisateur() !== $user) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à voir cet événement.');
         }
 
-        $absolutePath = $this->projectDir . '/public' . $designPath;
-        if (!is_file($absolutePath) || !is_readable($absolutePath)) {
-            throw new \RuntimeException('Design introuvable sur le serveur.');
+        $designSimple = $this->ticketDesignRepository->findOneForEvenementAndType($evenement, TicketDesign::TYPE_SIMPLE);
+        $designVip = $this->ticketDesignRepository->findOneForEvenementAndType($evenement, TicketDesign::TYPE_VIP);
+
+        $gdDisponible = \function_exists('imagecreatetruecolor');
+
+        return $this->render('organisateur_evenement/apercu_billets.html.twig', [
+            'evenement' => $evenement,
+            'designSimple' => $designSimple,
+            'designVip' => $designVip,
+            'gdDisponible' => $gdDisponible,
+        ]);
+    }
+
+    #[Route('/organisateur/evenements/{id}/billet-design/preview', name: 'organisateur.evenement.billet_design_preview', methods: ['GET'])]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function preview(Evenement $evenement, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($evenement->getOrganisateur() !== $user) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cet événement.');
         }
 
-        $img = @imagecreatefrompng($absolutePath);
-        if (!$img) {
-            throw new \RuntimeException('Impossible de lire le PNG (GD).');
+        $typeBillet = (string) $request->query->get('typeBillet', TicketDesign::TYPE_SIMPLE);
+        if (!\in_array($typeBillet, [TicketDesign::TYPE_SIMPLE, TicketDesign::TYPE_VIP], true)) {
+            $typeBillet = TicketDesign::TYPE_SIMPLE;
         }
 
-        $markerHex = (string) ($ticketDesign->getMarkerColor() ?? '#0d1321');
-        $markerHex = ltrim(strtolower($markerHex), '#');
-        if (strlen($markerHex) !== 6 || !ctype_xdigit($markerHex)) {
-            imagedestroy($img);
-            throw new \RuntimeException('Couleur marqueur invalide.');
+        $ticketDesign = $this->ticketDesignRepository->findOneForEvenementAndType($evenement, $typeBillet);
+        if (!$ticketDesign || !$ticketDesign->getDesignPath()) {
+            return new Response('', 404);
         }
 
-        $rTarget = hexdec(substr($markerHex, 0, 2));
-        $gTarget = hexdec(substr($markerHex, 2, 2));
-        $bTarget = hexdec(substr($markerHex, 4, 2));
-
-        $width = imagesx($img);
-        $height = imagesy($img);
-
-        $minX = null;
-        $minY = null;
-        $maxX = null;
-        $maxY = null;
-
-        for ($y = 0; $y < $height; $y++) {
-            for ($x = 0; $x < $width; $x++) {
-                $rgb = imagecolorat($img, $x, $y);
-                $r = ($rgb >> 16) & 0xFF;
-                $g = ($rgb >> 8) & 0xFF;
-                $b = $rgb & 0xFF;
-
-                if ($r === $rTarget && $g === $gTarget && $b === $bTarget) {
-                    $minX = $minX === null ? $x : min($minX, $x);
-                    $minY = $minY === null ? $y : min($minY, $y);
-                    $maxX = $maxX === null ? $x : max($maxX, $x);
-                    $maxY = $maxY === null ? $y : max($maxY, $y);
-                }
-            }
+        $png = $this->ticketRenderService->renderPreviewPngForDesign($ticketDesign, 'PREVIEW-' . $typeBillet);
+        if ($png === null) {
+            return new Response('', 500);
         }
 
-        imagedestroy($img);
-
-        if ($minX === null || $minY === null || $maxX === null || $maxY === null) {
-            throw new \RuntimeException('Marqueur introuvable dans le PNG. Utilisez la sélection manuelle ou ajoutez un carré de couleur #0d1321.');
-        }
-
-        $w = ($maxX - $minX) + 1;
-        $h = ($maxY - $minY) + 1;
-        if ($w < 5 || $h < 5) {
-            throw new \RuntimeException('Marqueur détecté mais trop petit.');
-        }
-
-        return [
-            'x' => (int) $minX,
-            'y' => (int) $minY,
-            'w' => (int) $w,
-            'h' => (int) $h,
-        ];
+        return new Response($png, 200, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'no-store',
+        ]);
     }
 }
