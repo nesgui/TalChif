@@ -19,15 +19,6 @@ return [
     'styles/app' => [
         'path' => './assets/styles/app.css',
     ],
-    'styles/notifications' => [
-        'path' => './assets/styles/notifications.css',
-    ],
-    'styles/tailwind-forms' => [
-        'path' => './assets/styles/tailwind-forms.css',
-    ],
-    'styles/datatables' => [
-        'path' => './assets/styles/datatables.css',
-    ],
     'services/notification_service' => [
         'path' => './assets/services/notification_service.js',
     ],

@@ -70,20 +70,4 @@
     </section>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof DataTableOS === 'undefined') {
-        return;
-    }
-
-    if (document.querySelector('#portefeuille-compte-table')) {
-        DataTableOS.init('#portefeuille-compte-table', {
-            paging: false,
-            searching: false,
-            info: false,
-            order: [],
-        });
-    }
-});
-</script>
 {% endblock %}

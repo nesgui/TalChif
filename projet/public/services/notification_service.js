@@ -1,11 +1,9 @@
 /**
- * Service de Notifications Moderne - OSEA.td
+ * Service de Notifications Moderne - TalChif
  * Système centralisé, accessible (WCAG 2.2) et performant
  * Sans dépendances externes (Toastr remplacé)
  * @version 2.0 - Février 2026
  */
-
-console.log('[NOTIFICATION] Script chargé');
 
 class NotificationService {
     constructor() {
@@ -22,15 +20,17 @@ class NotificationService {
      */
     init() {
         if (this.isInitialized) {
-            console.log('[NOTIFICATION] Déjà initialisé');
-            return;
+                return;
         }
 
-        console.log('[NOTIFICATION] Init démarré');
+        // Vérifier que document.body existe
+        if (!document.body) {
+            setTimeout(() => this.init(), 50);
+            return;
+        }
         
         // Créer le conteneur de notifications s'il n'existe pas
         this.container = document.getElementById('notifications-container');
-        console.log('[NOTIFICATION] Conteneur trouvé:', !!this.container);
         
         if (!this.container) {
             this.container = document.createElement('div');
@@ -44,7 +44,6 @@ class NotificationService {
         }
 
         this.isInitialized = true;
-        console.log('[NOTIFICATION] ✅ Service initialisé avec succès');
         this.processQueue();
     }
 
@@ -448,21 +447,12 @@ class NotificationService {
 
 // Créer instance singleton
 const notificationService = new NotificationService();
-console.log('[NOTIFICATION] Instance créée');
 
-// Disponibilité globale (pas de module ES, script simple)
 window.NotificationService = notificationService;
-console.log('[NOTIFICATION] Service disponible globalement');
 
-// Auto-initialisation au chargement du DOM
 if (document.readyState === 'loading') {
-    console.log('[NOTIFICATION] Attente DOMContentLoaded');
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('[NOTIFICATION] Initialisation...');
-        notificationService.init();
-    });
+    document.addEventListener('DOMContentLoaded', () => notificationService.init());
 } else {
-    console.log('[NOTIFICATION] DOM déjà prêt, initialisation immédiate');
     notificationService.init();
 }
 

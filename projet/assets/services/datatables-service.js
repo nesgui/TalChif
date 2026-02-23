@@ -35,7 +35,7 @@ const DataTableOS = {
                     last: "Dernier"
                 }
             },
-            responsive: true,
+            responsive: false,
             autoWidth: false,
             // Style personnalisé
             dom: 'Blfrtip',

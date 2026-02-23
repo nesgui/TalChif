@@ -71,3 +71,6 @@ Production (recommandations):
 
 CREER UN ADMIN LOCAL
 php bin/console app:create-admin admin@gmail.com "Admin1234!"
+
+# Arrêter les processus PHP (SERVEURS QUI TOURNES)
+taskkill /F /IM php.exe

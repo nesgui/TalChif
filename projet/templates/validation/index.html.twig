@@ -73,12 +73,6 @@
                                 <p>Voir les validations récentes</p>
                             </div>
                         </a>
-                        <a href="{{ path('admin.securite.index') }}" class="action-card">
-                            <div class="action-content">
-                                <h4>Sécurité</h4>
-                                <p>Contrôles et alertes</p>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -445,220 +439,254 @@
 }
 </style>
 
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-let isScanning = false;
+(function() {
+    'use strict';
 
-// Validation manuelle
-document.getElementById('manualForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const qrCode = document.getElementById('qrCodeInput').value.trim();
-    if (!qrCode) {
-        showNotification('Veuillez saisir un QR Code', 'error');
-        return;
-    }
-    
-    await validateBillet(qrCode);
-});
+    let html5QrCode = null;
+    let isScanning = false;
 
-// Scan
-document.getElementById('startScanBtn').addEventListener('click', function() {
-    startScan();
-});
+    const startBtn = document.getElementById('startScanBtn');
+    const stopBtn = document.getElementById('stopScanBtn');
+    const scanArea = document.getElementById('scanArea');
+    const manualForm = document.getElementById('manualForm');
 
-document.getElementById('stopScanBtn').addEventListener('click', function() {
-    stopScan();
-});
-
-function startScan() {
-    isScanning = true;
-    document.getElementById('startScanBtn').style.display = 'none';
-    document.getElementById('stopScanBtn').style.display = 'inline-flex';
-    document.querySelector('.scan-placeholder').innerHTML = `
-        <div class="scan-icon">📷</div>
-        <p>Scan en cours...</p>
-    `;
-    
-    // Pré-remplir automatiquement un code après 3 secondes
-    setTimeout(() => {
-        if (isScanning) {
-            autoFillScan();
+    // Validation manuelle
+    manualForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const qrCode = document.getElementById('qrCodeInput').value.trim();
+        if (!qrCode) {
+            showNotification('Veuillez saisir un QR Code', 'error');
+            return;
         }
-    }, 3000);
-}
+        await validateBillet(qrCode);
+    });
 
-function stopScan() {
-    isScanning = false;
-    document.getElementById('startScanBtn').style.display = 'inline-flex';
-    document.getElementById('stopScanBtn').style.display = 'none';
-    document.querySelector('.scan-placeholder').innerHTML = `
-        <div class="scan-icon">📷</div>
-        <p>Positionnez le QR Code dans le cadre</p>
-    `;
-}
+    // Démarrer le scan caméra
+    startBtn.addEventListener('click', async function() {
+        if (typeof Html5Qrcode === 'undefined') {
+            showNotification('Bibliothèque de scan non chargée. Vérifiez votre connexion.', 'error');
+            return;
+        }
 
-function autoFillScan() {
-    // Pré-remplir un QR Code
-    const sampleCodes = [
-        'BILLET_SIMPLE_1644451200',
-        'BILLET_VIP_1644451201',
-        'QR_1234567890'
-    ];
-    
-    const randomCode = sampleCodes[Math.floor(Math.random() * sampleCodes.length)];
-    document.getElementById('qrCodeInput').value = randomCode;
-    
-    stopScan();
-    validateBillet(randomCode);
-}
+        try {
+            // Demander la permission caméra
+            const devices = await Html5Qrcode.getCameras();
+            if (!devices || devices.length === 0) {
+                showNotification('Aucune caméra détectée sur cet appareil.', 'error');
+                return;
+            }
 
-async function validateBillet(qrCode) {
-    try {
-        const response = await fetch('/api/validation/scan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: `qrCode=${encodeURIComponent(qrCode)}`
+            // Cacher le placeholder, préparer le conteneur vidéo
+            scanArea.innerHTML = '<div id="qr-reader" style="width:100%;height:100%;"></div>';
+
+            html5QrCode = new Html5Qrcode('qr-reader');
+
+            // Privilégier la caméra arrière sur mobile
+            const cameraId = devices.length > 1 ? devices[devices.length - 1].id : devices[0].id;
+
+            await html5QrCode.start(
+                cameraId,
+                {
+                    fps: 10,
+                    qrbox: { width: 220, height: 220 },
+                    aspectRatio: 1
+                },
+                onScanSuccess,
+                onScanFailure
+            );
+
+            isScanning = true;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-flex';
+
+        } catch (err) {
+            console.error('Erreur caméra:', err);
+            let msg = 'Impossible d\'accéder à la caméra.';
+            if (err.name === 'NotAllowedError' || (typeof err === 'string' && err.includes('NotAllowed'))) {
+                msg = 'Accès à la caméra refusé. Autorisez l\'accès dans les paramètres de votre navigateur.';
+            }
+            showNotification(msg, 'error');
+            restoreScanPlaceholder();
+        }
+    });
+
+    // Arrêter le scan
+    stopBtn.addEventListener('click', async function() {
+        await stopScan();
+    });
+
+    async function stopScan() {
+        if (html5QrCode && isScanning) {
+            try {
+                await html5QrCode.stop();
+            } catch (e) {
+                console.warn('Erreur arrêt scan:', e);
+            }
+            html5QrCode = null;
+        }
+        isScanning = false;
+        startBtn.style.display = 'inline-flex';
+        stopBtn.style.display = 'none';
+        restoreScanPlaceholder();
+    }
+
+    function restoreScanPlaceholder() {
+        scanArea.innerHTML = `
+            <div class="scan-frame">
+                <div class="scan-corners">
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+                </div>
+                <div class="scan-line"></div>
+                <div class="scan-placeholder">
+                    <div class="scan-icon">📷</div>
+                    <p>Positionnez le QR Code dans le cadre</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function onScanSuccess(decodedText) {
+        // Éviter les doublons rapides
+        if (!isScanning) return;
+        isScanning = false;
+
+        document.getElementById('qrCodeInput').value = decodedText;
+        stopScan().then(function() {
+            validateBillet(decodedText);
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showResultModal('success', data);
+    }
+
+    function onScanFailure(errorMessage) {
+        // Silencieux — normal quand aucun QR n'est visible
+    }
+
+    async function validateBillet(qrCode) {
+        try {
+            const response = await fetch('/api/validation/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'qrCode=' + encodeURIComponent(qrCode)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showResultModal('success', data);
+            } else {
+                showResultModal('error', data);
+            }
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            showNotification('Erreur de connexion au serveur', 'error');
+        }
+    }
+
+    function showResultModal(type, data) {
+        const modal = document.getElementById('resultModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        if (type === 'success') {
+            modalTitle.innerHTML = 'Validation Réussie';
+            modalTitle.style.color = 'var(--couleur-success)';
+
+            modalBody.innerHTML =
+                '<div class="success-content">' +
+                '<div class="success-icon">✅</div>' +
+                '<h4>Billet Validé</h4>' +
+                '<div class="billet-info">' +
+                '<p><strong>QR Code :</strong> ' + data.billet.qrCode + '</p>' +
+                '<p><strong>Type :</strong> ' + data.billet.type + '</p>' +
+                '<p><strong>Événement :</strong> ' + data.billet.evenement.nom + '</p>' +
+                '<p><strong>Client :</strong> ' + data.billet.client + '</p>' +
+                '<p><strong>Prix :</strong> ' + data.billet.prix.toLocaleString() + ' XAF</p>' +
+                '<p><strong>Date validation :</strong> ' + data.billet.dateValidation + '</p>' +
+                '</div></div>';
         } else {
-            showResultModal('error', data);
+            modalTitle.innerHTML = 'Validation Échouée';
+            modalTitle.style.color = 'var(--couleur-error)';
+
+            var errorDetails = '';
+            if (data.billet) {
+                errorDetails =
+                    '<div class="billet-info">' +
+                    '<p><strong>QR Code :</strong> ' + data.billet.qrCode + '</p>' +
+                    '<p><strong>Type :</strong> ' + (data.billet.type || 'N/A') + '</p>' +
+                    (data.billet.evenement ? '<p><strong>Événement :</strong> ' + data.billet.evenement + '</p>' : '') +
+                    (data.billet.client ? '<p><strong>Client :</strong> ' + data.billet.client + '</p>' : '') +
+                    (data.billet.dateUtilisation ? '<p><strong>Date utilisation :</strong> ' + data.billet.dateUtilisation + '</p>' : '') +
+                    '</div>';
+            }
+
+            modalBody.innerHTML =
+                '<div class="error-content">' +
+                '<div class="error-icon">❌</div>' +
+                '<h4>' + data.message + '</h4>' +
+                errorDetails +
+                '</div>';
         }
-        
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur de connexion au serveur', 'error');
-    }
-}
 
-function showResultModal(type, data) {
-    const modal = document.getElementById('resultModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-    
-    if (type === 'success') {
-        modalTitle.innerHTML = 'Validation Réussie';
-        modalTitle.style.color = 'var(--couleur-success)';
-        
-        modalBody.innerHTML = `
-            <div class="success-content">
-                <div class="success-icon"></div>
-                <h4>Billet Validé</h4>
-                <div class="billet-info">
-                    <p><strong>QR Code:</strong> ${data.billet.qrCode}</p>
-                    <p><strong>Type:</strong> ${data.billet.type}</p>
-                    <p><strong>Événement:</strong> ${data.billet.evenement.nom}</p>
-                    <p><strong>Client:</strong> ${data.billet.client}</p>
-                    <p><strong>Prix:</strong> ${data.billet.prix.toLocaleString()} XAF</p>
-                    <p><strong>Date validation:</strong> ${data.billet.dateValidation}</p>
-                </div>
-            </div>
-        `;
-    } else {
-        modalTitle.innerHTML = 'Validation Échouée';
-        modalTitle.style.color = 'var(--couleur-error)';
-        
-        let errorMessage = data.message;
-        let errorDetails = '';
-        
-        if (data.billet) {
-            errorDetails = `
-                <div class="billet-info">
-                    <p><strong>QR Code:</strong> ${data.billet.qrCode}</p>
-                    <p><strong>Type:</strong> ${data.billet.type || 'N/A'}</p>
-                    ${data.billet.evenement ? `<p><strong>Événement:</strong> ${data.billet.evenement}</p>` : ''}
-                    ${data.billet.client ? `<p><strong>Client:</strong> ${data.billet.client}</p>` : ''}
-                    ${data.billet.dateUtilisation ? `<p><strong>Date utilisation:</strong> ${data.billet.dateUtilisation}</p>` : ''}
-                </div>
-            `;
+        modal.style.display = 'flex';
+    }
+
+    window.closeModal = function() {
+        document.getElementById('resultModal').style.display = 'none';
+        document.getElementById('qrCodeInput').value = '';
+    };
+
+    // Fermer le modal en cliquant à l'extérieur
+    document.getElementById('resultModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            window.closeModal();
         }
-        
-        modalBody.innerHTML = `
-            <div class="error-content">
-                <div class="error-icon"></div>
-                <h4>${errorMessage}</h4>
-                ${errorDetails}
-            </div>
-        `;
-    }
-    
-    modal.style.display = 'flex';
-}
+    });
 
-function closeModal() {
-    document.getElementById('resultModal').style.display = 'none';
-    document.getElementById('qrCodeInput').value = '';
-}
+    // Notification système
+    function showNotification(message, type) {
+        type = type || 'info';
+        var notification = document.createElement('div');
+        notification.className = 'notification notification-' + type;
+        notification.textContent = message;
 
-// Fermer le modal en cliquant à l'extérieur
-document.getElementById('resultModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal();
-    }
-});
+        notification.style.cssText =
+            'position:fixed;top:20px;right:20px;padding:1rem 1.5rem;' +
+            'background:' + (type === 'success' ? 'var(--couleur-success)' : type === 'error' ? 'var(--couleur-error)' : 'var(--couleur-primaire)') + ';' +
+            'color:white;border-radius:var(--rayon);box-shadow:var(--ombre-lg);z-index:2000;animation:slideIn 0.3s ease;';
 
-// Notification système
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        background: ${type === 'success' ? 'var(--couleur-success)' : type === 'error' ? 'var(--couleur-error)' : 'var(--couleur-primaire)'};
-        color: white;
-        border-radius: var(--rayon);
-        box-shadow: var(--ombre-lg);
-        z-index: 2000;
-        animation: slideIn 0.3s ease;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
+        document.body.appendChild(notification);
 
-// Animation CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+        setTimeout(function() {
+            notification.remove();
+        }, 5000);
     }
-    
-    .success-content, .error-content {
-        text-align: center;
-    }
-    
-    .success-icon, .error-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-    
-    .billet-info {
-        background: var(--couleur-fond);
-        border-radius: var(--rayon);
-        padding: 1rem;
-        margin-top: 1rem;
-        text-align: left;
-    }
-    
-    .billet-info p {
-        margin: 0.5rem 0;
-        font-size: 0.875rem;
-    }
-`;
-document.head.appendChild(style);
+})();
 </script>
+
+<style>
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.success-content, .error-content { text-align: center; }
+.success-icon, .error-icon { font-size: 3rem; margin-bottom: 1rem; }
+.billet-info {
+    background: var(--couleur-fond);
+    border-radius: var(--rayon);
+    padding: 1rem;
+    margin-top: 1rem;
+    text-align: left;
+}
+.billet-info p { margin: 0.5rem 0; font-size: 0.875rem; }
+#qr-reader video { border-radius: var(--rayon); }
+#qr-reader { background: #000; border-radius: var(--rayon); }
+</style>
 {% endblock %}

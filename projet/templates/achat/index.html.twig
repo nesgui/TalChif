@@ -283,19 +283,5 @@ function confirmPaiement() {
     return confirm(`Confirmer le paiement de {{ total|number_format(0, '.', ' ') }} XAF par ${methode.toUpperCase()} ?`);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof DataTableOS === 'undefined') {
-        return;
-    }
-
-    if (document.querySelector('#achat-recap-table')) {
-        DataTableOS.init('#achat-recap-table', {
-            paging: false,
-            searching: false,
-            info: false,
-            order: [],
-        });
-    }
-});
 </script>
 {% endblock %}

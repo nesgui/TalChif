@@ -179,36 +179,42 @@ final class OrganisateurEvenementController extends AbstractController
      */
     private function traiterUploadsCreation($form, Evenement $evenement): void
     {
-        $fichier = $form->get('affichePrincipale')->getData();
-        if ($fichier instanceof UploadedFile) {
-            try {
-                $evenement->setAffichePrincipale($this->serviceUploadFichier->uploaderImageEvenement($fichier));
-            } catch (FileException $e) {
-                $this->addFlash('error', $e->getMessage());
+        if ($form->has('affichePrincipale')) {
+            $fichier = $form->get('affichePrincipale')->getData();
+            if ($fichier instanceof UploadedFile) {
+                try {
+                    $evenement->setAffichePrincipale($this->serviceUploadFichier->uploaderImageEvenement($fichier));
+                } catch (FileException $e) {
+                    $this->addFlash('error', $e->getMessage());
+                }
             }
         }
 
-        $autres = $form->get('autresAffiches')->getData();
         $urls = [];
-        if (!empty($autres)) {
-            foreach ($autres as $file) {
-                if ($file instanceof UploadedFile) {
-                    try {
-                        $urls[] = $this->serviceUploadFichier->uploaderImageEvenement($file);
-                    } catch (FileException $e) {
-                        continue;
+        if ($form->has('autresAffiches')) {
+            $autres = $form->get('autresAffiches')->getData();
+            if (!empty($autres)) {
+                foreach ($autres as $file) {
+                    if ($file instanceof UploadedFile) {
+                        try {
+                            $urls[] = $this->serviceUploadFichier->uploaderImageEvenement($file);
+                        } catch (FileException $e) {
+                            continue;
+                        }
                     }
                 }
             }
         }
         $evenement->setAutresAffiches($urls);
 
-        $imageBillet = $form->get('imageBillet')->getData();
-        if ($imageBillet instanceof UploadedFile) {
-            try {
-                $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBillet));
-            } catch (FileException $e) {
-                $this->addFlash('error', $e->getMessage());
+        if ($form->has('imageBillet')) {
+            $imageBillet = $form->get('imageBillet')->getData();
+            if ($imageBillet instanceof UploadedFile) {
+                try {
+                    $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBillet));
+                } catch (FileException $e) {
+                    $this->addFlash('error', $e->getMessage());
+                }
             }
         }
     }
@@ -218,36 +224,42 @@ final class OrganisateurEvenementController extends AbstractController
      */
     private function traiterUploadsEdition($form, Evenement $evenement): void
     {
-        $fichier = $form->get('affichePrincipale')->getData();
-        if ($fichier instanceof UploadedFile) {
-            try {
-                $evenement->setAffichePrincipale($this->serviceUploadFichier->uploaderImageEvenement($fichier));
-            } catch (FileException $e) {
-                $this->addFlash('error', $e->getMessage());
-            }
-        }
-
-        $autres = $form->get('autresAffiches')->getData();
-        $urls = $evenement->getAutresAffiches() ?? [];
-        if (!empty($autres)) {
-            foreach ($autres as $file) {
-                if ($file instanceof UploadedFile) {
-                    try {
-                        $urls[] = $this->serviceUploadFichier->uploaderImageEvenement($file);
-                    } catch (FileException $e) {
-                        continue;
-                    }
+        if ($form->has('affichePrincipale')) {
+            $fichier = $form->get('affichePrincipale')->getData();
+            if ($fichier instanceof UploadedFile) {
+                try {
+                    $evenement->setAffichePrincipale($this->serviceUploadFichier->uploaderImageEvenement($fichier));
+                } catch (FileException $e) {
+                    $this->addFlash('error', $e->getMessage());
                 }
             }
-            $evenement->setAutresAffiches($urls);
         }
 
-        $imageBillet = $form->get('imageBillet')->getData();
-        if ($imageBillet instanceof UploadedFile) {
-            try {
-                $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBillet));
-            } catch (FileException $e) {
-                $this->addFlash('error', $e->getMessage());
+        if ($form->has('autresAffiches')) {
+            $autres = $form->get('autresAffiches')->getData();
+            $urls = $evenement->getAutresAffiches() ?? [];
+            if (!empty($autres)) {
+                foreach ($autres as $file) {
+                    if ($file instanceof UploadedFile) {
+                        try {
+                            $urls[] = $this->serviceUploadFichier->uploaderImageEvenement($file);
+                        } catch (FileException $e) {
+                            continue;
+                        }
+                    }
+                }
+                $evenement->setAutresAffiches($urls);
+            }
+        }
+
+        if ($form->has('imageBillet')) {
+            $imageBillet = $form->get('imageBillet')->getData();
+            if ($imageBillet instanceof UploadedFile) {
+                try {
+                    $evenement->setImageBillet($this->serviceUploadFichier->uploaderImageBillet($imageBillet));
+                } catch (FileException $e) {
+                    $this->addFlash('error', $e->getMessage());
+                }
             }
         }
     }

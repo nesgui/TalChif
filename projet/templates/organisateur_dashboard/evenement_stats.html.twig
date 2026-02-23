@@ -1,8 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Statistiques - {{ evenement.nom }}{% endblock %}
 
-{% block body %}
+{% block dashboard_title %}Statistiques - {{ evenement.nom }}{% endblock %}
+
+{% block dashboard_content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1 class="page-title">
@@ -443,4 +447,4 @@
     }
 }
 </style>
-{% endblock %}
+{% endblock dashboard_content %}

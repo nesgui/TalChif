@@ -39,6 +39,6 @@ final class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             return new RedirectResponse($this->urlGenerator->generate('organisateur.dashboard'));
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('portefeuille.index'));
+        return new RedirectResponse($this->urlGenerator->generate('accueil'));
     }
 }

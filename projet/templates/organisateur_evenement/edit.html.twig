@@ -1,21 +1,17 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Modifier l'événement{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-{% endblock %}
+{% block dashboard_title %}Modifier l'événement{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Modifier l'événement</h1>
-<p class="page-subtitle">Mettre à jour les informations de l'événement</p>
+{% block dashboard_content %}
 
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Informations de l'événement</h2>
         <p class="card-meta">Modifiez les champs nécessaires</p>
-
-        {% include 'partials/flashes.html.twig' %}
 
         {{ form_start(form, {'attr': {'class': 'auth-form', 'enctype': 'multipart/form-data'}}) }}
 
@@ -255,4 +251,4 @@
         {{ form_end(form) }}
     </section>
 </div>
-{% endblock %}
+{% endblock dashboard_content %}

@@ -7,15 +7,15 @@
 {% block dashboard_title %}Back-office admin{% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Fonctionnalités disponibles en back-office.</p>
+<p class="page-subtitle">Bienvenue dans l'espace d'administration TalChif.</p>
 
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Accès rapides</h2>
-        <p class="card-meta">Seules les fonctionnalités connectées aux données réelles sont proposées ici. Les autres modules (événements, organisateurs, finance, sécurité) seront activés au fur et à mesure de leur mise en service.</p>
         <div class="card-actions">
             <a class="btn btn-primary" href="{{ path('admin.user.index') }}">Gérer les utilisateurs</a>
-            <a class="btn btn-secondary" href="{{ path('accueil') }}">Retour au site</a>
+            <a class="btn btn-secondary" href="{{ path('admin.commande.index') }}">Commandes &amp; paiements</a>
+            <a class="btn" href="{{ path('accueil') }}">Retour au site</a>
         </div>
     </section>
 </div>

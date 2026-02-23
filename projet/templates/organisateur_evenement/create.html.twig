@@ -1,21 +1,17 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Créer un événement{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-{% endblock %}
+{% block dashboard_title %}Créer un événement{% endblock %}
 
-{% block body %}
-<h1 class="page-title">Créer un événement</h1>
-<p class="page-subtitle">Organisez votre événement</p>
+{% block dashboard_content %}
 
 <div class="grid">
     <section class="card">
         <h2 class="card-title">Informations de l'événement</h2>
         <p class="card-meta">Remplissez tous les champs pour créer votre événement</p>
-
-        {% include 'partials/flashes.html.twig' %}
 
         {{ form_start(form, {'attr': {'class': 'auth-form', 'enctype': 'multipart/form-data'}}) }}
 
@@ -187,20 +183,9 @@
             <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles</small>
         </div>
 
-        <div class="auth-form-group">
-            {{ form_label(form.imageBillet, 'Image du billet', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.imageBillet, {'attr': {'class': 'file-input'}}) }}
-            {% if form_errors(form.imageBillet) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.imageBillet) }}
-                </div>
-            {% endif %}
-            <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 2MB)</small>
+        <div class="auth-form-group" style="background: var(--couleur-surface-elevee); padding: var(--espace-md); border-radius: var(--rayon); border: 1px dashed var(--couleur-bordure);">
+            <p class="auth-label" style="margin: 0;">Design du billet</p>
+            <small class="form-help" style="margin: 0;">Le design personnalisé du billet (image PNG + zone QR) se configure après la création de l'événement, depuis la page de gestion de l'événement.</small>
         </div>
 
         <div class="auth-form-group">
@@ -243,4 +228,4 @@
         {{ form_end(form) }}
     </section>
 </div>
-{% endblock %}
+{% endblock dashboard_content %}

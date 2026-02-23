@@ -5,8 +5,6 @@
  * @version 2.0 - Février 2026
  */
 
-console.log('[NOTIFICATION] Script chargé');
-
 class NotificationService {
     constructor() {
         this.container = null;
@@ -22,25 +20,19 @@ class NotificationService {
      */
     init() {
         if (this.isInitialized) {
-            console.log('[NOTIFICATION] Déjà initialisé');
-            return;
+                return;
         }
 
-        console.log('[NOTIFICATION] Init démarré');
-        
         // Vérifier que document.body existe
         if (!document.body) {
-            console.warn('[NOTIFICATION] document.body pas encore disponible, retry...');
             setTimeout(() => this.init(), 50);
             return;
         }
         
         // Créer le conteneur de notifications s'il n'existe pas
         this.container = document.getElementById('notifications-container');
-        console.log('[NOTIFICATION] Conteneur trouvé:', !!this.container);
         
         if (!this.container) {
-            console.log('[NOTIFICATION] Création du conteneur...');
             this.container = document.createElement('div');
             this.container.id = 'notifications-container';
             this.container.className = 'notifications-container';
@@ -49,11 +41,9 @@ class NotificationService {
             this.container.setAttribute('aria-live', 'polite');
             this.container.setAttribute('aria-atomic', 'false');
             document.body.appendChild(this.container);
-            console.log('[NOTIFICATION] Conteneur créé et ajouté au DOM');
         }
 
         this.isInitialized = true;
-        console.log('[NOTIFICATION] ✅ Service initialisé avec succès');
         this.processQueue();
     }
 
@@ -457,21 +447,12 @@ class NotificationService {
 
 // Créer instance singleton
 const notificationService = new NotificationService();
-console.log('[NOTIFICATION] Instance créée');
 
-// Disponibilité globale (pas de module ES, script simple)
 window.NotificationService = notificationService;
-console.log('[NOTIFICATION] Service disponible globalement');
 
-// Auto-initialisation au chargement du DOM
 if (document.readyState === 'loading') {
-    console.log('[NOTIFICATION] Attente DOMContentLoaded');
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('[NOTIFICATION] Initialisation...');
-        notificationService.init();
-    });
+    document.addEventListener('DOMContentLoaded', () => notificationService.init());
 } else {
-    console.log('[NOTIFICATION] DOM déjà prêt, initialisation immédiate');
     notificationService.init();
 }
 

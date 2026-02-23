@@ -8,7 +8,7 @@
     <div class="dashboard">
         <aside class="dashboard-sidebar" aria-label="Menu latéral">
             <div class="dashboard-sidebar-top">
-                <a class="dashboard-brand" href="{{ path('accueil') }}">TalChif</a>
+                <a class="dashboard-brand" href="{{ path('accueil') }}" data-turbo-frame="_top">TalChif</a>
                 <label class="dashboard-close" for="dashboard-menu">Fermer</label>
             </div>
 
@@ -20,40 +20,40 @@
                 {% if section == 'organisateur' %}
                     <div class="dashboard-nav-title">Organisateur</div>
 
-                    <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}">Tableau de bord</a>
+                    <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
 
                     <details class="dashboard-group" open>
                         <summary>Gestion des événements</summary>
                         <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}">Liste des événements</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}">Ajouter un événement</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}">Vue globale ventes</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}" data-turbo-frame="dashboard-main-frame">Liste des événements</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}" data-turbo-frame="dashboard-main-frame">Ajouter un événement</a>
+                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Vue globale ventes</a>
                         </div>
                     </details>
 
                     <div class="dashboard-nav-title">Général</div>
-                    <a class="dashboard-link" href="{{ path('accueil') }}">Retour site</a>
+                    <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
                 {% elseif section == 'admin' %}
                     <div class="dashboard-nav-title">Administration</div>
 
-                    <a class="dashboard-link" href="{{ path('admin.dashboard') }}">Tableau de bord</a>
+                    <a class="dashboard-link" href="{{ path('admin.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
 
                     <details class="dashboard-group" open>
                         <summary>Gestion</summary>
                         <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.user.index') }}">Utilisateurs</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}">Commandes & validation</a>
+                            <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">Utilisateurs</a>
+                            <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">Commandes & validation</a>
                             {# Événements, Organisateurs, Finance, Sécurité #}
                         </div>
                     </details>
 
                     <div class="dashboard-nav-title">Général</div>
-                    <a class="dashboard-link" href="{{ path('accueil') }}">Retour site</a>
+                    <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
                 {% endif %}
             </nav>
         </aside>
 
-        <div class="dashboard-main">
+        <turbo-frame id="dashboard-main-frame" data-turbo-action="advance" class="dashboard-main">
             {% include 'partials/flashes.html.twig' %}
             <header class="dashboard-topbar">
                 <label class="dashboard-burger" for="dashboard-menu" aria-label="Ouvrir le menu de navigation">
@@ -73,6 +73,6 @@
             <section class="dashboard-content">
                 {% block dashboard_content %}{% endblock %}
             </section>
-        </div>
+        </turbo-frame>
     </div>
 {% endblock %}

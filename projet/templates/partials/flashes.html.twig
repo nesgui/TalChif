@@ -1,11 +1,13 @@
 {# 
    Messages Flash TalChif
-   Système simplifié et moderne avec fallback sans JS
-   Compatible avec le nouveau NotificationService 2.0
+   Collecte unique des flash messages (app.flashes se consomme à la lecture),
+   puis fallback HTML + conversion en toasts JS via NotificationService.
 #}
 
-{# Messages visibles immédiatement (fallback si JS désactivé) #}
-{% for type, messages in app.flashes %}
+{% set _flashes = app.flashes %}
+
+{# Fallback HTML visible immédiatement (masqué par JS si toasts disponibles) #}
+{% for type, messages in _flashes %}
     {% for message in messages %}
         <div class="flash-message flash-{{ type }}" role="alert">
             <strong>
@@ -23,88 +25,42 @@
     {% endfor %}
 {% endfor %}
 
-{# Script simplifié pour convertir flash messages en notifications toast #}
-{% if app.flashes is not empty %}
+{# Conversion flash → toasts NotificationService #}
+{% if _flashes is not empty %}
 <script>
 (function() {
     'use strict';
-    
-    // Éviter les doublons si script exécuté plusieurs fois
-    if (window.flashMessagesProcessed) {
-        return;
-    }
-    window.flashMessagesProcessed = true;
-    
-    // Collecter tous les messages flash
-    const flashMessages = [];
-    
-    {% for type, messages in app.flashes %}
-        {% for message in messages %}
-            flashMessages.push({
-                type: '{{ type }}',
-                message: {{ message|json_encode|raw }}
-            });
+
+    var flashMessages = [
+        {% for type, messages in _flashes %}
+            {% for message in messages %}
+                { type: '{{ type }}', message: {{ message|json_encode|raw }} },
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-    
-    // Fonction pour afficher les notifications
-    function displayFlashNotifications() {
-        if (!window.NotificationService) {
-            return;
-        }
-        
-        const typeMapping = {
-            'success': 'success',
-            'error': 'error',
-            'danger': 'error',
-            'warning': 'warning',
-            'info': 'info'
-        };
-        
-        const titleMapping = {
-            'success': 'Succès',
-            'error': 'Erreur',
-            'danger': 'Erreur',
-            'warning': 'Attention',
-            'info': 'Information'
-        };
-        
-        flashMessages.forEach(function(flash) {
-            const type = typeMapping[flash.type] || 'info';
-            const title = titleMapping[flash.type] || 'Information';
-            
-            window.NotificationService.show(type, title, flash.message);
+    ];
+
+    var typeMap  = { success:'success', error:'error', danger:'error', warning:'warning', info:'info' };
+    var titleMap = { success:'Succès', error:'Erreur', danger:'Erreur', warning:'Attention', info:'Information' };
+
+    function display() {
+        if (!window.NotificationService || !window.NotificationService.isInitialized) return false;
+        flashMessages.forEach(function(f) {
+            var t = typeMap[f.type] || 'info';
+            window.NotificationService.show(t, titleMap[t] || 'Information', f.message);
         });
-        
-        // Masquer les messages inline une fois affichés en toast
-        document.querySelectorAll('.flash-message').forEach(function(el) {
-            el.style.display = 'none';
-        });
+        document.querySelectorAll('.flash-message').forEach(function(el) { el.style.display = 'none'; });
+        return true;
     }
-    
-    // Attendre que NotificationService soit disponible
-    function waitForService(attempts) {
-        if (attempts === void 0) attempts = 0;
-        
-        if (window.NotificationService) {
-            displayFlashNotifications();
-        } else if (attempts < 50) { // Max 2.5 secondes d'attente
-            setTimeout(function() {
-                waitForService(attempts + 1);
-            }, 50);
-        } else {
-            // Timeout : garder les messages inline visibles
-            console.warn('[Flash] NotificationService non disponible après timeout');
-        }
+
+    function poll(n) {
+        if (display()) return;
+        if (n < 60) setTimeout(function() { poll(n + 1); }, 50);
     }
-    
-    // Démarrer l'attente
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            waitForService();
-        });
+        document.addEventListener('DOMContentLoaded', function() { poll(0); });
     } else {
-        waitForService();
+        poll(0);
     }
 })();
 </script>

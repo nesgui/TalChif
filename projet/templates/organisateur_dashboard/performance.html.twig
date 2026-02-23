@@ -1,8 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Performance - {{ evenement.nom }}{% endblock %}
 
-{% block body %}
+{% block dashboard_title %}Performance - {{ evenement.nom }}{% endblock %}
+
+{% block dashboard_content %}
 <div class="performance-container">
     <div class="performance-header">
         <h1 class="page-title">
@@ -636,4 +640,4 @@ function printReport() {
     window.print();
 }
 </script>
-{% endblock %}
+{% endblock dashboard_content %}

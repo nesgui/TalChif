@@ -107,29 +107,4 @@
     </section>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof DataTableOS === 'undefined') {
-        return;
-    }
-
-    if (document.querySelector('#organisateur-evenement-infos-table')) {
-        DataTableOS.init('#organisateur-evenement-infos-table', {
-            paging: false,
-            searching: false,
-            info: false,
-            order: [],
-        });
-    }
-
-    if (document.querySelector('#organisateur-evenement-billets-table')) {
-        DataTableOS.init('#organisateur-evenement-billets-table', {
-            paging: false,
-            searching: false,
-            info: false,
-            order: [],
-        });
-    }
-});
-</script>
 {% endblock %}

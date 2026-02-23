@@ -1,8 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
 
 {% block title %}Participants - {{ evenement.nom }}{% endblock %}
 
-{% block body %}
+{% block dashboard_title %}Participants - {{ evenement.nom }}{% endblock %}
+
+{% block dashboard_content %}
 <div class="participants-container">
     <div class="participants-header">
         <h1 class="page-title">
@@ -674,4 +678,4 @@ document.getElementById('qrModal').addEventListener('click', function(e) {
     }
 });
 </script>
-{% endblock %}
+{% endblock dashboard_content %}

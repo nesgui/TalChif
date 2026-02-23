@@ -26,7 +26,7 @@
 
 <div class="admin-sections">
     <section class="card">
-        <h2 class="card-title">Commandes Pending ({{ pending|length }})</h2>
+        <h2 class="card-title">Commandes en attente ({{ pending|length }})</h2>
         <p class="card-meta">En attente de validation - Vérifier dashboard opérateur Mobile Money</p>
         {% if pending|length > 0 %}
         <div class="table-responsive">
@@ -73,7 +73,7 @@
     </section>
 
     <section class="card">
-        <h2 class="card-title">Commandes Paid</h2>
+        <h2 class="card-title">Commandes payées</h2>
         <p class="card-meta">{{ paid|length }} paiement(s) validé(s)</p>
         {% if paid|length > 0 %}
         <div class="table-responsive">
@@ -149,7 +149,7 @@
     </section>
 
     <section class="card">
-        <h2 class="card-title">Commandes Expired</h2>
+        <h2 class="card-title">Commandes expirées</h2>
         <p class="card-meta">{{ expired|length }} commande(s) expirée(s)</p>
         {% if expired|length > 0 %}
         <div class="table-responsive">
