@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LogSecuriteRepository;
+use App\Service\Ticket\TicketRenderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\LockMode;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -29,6 +30,7 @@ final class ServiceCommande
         private EvenementRepository $evenementRepository,
         private LogSecuriteRepository $logSecuriteRepository,
         private RequestStack $requestStack,
+        private TicketRenderService $ticketRenderService,
         #[Autowire('%app.commission_taux%')]
         private float $commissionTaux,
         #[Autowire('%app.commande.expiration_minutes%')]
@@ -216,6 +218,11 @@ final class ServiceCommande
                     $billet->setOrganisateur($evenement->getOrganisateur());
                     $billet->setTransactionId($commande->getReference());
                     $billet->validerPaiement();
+
+                    $renderedPath = $this->ticketRenderService->renderAndStoreBilletPng($billet);
+                    if ($renderedPath) {
+                        $billet->setRenderedPngPath($renderedPath);
+                    }
                     $this->entityManager->persist($billet);
                 }
                 $evenement->setPlacesVendues($evenement->getPlacesVendues() + $ligne->getQuantite());

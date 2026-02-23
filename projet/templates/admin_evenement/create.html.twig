@@ -88,25 +88,16 @@
             {{ form_label(form.autresAffiches) }}
             {{ form_widget(form.autresAffiches, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.autresAffiches) }}
-            <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles</small>
-        </div>
-
-        <div class="form-group">
-            {{ form_label(form.imageBillet) }}
-            {{ form_widget(form.imageBillet, {'attr': {'class': 'file-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
-            {{ form_errors(form.imageBillet) }}
             <small class="form-help">Formats acceptés: JPEG, PNG, GIF, WebP (max 2MB)</small>
         </div>
 
         <div class="form-group">
-            <div class="form-checkbox-wrapper">
-                {{ form_widget(form.isActive, {'attr': {'class': 'form-checkbox'}}) }}
-                <label for="{{ form.isActive.vars.id }}" class="form-checkbox-label">
-                    <strong>{{ form_label(form.isActive) }}</strong>
-                    <span class="form-help">{{ form_help(form.isActive) }}</span>
-                </label>
-            </div>
-            {{ form_errors(form.isActive) }}
+            {{ form_label(form.isActive) }}
+            {{ form_widget(form.isActive, {'attr': {'class': 'form-checkbox'}}) }}
+            <label for="{{ form.isActive.vars.id }}" class="form-checkbox-label">
+                <strong>{{ form_label(form.isActive) }}</strong>
+                <span class="form-help">{{ form_help(form.isActive) }}</span>
+            </label>
         </div>
 
         <div class="form-group">

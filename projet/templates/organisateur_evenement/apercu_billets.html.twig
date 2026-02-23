@@ -1,0 +1,133 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block title %}Aperçu des billets - {{ evenement.nom }}{% endblock %}
+
+{% block dashboard_title %}Aperçu des billets{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}">Retour à l'événement</a>
+{% endblock %}
+
+{% block dashboard_content %}
+
+<p class="page-subtitle">{{ evenement.nom }} — Rendu final des billets tel qu'ils seront remis aux acheteurs</p>
+
+{% if not gdDisponible %}
+    <div class="flash-message flash-error" style="margin-bottom: var(--espace-lg);">
+        <strong>Extension GD manquante.</strong> L'aperçu des billets nécessite l'extension PHP GD.
+        Activez <code>extension=gd</code> dans votre <code>php.ini</code> puis redémarrez le serveur.
+    </div>
+{% endif %}
+
+<div style="display: flex; flex-direction: column; gap: var(--espace-xl);">
+
+    {# ── Billet SIMPLE ── #}
+    <section class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--espace-sm); margin-bottom: var(--espace-md);">
+            <div>
+                <h2 class="card-title" style="margin-bottom: 0;">Billet SIMPLE</h2>
+                <p class="card-meta" style="margin-top: 2px;">{{ evenement.prixSimple }} XAF</p>
+            </div>
+            <div style="display: flex; gap: var(--espace-sm); align-items: center;">
+                {% if designSimple and designSimple.designPath %}
+                    <span class="pill pill-success">Design configuré</span>
+                {% else %}
+                    <span class="pill pill-warning">Non configuré</span>
+                {% endif %}
+                <a class="btn btn-sm btn-primary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id, typeBillet: 'SIMPLE'}) }}">
+                    {% if designSimple and designSimple.designPath %}Modifier le design{% else %}Configurer le design{% endif %}
+                </a>
+            </div>
+        </div>
+
+        {% if designSimple and designSimple.designPath %}
+            <div style="background: var(--couleur-surface-elevee); border-radius: 12px; padding: var(--espace-lg); text-align: center; border: 1px solid var(--couleur-bordure);">
+                <img src="{{ path('organisateur.evenement.billet_design_preview', {id: evenement.id, typeBillet: 'SIMPLE', v: (designSimple.updatedAt ? designSimple.updatedAt|date('U') : designSimple.createdAt|date('U')) }) }}"
+                     alt="Aperçu billet SIMPLE - {{ evenement.nom }}"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                     style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.12);">
+                <div style="display: none; flex-direction: column; align-items: center; gap: var(--espace-sm); padding: var(--espace-lg); color: var(--couleur-texte-secondaire);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <p style="font-size: 0.9rem; margin: 0;">Impossible de générer l'aperçu.</p>
+                    <p style="font-size: 0.8rem; margin: 0;">Vérifiez que l'extension GD est active et redémarrez le serveur PHP.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: var(--espace-md); margin-top: var(--espace-md); font-size: 0.8rem; color: var(--couleur-texte-secondaire);">
+                <span>Dimensions : {{ designSimple.designWidth }} × {{ designSimple.designHeight }} px</span>
+                <span>Mis à jour : {{ (designSimple.updatedAt ? designSimple.updatedAt : designSimple.createdAt)|date('d/m/Y H:i') }}</span>
+            </div>
+        {% else %}
+            <div style="padding: var(--espace-xl); text-align: center; background: var(--couleur-surface-elevee); border-radius: 12px; border: 2px dashed var(--couleur-bordure);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--couleur-texte-secondaire)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p style="margin-top: var(--espace-md); color: var(--couleur-texte-secondaire); font-size: 0.95rem;">
+                    Aucun design n'a été configuré pour le billet SIMPLE.
+                </p>
+                <a class="btn btn-primary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id, typeBillet: 'SIMPLE'}) }}" style="margin-top: var(--espace-sm);">
+                    Importer un design
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+    {# ── Billet VIP (si applicable) ── #}
+    {% if evenement.hasVip %}
+    <section class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--espace-sm); margin-bottom: var(--espace-md);">
+            <div>
+                <h2 class="card-title" style="margin-bottom: 0;">Billet VIP</h2>
+                <p class="card-meta" style="margin-top: 2px;">{{ evenement.prixVip }} XAF</p>
+            </div>
+            <div style="display: flex; gap: var(--espace-sm); align-items: center;">
+                {% if designVip and designVip.designPath %}
+                    <span class="pill pill-success">Design configuré</span>
+                {% else %}
+                    <span class="pill pill-warning">Non configuré</span>
+                {% endif %}
+                <a class="btn btn-sm btn-secondary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id, typeBillet: 'VIP'}) }}">
+                    {% if designVip and designVip.designPath %}Modifier le design{% else %}Configurer le design{% endif %}
+                </a>
+            </div>
+        </div>
+
+        {% if designVip and designVip.designPath %}
+            <div style="background: var(--couleur-surface-elevee); border-radius: 12px; padding: var(--espace-lg); text-align: center; border: 1px solid var(--couleur-bordure);">
+                <img src="{{ path('organisateur.evenement.billet_design_preview', {id: evenement.id, typeBillet: 'VIP', v: (designVip.updatedAt ? designVip.updatedAt|date('U') : designVip.createdAt|date('U')) }) }}"
+                     alt="Aperçu billet VIP - {{ evenement.nom }}"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                     style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.12);">
+                <div style="display: none; flex-direction: column; align-items: center; gap: var(--espace-sm); padding: var(--espace-lg); color: var(--couleur-texte-secondaire);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <p style="font-size: 0.9rem; margin: 0;">Impossible de générer l'aperçu.</p>
+                    <p style="font-size: 0.8rem; margin: 0;">Vérifiez que l'extension GD est active et redémarrez le serveur PHP.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: var(--espace-md); margin-top: var(--espace-md); font-size: 0.8rem; color: var(--couleur-texte-secondaire);">
+                <span>Dimensions : {{ designVip.designWidth }} × {{ designVip.designHeight }} px</span>
+                <span>Mis à jour : {{ (designVip.updatedAt ? designVip.updatedAt : designVip.createdAt)|date('d/m/Y H:i') }}</span>
+            </div>
+        {% else %}
+            <div style="padding: var(--espace-xl); text-align: center; background: var(--couleur-surface-elevee); border-radius: 12px; border: 2px dashed var(--couleur-bordure);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--couleur-texte-secondaire)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p style="margin-top: var(--espace-md); color: var(--couleur-texte-secondaire); font-size: 0.95rem;">
+                    Aucun design n'a été configuré pour le billet VIP.
+                </p>
+                <a class="btn btn-secondary" href="{{ path('organisateur.evenement.billet_design', {id: evenement.id, typeBillet: 'VIP'}) }}" style="margin-top: var(--espace-sm);">
+                    Importer un design
+                </a>
+            </div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {# ── Note informative ── #}
+    <div style="padding: var(--espace-md) var(--espace-lg); background: var(--couleur-surface-elevee); border-radius: 8px; border-left: 4px solid var(--couleur-primaire); font-size: 0.85rem; color: var(--couleur-texte-secondaire);">
+        <strong>Comment ça fonctionne ?</strong>
+        Le design que vous importez est combiné automatiquement avec un QR code unique pour chaque acheteur.
+        Le rendu ci-dessus est un aperçu fidèle du billet final tel qu'il sera remis lors de l'achat.
+    </div>
+
+</div>
+
+{% endblock %}
