@@ -22,9 +22,6 @@
         {# Colonne centrale : informations principales (résumé, façon fiche produit Apple) #}
         <div class="product-hero-body">
             <h1 class="page-title">{{ evenement.titre }}</h1>
-            <p class="page-subtitle">
-                {{ evenement.date|date('d/m/Y H:i') }} • {{ evenement.lieu }}, {{ evenement.ville }}
-            </p>
 
             {# Résumé court directement sous le titre #}
             <p class="card-meta">
@@ -34,8 +31,6 @@
             <p class="card-meta">
                 <strong>À propos de l’événement</strong><br>
                 Types de billets : {{ evenement.types_billets is defined ? evenement.types_billets|length : 2 }}&nbsp;
-                · Places totales : {{ evenement.places_total }}&nbsp;
-                · Places restantes : {{ evenement.places_disponibles }}
             </p>
         </div>
 
