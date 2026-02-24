@@ -257,6 +257,22 @@ turbo-frame.dashboard-main,
    Dashboard Organisateur - Contenu
    ============================================= */
 
+/* Override conflicting styles from app.css for dashboard event cards */
+.dashboard-content .event-image {
+    height: 220px !important;
+    width: 100% !important;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0;
+}
+
+.dashboard-content .event-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0;
+}
+
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -434,7 +450,7 @@ turbo-frame.dashboard-main,
 }
 
 .event-image {
-    height: 200px;
+    height: 220px;
     overflow: hidden;
     position: relative;
 }
@@ -457,14 +473,14 @@ turbo-frame.dashboard-main,
 }
 
 .event-content {
-    padding: var(--espace-lg);
+    padding: var(--espace-md);
 }
 
 .event-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: var(--espace-md);
+    margin-bottom: var(--espace-sm);
 }
 
 .event-title {
@@ -495,8 +511,8 @@ turbo-frame.dashboard-main,
 .event-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--espace-sm);
-    margin-bottom: var(--espace-md);
+    gap: var(--espace-xs);
+    margin-bottom: var(--espace-sm);
 }
 
 .meta-item {
@@ -513,9 +529,9 @@ turbo-frame.dashboard-main,
 
 .event-stats {
     display: flex;
-    gap: var(--espace-md);
-    margin-bottom: var(--espace-md);
-    padding: var(--espace-md);
+    gap: var(--espace-sm);
+    margin-bottom: var(--espace-sm);
+    padding: var(--espace-sm);
     background: var(--couleur-surface-elevee);
     border-radius: var(--rayon-sm);
 }

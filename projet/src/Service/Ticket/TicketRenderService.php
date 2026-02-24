@@ -10,8 +10,8 @@ use App\Repository\TicketDesignRepository;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -168,19 +168,20 @@ final class TicketRenderService
 
         // Create QR image
         $qrBoxSize = (int) round(min(($sepX - 2 * $padding), ($canvasH - 2 * $padding)) * 0.78);
-        $qr = Builder::create()
-            ->writer(new PngWriter())
-            ->data($payload)
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
-            ->size($qrBoxSize)
-            ->margin(0)
-            ->roundBlockSizeMode(new RoundBlockSizeModeMargin())
-            ->foregroundColor(new Color(0, 0, 0))
-            ->backgroundColor(new Color(255, 255, 255))
-            ->build();
+        $qr = new Builder(
+            data: $payload,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: $qrBoxSize,
+            margin: 0,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: new Color(0, 0, 0),
+            backgroundColor: new Color(255, 255, 255),
+            writer: new PngWriter()
+        );
 
-        $qrImg = @imagecreatefromstring($qr->getString());
+        $qrResult = $qr->build();
+        $qrImg = @imagecreatefromstring($qrResult->getString());
         if (!$qrImg) {
             imagedestroy($designImg);
             imagedestroy($canvas);

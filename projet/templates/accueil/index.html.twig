@@ -92,58 +92,74 @@
 
 .apple-catalog {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 280px);
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
     justify-content: start;
 }
 .apple-card {
     background: var(--couleur-surface);
-    border-radius: 18px;
-    padding: 1rem;
+    border-radius: 8px;
     border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    transition: transform var(--transition-rapide), box-shadow var(--transition-rapide), border-color var(--transition-rapide);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
 }
 .apple-card:hover {
-    border-color: color-mix(in srgb, var(--couleur-primaire) 45%, var(--couleur-bordure));
-    box-shadow: var(--ombre-md);
-    transform: translateY(-1px);
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 .apple-card:active {
-    transform: translateY(0);
+    transform: scale(1.02);
 }
 
 .apple-card-media {
     position: relative;
-    border-radius: 14px;
     overflow: hidden;
-    background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--event-dominant, rgba(0,0,0,0.18)) 45%, transparent) 0%, var(--couleur-surface) 62%);
-    box-shadow: 0 18px 42px color-mix(in srgb, var(--event-dominant, rgba(0,0,0,0.25)) 42%, transparent);
-    aspect-ratio: 4 / 3;
-    display: grid;
-    place-items: center;
-}
-
-.apple-card-media::after {
-    content: '';
-    position: absolute;
-    inset: -18%;
-    background: radial-gradient(closest-side at 50% 40%, color-mix(in srgb, var(--event-dominant, rgba(0,0,0,0.22)) 55%, transparent) 0%, transparent 70%);
-    filter: blur(22px);
-    opacity: 0.95;
-    pointer-events: none;
+    height: 280px;
 }
 
 .apple-card-media img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
-    position: relative;
-    z-index: 1;
-    transform: scale(0.98);
+}
+.apple-card-body {
+    display: none;
+}
+.apple-card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+    color: white;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.apple-card-meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.apple-card-meta::before {
+    content: "📍";
+    font-size: 0.7rem;
+}
+.apple-card-price {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.apple-card-actions {
+    display: none;
 }
 
 .event-badge {
@@ -261,12 +277,11 @@
         margin-bottom: 2rem;
     }
     .apple-catalog {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
     }
-    .apple-card {
-        padding: 0.9rem;
-        border-radius: 16px;
+    .apple-card-media {
+        height: 220px;
     }
     .event-badge {
         top: 8px;
@@ -318,27 +333,23 @@
     <div class="apple-catalog">
         {% for evenement in evenements %}
             <article class="apple-card">
-                <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="product-link" style="text-decoration:none; color:inherit;">
+                <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" style="text-decoration:none; color:inherit;">
                     <div class="apple-card-media">
-                        <img src="{{ evenement.image }}" alt="Affiche de l'événement : {{ evenement.titre }}" loading="lazy" data-dominant-color>
+                        <img src="{{ evenement.image|slice(1) }}" alt="Affiche de l'événement : {{ evenement.titre }}">
                         {% if evenement.badge %}
                             <span class="event-badge {{ evenement.badge == 'Complet' ? 'is-full' : '' }}">{{ evenement.badge }}</span>
                         {% endif %}
-                    </div>
-                    <div class="apple-card-body">
-                        <div class="apple-card-title">{{ evenement.titre }}</div>
-                        <div class="apple-card-meta">
-                            <span class="pill">{{ evenement.ville }}</span>
-                            <span class="pill">{{ evenement.date|date('d/m/Y H:i') }}</span>
-                        </div>
-                        <div class="apple-card-price">
-                            À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong>
+                        <div class="apple-card-body">
+                            <div class="apple-card-title">{{ evenement.titre }}</div>
+                            <div class="apple-card-meta">
+                                {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
+                            </div>
+                            <div class="apple-card-price">
+                                À partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF
+                            </div>
                         </div>
                     </div>
                 </a>
-                <div class="apple-card-actions">
-                    <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-sm btn-primary">Voir les détails</a>
-                </div>
             </article>
         {% else %}
             <p class="text-center text-muted">Aucun événement disponible pour le moment.</p>

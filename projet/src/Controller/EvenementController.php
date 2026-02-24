@@ -34,12 +34,16 @@ final class EvenementController extends AbstractController
 
         // Transformer les entités en tableau pour le template existant
         $evenementsArray = [];
+        $nouveauxEvenements = [];
+        $plusAchetes = [];
+        $evenementsPopulaires = [];
+        
         foreach ($evenements as $evenement) {
-            $evenementsArray[] = [
+            $eventData = [
                 'id' => $evenement->getId(),
                 'slug' => $evenement->getSlug(),
                 'titre' => $evenement->getNom(),
-                'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
+                'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/evenement-1.jpg',
                 'ville' => $evenement->getVille(),
                 'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
                 'prix_simple' => $evenement->getPrixSimple(),
@@ -48,11 +52,33 @@ final class EvenementController extends AbstractController
                 'note' => null,
                 'avis' => null,
                 'badge' => $this->getBadgeForEvent($evenement),
+                'places_vendues' => $evenement->getPlacesVendues(),
+                'created_at' => $evenement->getCreatedAt(),
             ];
+            
+            $evenementsArray[] = $eventData;
+            
+            // Catégoriser les événements
+            if ($eventData['badge'] === 'Nouveau') {
+                $nouveauxEvenements[] = $eventData;
+            }
+            
+            // Plus achetés (basé sur les places vendues)
+            if ($eventData['places_vendues'] > 10) {
+                $plusAchetes[] = $eventData;
+            }
+            
+            // Événements populaires (vendues > 5 ou récents)
+            if ($eventData['places_vendues'] > 5 || $eventData['badge'] === 'Recommandé') {
+                $evenementsPopulaires[] = $eventData;
+            }
         }
 
         return $this->render('evenement/index.html.twig', [
             'evenements' => $evenementsArray,
+            'nouveaux_evenements' => $nouveauxEvenements,
+            'plus_achetes' => $plusAchetes,
+            'evenements_populaires' => $evenementsPopulaires,
         ]);
     }
 
@@ -94,7 +120,7 @@ final class EvenementController extends AbstractController
             'id' => $evenement->getId(),
             'slug' => $evenement->getSlug(),
             'titre' => $evenement->getNom(),
-            'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
+            'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/evenement-1.jpg',
             'description' => $evenement->getDescription(),
             'lieu' => $evenement->getLieu(),
             'adresse' => $evenement->getAdresse(),
