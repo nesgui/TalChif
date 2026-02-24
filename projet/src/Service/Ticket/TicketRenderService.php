@@ -141,10 +141,10 @@ final class TicketRenderService
         imagefill($canvas, 0, 0, $transparent);
         imagealphablending($canvas, true);
 
-        // Layout zones (QR left, Design right)
+        // Layout zones (QR left, Design right) - 35/65 pour encore plus d'espace design
         $padding = (int) round($canvasW * 0.03);
         $radius = (int) round(min($canvasW, $canvasH) * 0.06);
-        $sepX = (int) round($canvasW * 0.72);
+        $sepX = (int) round($canvasW * 0.35);
 
         $bg = imagecolorallocate($canvas, 255, 255, 255);
         $border = imagecolorallocate($canvas, 210, 210, 210);
@@ -156,18 +156,25 @@ final class TicketRenderService
         // QR zone background
         imagefilledrectangle($canvas, $padding, $padding, $sepX - $padding, $canvasH - $padding, $qrBg);
 
-        // Perforation dots separator
-        $this->drawPerforationDots($canvas, $sepX, $padding, $canvasH - $padding, $dot);
+        // Perforation dots separator - centré verticalement
+        $dotsTop = (int) round(($canvasH - ($canvasH - 2 * $padding)) / 2);
+        $dotsBottom = (int) round(($canvasH + ($canvasH - 2 * $padding)) / 2);
+        $this->drawPerforationDots($canvas, $sepX - 30, $dotsTop, $dotsBottom, $dot);
 
-        // Place design (contain) in right zone
-        $rightX1 = $sepX + (int) round($padding * 0.7);
-        $rightY1 = $padding;
-        $rightX2 = $canvasW - $padding;
-        $rightY2 = $canvasH - $padding;
-        $this->placeContain($canvas, $designImg, $rightX1, $rightY1, $rightX2 - $rightX1, $rightY2 - $rightY1);
+        // Place design (cover) - centré verticalement
+        $rightX1 = $sepX - 10; // Très chevauche les pointillés
+        $centerY = (int) round($canvasH / 2);
+        $designHeight = $canvasH - 100; // Hauteur totale du design
+        $rightY1 = $centerY - (int) round($designHeight / 2);
+        $rightX2 = $canvasW - 12; // Marge droite
+        $rightY2 = $centerY + (int) round($designHeight / 2);
+        $this->placeCover($canvas, $designImg, $rightX1, $rightY1, $rightX2 - $rightX1, $rightY2 - $rightY1);
 
-        // Create QR image
-        $qrBoxSize = (int) round(min(($sepX - 2 * $padding), ($canvasH - 2 * $padding)) * 0.78);
+        // Create QR image - taille réduite pour meilleur équilibre
+        $qrZoneWidth = $sepX - 2 * $padding;
+        $qrZoneHeight = $canvasH - 2 * $padding;
+        $qrBoxSize = (int) round(min($qrZoneWidth, $qrZoneHeight) * 0.75); // 75% pour plus d'espace design
+        
         $qr = new Builder(
             data: $payload,
             encoding: new Encoding('UTF-8'),
@@ -188,10 +195,11 @@ final class TicketRenderService
             return null;
         }
 
-        // Center QR in left zone
-        $qrX = (int) round($padding + (($sepX - $padding) - $padding - $qrBoxSize) / 2);
-        $qrY = (int) round($padding + (($canvasH - 2 * $padding) - $qrBoxSize) / 2);
-        imagecopyresampled($canvas, $qrImg, $qrX, $qrY, 0, 0, $qrBoxSize, $qrBoxSize, imagesx($qrImg), imagesy($qrImg));
+        // Center QR dynamically in left zone
+        $qrActualSize = imagesx($qrImg);
+        $qrX = (int) round($padding + ($qrZoneWidth - $qrActualSize) / 2);
+        $qrY = (int) round($padding + ($qrZoneHeight - $qrActualSize) / 2);
+        imagecopy($canvas, $qrImg, $qrX, $qrY, 0, 0, $qrActualSize, $qrActualSize);
 
         imagedestroy($qrImg);
         imagedestroy($designImg);
@@ -207,10 +215,10 @@ final class TicketRenderService
         // Heuristic based on design area
         $area = $designW * $designH;
 
-        // mm conventions (Option 1)
-        $small = [180, 70];
-        $medium = [195, 80];
-        $large = [210, 90];
+        // mm conventions - plus large pour le design
+        $small = [200, 65];
+        $medium = [220, 75];
+        $large = [240, 85];
 
         if ($area <= 900_000) {
             [$mmW, $mmH] = $small;
@@ -244,6 +252,43 @@ final class TicketRenderService
         $dstY = (int) round($y + ($h - $newH) / 2);
 
         imagecopyresampled($dst, $src, $dstX, $dstY, 0, 0, $newW, $newH, $srcW, $srcH);
+    }
+
+    private function placeCover(\GdImage $dst, \GdImage $src, int $x, int $y, int $w, int $h): void
+    {
+        $srcW = imagesx($src);
+        $srcH = imagesy($src);
+        if ($srcW <= 0 || $srcH <= 0 || $w <= 0 || $h <= 0) {
+            return;
+        }
+
+        // Mode cover : remplit complètement la zone, quitte à croper
+        $scale = max($w / $srcW, $h / $srcH);
+        $newW = (int) ceil($srcW * $scale);
+        $newH = (int) ceil($srcH * $scale);
+        
+        // Centre le design (peut déborder)
+        $dstX = (int) round($x - ($newW - $w) / 2);
+        $dstY = (int) round($y - ($newH - $h) / 2);
+
+        // Crée un masque pour limiter au rectangle de destination
+        $mask = imagecreatetruecolor($w, $h);
+        if (!$mask) {
+            return;
+        }
+        
+        imagealphablending($mask, false);
+        imagesavealpha($mask, true);
+        $transparent = imagecolorallocatealpha($mask, 0, 0, 0, 127);
+        imagefill($mask, 0, 0, $transparent);
+        
+        // Copie le design sur le masque
+        imagecopyresampled($mask, $src, 0, 0, 0, 0, $newW, $newH, $srcW, $srcH);
+        
+        // Copie le résultat sur le canvas final
+        imagecopy($dst, $mask, $x, $y, 0, 0, $w, $h);
+        
+        imagedestroy($mask);
     }
 
     private function drawPerforationDots(\GdImage $img, int $x, int $y1, int $y2, int $color): void
