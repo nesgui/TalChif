@@ -1,0 +1,6 @@
+services:
+    # Service de gestion des erreurs centralisé
+    App\Service\ErrorHandlingService:
+        arguments:
+            $requestStack: '@request_stack'
+            $translator: '@translator' # Optionnel, si le composant de traduction est disponible

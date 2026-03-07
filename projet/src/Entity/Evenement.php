@@ -12,6 +12,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Evenement
 {
+    public const CATEGORIE_CONCERT = 'concert';
+    public const CATEGORIE_SPORT = 'sport';
+    public const CATEGORIE_CULTURE = 'culture';
+    public const CATEGORIE_CONFERENCE = 'conference';
+    public const CATEGORIE_AUTRE = 'autre';
+
+    public const CATEGORIES = [
+        'Concerts & Soirées' => self::CATEGORIE_CONCERT,
+        'Sport & Compétitions' => self::CATEGORIE_SPORT,
+        'Culture & Spectacles' => self::CATEGORIE_CULTURE,
+        'Conférences & Séminaires' => self::CATEGORIE_CONFERENCE,
+        'Autre' => self::CATEGORIE_AUTRE,
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -70,6 +84,11 @@ class Evenement
 
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $autresAffiches = [];
+
+    #[ORM\Column(length: 50, options: ['default' => 'autre'])]
+    #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
+    #[Assert\Choice(callback: [self::class, 'getCategorieValues'], message: 'Catégorie invalide')]
+    private ?string $categorie = self::CATEGORIE_AUTRE;
 
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
@@ -419,5 +438,28 @@ class Evenement
     public function hasVip(): bool
     {
         return $this->prixVip !== null && (float) $this->prixVip > 0;
+    }
+
+    public function getCategorie(): ?string
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(string $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getCategorieLabel(): string
+    {
+        $flipped = array_flip(self::CATEGORIES);
+        return $flipped[$this->categorie] ?? 'Autre';
+    }
+
+    public static function getCategorieValues(): array
+    {
+        return array_values(self::CATEGORIES);
     }
 }

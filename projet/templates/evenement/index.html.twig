@@ -118,6 +118,62 @@
     display: none;
 }
 
+/* Mode sombre - correction des couleurs des textes */
+html[data-theme="dark"] .catalog-card-price,
+html[data-theme="dark"] section .catalog-card-price,
+html[data-theme="dark"] .catalog-card .catalog-card-price {
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .catalog-card-title,
+html[data-theme="dark"] section .catalog-card-title,
+html[data-theme="dark"] .catalog-card .catalog-card-title {
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .catalog-card-meta,
+html[data-theme="dark"] section .catalog-card-meta,
+html[data-theme="dark"] .catalog-card .catalog-card-meta {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Mode sombre - forcer tous les textes blancs dans les cartes */
+html[data-theme="dark"] .catalog-card * {
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .catalog-card .catalog-card-meta {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Mode sombre - forcer les fonds des cartes en sombre */
+html[data-theme="dark"] .catalog-card {
+    background: #1D3557 !important;
+    border-color: #457B9D !important;
+}
+
+/* Mode sombre - forcer les textes blancs avec spécificité maximale */
+html[data-theme="dark"] section .category-section .catalog-card .catalog-card-content .catalog-card-price,
+html[data-theme="dark"] .catalog-card .catalog-card-content .catalog-card-price,
+html[data-theme="dark"] .catalog-card-price {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+html[data-theme="dark"] section .category-section .catalog-card .catalog-card-content .catalog-card-title,
+html[data-theme="dark"] .catalog-card .catalog-card-content .catalog-card-title,
+html[data-theme="dark"] .catalog-card-title {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+html[data-theme="dark"] section .category-section .catalog-card .catalog-card-content .catalog-card-meta,
+html[data-theme="dark"] .catalog-card .catalog-card-content .catalog-card-meta,
+html[data-theme="dark"] .catalog-card-meta {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
 .hero-banner {
     position: relative;
     height: 400px;
@@ -317,113 +373,77 @@
 </style>
 
 <section class="catalog-page">
-    <!-- Nouveaux événements -->
-    {% if nouveaux_evenements|length > 0 %}
-        <section class="category-section" id="nouveaux">
-            <div class="category-header">
-                <h2 class="category-title">Nouveaux événements</h2>
-                <a href="{{ path('evenement.index') }}" class="category-link">Voir tout</a>
-            </div>
-            <div class="category-row">
-                {% for evenement in nouveaux_evenements|slice(0, 10) %}
-                    <article class="catalog-card">
-                        <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
-                            <img src="{{ evenement.image|slice(1) }}" alt="Affiche de l'événement : {{ evenement.titre }}">
-                            <div class="catalog-card-content">
-                                <div class="catalog-card-title">{{ evenement.titre }}</div>
-                                <div class="catalog-card-meta">
-                                    {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
-                                </div>
-                                <div class="catalog-card-price">
-                                    À partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF
-                                </div>
-                            </div>
-                        </a>
-                    </article>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-
-    <!-- Plus achetés -->
-    {% if plus_achetes|length > 0 %}
-        <section class="category-section">
-            <div class="category-header">
-                <h2 class="category-title">Plus achetés</h2>
-                <a href="{{ path('evenement.index') }}" class="category-link">Voir tout</a>
-            </div>
-            <div class="category-row">
-                {% for evenement in plus_achetes|slice(0, 10) %}
-                    <article class="catalog-card">
-                        <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
-                            <img src="{{ evenement.image|slice(1) }}" alt="Affiche de l'événement : {{ evenement.titre }}">
-                            <div class="catalog-card-content">
-                                <div class="catalog-card-title">{{ evenement.titre }}</div>
-                                <div class="catalog-card-meta">
-                                    {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
-                                </div>
-                                <div class="catalog-card-price">
-                                    À partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF
-                                </div>
-                            </div>
-                        </a>
-                    </article>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-
-    <!-- Événements populaires -->
-    {% if evenements_populaires|length > 0 %}
-        <section class="category-section">
-            <div class="category-header">
-                <h2 class="category-title">Événements populaires</h2>
-                <a href="{{ path('evenement.index') }}" class="category-link">Voir tout</a>
-            </div>
-            <div class="category-row">
-                {% for evenement in evenements_populaires|slice(0, 10) %}
-                    <article class="catalog-card">
-                        <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
-                            <img src="{{ evenement.image|slice(1) }}" alt="Affiche de l'événement : {{ evenement.titre }}">
-                            <div class="catalog-card-content">
-                                <div class="catalog-card-title">{{ evenement.titre }}</div>
-                                <div class="catalog-card-meta">
-                                    {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
-                                </div>
-                                <div class="catalog-card-price">
-                                    À partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF
-                                </div>
-                            </div>
-                        </a>
-                    </article>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-
     <!-- Tous les événements -->
     <section class="category-section">
         <div class="category-header">
             <h2 class="category-title">Tous les événements</h2>
+            <p class="toolbar-count">{{ evenements|length }} événement(s) trouvé(s)</p>
         </div>
-        <div class="category-row">
-            {% for evenement in evenements %}
-                <article class="catalog-card">
-                    <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}">
-                        <img src="{{ evenement.image|slice(1) }}" alt="Affiche de l'événement : {{ evenement.titre }}">
-                        <div class="catalog-card-content">
-                            <div class="catalog-card-title">{{ evenement.titre }}</div>
-                            <div class="catalog-card-meta">
-                                {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
+        
+        {% if evenements|length > 0 %}
+            <div class="category-row">
+                {% for evenement in evenements %}
+                    {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
+                    <article class="catalog-card">
+                        <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" data-turbo="false">
+                            <img src="{{ image_path }}" alt="Affiche de l'événement : {{ evenement.titre }}" 
+                                 onerror="this.src='/images/evenements/default-event.jpg'; console.log('Image manquante: {{ image_path }}');">
+                            <div class="catalog-card-content">
+                                <div class="catalog-card-title">{{ evenement.titre }}</div>
+                                <div class="catalog-card-meta">
+                                    {{ evenement.ville }} • {{ evenement.date|date('d/m/Y H:i') }}
+                                </div>
+                                <div class="catalog-card-price">
+                                    À partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF
+                                </div>
                             </div>
-                            <div class="catalog-card-price">
-                                À partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF
-                            </div>
-                        </div>
-                    </a>
-                </article>
-            {% endfor %}
-        </div>
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📅</div>
+                <h3>Aucun événement trouvé</h3>
+                <p>Il n'y a actuellement aucun événement disponible. Revenez nous voir plus tard !</p>
+                <a href="{{ path('accueil_index') }}" class="btn btn-primary">Retour à l'accueil</a>
+            </div>
+        {% endif %}
     </section>
 </section>
+
+<style>
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--couleur-texte);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mode sombre pour l'état vide */
+html[data-theme="dark"] .empty-state {
+    color: var(--couleur-texte-secondaire);
+}
+
+html[data-theme="dark"] .empty-state h3 {
+    color: var(--couleur-texte);
+}
+</style>
 {% endblock %}

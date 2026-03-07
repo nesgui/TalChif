@@ -436,7 +436,7 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 12px 0 10px;
+    padding: 8px 0 6px;
 }
 
 .public-brand {
@@ -452,9 +452,9 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     border: 1px solid var(--couleur-bordure);
     background: color-mix(in srgb, var(--couleur-fond) 80%, var(--couleur-texte) 20%);
     cursor: pointer;
@@ -463,7 +463,7 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
 }
 
 .public-search {
-    padding-bottom: 12px;
+    padding-bottom: 8px;
 }
 
 .public-search-form {
@@ -612,13 +612,13 @@ html[data-theme="dark"] .public-drawer-sep {
     right: 0;
     bottom: 0;
     z-index: 15;
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
     background: color-mix(in srgb, var(--couleur-fond) 92%, transparent);
     border-top: 1px solid var(--couleur-bordure);
     backdrop-filter: blur(10px);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-    gap: 6px;
+    gap: 4px;
 }
 
 /* Navigation bottom - icônes et textes */
@@ -627,13 +627,13 @@ html[data-theme="dark"] .public-drawer-sep {
     color: var(--couleur-texte);
     display: grid;
     place-items: center;
-    gap: 2px;
-    padding: 10px 8px;
-    border-radius: 14px;
+    gap: 1px;
+    padding: 6px 6px;
+    border-radius: 10px;
     border: 1px solid var(--couleur-bordure);
     background: color-mix(in srgb, var(--couleur-fond) 86%, var(--couleur-texte) 14%);
     font-weight: 700;
-    font-size: 13px;
+    font-size: 12px;
     min-width: 0;
     overflow: hidden;
 }
@@ -670,6 +670,34 @@ html[data-theme="dark"] .public-tab[aria-current="page"] {
 html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
     color: var(--couleur-texte-inverse);
     stroke: var(--couleur-texte-inverse);
+}
+
+/* Mode sombre - dropdown "Moi" */
+html[data-theme="dark"] .public-me-dropdown {
+    background: var(--couleur-surface);
+    border-color: var(--couleur-bordure);
+}
+
+html[data-theme="dark"] .public-me-dropdown-head {
+    border-color: var(--couleur-bordure);
+}
+
+html[data-theme="dark"] .public-me-dropdown-title {
+    color: var(--couleur-texte);
+}
+
+html[data-theme="dark"] .public-me-dropdown-item {
+    color: var(--couleur-texte);
+}
+
+html[data-theme="dark"] .public-me-dropdown-item:hover {
+    background: color-mix(in srgb, var(--couleur-surface) 78%, var(--couleur-texte) 22%);
+}
+
+html[data-theme="dark"] .public-me-dropdown-icon svg {
+    color: var(--couleur-texte);
+    stroke: var(--couleur-texte);
+    fill: var(--couleur-texte);
 }
 
 .public-tab-icon {
@@ -1070,6 +1098,7 @@ html[data-theme="dark"] .table th {
 
 html[data-theme="dark"] .table td {
     border-bottom-color: var(--couleur-bordure);
+    color: var(--couleur-texte);
 }
 
 html[data-theme="dark"] .table tbody tr:hover {
@@ -2374,6 +2403,9 @@ img[loading="lazy"].loaded {
 .public-me-dropdown-icon svg {
     width: 100%;
     height: 100%;
+    color: var(--couleur-texte);
+    stroke: var(--couleur-texte);
+    fill: var(--couleur-texte);
 }
 
 @media (min-width: 720px) {

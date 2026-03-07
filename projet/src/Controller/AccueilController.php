@@ -40,6 +40,7 @@ final class AccueilController extends AbstractController
                 'badge' => $this->getBadgeForEvent($evenement),
                 'places_disponibles' => $evenement->getPlacesRestantes(),
                 'places_total' => $evenement->getPlacesDisponibles(),
+                'categorie' => $evenement->getCategorie(),
             ];
         }
 

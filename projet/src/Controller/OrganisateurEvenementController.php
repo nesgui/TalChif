@@ -6,6 +6,7 @@ use App\Entity\Evenement;
 use App\Entity\User;
 use App\Form\EvenementType;
 use App\Repository\EvenementRepository;
+use App\Service\ErrorHandlingService;
 use App\Service\Upload\ServiceUploadFichier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -28,7 +29,8 @@ final class OrganisateurEvenementController extends AbstractController
 
     public function __construct(
         private EvenementRepository $evenementRepository,
-        private ServiceUploadFichier $serviceUploadFichier
+        private ServiceUploadFichier $serviceUploadFichier,
+        private ErrorHandlingService $errorHandling
     ) {
     }
 
@@ -64,21 +66,29 @@ final class OrganisateurEvenementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var User $user */
-            $user = $this->getUser();
-            $evenement->setOrganisateur($user);
-            $evenement->setSlug($this->evenementRepository->generateUniqueSlug((string) $slugger->slug($evenement->getNom())));
-            $evenement->setPlacesVendues(0);
+            try {
+                /** @var User $user */
+                $user = $this->getUser();
+                $evenement->setOrganisateur($user);
+                $evenement->setSlug($this->evenementRepository->generateUniqueSlug((string) $slugger->slug($evenement->getNom())));
+                $evenement->setPlacesVendues(0);
 
-            $this->traiterUploadsCreation($form, $evenement);
-            $this->evenementRepository->save($evenement, true);
+                $this->traiterUploadsCreation($form, $evenement);
+                $this->evenementRepository->save($evenement, true);
 
-            $this->addFlash('success', 'Événement créé avec succès !');
-            return $this->redirectToRoute('organisateur.evenement.index');
-        }
-
-        if ($form->isSubmitted()) {
-            $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez corriger les champs invalides.');
+                $this->errorHandling->addSuccessFlash('Événement créé avec succès !');
+                return $this->redirectToRoute('organisateur.evenement.index');
+                
+            } catch (FileException $e) {
+                $this->errorHandling->handleFileUploadError($e);
+                $this->errorHandling->logError($e, ['action' => 'create_event']);
+            } catch (\Throwable $e) {
+                $this->errorHandling->handleDatabaseError($e);
+                $this->errorHandling->logError($e, ['action' => 'create_event']);
+            }
+        } elseif ($form->isSubmitted()) {
+            // Utiliser le service pour gérer les erreurs de formulaire
+            $this->errorHandling->handleFormErrors($form);
         }
 
         return $this->render('organisateur_evenement/create.html.twig', [
@@ -101,22 +111,29 @@ final class OrganisateurEvenementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($evenement->getNom() !== $nomAvant) {
-                $evenement->setSlug($this->evenementRepository->generateUniqueSlug(
-                    (string) $slugger->slug($evenement->getNom()),
-                    $evenement->getId()
-                ));
+            try {
+                if ($evenement->getNom() !== $nomAvant) {
+                    $evenement->setSlug($this->evenementRepository->generateUniqueSlug(
+                        (string) $slugger->slug($evenement->getNom()),
+                        $evenement->getId()
+                    ));
+                }
+
+                $this->traiterUploadsEdition($form, $evenement);
+                $this->evenementRepository->save($evenement, true);
+
+                $this->errorHandling->addSuccessFlash('Événement modifié avec succès !');
+                return $this->redirectToRoute('organisateur.evenement.index');
+
+            } catch (FileException $e) {
+                $this->errorHandling->handleFileUploadError($e);
+                $this->errorHandling->logError($e, ['action' => 'edit_event', 'id' => $evenement->getId()]);
+            } catch (\Throwable $e) {
+                $this->errorHandling->handleDatabaseError($e);
+                $this->errorHandling->logError($e, ['action' => 'edit_event', 'id' => $evenement->getId()]);
             }
-
-            $this->traiterUploadsEdition($form, $evenement);
-            $this->evenementRepository->save($evenement, true);
-
-            $this->addFlash('success', 'Événement modifié avec succès !');
-            return $this->redirectToRoute('organisateur.evenement.index');
-        }
-
-        if ($form->isSubmitted()) {
-            $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez corriger les champs invalides.');
+        } elseif ($form->isSubmitted()) {
+            $this->errorHandling->handleFormErrors($form);
         }
 
         return $this->render('organisateur_evenement/edit.html.twig', [

@@ -54,6 +54,7 @@ final class EvenementController extends AbstractController
                 'badge' => $this->getBadgeForEvent($evenement),
                 'places_vendues' => $evenement->getPlacesVendues(),
                 'created_at' => $evenement->getCreatedAt(),
+                'categorie' => $evenement->getCategorie(),
             ];
             
             $evenementsArray[] = $eventData;
@@ -136,6 +137,7 @@ final class EvenementController extends AbstractController
             'ventes' => $evenement->getPlacesVendues(),
             'organisateur' => $evenement->getOrganisateur() ? $evenement->getOrganisateur()->getFullName() : 'Non spécifié',
             'types_billets' => $this->getTicketTypes($evenement),
+            'categorie' => $evenement->getCategorie(),
         ];
 
         return $this->render('evenement/show.html.twig', [

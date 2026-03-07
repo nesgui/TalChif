@@ -8,6 +8,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
 
+# Importer la configuration de gestion des erreurs
+imports:
+    - { resource: '../config/services/error_handling.yaml' }
+
 services:
     # default configuration for services in *this* file
     _defaults:

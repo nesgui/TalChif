@@ -75,4 +75,15 @@
             </section>
         </turbo-frame>
     </div>
+    
+    {% block stylesheets %}
+        {{ parent() }}
+        <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
+    {% endblock %}
+    
+    {% block javascripts %}
+        {{ parent() }}
+        <script src="{{ asset('js/menu-error-handler.js') }}" defer></script>
+        <script src="{{ asset('js/form-validator.js') }}" defer></script>
+    {% endblock %}
 {% endblock %}

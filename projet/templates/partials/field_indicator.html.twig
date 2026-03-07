@@ -1,0 +1,10 @@
+{# 
+   Template pour afficher l'indicateur de champ obligatoire/facultatif
+   Utilisation: {% include 'partials/field_indicator.html.twig' with {'required': true} %}
+#}
+
+{% if required %}
+    <span class="field-required-indicator" title="Ce champ est obligatoire"> *</span>
+{% else %}
+    <span class="field-optional-indicator" title="Ce champ est facultatif"> (optionnel)</span>
+{% endif %}

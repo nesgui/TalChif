@@ -31,6 +31,21 @@
         </div>
 
         <div class="auth-form-group">
+            {{ form_label(form.categorie, 'Catégorie', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.categorie, {'attr': {'class': 'auth-input'}}) }}
+            {% if form_errors(form.categorie) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.categorie) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="auth-form-group">
             {{ form_label(form.description, 'Description', {'label_attr': {'class': 'auth-label'}}) }}
             {{ form_widget(form.description, {'attr': {'class': 'auth-input', 'placeholder': 'Décrivez votre événement en détail (minimum 10 caractères)', 'rows': '4'}}) }}
             {% if form_errors(form.description) %}

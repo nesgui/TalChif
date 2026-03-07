@@ -1,0 +1,140 @@
+{# 
+   Template d'erreurs de formulaire réutilisable
+   Utilisation: {% include 'partials/form_errors.html.twig' with {'form': form} %}
+#}
+
+{% block form_errors %}
+    {% if form.vars.errors|length > 0 %}
+        <div class="form-errors-summary">
+            <div class="alert alert-danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <strong>Erreurs de validation:</strong>
+                <ul class="form-errors-list">
+                    {% for error in form.vars.errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{# 
+   Template d'erreur de champ individuel
+   Utilisation: {% include 'partials/field_error.html.twig' with {'field': form.fieldName} %}
+#}
+
+{% block field_error %}
+    {% if field.vars.errors|length > 0 %}
+        <div class="field-error">
+            {% for error in field.vars.errors %}
+                <div class="field-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ error.message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{#
+   Template de groupe de formulaire avec gestion d'erreurs intégrée
+   Utilisation: {% include 'partials/form_group.html.twig' with {'form': form.fieldName, 'label': 'Label', 'placeholder': 'Placeholder'} %}
+#}
+
+{% block form_group %}
+    <div class="form-group {% if field.vars.errors|length > 0 %}has-error{% endif %}">
+        {{ form_label(field, label, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(field, {'attr': {
+            'class': 'form-input' ~ (field.vars.errors|length > 0 ? ' is-invalid' : ''),
+            'placeholder': placeholder|default('')
+        }}) }}
+        
+        {% if field.vars.errors|length > 0 %}
+            {% include 'partials/field_error.html.twig' with {'field': field} %}
+        {% endif %}
+        
+        {% if help is defined %}
+            <div class="form-help">{{ help }}</div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{#
+   Template de bouton avec gestion d'état et d'erreurs
+   Utilisation: {% include 'partials/form_button.html.twig' with {'text': 'Envoyer', 'loading': false} %}
+#}
+
+{% block form_button %}
+    <button type="{{ type|default('submit') }}" 
+            class="btn btn-{{ variant|default('primary') }} {% if loading %}loading{% endif %} {% if disabled %}disabled{% endif %}"
+            {% if disabled %}disabled{% endif %}>
+        
+        {% if loading %}
+            <span class="btn-spinner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                </svg>
+            </span>
+            <span class="btn-text">{{ loading_text|default('Chargement...') }}</span>
+        {% else %}
+            <span class="btn-text">{{ text }}</span>
+        {% endif %}
+    </button>
+{% endblock %}
+
+{#
+   Template d'alerte pour les messages flash
+   Utilisation: {% include 'partials/flash_alerts.html.twig' %}
+#}
+
+{% block flash_alerts %}
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                <div class="alert-content">
+                    <span class="alert-icon">
+                        {% if type == 'success' %}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                        {% elseif type == 'error' or type == 'danger' %}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        {% elseif type == 'warning' %}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        {% else %}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                        {% endif %}
+                    </span>
+                    <span class="alert-message">{{ message }}</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

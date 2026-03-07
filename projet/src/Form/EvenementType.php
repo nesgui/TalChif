@@ -42,10 +42,18 @@ class EvenementType extends AbstractType
                     ),
                 ],
             ])
+            ->add('categorie', ChoiceType::class, [
+                'label' => 'Catégorie',
+                'choices' => Evenement::CATEGORIES,
+                'placeholder' => 'Choisissez une catégorie',
+                'constraints' => [
+                    new NotBlank(message: 'La catégorie est obligatoire'),
+                ],
+            ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => [
-                    'rows' => 6,
+                    'rows' => 3,
                 ],
                 'constraints' => [
                     new NotBlank(message: 'La description est obligatoire'),

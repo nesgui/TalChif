@@ -29,6 +29,12 @@
         </div>
 
         <div class="form-group">
+            {{ form_label(form.categorie) }}
+            {{ form_widget(form.categorie, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+            {{ form_errors(form.categorie) }}
+        </div>
+
+        <div class="form-group">
             {{ form_label(form.description) }}
             {{ form_widget(form.description, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'rows': '4'}}) }}
             {{ form_errors(form.description) }}

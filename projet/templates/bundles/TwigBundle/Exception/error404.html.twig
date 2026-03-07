@@ -1,29 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accès refusé{% endblock %}
+{% block title %}Page non trouvée - TalChif{% endblock %}
 
 {% block body %}
 <div class="grid">
     <section class="card">
-        <h1 class="page-title">Accès refusé</h1>
+        <h1 class="page-title">Page non trouvée</h1>
         <div class="alert alert-error">
-            <h2>Vous n'avez pas les permissions nécessaires</h2>
-            <p>La page que vous essayez d'accéder nécessite des autorisations spécifiques.</p>
+            <h2>Erreur 404</h2>
+            <p>La page que vous recherchez n'existe pas ou a été déplacée.</p>
             
             <div class="error-details">
                 <h3>Que faire ?</h3>
                 <ul>
-                    <li><strong>Si vous êtes organisateur</strong> : Connectez-vous avec votre compte organisateur</li>
-                    <li><strong>Si vous êtes client</strong> : Accédez aux pages publiques (accueil, événements)</li>
-                    <li><strong>Si vous voulez devenir organisateur</strong> : Contactez l'administration</li>
+                    <li><strong>Vérifiez l'URL</strong> : Assurez-vous que l'adresse est correcte</li>
+                    <li><strong>Retournez à l'accueil</strong> : Naviguez depuis la page principale</li>
+                    <li><strong>Recherchez un événement</strong> : Utilisez la page des événements</li>
                 </ul>
             </div>
         </div>
         
         <div class="card-actions">
             <a href="{{ path('accueil') }}" class="btn btn-primary">Retour à l'accueil</a>
-            <a href="{{ path('auth.login') }}" class="btn">Se connecter</a>
-            <a href="{{ path('auth.register') }}" class="btn">Créer un compte</a>
+            <a href="{{ path('evenement.index') }}" class="btn">Voir les événements</a>
         </div>
     </section>
 </div>

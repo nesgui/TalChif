@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Service\ErrorHandlingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,8 @@ final class AuthController extends AbstractController
 {
     public function __construct(
         private UserRepository $userRepository,
-        private UserPasswordHasherInterface $passwordHasher
+        private UserPasswordHasherInterface $passwordHasher,
+        private ErrorHandlingService $errorHandling
     ) {
     }
 
@@ -27,11 +29,16 @@ final class AuthController extends AbstractController
             return $this->redirectToRoute('portefeuille.index');
         }
 
-        // Gérer les erreurs de connexion
+        // Gérer les erreurs de connexion avec le service d'erreurs
         $error = null;
         if ($request->getSession()->has('_security.last_error')) {
             $error = $request->getSession()->get('_security.last_error');
             $request->getSession()->remove('_security.last_error');
+            
+            // Utiliser le service pour gérer l'erreur de sécurité
+            if ($error instanceof \Throwable) {
+                $this->errorHandling->handleSecurityError($error);
+            }
         }
 
         // Dernier email saisi pour pré-remplir le formulaire
@@ -65,27 +72,36 @@ final class AuthController extends AbstractController
 
             // Vérifier que les mots de passe correspondent
             if ($password !== $passwordConfirm) {
-                $this->addFlash('error', 'Les mots de passe ne correspondent pas');
+                $this->errorHandling->addErrorFlash('Les mots de passe ne correspondent pas');
                 return $this->render('auth/register_new.html.twig', [
                     'form' => $form->createView(),
                 ]);
             }
 
-            // Hacher le mot de passe
-            $user->setPassword(
-                $this->passwordHasher->hashPassword($user, $password)
-            );
-            // Règle métier : inscription depuis la page de connexion (sans auth) = client
-            $user->setRole('CLIENT');
-            $user->setIsVerified(false); // TODO: Implémenter l'email de vérification
+            try {
+                // Hacher le mot de passe
+                $user->setPassword(
+                    $this->passwordHasher->hashPassword($user, $password)
+                );
+                // Règle métier : inscription depuis la page de connexion (sans auth) = client
+                $user->setRole('CLIENT');
+                $user->setIsVerified(false); // TODO: Implémenter l'email de vérification
 
-            // Sauvegarder en base
-            $this->userRepository->save($user, true);
+                // Sauvegarder en base
+                $this->userRepository->save($user, true);
 
-            $this->addFlash('success', 'Inscription réussie. Vous pouvez maintenant vous connecter.');
+                $this->errorHandling->addSuccessFlash('Inscription réussie. Vous pouvez maintenant vous connecter.');
 
-            // Rediriger vers la connexion
-            return $this->redirectToRoute('auth.login');
+                // Rediriger vers la connexion
+                return $this->redirectToRoute('auth.login');
+                
+            } catch (\Throwable $e) {
+                $this->errorHandling->handleDatabaseError($e);
+                $this->errorHandling->logError($e, ['action' => 'register']);
+            }
+        } elseif ($form->isSubmitted()) {
+            // Utiliser le service pour gérer les erreurs de formulaire
+            $this->errorHandling->handleFormErrors($form);
         }
 
         return $this->render('auth/register_new.html.twig', [

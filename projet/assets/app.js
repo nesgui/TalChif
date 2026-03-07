@@ -36,6 +36,90 @@ document.addEventListener('turbo:frame-render', function(e) {
     }
 });
 
+// Recharger les images après navigation Turbo pour corriger le problème d'affichage
+document.addEventListener('turbo:load', function() {
+    console.log('🔄 Turbo:load - Rechargement des images...');
+    
+    // Forcer le rechargement de TOUTES les images, pas seulement celles cassées
+    const images = document.querySelectorAll('img');
+    let reloadedCount = 0;
+    
+    images.forEach((img, index) => {
+        // Sauvegarder l'URL originale
+        const originalSrc = img.src;
+        
+        // Forcer le rechargement avec un timestamp unique
+        setTimeout(() => {
+            if (originalSrc && originalSrc !== window.location.href) {
+                const separator = originalSrc.includes('?') ? '&' : '?';
+                const timestamp = Date.now() + index; // Unique pour chaque image
+                const newSrc = originalSrc + separator + 'turbo_reload=' + timestamp;
+                
+                console.log(`🖼️ Rechargement image ${index}: ${originalSrc} -> ${newSrc}`);
+                img.src = newSrc;
+                reloadedCount++;
+                
+                // Si l'image ne se charge pas, essayer de restaurer l'original
+                img.onerror = function() {
+                    console.warn(`❌ Erreur rechargement image, restauration: ${originalSrc}`);
+                    this.src = originalSrc;
+                };
+            }
+        }, index * 50); // Délai progressif pour éviter la surcharge
+    });
+    
+    console.log(`📊 ${images.length} images trouvées, rechargement en cours...`);
+});
+
+// S'assurer que les images sont visibles après le rendu Turbo
+document.addEventListener('turbo:render', function() {
+    console.log('🎨 Turbo:render - Forçage affichage images...');
+    
+    // Forcer la réaffichage des images avec plusieurs techniques
+    setTimeout(() => {
+        const images = document.querySelectorAll('img');
+        images.forEach((img, index) => {
+            // Technique 1: Forcer le repaint
+            img.style.opacity = '0.99';
+            setTimeout(() => {
+                img.style.opacity = '1';
+            }, 10);
+            
+            // Technique 2: Forcer le reflow
+            const originalDisplay = img.style.display;
+            img.style.display = 'none';
+            img.offsetHeight; // Forcer le reflow
+            img.style.display = originalDisplay || '';
+            
+            // Technique 3: Forcer le chargement si src est vide
+            if (!img.src || img.src === '') {
+                const dataSrc = img.getAttribute('data-src');
+                if (dataSrc) {
+                    img.src = dataSrc;
+                }
+            }
+        });
+        
+        console.log(`✅ ${images.length} images traitées pour affichage`);
+    }, 200);
+});
+
+// Écouter aussi les changements de visibilité de la page
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        console.log('👁️ Page redevenue visible - vérification images...');
+        setTimeout(() => {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                if (!img.complete || img.naturalWidth === 0) {
+                    const originalSrc = img.src;
+                    img.src = originalSrc + '&visibility_check=' + Date.now();
+                }
+            });
+        }, 100);
+    }
+});
+
 // Désactiver les transitions si l'utilisateur préfère les réduire
 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.style.setProperty('--transition-rapide', '0ms');
@@ -43,52 +127,72 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.style.setProperty('--transition-lente', '0ms');
 }
 
-function initPublicMeMenu() {
-    const trigger = document.querySelector('.public-me-trigger');
-    const dropdown = document.getElementById('public-me-dropdown');
-    if (!trigger || !dropdown) return;
+// Menu "Moi" : délégation d'événements (fonctionne après navigation Turbo, mobile inclus)
+(function initPublicMeMenu() {
+    let meMenuBound = false;
 
-    function isMobile() {
-        return window.matchMedia('(max-width: 719px)').matches;
+    function bindOnce() {
+        if (meMenuBound) return;
+        meMenuBound = true;
+
+        document.addEventListener('click', function(e) {
+            const trigger = e.target.closest('.public-me-trigger');
+            const dropdown = document.getElementById('public-me-dropdown');
+            if (!trigger || !dropdown) return;
+
+            console.log('🖱️ Clic détecté sur trigger "moi"');
+            console.log('🔍 Target:', e.target);
+            console.log('🔍 Trigger:', trigger);
+            console.log('🔍 Dropdown trouvé:', !!dropdown);
+
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            const isOpen = dropdown.classList.contains('is-open');
+            console.log('📂 État actuel dropdown:', isOpen, 'nouvel état:', !isOpen);
+            
+            dropdown.classList.toggle('is-open', !isOpen);
+            dropdown.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+            trigger.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+            
+            console.log('✅ Dropdown traité, return false');
+            return false; // Double sécurité
+        }, true);
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('public-me-dropdown');
+            const trigger = document.querySelector('.public-me-trigger');
+            if (!dropdown || !dropdown.classList.contains('is-open')) return;
+            if (dropdown.contains(e.target) || (trigger && trigger.contains(e.target))) return;
+            dropdown.classList.remove('is-open');
+            dropdown.setAttribute('aria-hidden', 'true');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+            const dropdown = document.getElementById('public-me-dropdown');
+            const trigger = document.querySelector('.public-me-trigger');
+            if (!dropdown || !dropdown.classList.contains('is-open')) return;
+            dropdown.classList.remove('is-open');
+            dropdown.setAttribute('aria-hidden', 'true');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+
+        window.addEventListener('resize', function() {
+            const dropdown = document.getElementById('public-me-dropdown');
+            const trigger = document.querySelector('.public-me-trigger');
+            if (!dropdown || !dropdown.classList.contains('is-open')) return;
+            if (window.matchMedia('(max-width: 719px)').matches) {
+                dropdown.classList.remove('is-open');
+                dropdown.setAttribute('aria-hidden', 'true');
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
     }
 
-    function setOpen(open) {
-        dropdown.classList.toggle('is-open', open);
-        dropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
-        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    }
-
-    function toggle() {
-        const open = dropdown.classList.contains('is-open');
-        setOpen(!open);
-    }
-
-    trigger.addEventListener('click', function(e) {
-        if (isMobile()) {
-            return;
-        }
-        e.preventDefault();
-        toggle();
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!dropdown.classList.contains('is-open')) return;
-        if (dropdown.contains(e.target) || trigger.contains(e.target)) return;
-        setOpen(false);
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key !== 'Escape') return;
-        if (!dropdown.classList.contains('is-open')) return;
-        setOpen(false);
-    });
-
-    window.addEventListener('resize', function() {
-        if (dropdown.classList.contains('is-open') && isMobile()) {
-            setOpen(false);
-        }
-    });
-}
-
-document.addEventListener('turbo:load', initPublicMeMenu);
-document.addEventListener('DOMContentLoaded', initPublicMeMenu);
+    document.addEventListener('turbo:load', bindOnce);
+    document.addEventListener('DOMContentLoaded', bindOnce);
+    if (document.readyState !== 'loading') bindOnce();
+})();

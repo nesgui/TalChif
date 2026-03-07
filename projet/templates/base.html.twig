@@ -106,6 +106,7 @@
                     <div class="public-topbar-actions">
                         <button class="auth-theme-toggle" id="theme-toggle" 
                                 data-controller="theme" 
+                                data-theme-target="toggle"
                                 data-action="click->theme#toggle" 
                                 title="Basculer le thème">
                             <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -212,7 +213,7 @@
                     <span class="public-tab-label">Mon compte</span>
                 </a>
                 {% else %}
-                <a class="public-tab public-me-trigger" href="{{ path('public.me') }}" aria-haspopup="menu" aria-expanded="false" {% if app.request.attributes.get('_route') starts with 'public.' %}aria-current="page"{% endif %}>
+                <a class="public-tab public-me-trigger" href="#" role="button" aria-haspopup="menu" aria-expanded="false" data-turbo="false" {% if app.request.attributes.get('_route') starts with 'public.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20 21a8 8 0 0 0-16 0" />

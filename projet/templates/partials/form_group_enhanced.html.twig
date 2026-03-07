@@ -1,0 +1,71 @@
+{# 
+   Template de groupe de formulaire avec gestion d'erreurs et indicateurs obligatoire/facultatif
+   Utilisation: {% include 'partials/form_group_enhanced.html.twig' with {'form': form.fieldName, 'label': 'Label', 'placeholder': 'Placeholder'} %}
+#}
+
+{% set field_required = form.vars.required %}
+{% set field_id = form.vars.id %}
+{% set field_name = form.vars.name %}
+{% set field_errors = form.vars.errors|length > 0 %}
+{% set field_value = form.vars.value %}
+
+<div class="auth-form-group {% if field_errors %}has-error{% endif %} {% if field_required %}required-field{% else %}optional-field{% endif %}" id="group_{{ field_id }}">
+    {{ form_label(form, label, {
+        'label_attr': {
+            'class': 'auth-label' ~ (field_required ? ' required' : ' optional'),
+            'for': field_id
+        }
+    }) }}
+    
+    {# Ajouter l'indicateur obligatoire/facultatif après le label #}
+    {% include 'partials/field_indicator.html.twig' with {'required': field_required} %}
+    
+    {{ form_widget(form, {
+        'attr': {
+            'class': 'auth-input' ~ (field_errors ? ' is-invalid' : '') ~ (field_required ? ' required' : ' optional'),
+            'placeholder': placeholder is defined ? placeholder : '',
+            'aria-required': field_required,
+            'aria-describedby': field_errors ? field_id ~ '_errors' : (help is defined ? field_id ~ '_help' : ''),
+            'data-field-type': field_name
+        }
+    }) }}
+    
+    {% if field_errors %}
+        <div id="{{ field_id }}_errors" class="auth-error-message" role="alert" aria-live="polite">
+            {% for error in form.vars.errors %}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ error.message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if help is defined %}
+        <div id="{{ field_id }}_help" class="form-help">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            {{ help }}
+        </div>
+    {% endif %}
+    
+    {# Indicateur visuel de validation en temps réel #}
+    <div class="field-validation-status" id="{{ field_id }}_status" aria-hidden="true">
+        <span class="validation-icon valid" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+            </svg>
+        </span>
+        <span class="validation-icon invalid" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </span>
+    </div>
+</div>

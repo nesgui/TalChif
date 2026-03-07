@@ -30,97 +30,37 @@
             </div>
         {% endfor %}
 
-        {{ form_start(form, {'attr': {'class': 'auth-form'}}) }}
+        {{ form_start(form, {'attr': {'class': 'auth-form', 'novalidate': 'novalidate'}}) }}
         
-        <div class="auth-form-group">
-            {{ form_label(form.email, 'Adresse email', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.email, {'attr': {
-                'class': 'auth-input',
-                'placeholder': 'Entrez votre adresse email'
-            }}) }}
-            {% if form_errors(form.email) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.email) }}
-                </div>
-            {% endif %}
-        </div>
+        {% include 'partials/form_group_enhanced.html.twig' with {
+            'form': form.email,
+            'label': 'Adresse email',
+            'placeholder': 'Entrez votre adresse email'
+        } %}
 
-        <div class="auth-form-group">
-            {{ form_label(form.nom, 'Nom complet', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.nom, {'attr': {
-                'class': 'auth-input',
-                'placeholder': 'Entrez votre nom complet'
-            }}) }}
-            {% if form_errors(form.nom) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.nom) }}
-                </div>
-            {% endif %}
-        </div>
+        {% include 'partials/form_group_enhanced.html.twig' with {
+            'form': form.nom,
+            'label': 'Nom complet',
+            'placeholder': 'Entrez votre nom complet'
+        } %}
 
-        <div class="auth-form-group">
-            {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.telephone, {'attr': {
-                'class': 'auth-input',
-                'placeholder': '+235 XXXXXXXX'
-            }}) }}
-            {% if form_errors(form.telephone) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.telephone) }}
-                </div>
-            {% endif %}
-        </div>
+        {% include 'partials/form_group_enhanced.html.twig' with {
+            'form': form.telephone,
+            'label': 'Téléphone',
+            'placeholder': '+235 XXXXXXXX'
+        } %}
 
-        <div class="auth-form-group">
-            {{ form_label(form.password, 'Mot de passe', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.password, {'attr': {
-                'class': 'auth-input',
-                'placeholder': 'Entrez votre mot de passe'
-            }}) }}
-            {% if form_errors(form.password) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.password) }}
-                </div>
-            {% endif %}
-        </div>
+        {% include 'partials/form_group_enhanced.html.twig' with {
+            'form': form.password,
+            'label': 'Mot de passe',
+            'placeholder': 'Minimum 6 caractères'
+        } %}
 
-        <div class="auth-form-group">
-            {{ form_label(form.password_confirm, 'Confirmer le mot de passe', {'label_attr': {'class': 'auth-label'}}) }}
-            {{ form_widget(form.password_confirm, {'attr': {
-                'class': 'auth-input',
-                'placeholder': 'Confirmez votre mot de passe'
-            }}) }}
-            {% if form_errors(form.password_confirm) %}
-                <div class="auth-error-message">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    {{ form_errors(form.password_confirm) }}
-                </div>
-            {% endif %}
-        </div>
+        {% include 'partials/form_group_enhanced.html.twig' with {
+            'form': form.password_confirm,
+            'label': 'Confirmer le mot de passe',
+            'placeholder': 'Doit être identique au mot de passe'
+        } %}
         
         <div class="auth-form-actions">
             <button type="submit" class="auth-btn auth-btn-primary">
