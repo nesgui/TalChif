@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Service\Commande\ServiceCommande;
+use App\Application\Command\ExpirerCommandesCommand as ExpirerCommandesCommandDTO;
+use App\Application\Handler\ExpirerCommandesHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class ExpirerCommandesCommand extends Command
 {
     public function __construct(
-        private ServiceCommande $serviceCommande
+        private ExpirerCommandesHandler $expirerCommandesHandler
     ) {
         parent::__construct();
     }
@@ -26,7 +27,10 @@ final class ExpirerCommandesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $count = $this->serviceCommande->expirerCommandes();
+        
+        $command = new ExpirerCommandesCommandDTO();
+        $count = $this->expirerCommandesHandler->handle($command);
+        
         $io->success("{$count} commande(s) expirée(s).");
         return Command::SUCCESS;
     }

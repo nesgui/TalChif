@@ -280,4 +280,106 @@ class Commande
     {
         $this->createdAt = new \DateTimeImmutable();
     }
+
+    /**
+     * Marquer la commande comme payée.
+     * Logique métier : vérifie que la commande est en attente avant de la valider.
+     *
+     * @throws \RuntimeException
+     */
+    public function marquerPayee(?User $validateur = null): void
+    {
+        if (!$this->isPending()) {
+            throw new \RuntimeException(
+                "La commande {$this->reference} n'est pas en attente de paiement."
+            );
+        }
+
+        if ($this->estExpiree()) {
+            throw new \RuntimeException(
+                "La commande {$this->reference} a expiré."
+            );
+        }
+
+        $this->statut = self::STATUT_PAID;
+        $this->validePar = $validateur;
+        $this->dateValidation = new \DateTimeImmutable();
+    }
+
+    /**
+     * Marquer la commande comme expirée.
+     */
+    public function marquerExpiree(): void
+    {
+        if (!$this->isPending()) {
+            throw new \RuntimeException(
+                "Seules les commandes en attente peuvent expirer."
+            );
+        }
+
+        $this->statut = self::STATUT_EXPIRED;
+    }
+
+    /**
+     * Marquer la commande comme rejetée.
+     */
+    public function marquerRejetee(?User $validateur = null): void
+    {
+        if (!$this->isPending()) {
+            throw new \RuntimeException(
+                "La commande {$this->reference} n'est pas en attente."
+            );
+        }
+
+        $this->statut = self::STATUT_REJECTED;
+        $this->validePar = $validateur;
+        $this->dateValidation = new \DateTimeImmutable();
+    }
+
+    /**
+     * Vérifie si la commande peut être validée.
+     */
+    public function peutEtreValidee(): bool
+    {
+        return $this->isPending() && !$this->estExpiree();
+    }
+
+    /**
+     * Vérifie si la commande est dans le délai de validation.
+     */
+    public function estDansDelaiValidation(): bool
+    {
+        if (!$this->dateExpiration) {
+            return false;
+        }
+        return new \DateTimeImmutable() < $this->dateExpiration;
+    }
+
+    /**
+     * Annuler la commande.
+     */
+    public function annuler(): void
+    {
+        if ($this->isPaid()) {
+            throw new \RuntimeException(
+                "Impossible d'annuler une commande déjà payée."
+            );
+        }
+
+        $this->statut = self::STATUT_CANCELLED;
+    }
+
+    /**
+     * Obtenir le temps restant avant expiration (en minutes).
+     */
+    public function getTempsRestantMinutes(): ?int
+    {
+        if (!$this->dateExpiration || $this->estExpiree()) {
+            return null;
+        }
+
+        $now = new \DateTimeImmutable();
+        $diff = $this->dateExpiration->getTimestamp() - $now->getTimestamp();
+        return (int) ceil($diff / 60);
+    }
 }

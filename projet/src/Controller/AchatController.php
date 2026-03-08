@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Application\Command\CreerCommandeCommand;
+use App\Application\Handler\CreerCommandeHandler;
 use App\Entity\Billet;
 use App\Entity\Commande;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
-use App\Service\Commande\ServiceCommande;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +26,11 @@ final class AchatController extends AbstractController
         private EvenementRepository $evenementRepository,
         private CommandeRepository $commandeRepository,
         private EntityManagerInterface $entityManager,
-        private ServiceCommande $serviceCommande
+        private CreerCommandeHandler $creerCommandeHandler,
+        #[Autowire('%app.momo.numero%')]
+        private string $momoNumero,
+        #[Autowire('%app.momo.beneficiaire%')]
+        private string $momoBeneficiaire
     ) {
     }
 
@@ -137,12 +143,14 @@ final class AchatController extends AbstractController
         }
 
         try {
-            $commande = $this->serviceCommande->creerCommande(
-                $panier,
-                $user,
-                (string) $methodePaiement,
-                trim((string) $telephone)
+            $command = new CreerCommandeCommand(
+                userId: $user->getId(),
+                panier: $panier,
+                methodePaiement: (string) $methodePaiement,
+                numeroClient: trim((string) $telephone)
             );
+            
+            $commande = $this->creerCommandeHandler->handle($command);
         } catch (\RuntimeException $e) {
             $this->addFlash('error', $e->getMessage());
             return $this->redirectToRoute('achat.index');
@@ -191,8 +199,8 @@ final class AchatController extends AbstractController
 
         return $this->render('achat/instructions_paiement.html.twig', [
             'commande' => $commande,
-            'momoNumero' => $this->serviceCommande->getMomoNumero(),
-            'momoBeneficiaire' => $this->serviceCommande->getMomoBeneficiaire(),
+            'momoNumero' => $this->momoNumero,
+            'momoBeneficiaire' => $this->momoBeneficiaire,
         ]);
     }
 

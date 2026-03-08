@@ -44,7 +44,7 @@ final class AuthController extends AbstractController
         // Dernier email saisi pour pré-remplir le formulaire
         $lastUsername = $request->getSession()->get('_security.last_username');
 
-        return $this->render('auth/login_new.html.twig', [
+        return $this->render('auth/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
@@ -73,7 +73,7 @@ final class AuthController extends AbstractController
             // Vérifier que les mots de passe correspondent
             if ($password !== $passwordConfirm) {
                 $this->errorHandling->addErrorFlash('Les mots de passe ne correspondent pas');
-                return $this->render('auth/register_new.html.twig', [
+                return $this->render('auth/register.html.twig', [
                     'form' => $form->createView(),
                 ]);
             }
@@ -104,7 +104,7 @@ final class AuthController extends AbstractController
             $this->errorHandling->handleFormErrors($form);
         }
 
-        return $this->render('auth/register_new.html.twig', [
+        return $this->render('auth/register.html.twig', [
             'form' => $form->createView(),
         ]);
     }

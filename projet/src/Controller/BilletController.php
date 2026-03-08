@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Application\Query\ObtenirMesBilletsQuery;
+use App\Application\Handler\ObtenirMesBilletsHandler;
 use App\Repository\BilletRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +13,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class BilletController extends AbstractController
 {
     public function __construct(
-        private BilletRepository $billetRepository
+        private BilletRepository $billetRepository,
+        private ObtenirMesBilletsHandler $obtenirMesBilletsHandler
     ) {
     }
 
@@ -21,8 +24,9 @@ final class BilletController extends AbstractController
     {
         $user = $this->getUser();
         
-        // Récupérer tous les billets de l'utilisateur
-        $billets = $this->billetRepository->findBy(['client' => $user], ['createdAt' => 'DESC']);
+        // ✅ CQRS Query : Obtenir les billets
+        $query = new ObtenirMesBilletsQuery(userId: $user->getId());
+        $billets = $this->obtenirMesBilletsHandler->handle($query);
         
         // Grouper par événement pour meilleure organisation
         $billetsByEvenement = [];
@@ -55,8 +59,9 @@ final class BilletController extends AbstractController
     {
         $user = $this->getUser();
         
-        // Récupérer les billets des événements à venir
-        $billets = $this->billetRepository->findBilletsAVenir($user);
+        // ✅ CQRS Query : Billets à venir
+        $query = new ObtenirMesBilletsQuery(userId: $user->getId(), filtre: 'avenir');
+        $billets = $this->obtenirMesBilletsHandler->handle($query);
         
         return $this->render('billet/avenir.html.twig', [
             'billets' => $billets
@@ -69,8 +74,9 @@ final class BilletController extends AbstractController
     {
         $user = $this->getUser();
         
-        // Récupérer les billets des événements passés
-        $billets = $this->billetRepository->findBilletsPasses($user);
+        // ✅ CQRS Query : Billets passés
+        $query = new ObtenirMesBilletsQuery(userId: $user->getId(), filtre: 'passes');
+        $billets = $this->obtenirMesBilletsHandler->handle($query);
         
         return $this->render('billet/passes.html.twig', [
             'billets' => $billets

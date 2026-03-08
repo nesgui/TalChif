@@ -3,11 +3,19 @@
 /.env.local
 /.env.local.php
 /.env.*.local
+/.env.prod
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+# Fichiers sensibles production
+.env.prod
+docker/secrets/
+*.pem
+*.key
+*.crt
 
 ###> phpunit/phpunit ###
 /phpunit.xml

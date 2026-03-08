@@ -2,13 +2,16 @@
 
 namespace App\Controller;
 
+use App\Application\Command\RejeterPaiementCommand;
+use App\Application\Command\ValiderPaiementCommand;
+use App\Application\Handler\RejeterPaiementHandler;
+use App\Application\Handler\ValiderPaiementHandler;
 use App\Entity\Evenement;
 use App\Entity\LogSecurite;
 use App\Repository\BilletRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LogSecuriteRepository;
-use App\Service\Commande\ServiceCommande;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +33,8 @@ final class AdminCommandeController extends AbstractController
         private EvenementRepository $evenementRepository,
         private BilletRepository $billetRepository,
         private EntityManagerInterface $entityManager,
-        private ServiceCommande $serviceCommande
+        private ValiderPaiementHandler $validerPaiementHandler,
+        private RejeterPaiementHandler $rejeterPaiementHandler
     ) {
     }
 
@@ -81,7 +85,14 @@ final class AdminCommandeController extends AbstractController
             return $this->redirectToRoute('admin.commande.index');
         }
         try {
-            $this->serviceCommande->validerPaiement($reference, $montant, $numero, $this->getUser());
+            $command = new ValiderPaiementCommand(
+                referenceCommande: $reference,
+                montantRecu: $montant,
+                numeroClient: $numero,
+                validateurId: $this->getUser()->getId()
+            );
+            
+            $this->validerPaiementHandler->handle($command);
             $this->addFlash('success', "Paiement validé. Les billets ont été générés pour la commande {$reference}.");
         } catch (\RuntimeException $e) {
             $this->addFlash('error', $e->getMessage());
@@ -99,7 +110,13 @@ final class AdminCommandeController extends AbstractController
         }
         $raison = trim((string) $request->request->get('raison', ''));
         try {
-            $this->serviceCommande->rejeterPaiement($reference, $this->getUser(), $raison);
+            $command = new RejeterPaiementCommand(
+                referenceCommande: $reference,
+                raison: $raison,
+                validateurId: $this->getUser()->getId()
+            );
+            
+            $this->rejeterPaiementHandler->handle($command);
             $this->addFlash('success', "Commande {$reference} rejetée.");
         } catch (\RuntimeException $e) {
             $this->addFlash('error', $e->getMessage());

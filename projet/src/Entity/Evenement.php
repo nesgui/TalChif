@@ -424,6 +424,102 @@ class Evenement
         return $this->getPlacesRestantes() <= 0;
     }
 
+    /**
+     * Réserver des places pour cet événement.
+     * Logique métier : vérifie la disponibilité et met à jour les places vendues.
+     *
+     * @throws \App\Domain\Exception\PlacesInsuffisantesException
+     * @throws \App\Domain\Exception\EvenementInactifException
+     */
+    public function reserverPlaces(int $quantite): void
+    {
+        if (!$this->isActive) {
+            throw new \App\Domain\Exception\EvenementInactifException(
+                "L'événement « {$this->nom} » n'est plus actif."
+            );
+        }
+
+        if ($quantite <= 0) {
+            throw new \InvalidArgumentException(
+                "La quantité doit être supérieure à 0."
+            );
+        }
+
+        if ($quantite > $this->getPlacesRestantes()) {
+            throw new \App\Domain\Exception\PlacesInsuffisantesException(
+                "Plus assez de places disponibles pour « {$this->nom} ». " .
+                "Seulement {$this->getPlacesRestantes()} places restantes."
+            );
+        }
+
+        $this->placesVendues += $quantite;
+    }
+
+    /**
+     * Annuler une réservation (remboursement).
+     */
+    public function annulerReservation(int $quantite): void
+    {
+        if ($quantite <= 0) {
+            throw new \InvalidArgumentException(
+                "La quantité doit être supérieure à 0."
+            );
+        }
+
+        if ($quantite > $this->placesVendues) {
+            throw new \InvalidArgumentException(
+                "Impossible d'annuler {$quantite} places, seulement {$this->placesVendues} vendues."
+            );
+        }
+
+        $this->placesVendues -= $quantite;
+    }
+
+    /**
+     * Vérifie si l'événement peut accepter une réservation.
+     */
+    public function peutAccepterReservation(int $quantite): bool
+    {
+        return $this->isActive 
+            && $quantite > 0 
+            && $quantite <= $this->getPlacesRestantes();
+    }
+
+    /**
+     * Activer l'événement (le rendre visible et en vente).
+     */
+    public function activer(): void
+    {
+        $this->isActive = true;
+    }
+
+    /**
+     * Désactiver l'événement (le retirer de la vente).
+     */
+    public function desactiver(): void
+    {
+        $this->isActive = false;
+    }
+
+    /**
+     * Vérifie si l'événement est passé.
+     */
+    public function estPasse(): bool
+    {
+        if (!$this->dateEvenement) {
+            return false;
+        }
+        return $this->dateEvenement < new \DateTimeImmutable();
+    }
+
+    /**
+     * Vérifie si l'événement est à venir.
+     */
+    public function estAVenir(): bool
+    {
+        return !$this->estPasse();
+    }
+
     public function isOrganisateurPaye(): bool
     {
         return $this->organisateurPaye;

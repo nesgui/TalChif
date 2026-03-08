@@ -309,4 +309,104 @@ class Billet
         $this->statutPaiement = 'REMBOURSE';
         $this->isValide = false;
     }
+
+    /**
+     * Utiliser le billet (scan à l'entrée).
+     * Logique métier : vérifie que le billet est utilisable avant de le marquer comme utilisé.
+     *
+     * @throws \RuntimeException
+     */
+    public function utiliser(User $validateur): void
+    {
+        if (!$this->estUtilisable()) {
+            throw new \RuntimeException(
+                "Le billet {$this->qrCode} ne peut pas être utilisé. " .
+                "Statut : " . $this->getStatutUtilisation()
+            );
+        }
+
+        $this->isUtilise = true;
+        $this->dateUtilisation = new \DateTimeImmutable();
+        $this->validePar = $validateur;
+    }
+
+    /**
+     * Vérifie si le billet peut être utilisé.
+     */
+    public function peutEtreUtilise(): bool
+    {
+        return $this->isValide 
+            && !$this->isUtilise 
+            && $this->isPaye();
+    }
+
+    /**
+     * Vérifie si le billet est utilisable (alias de peutEtreUtilise).
+     */
+    public function estUtilisable(): bool
+    {
+        return $this->peutEtreUtilise();
+    }
+
+    /**
+     * Invalider le billet (fraude, annulation, etc.).
+     */
+    public function invalider(string $raison = ''): void
+    {
+        if ($this->isUtilise) {
+            throw new \RuntimeException(
+                "Impossible d'invalider un billet déjà utilisé."
+            );
+        }
+
+        $this->isValide = false;
+    }
+
+    /**
+     * Rembourser le billet.
+     */
+    public function rembourser(): void
+    {
+        if ($this->isUtilise) {
+            throw new \RuntimeException(
+                "Impossible de rembourser un billet déjà utilisé."
+            );
+        }
+
+        $this->statutPaiement = 'REMBOURSE';
+        $this->isValide = false;
+    }
+
+    /**
+     * Obtenir le statut d'utilisation du billet (pour affichage).
+     */
+    public function getStatutUtilisation(): string
+    {
+        if (!$this->isValide) {
+            return 'Invalide';
+        }
+        if ($this->isUtilise) {
+            return 'Utilisé';
+        }
+        if (!$this->isPaye()) {
+            return 'Paiement en attente';
+        }
+        return 'Valide';
+    }
+
+    /**
+     * Vérifie si le billet appartient à un utilisateur.
+     */
+    public function appartientA(User $user): bool
+    {
+        return $this->client && $this->client->getId() === $user->getId();
+    }
+
+    /**
+     * Vérifie si le billet est pour un événement donné.
+     */
+    public function estPourEvenement(Evenement $evenement): bool
+    {
+        return $this->evenement && $this->evenement->getId() === $evenement->getId();
+    }
 }

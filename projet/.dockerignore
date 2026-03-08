@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Tests et développement
+tests/
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+
+# Cache et logs
+var/cache/*
+var/log/*
+var/sessions/*
+!var/cache/.gitkeep
+!var/log/.gitkeep
+
+# Dépendances
+vendor/
+node_modules/
+
+# Environnement
+.env.local
+.env.*.local
+.env.test
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Composer
+composer.phar
+
+# NPM
+package-lock.json
+npm-debug.log
+yarn-error.log
+
+# Docker
+docker-compose.override.yml
+Dockerfile.dev
