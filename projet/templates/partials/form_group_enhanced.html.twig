@@ -10,15 +10,11 @@
 {% set field_value = form.vars.value %}
 
 <div class="auth-form-group {% if field_errors %}has-error{% endif %} {% if field_required %}required-field{% else %}optional-field{% endif %}" id="group_{{ field_id }}">
-    {{ form_label(form, label, {
-        'label_attr': {
-            'class': 'auth-label' ~ (field_required ? ' required' : ' optional'),
-            'for': field_id
-        }
-    }) }}
-    
-    {# Ajouter l'indicateur obligatoire/facultatif après le label #}
-    {% include 'partials/field_indicator.html.twig' with {'required': field_required} %}
+    {% if field_required %}
+        <label for="{{ field_id }}" class="auth-label required">{{ label }} <span style="color: #e53e3e;">*</span></label>
+    {% else %}
+        <label for="{{ field_id }}" class="auth-label optional">{{ label }}</label>
+    {% endif %}
     
     {{ form_widget(form, {
         'attr': {

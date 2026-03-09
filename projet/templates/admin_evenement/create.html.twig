@@ -23,55 +23,55 @@
         {{ form_start(form, {'attr': {'class': 'form', 'enctype': 'multipart/form-data'}}) }}
 
         <div class="form-group">
-            {{ form_label(form.nom) }}
+            <label for="{{ form.nom.vars.id }}" class="form-label">Nom de l'événement <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.nom, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.nom) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.categorie) }}
+            <label for="{{ form.categorie.vars.id }}" class="form-label">Catégorie <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.categorie, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.categorie) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.description) }}
+            <label for="{{ form.description.vars.id }}" class="form-label">Description <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.description, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'rows': '4'}}) }}
             {{ form_errors(form.description) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.dateEvenement) }}
+            <label for="{{ form.dateEvenement.vars.id }}" class="form-label">Date et heure de l'événement <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.dateEvenement, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.dateEvenement) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.lieu) }}
+            <label for="{{ form.lieu.vars.id }}" class="form-label">Lieu <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.lieu, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.lieu) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.adresse) }}
+            <label for="{{ form.adresse.vars.id }}" class="form-label">Adresse <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.adresse, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.adresse) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.ville) }}
+            <label for="{{ form.ville.vars.id }}" class="form-label">Ville <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.ville, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.ville) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.placesDisponibles) }}
+            <label for="{{ form.placesDisponibles.vars.id }}" class="form-label">Places disponibles <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.placesDisponibles, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.placesDisponibles) }}
         </div>
 
         <div class="form-group">
-            {{ form_label(form.prixSimple) }}
+            <label for="{{ form.prixSimple.vars.id }}" class="form-label">Prix billet simple (XAF) <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.prixSimple, {'attr': {'class': 'form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
             {{ form_errors(form.prixSimple) }}
         </div>

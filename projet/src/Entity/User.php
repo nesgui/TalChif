@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Regex(pattern: '/^[\p{L}\p{M}\s\-\']+$/u', message: 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes')]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     #[Assert\Regex(pattern: '/^[\d\s+\-()]*$/', message: 'Le téléphone ne peut contenir que des chiffres, espaces, +, - et parenthèses')]
     private ?string $telephone = null;

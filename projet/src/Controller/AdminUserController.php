@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Service\ErrorHandlingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class AdminUserController extends AbstractController
 {
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private ErrorHandlingService $errorHandling
     ) {
     }
 
@@ -60,35 +62,37 @@ final class AdminUserController extends AbstractController
             $passwordConfirm = $form->get('password_confirm')->getData();
             
             if ($password !== $passwordConfirm) {
-                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+                $this->errorHandling->addErrorFlash('Les mots de passe ne correspondent pas.');
                 return $this->render('admin_user/create.html.twig', [
                     'form' => $form->createView(),
                 ]);
             }
 
-            // Hasher le mot de passe
-            $hashedPassword = $passwordHasher->hashPassword($user, $password);
-            $user->setPassword($hashedPassword);
+            try {
+                // Hasher le mot de passe
+                $hashedPassword = $passwordHasher->hashPassword($user, $password);
+                $user->setPassword($hashedPassword);
 
-            // Définir le rôle
-            $user->setRole($form->get('role')->getData());
-            
-            // Synchroniser les rôles pour Symfony Security
-            $user->setRoles([$user->getRole()]);
+                // Définir le rôle
+                $user->setRole($form->get('role')->getData());
+                
+                // Synchroniser les rôles pour Symfony Security
+                $user->setRoles([$user->getRole()]);
 
-            // Définir l'utilisateur comme vérifié
-            $user->setIsVerified(true);
+                // Définir l'utilisateur comme vérifié
+                $user->setIsVerified(true);
 
-            // Sauvegarder l'utilisateur
-            $this->userRepository->save($user, true);
+                // Sauvegarder l'utilisateur
+                $this->userRepository->save($user, true);
 
-            $this->addFlash('success', 'Utilisateur créé avec succès !');
-            return $this->redirectToRoute('admin.user.index');
-        } else {
-            // Gérer les erreurs de validation
-            if ($form->isSubmitted()) {
-                $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez corriger les champs invalides.');
+                $this->errorHandling->addSuccessFlash('Utilisateur créé avec succès !');
+                return $this->redirectToRoute('admin.user.index');
+            } catch (\Throwable $e) {
+                $this->errorHandling->handleDatabaseError($e);
+                $this->errorHandling->logError($e, ['action' => 'admin_create_user']);
             }
+        } elseif ($form->isSubmitted()) {
+            $this->errorHandling->handleFormErrors($form);
         }
 
         return $this->render('admin_user/create.html.twig', [
@@ -108,21 +112,23 @@ final class AdminUserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Mettre à jour le rôle
-            $user->setRole($form->get('role')->getData());
-            
-            // Synchroniser les rôles pour Symfony Security
-            $user->setRoles([$user->getRole()]);
+            try {
+                // Mettre à jour le rôle
+                $user->setRole($form->get('role')->getData());
+                
+                // Synchroniser les rôles pour Symfony Security
+                $user->setRoles([$user->getRole()]);
 
-            $this->userRepository->save($user, true);
+                $this->userRepository->save($user, true);
 
-            $this->addFlash('success', 'Utilisateur modifié avec succès !');
-            return $this->redirectToRoute('admin.user.index');
-        } else {
-            // Gérer les erreurs de validation
-            if ($form->isSubmitted()) {
-                $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez corriger les champs invalides.');
+                $this->errorHandling->addSuccessFlash('Utilisateur modifié avec succès !');
+                return $this->redirectToRoute('admin.user.index');
+            } catch (\Throwable $e) {
+                $this->errorHandling->handleDatabaseError($e);
+                $this->errorHandling->logError($e, ['action' => 'admin_edit_user', 'user_id' => $user->getId()]);
             }
+        } elseif ($form->isSubmitted()) {
+            $this->errorHandling->handleFormErrors($form);
         }
 
         return $this->render('admin_user/edit.html.twig', [
@@ -137,16 +143,21 @@ final class AdminUserController extends AbstractController
     {
         // Empêcher la désactivation de soi-même
         if ($user === $this->getUser()) {
-            $this->addFlash('error', 'Vous ne pouvez pas désactiver votre propre compte.');
+            $this->errorHandling->addErrorFlash('Vous ne pouvez pas désactiver votre propre compte.');
             return $this->redirectToRoute('admin.user.index');
         }
 
         if ($this->isCsrfTokenValid('toggle_actif' . $user->getId(), $request->request->get('_token'))) {
-            $user->setActif(!$user->isActif());
-            $this->userRepository->save($user, true);
+            try {
+                $user->setActif(!$user->isActif());
+                $this->userRepository->save($user, true);
 
-            $statut = $user->isActif() ? 'activé' : 'désactivé';
-            $this->addFlash('success', "Le compte de {$user->getNom()} a été {$statut}.");
+                $statut = $user->isActif() ? 'activé' : 'désactivé';
+                $this->errorHandling->addSuccessFlash("Le compte de {$user->getNom()} a été {$statut}.");
+            } catch (\Throwable $e) {
+                $this->errorHandling->handleDatabaseError($e);
+                $this->errorHandling->logError($e, ['action' => 'toggle_actif', 'user_id' => $user->getId()]);
+            }
         }
 
         return $this->redirectToRoute('admin.user.index');

@@ -11,7 +11,6 @@
 {% block dashboard_title %}Créer un utilisateur{% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Création d'un nouvel utilisateur pour la plateforme</p>
 
 <div class="grid">
     <section class="card">
@@ -23,7 +22,7 @@
         {{ form_start(form, {'attr': {'class': 'auth-form'}}) }}
 
         <div class="auth-form-group">
-            {{ form_label(form.email, 'Adresse email', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.email.vars.id }}" class="auth-label">Adresse email <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.email, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez l\'adresse email'}}) }}
             {% if form_errors(form.email) %}
                 <div class="auth-error-message">
@@ -38,7 +37,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.nom, 'Nom complet', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.nom.vars.id }}" class="auth-label">Nom complet <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.nom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le nom complet'}}) }}
             {% if form_errors(form.nom) %}
                 <div class="auth-error-message">
@@ -68,7 +67,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.role, 'Rôle', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.role.vars.id }}" class="auth-label">Rôle <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.role, {'attr': {'class': 'auth-input'}}) }}
             {% if form_errors(form.role) %}
                 <div class="auth-error-message">
@@ -83,7 +82,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.password, 'Mot de passe', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.password.vars.id }}" class="auth-label">Mot de passe <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.password, {'attr': {'class': 'auth-input', 'placeholder': 'Choisissez un mot de passe'}}) }}
             {% if form_errors(form.password) %}
                 <div class="auth-error-message">
@@ -98,7 +97,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.password_confirm, 'Confirmer le mot de passe', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.password_confirm.vars.id }}" class="auth-label">Confirmer le mot de passe <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.password_confirm, {'attr': {'class': 'auth-input', 'placeholder': 'Confirmez le mot de passe'}}) }}
             {% if form_errors(form.password_confirm) %}
                 <div class="auth-error-message">

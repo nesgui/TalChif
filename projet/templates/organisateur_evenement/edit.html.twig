@@ -16,7 +16,7 @@
         {{ form_start(form, {'attr': {'class': 'auth-form', 'enctype': 'multipart/form-data'}}) }}
 
         <div class="auth-form-group">
-            {{ form_label(form.nom, 'Nom de l\'événement', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.nom.vars.id }}" class="auth-label">Nom de l'événement <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.nom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le nom de l\'événement'}}) }}
             {% if form_errors(form.nom) %}
                 <div class="auth-error-message">
@@ -31,7 +31,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.categorie, 'Catégorie', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.categorie.vars.id }}" class="auth-label">Catégorie <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.categorie, {'attr': {'class': 'auth-input'}}) }}
             {% if form_errors(form.categorie) %}
                 <div class="auth-error-message">
@@ -46,7 +46,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.description, 'Description', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.description.vars.id }}" class="auth-label">Description <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.description, {'attr': {'class': 'auth-input', 'placeholder': 'Décrivez votre événement en détail (minimum 10 caractères)', 'rows': '4'}}) }}
             {% if form_errors(form.description) %}
                 <div class="auth-error-message">
@@ -61,7 +61,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.dateEvenement, 'Date de l\'événement', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.dateEvenement.vars.id }}" class="auth-label">Date de l'événement <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.dateEvenement, {'attr': {'class': 'auth-input'}}) }}
             {% if form_errors(form.dateEvenement) %}
                 <div class="auth-error-message">
@@ -76,7 +76,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.lieu, 'Lieu', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.lieu.vars.id }}" class="auth-label">Lieu <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.lieu, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le lieu de l\'événement'}}) }}
             {% if form_errors(form.lieu) %}
                 <div class="auth-error-message">
@@ -91,7 +91,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.adresse.vars.id }}" class="auth-label">Adresse <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.adresse, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez l\'adresse complète'}}) }}
             {% if form_errors(form.adresse) %}
                 <div class="auth-error-message">
@@ -106,7 +106,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.ville.vars.id }}" class="auth-label">Ville <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.ville, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez la ville'}}) }}
             {% if form_errors(form.ville) %}
                 <div class="auth-error-message">
@@ -121,7 +121,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.placesDisponibles, 'Places disponibles', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.placesDisponibles.vars.id }}" class="auth-label">Places disponibles <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.placesDisponibles, {'attr': {'class': 'auth-input', 'placeholder': 'Nombre de places disponibles'}}) }}
             {% if form_errors(form.placesDisponibles) %}
                 <div class="auth-error-message">
@@ -136,7 +136,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.prixSimple, 'Prix simple (XAF)', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.prixSimple.vars.id }}" class="auth-label">Prix simple (XAF) <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.prixSimple, {'attr': {'class': 'auth-input', 'placeholder': 'Prix du billet simple'}}) }}
             {% if form_errors(form.prixSimple) %}
                 <div class="auth-error-message">

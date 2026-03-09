@@ -23,7 +23,7 @@
         {{ form_start(form, {'attr': {'class': 'auth-form'}}) }}
 
         <div class="auth-form-group">
-            {{ form_label(form.email, 'Adresse email', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.email.vars.id }}" class="auth-label">Adresse email <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.email, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez l\'adresse email'}}) }}
             {% if form_errors(form.email) %}
                 <div class="auth-error-message">
@@ -38,7 +38,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.nom, 'Nom complet', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.nom.vars.id }}" class="auth-label">Nom complet <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.nom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le nom complet'}}) }}
             {% if form_errors(form.nom) %}
                 <div class="auth-error-message">
@@ -68,7 +68,7 @@
         </div>
 
         <div class="auth-form-group">
-            {{ form_label(form.role, 'Rôle', {'label_attr': {'class': 'auth-label'}}) }}
+            <label for="{{ form.role.vars.id }}" class="auth-label">Rôle <span style="color: #e53e3e;">*</span></label>
             {{ form_widget(form.role, {'attr': {'class': 'auth-input'}}) }}
             {% if form_errors(form.role) %}
                 <div class="auth-error-message">
