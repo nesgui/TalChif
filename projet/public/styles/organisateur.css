@@ -365,7 +365,6 @@ turbo-frame.dashboard-main,
 
 .btn-small {
     padding: var(--espace-sm) var(--espace-md);
-    border: none;
     border-radius: var(--rayon-sm);
     font-size: 0.875rem;
     font-weight: 500;
@@ -373,6 +372,27 @@ turbo-frame.dashboard-main,
     text-decoration: none;
     display: inline-block;
     transition: all var(--transition-rapide);
+}
+
+.btn-small.btn-outline {
+    background: transparent;
+    border: 1px solid var(--couleur-secondaire);
+    color: var(--couleur-secondaire);
+}
+
+.btn-small.btn-outline:hover {
+    background: var(--couleur-secondaire);
+    color: var(--couleur-texte-inverse);
+}
+
+html[data-theme="dark"] .btn-small.btn-outline {
+    border-color: var(--palette-light-blue);
+    color: var(--palette-light-blue);
+}
+
+html[data-theme="dark"] .btn-small.btn-outline:hover {
+    background: var(--palette-light-blue);
+    color: var(--palette-dark-blue);
 }
 
 .btn-small:hover {

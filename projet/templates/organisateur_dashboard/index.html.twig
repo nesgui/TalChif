@@ -124,36 +124,10 @@
                             <span class="meta-icon"></span>
                             <span class="meta-text">{{ evenement.lieu }}</span>
                         </div>
-                        <div class="meta-item">
-                            <span class="meta-icon"></span>
-                            <span class="meta-text">{{ evenement.prixSimple|number_format(0, '.', ' ') }} XAF</span>
-                        </div>
-                    </div>
-                    
-                    <div class="event-stats">
-                        <div class="stat-item">
-                            <span class="stat-value">{{ evenement.placesVendues ?? 0 }}</span>
-                            <span class="stat-label">vendus</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value">{{ evenement.placesDisponibles - (evenement.placesVendues ?? 0) }}</span>
-                            <span class="stat-label">disponibles</span>
-                        </div>
-                    </div>
-
-                    <div class="reglement-status">
-                        {% if evenement.isOrganisateurPaye %}
-                            <span class="status-badge reglement-paid">Règlement effectué</span>
-                        {% else %}
-                            <span class="status-badge reglement-pending">Règlement en attente</span>
-                        {% endif %}
                     </div>
 
                     <div class="event-actions">
                         <a href="{{ path('organisateur.evenement.stats', {id: evenement.id}) }}" class="btn btn-small btn-outline">Stats</a>
-                        <a href="{{ path('organisateur.evenement.participants', {id: evenement.id}) }}" class="btn btn-small btn-outline">Participants</a>
-                        <a href="{{ path('organisateur.evenement.qrcodes', {id: evenement.id}) }}" class="btn btn-small btn-outline">QR Codes</a>
-                        <a href="{{ path('organisateur.evenement.performance', {id: evenement.id}) }}" class="btn btn-small btn-outline">Perf.</a>
                         <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-small btn-outline">Modifier</a>
                     </div>
                 </div>

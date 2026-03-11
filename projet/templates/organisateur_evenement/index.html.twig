@@ -65,7 +65,7 @@
                         <td>
                             <div class="actions-cell">
                                 <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-sm btn-primary">Voir</a>
-                                <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
+
                                 {% if evenement.isActive and evenement.isValide %}
                                     <form method="post" action="{{ path('organisateur.evenement.toggle_status', {id: evenement.id, action: 'deactivate'}) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token('status' ~ evenement.id) }}">
@@ -108,7 +108,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser DataTables pour les événements
     if (typeof DataTableOS !== 'undefined') {
+        // Nettoyage : détruire l'instance précédente et ses boutons (navigation Turbo Frame)
+        if (jQuery.fn.DataTable.isDataTable('#events-table')) {
+            jQuery('#events-table').DataTable().destroy();
+        }
+        jQuery('#events-table').parent().find('.dt-buttons').remove();
+
         DataTableOS.init('#events-table', {
+            paging: false,
+            searching: false,
+            info: false,
+            lengthChange: false,
             order: [[2, 'desc']], // Tri par date (décroissant)
             buttons: [
                 {

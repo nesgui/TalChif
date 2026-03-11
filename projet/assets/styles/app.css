@@ -1010,6 +1010,16 @@ html[data-theme="dark"] .tickets-nav .nav-btn.active {
     border-color: var(--couleur-primaire) !important;
 }
 
+html[data-theme="dark"] .btn-outline {
+    border-color: var(--palette-light-blue);
+    color: var(--palette-light-blue);
+}
+
+html[data-theme="dark"] .btn-outline:hover {
+    background: var(--palette-light-blue);
+    color: var(--palette-dark-blue);
+}
+
 html[data-theme="dark"] .event-card {
     background: var(--couleur-surface);
     border-color: var(--couleur-bordure);

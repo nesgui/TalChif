@@ -5,6 +5,9 @@
  * @version 2.0 - Février 2026
  */
 
+(function() {
+if (window.NotificationService) return;
+
 class NotificationService {
     constructor() {
         this.container = null;
@@ -481,3 +484,5 @@ if (window.flashMessages && window.flashMessages.length > 0) {
     // Nettoyer après affichage
     window.flashMessages = [];
 }
+
+})();

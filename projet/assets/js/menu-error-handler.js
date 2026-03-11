@@ -3,6 +3,9 @@
  * Fournit une gestion unifiée des erreurs d'interaction utilisateur
  */
 
+(function() {
+if (window.MenuErrorHandler) return;
+
 class MenuErrorHandler {
     constructor() {
         this.init();
@@ -527,9 +530,11 @@ class MenuErrorHandler {
 }
 
 // Initialiser le gestionnaire d'erreurs quand le DOM est prêt
+window.MenuErrorHandler = MenuErrorHandler;
 document.addEventListener('DOMContentLoaded', () => {
-    window.menuErrorHandler = new MenuErrorHandler();
+    if (!window.menuErrorHandler) {
+        window.menuErrorHandler = new MenuErrorHandler();
+    }
 });
 
-// Exporter pour utilisation externe si nécessaire
-window.MenuErrorHandler = MenuErrorHandler;
+})();

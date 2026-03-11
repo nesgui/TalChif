@@ -3,6 +3,9 @@
  * Fournit une validation instantanée et des indicateurs visuels
  */
 
+(function() {
+if (window.FormValidator) return;
+
 class FormValidator {
     constructor() {
         this.init();
@@ -177,7 +180,7 @@ class FormValidator {
         
         // Validation spécifique selon le nom du champ
         if (fieldName.includes('nom')) {
-            return value.length >= 2 && /^[\p{L}\p{M}\s\-\']+$/u.test(value);
+            return value.length >= 2 && /^[\p{L}\p{M}\s\-']+$/u.test(value);
         }
         
         if (fieldName.includes('password')) {
@@ -324,3 +327,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Exporter pour utilisation externe si nécessaire
 window.FormValidator = FormValidator;
+
+})();
