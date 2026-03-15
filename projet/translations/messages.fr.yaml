@@ -1,0 +1,31 @@
+# Traductions françaises - TalChif
+# Fichier: translations/messages.fr.yaml
+
+# Page d'accueil
+accueil:
+  meta_description: "Découvrez les prochains événements près de chez vous au Tchad. Concerts, festivals, soirées - Réservez vos billets en ligne."
+  carousel:
+    featured: "ÉVÉNEMENT EN VEDETTE"
+    welcome: "BIENVENUE SUR TALCHIF"
+    discover: "Découvrez nos événements"
+    calendar: "Consultez notre calendrier"
+    location_all: "Partout au Tchad"
+    reserve_now: "Réserver maintenant"
+    more_info: "Plus d'infos"
+    view_all: "Voir tous les événements"
+    explore: "Explorer"
+  categories:
+    title: "Catégories populaires"
+    concerts: "Concerts & Soirées"
+    sport: "Sport & Compétitions"
+    culture: "Culture & Spectacles"
+    recommendations: "Recommandations pour vous"
+    view_all: "Voir tout →"
+  debug:
+    first_event: "DEBUG PREMIER ÉVÉNEMENT"
+    image_loaded: "Image PREMIER événement chargée avec succès!"
+    image_missing: "Image PREMIER événement MANQUANTE!"
+    debug_css: "DEBUG CSS PREMIER SLIDE"
+    image_missing_fallback: "Image manquante: %path% -> utilisation de fallback"
+  alt:
+    event_poster: "Affiche de l'événement : %title%"

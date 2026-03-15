@@ -1,0 +1,261 @@
+/* ============================================
+   SYSTÈME DE TYPOGRAPHIE RESPONSIVE PRO
+   TalChif - Mars 2026
+   
+   Scaling automatique pour 4 catégories d'écrans :
+   📱 Smartphone (320px - 767px)
+   📱 Tablette (768px - 1023px)
+   💻 Desktop (1024px - 1919px)
+   📺 TV/Large (1920px+)
+   ============================================ */
+
+:root {
+    /* ══════════════════════════════════════
+       BREAKPOINTS
+       ══════════════════════════════════════ */
+    
+    --bp-mobile: 320px;
+    --bp-mobile-max: 767px;
+    --bp-tablet: 768px;
+    --bp-tablet-max: 1023px;
+    --bp-desktop: 1024px;
+    --bp-desktop-max: 1919px;
+    --bp-tv: 1920px;
+    
+    /* ══════════════════════════════════════
+       NIVEAU 1 : DISPLAY (Héros, Landing)
+       Smartphone → Tablette → Desktop → TV
+       ══════════════════════════════════════ */
+    
+    --display-xl: clamp(2rem, 4vw + 1rem, 4.5rem);        /* 32px → 72px */
+    --display-l: clamp(1.75rem, 3.5vw + 1rem, 4rem);      /* 28px → 64px */
+    --display-m: clamp(1.5rem, 3vw + 1rem, 3.5rem);       /* 24px → 56px */
+    
+    /* ══════════════════════════════════════
+       NIVEAU 2 : HEADINGS (Titres H1-H6)
+       Scaling fluide pour tous les écrans
+       ══════════════════════════════════════ */
+    
+    --h1: clamp(1.5rem, 2vw + 1rem, 2.5rem);              /* 24px → 40px */
+    --h2: clamp(1.25rem, 1.5vw + 1rem, 2.25rem);          /* 20px → 36px */
+    --h3: clamp(1.125rem, 1.25vw + 1rem, 2rem);           /* 18px → 32px */
+    --h4: clamp(1rem, 1vw + 0.75rem, 1.5rem);             /* 16px → 24px */
+    --h5: clamp(0.875rem, 0.75vw + 0.75rem, 1.25rem);     /* 14px → 20px */
+    --h6: clamp(0.875rem, 0.5vw + 0.75rem, 1.125rem);     /* 14px → 18px */
+    
+    /* ══════════════════════════════════════
+       NIVEAU 3 : BODY TEXT (Corps de texte)
+       Lisibilité optimale sur tous écrans
+       ══════════════════════════════════════ */
+    
+    --text-lead: clamp(1.125rem, 1vw + 1rem, 1.75rem);         /* 18px → 28px */
+    --text-lg: clamp(1rem, 0.5vw + 0.875rem, 1.375rem);        /* 16px → 22px */
+    --text-base: clamp(0.9375rem, 0.25vw + 0.875rem, 1.25rem); /* 15px → 20px */
+    --text-sm: clamp(0.875rem, 0.25vw + 0.8125rem, 1.125rem);  /* 14px → 18px */
+    --text-caption: clamp(0.8125rem, 0.25vw + 0.75rem, 1rem);  /* 13px → 16px */
+    --text-tiny: clamp(0.75rem, 0.125vw + 0.6875rem, 0.875rem); /* 12px → 14px */
+    
+    /* ══════════════════════════════════════
+       NIVEAU 4 : UI ELEMENTS (Boutons, Forms)
+       Tailles optimales pour interaction
+       ══════════════════════════════════════ */
+    
+    --ui-btn-lg: clamp(1rem, 0.5vw + 0.875rem, 1.375rem);      /* 16px → 22px */
+    --ui-btn: clamp(0.9375rem, 0.25vw + 0.875rem, 1.25rem);    /* 15px → 20px */
+    --ui-btn-sm: clamp(0.875rem, 0.25vw + 0.8125rem, 1.125rem); /* 14px → 18px */
+    --ui-label: clamp(0.875rem, 0.25vw + 0.8125rem, 1.125rem);  /* 14px → 18px */
+    --ui-input: clamp(0.9375rem, 0.25vw + 0.875rem, 1.25rem);   /* 15px → 20px */
+    --ui-placeholder: clamp(0.875rem, 0.25vw + 0.8125rem, 1.125rem); /* 14px → 18px */
+    
+    /* ══════════════════════════════════════
+       NIVEAU 5 : CARDS & COMPONENTS
+       Cohérence visuelle des composants
+       ══════════════════════════════════════ */
+    
+    --card-title: clamp(1rem, 0.5vw + 0.875rem, 1.375rem);      /* 16px → 22px */
+    --card-meta: clamp(0.8125rem, 0.25vw + 0.75rem, 1rem);      /* 13px → 16px */
+    --card-body: clamp(0.875rem, 0.25vw + 0.8125rem, 1.125rem); /* 14px → 18px */
+    --badge: clamp(0.6875rem, 0.125vw + 0.625rem, 0.875rem);    /* 11px → 14px */
+    --stat-number: clamp(1.5rem, 2vw + 1rem, 2.5rem);           /* 24px → 40px */
+    --stat-label: clamp(0.8125rem, 0.25vw + 0.75rem, 1rem);     /* 13px → 16px */
+    
+    /* ══════════════════════════════════════
+       NIVEAU 6 : NAVIGATION
+       Optimisé pour touch et desktop
+       ══════════════════════════════════════ */
+    
+    --nav-link: clamp(0.875rem, 0.25vw + 0.8125rem, 1.125rem);  /* 14px → 18px */
+    --nav-label: clamp(0.6875rem, 0.125vw + 0.625rem, 0.875rem); /* 11px → 14px */
+    --menu-item: clamp(0.9375rem, 0.25vw + 0.875rem, 1.125rem); /* 15px → 18px */
+    
+    /* ══════════════════════════════════════
+       POIDS DE POLICE (Font Weights)
+       Hiérarchie visuelle claire
+       ══════════════════════════════════════ */
+    
+    --fw-light: 300;
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --fw-extrabold: 800;
+    
+    /* ══════════════════════════════════════
+       LINE HEIGHT (Hauteur de ligne)
+       Lisibilité optimale
+       ══════════════════════════════════════ */
+    
+    --lh-tight: 1.2;      /* Titres, display */
+    --lh-snug: 1.4;       /* Sous-titres, H2-H4 */
+    --lh-normal: 1.6;     /* Corps de texte, paragraphes */
+    --lh-relaxed: 1.8;    /* Texte aéré, lead */
+    --lh-loose: 2;        /* Très aéré (rarement utilisé) */
+    
+    /* ══════════════════════════════════════
+       LETTER SPACING (Espacement lettres)
+       Améliore la lisibilité
+       ══════════════════════════════════════ */
+    
+    --ls-tighter: -0.05em;  /* Display, grands titres */
+    --ls-tight: -0.025em;   /* H1, H2 */
+    --ls-normal: 0;         /* Texte standard */
+    --ls-wide: 0.025em;     /* Labels, boutons */
+    --ls-wider: 0.05em;     /* Badges, tags */
+    --ls-widest: 0.1em;     /* Tout en majuscules */
+}
+
+/* ══════════════════════════════════════
+   APPLICATION DES STYLES
+   Classes utilitaires pour utilisation
+   ══════════════════════════════════════ */
+
+/* Display */
+.display-xl { 
+    font-size: var(--display-xl); 
+    font-weight: var(--fw-extrabold); 
+    line-height: var(--lh-tight); 
+    letter-spacing: var(--ls-tighter);
+}
+
+.display-l { 
+    font-size: var(--display-l); 
+    font-weight: var(--fw-bold); 
+    line-height: var(--lh-tight); 
+    letter-spacing: var(--ls-tight);
+}
+
+.display-m { 
+    font-size: var(--display-m); 
+    font-weight: var(--fw-bold); 
+    line-height: var(--lh-snug); 
+    letter-spacing: var(--ls-tight);
+}
+
+/* Headings */
+h1, .h1 { 
+    font-size: var(--h1); 
+    font-weight: var(--fw-bold); 
+    line-height: var(--lh-tight); 
+    letter-spacing: var(--ls-tight);
+    margin: 0;
+}
+
+h2, .h2 { 
+    font-size: var(--h2); 
+    font-weight: var(--fw-semibold); 
+    line-height: var(--lh-snug); 
+    letter-spacing: var(--ls-tight);
+    margin: 0;
+}
+
+h3, .h3 { 
+    font-size: var(--h3); 
+    font-weight: var(--fw-semibold); 
+    line-height: var(--lh-snug); 
+    letter-spacing: var(--ls-normal);
+    margin: 0;
+}
+
+h4, .h4 { 
+    font-size: var(--h4); 
+    font-weight: var(--fw-medium); 
+    line-height: var(--lh-normal); 
+    letter-spacing: var(--ls-normal);
+    margin: 0;
+}
+
+h5, .h5 { 
+    font-size: var(--h5); 
+    font-weight: var(--fw-medium); 
+    line-height: var(--lh-normal); 
+    letter-spacing: var(--ls-normal);
+    margin: 0;
+}
+
+h6, .h6 { 
+    font-size: var(--h6); 
+    font-weight: var(--fw-medium); 
+    line-height: var(--lh-normal); 
+    letter-spacing: var(--ls-normal);
+    margin: 0;
+}
+
+/* Body Text */
+.text-lead { 
+    font-size: var(--text-lead); 
+    line-height: var(--lh-relaxed); 
+    letter-spacing: var(--ls-normal);
+}
+
+.text-lg { 
+    font-size: var(--text-lg); 
+    line-height: var(--lh-normal); 
+    letter-spacing: var(--ls-normal);
+}
+
+.text-base, body { 
+    font-size: var(--text-base); 
+    line-height: var(--lh-normal); 
+    letter-spacing: var(--ls-normal);
+}
+
+.text-sm { 
+    font-size: var(--text-sm); 
+    line-height: var(--lh-normal); 
+    letter-spacing: var(--ls-normal);
+}
+
+.text-caption { 
+    font-size: var(--text-caption); 
+    line-height: var(--lh-snug); 
+    letter-spacing: var(--ls-normal);
+}
+
+.text-tiny { 
+    font-size: var(--text-tiny); 
+    line-height: var(--lh-snug); 
+    letter-spacing: var(--ls-wide);
+}
+
+/* Font Weights */
+.fw-light     { font-weight: var(--fw-light); }
+.fw-normal    { font-weight: var(--fw-normal); }
+.fw-medium    { font-weight: var(--fw-medium); }
+.fw-semibold  { font-weight: var(--fw-semibold); }
+.fw-bold      { font-weight: var(--fw-bold); }
+.fw-extrabold { font-weight: var(--fw-extrabold); }
+
+/* Line Heights */
+.lh-tight    { line-height: var(--lh-tight); }
+.lh-snug     { line-height: var(--lh-snug); }
+.lh-normal   { line-height: var(--lh-normal); }
+.lh-relaxed  { line-height: var(--lh-relaxed); }
+.lh-loose    { line-height: var(--lh-loose); }
+
+/* Letter Spacing */
+.ls-tighter { letter-spacing: var(--ls-tighter); }
+.ls-tight   { letter-spacing: var(--ls-tight); }
+.ls-normal  { letter-spacing: var(--ls-normal); }
+.ls-wide    { letter-spacing: var(--ls-wide); }
+.ls-wider   { letter-spacing: var(--ls-wider); }
+.ls-widest  { letter-spacing: var(--ls-widest); }

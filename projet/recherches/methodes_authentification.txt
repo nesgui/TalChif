@@ -69,7 +69,7 @@ Production (recommandations):
 - Ne pas permettre la création ORGANISATEUR libre sans validation (anti-fraude)
 - Éventuellement 2FA pour ADMIN
 
-CREER UN ADMIN LOCAL
+CRéER UN ADMIN LOCAL
 php bin/console app:create-admin admin@gmail.com "Admin1234!"
 
 # Arrêter les processus PHP (SERVEURS QUI TOURNES)

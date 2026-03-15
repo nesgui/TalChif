@@ -1,3 +1,8 @@
+/* ============================================
+   IMPORT SYSTÈME DE TYPOGRAPHIE RESPONSIVE
+   ============================================ */
+@import 'typography-system.css';
+
 /* Thème par défaut (clair) - Palette TalChif cohérente et accessible */
 :root {
     /* Design tokens - palette fournie */
@@ -67,16 +72,11 @@
     --espace-2xl: 48px;
     --espace-3xl: 64px;
 
-    /* Typographie — échelle cohérente */
-    --taille-xs: 0.75rem;   /* 12px — méta, badges */
-    --taille-sm: 0.875rem;  /* 14px — card-title, labels, boutons */
-    --taille-base: 1rem;    /* 16px — corps de texte */
-    --taille-md: 1.125rem;  /* 18px — sous-titres, stat headers */
-    --taille-lg: 1.25rem;   /* 20px — titres de section */
-    --taille-xl: 1.5rem;    /* 24px — titres moyens */
-    --taille-2xl: 1.75rem;  /* 28px — page-title */
-    --taille-3xl: 2rem;     /* 32px — grands titres mobile */
-    --taille-4xl: 2.5rem;   /* 40px — héros */
+    /* ══════════════════════════════════════
+       TYPOGRAPHIE RESPONSIVE
+       Voir typography-system.css pour le système complet
+       Variables : --h1 à --h6, --text-*, --ui-*, --card-*, etc.
+       ══════════════════════════════════════ */
 }
 
 /* Thème sombre - Même palette TalChif, variantes sombres */
@@ -684,7 +684,8 @@ html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
 }
 
 .public-tab-label {
-    font-size: 12px;
+    font-size: var(--nav-label);
+    font-weight: var(--fw-medium);
     line-height: 1.05;
     text-align: center;
     overflow: hidden;
@@ -743,14 +744,14 @@ html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
 
 .stat-number {
     display: block;
-    font-size: var(--taille-xl);
-    font-weight: 700;
+    font-size: var(--stat-number);
+    font-weight: var(--fw-bold);
     color: var(--couleur-primaire);
 }
 
 .stat-label {
     display: block;
-    font-size: var(--taille-sm);
+    font-size: var(--stat-label);
     color: var(--couleur-texte-secondaire);
     margin-top: var(--espace-xs);
 }
@@ -819,8 +820,8 @@ html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
 .event-title {
     margin: 0 0 var(--espace-sm) 0;
     color: var(--couleur-texte);
-    font-size: var(--taille-lg);
-    font-weight: 600;
+    font-size: var(--card-title);
+    font-weight: var(--fw-semibold);
 }
 
 .event-meta {
@@ -836,8 +837,8 @@ html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
 .tickets-title {
     margin: 0 0 var(--espace-md) 0;
     color: var(--couleur-texte);
-    font-size: var(--taille-md);
-    font-weight: 600;
+    font-size: var(--h4);
+    font-weight: var(--fw-semibold);
 }
 
 .table-responsive {
@@ -856,7 +857,7 @@ html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
     padding: var(--espace-xs) var(--espace-sm);
     border-radius: var(--rayon-sm);
     font-family: monospace;
-    font-size: var(--taille-xs);
+    font-size: var(--text-tiny);
     color: var(--couleur-texte);
     border: 1px solid var(--couleur-bordure);
 }
@@ -864,8 +865,8 @@ html[data-theme="dark"] .public-tab[aria-current="page"] .public-tab-icon svg {
 .status-badge {
     padding: var(--espace-xs) var(--espace-sm);
     border-radius: 999px;
-    font-size: var(--taille-xs);
-    font-weight: 600;
+    font-size: var(--badge);
+    font-weight: var(--fw-semibold);
 }
 
 .status-badge.used {
@@ -1169,8 +1170,9 @@ html[data-theme="dark"] .pill-danger {
 .form-help {
     display: block;
     margin-top: var(--espace-xs);
-    font-size: 0.8125rem;
+    font-size: var(--text-caption);
     color: var(--couleur-texte-secondaire);
+    line-height: var(--lh-normal);
 }
 
 /* Groupe de formulaire */
@@ -1205,8 +1207,8 @@ html[data-theme="dark"] .pill-danger {
 .form-control {
     width: 100%;
     padding: var(--espace-sm) var(--espace-md);
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: var(--ui-input);
+    line-height: var(--lh-normal);
     color: var(--couleur-texte);
     background: var(--couleur-fond);
     border: 1px solid var(--couleur-bordure);
@@ -1249,13 +1251,16 @@ html[data-theme="dark"] .section-title {
 
 .page-title {
     margin: 0 0 6px;
-    font-size: var(--taille-2xl);
+    font-size: var(--h1);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-tight);
 }
 
 .page-subtitle {
     margin: 0 0 18px;
     color: var(--couleur-texte-secondaire);
-    font-size: var(--taille-base);
+    font-size: var(--text-base);
+    line-height: var(--lh-normal);
 }
 
 .grid {
@@ -1286,13 +1291,16 @@ html[data-theme="dark"] .section-title {
 
 .card-title {
     margin: 0 0 4px;
-    font-size: var(--taille-sm);
+    font-size: var(--card-title);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-tight);
 }
 
 .card-meta {
     margin: 0;
     color: var(--couleur-texte-secondaire);
-    font-size: var(--taille-xs);
+    font-size: var(--card-meta);
+    line-height: var(--lh-normal);
 }
 
 .card-actions {
@@ -1310,8 +1318,8 @@ html[data-theme="dark"] .section-title {
     gap: 8px;
     border-radius: var(--rayon);
     padding: 12px 20px;
-    font-weight: 600;
-    font-size: var(--taille-sm);
+    font-weight: var(--fw-semibold);
+    font-size: var(--ui-btn);
     text-decoration: none;
     border: 1px solid transparent;
     color: var(--couleur-texte-inverse);
@@ -1426,13 +1434,13 @@ html[data-theme="dark"] .section-title {
 /* Tailles de boutons */
 .btn-sm {
     padding: 8px 16px;
-    font-size: 0.75rem;
+    font-size: var(--ui-btn-sm);
     min-height: 36px;
 }
 
 .btn-lg {
     padding: 16px 24px;
-    font-size: 1rem;
+    font-size: var(--ui-btn-lg);
     min-height: 52px;
 }
 
@@ -1494,7 +1502,7 @@ html[data-theme="dark"] .section-title {
 
 .pagination-info {
     color: var(--couleur-texte-secondaire);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
 }
 
 /* Zone de recherche (au-dessus des tableaux) */
@@ -1509,8 +1517,8 @@ html[data-theme="dark"] .section-title {
 }
 
 .search-zone-label {
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-medium);
     color: var(--couleur-texte-secondaire);
 }
 
@@ -1523,7 +1531,7 @@ html[data-theme="dark"] .section-title {
 .pagination-link {
     color: var(--couleur-primaire);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
 }
 
 .pagination-link:hover {
@@ -1540,7 +1548,7 @@ html[data-theme="dark"] .section-title {
     display: inline-flex;
     padding: 4px 10px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--badge);
     border: 1px solid var(--couleur-bordure);
     background: color-mix(in srgb, var(--couleur-fond) 86%, var(--couleur-texte) 14%);
 }
@@ -1591,7 +1599,9 @@ html[data-theme="dark"] .section-title {
 
 .hero-title {
     margin: 0;
-    font-size: 22px;
+    font-size: var(--display-m);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-tight);
 }
 
 .hero-subtitle {
@@ -1611,7 +1621,9 @@ html[data-theme="dark"] .section-title {
 
 .section-title {
     margin: 0 0 10px;
-    font-size: 16px;
+    font-size: var(--h3);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-snug);
 }
 
 .section-actions {
@@ -1643,7 +1655,7 @@ html[data-theme="dark"] .section-title {
 
 .quick-meta {
     color: var(--couleur-texte-secondaire);
-    font-size: 13px;
+    font-size: var(--badge);
 }
 
 .catalog {
@@ -1685,8 +1697,8 @@ html[data-theme="dark"] .section-title {
     left: 10px;
     padding: 6px 10px;
     border-radius: 999px;
-    font-size: 12px;
-    font-weight: 800;
+    font-size: var(--badge);
+    font-weight: var(--fw-extrabold);
     border: 1px solid var(--couleur-bordure);
     background: color-mix(in srgb, var(--couleur-primaire) 20%, var(--couleur-fond) 80%);
 }
@@ -1699,8 +1711,9 @@ html[data-theme="dark"] .section-title {
 
 .product-title {
     margin: 0;
-    font-size: 14px;
-    line-height: 1.2;
+    font-size: var(--card-title);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-tight);
 }
 
 .product-meta {
@@ -1717,7 +1730,7 @@ html[data-theme="dark"] .section-title {
 
 .product-rating-meta {
     color: var(--couleur-texte-secondaire);
-    font-size: 13px;
+    font-size: var(--card-meta);
 }
 
 .stars {
@@ -1737,7 +1750,8 @@ html[data-theme="dark"] .section-title {
 }
 
 .product-price {
-    font-size: 13px;
+    font-size: var(--text-lg);
+    font-weight: var(--fw-bold);
 }
 
 .product-actions {
@@ -1794,13 +1808,13 @@ html[data-theme="dark"] .section-title {
 }
 
 .product-hero-buybox-price {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: var(--text-lg);
+    font-weight: var(--fw-bold);
     color: var(--palette-dark-blue);
 }
 
 .product-hero-buybox-meta {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--couleur-texte-secondaire);
 }
 
@@ -1822,14 +1836,14 @@ html[data-theme="dark"] .section-title {
 /* Petites sections texte dans la buybox (description, billets, etc.) */
 .product-hero-buybox-section {
     margin-top: 0.75rem;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--couleur-texte-secondaire);
 }
 
 .product-hero-buybox-section h3 {
     margin: 0 0 0.25rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
     color: var(--couleur-texte);
 }
 
@@ -1921,7 +1935,7 @@ html[data-theme="dark"] .section-title {
     }
 
     .hero-title {
-        font-size: 28px;
+        font-size: var(--display-m);
     }
 
     .product-hero {
@@ -1948,7 +1962,7 @@ html[data-theme="dark"] .section-title {
     }
 
     .hero-title {
-        font-size: 24px;
+        font-size: var(--display-m);
     }
 }
 
@@ -1978,12 +1992,12 @@ html[data-theme="dark"] .section-title {
     }
 
     .hero-title {
-        font-size: 20px;
-        line-height: 1.3;
+        font-size: var(--display-m);
+        line-height: var(--lh-tight);
     }
 
     .hero-subtitle {
-        font-size: 14px;
+        font-size: var(--text-sm);
     }
 
     /* Amélioration du menu hamburger sur mobile */
@@ -1995,7 +2009,7 @@ html[data-theme="dark"] .section-title {
 
     .public-drawer-link {
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: var(--nav-link);
         padding: 10px 14px;
         min-height: 38px;
     }
@@ -2052,7 +2066,7 @@ html[data-theme="dark"] .section-title {
     }
 
     .public-tab-label {
-        font-size: 9px;
+        font-size: var(--nav-label);
     }
 }
 
@@ -2065,11 +2079,11 @@ html[data-theme="dark"] .section-title {
 
     /* Ajustements fins pour très petits écrans */
     .hero-title {
-        font-size: 18px;
+        font-size: var(--display-m);
     }
 
     .public-drawer-link {
-        font-size: 0.875rem;
+        font-size: var(--nav-link);
         padding: 10px 12px;
     }
 
@@ -2085,7 +2099,7 @@ html[data-theme="dark"] .section-title {
     }
 
     .public-tab-label {
-        font-size: 9px;
+        font-size: var(--nav-label);
     }
 }
 
@@ -2466,12 +2480,13 @@ img[loading="lazy"].loaded {
 }
 
 .why-card h3 {
-    font-size: 1rem;
+    font-size: var(--h4);
+    font-weight: var(--fw-semibold);
     margin-bottom: 0.4rem;
 }
 
 .why-card p {
-    font-size: 0.9rem;
+    font-size: var(--text-base);
     color: var(--couleur-texte-secondaire);
 }
 
@@ -2489,7 +2504,7 @@ img[loading="lazy"].loaded {
 .organisateur-block ul {
     padding-left: 1.1rem;
     margin: 0.75rem 0 0;
-    font-size: 0.95rem;
+    font-size: var(--text-base);
 }
 
 .organisateur-block li {
@@ -2585,7 +2600,7 @@ button.btn {
 @media (max-width: 719px) {
     .btn {
         padding: 8px 14px;
-        font-size: 0.8125rem;
+        font-size: var(--ui-btn);
         min-height: 38px;
         gap: 6px;
     }
@@ -2703,7 +2718,7 @@ button.btn {
         color: var(--couleur-texte);
         text-align: left;
         flex-shrink: 0;
-        font-size: var(--taille-sm);
+        font-size: var(--text-sm);
     }
 
     .table td:empty::before {
@@ -2713,13 +2728,13 @@ button.btn {
     .table td .btn,
     .table td button,
     .table td a.btn {
-        font-size: var(--taille-xs);
+        font-size: var(--ui-btn-sm);
         padding: 6px 10px;
         min-height: 34px;
     }
 
     .table td .pill {
-        font-size: var(--taille-xs);
+        font-size: var(--badge);
     }
 
     .table td form {
@@ -2732,12 +2747,12 @@ button.btn {
     .table th,
     .table td {
         padding: 8px 8px;
-        font-size: var(--taille-sm);
+        font-size: var(--text-sm);
     }
 
     .table td .btn,
     .table td a.btn {
-        font-size: var(--taille-xs);
+        font-size: var(--ui-btn-sm);
         padding: 5px 10px;
         min-height: 34px;
     }
@@ -2950,14 +2965,14 @@ turbo-frame.dashboard-main,
         color: var(--couleur-texte);
         text-align: left;
         flex-shrink: 0;
-        font-size: var(--taille-sm);
+        font-size: var(--text-sm);
     }
 
     .dataTables_wrapper table.dataTable td .btn,
     .dataTables_wrapper table.dataTable td button,
     .dataTables_wrapper table.dataTable td input[type="submit"],
     .dataTables_wrapper table.dataTable td a.btn {
-        font-size: var(--taille-xs);
+        font-size: var(--ui-btn-sm);
         padding: 6px 10px;
         min-height: 34px;
         line-height: 1.2;
@@ -2973,7 +2988,7 @@ turbo-frame.dashboard-main,
     }
 
     .dataTables_wrapper .dataTables_info {
-        font-size: var(--taille-xs);
+        font-size: var(--text-caption);
     }
 
     .dataTables_wrapper .dataTables_paginate {
@@ -2986,12 +3001,12 @@ turbo-frame.dashboard-main,
     .dataTables_wrapper table.dataTable th,
     .dataTables_wrapper table.dataTable td {
         padding: 8px 8px;
-        font-size: var(--taille-sm);
+        font-size: var(--text-sm);
     }
 
     .dataTables_wrapper table.dataTable td .btn,
     .dataTables_wrapper table.dataTable td a.btn {
-        font-size: var(--taille-xs);
+        font-size: var(--ui-btn-sm);
         padding: 5px 10px;
     }
 }
