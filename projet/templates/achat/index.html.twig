@@ -1,287 +1,355 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Finaliser l'achat{% endblock %}
+{% block title %}Paiement rapide{% endblock %}
 
 {% block body %}
-<div class="purchase-header">
-    <div class="payment-badge">
-        Paiement Mobile Money
-    </div>
-    <h1 class="page-title">Finaliser l'achat</h1>
-    <p class="page-subtitle">Renseignez votre méthode de paiement et confirmez votre commande.</p>
-</div>
+<section class="payment-shell">
+    <header class="payment-header">
+        <p class="payment-kicker">Paiement mobile money</p>
+        <h1 class="payment-title">Un seul écran pour payer vos billets</h1>
+        <p class="payment-subtitle">Choisissez l’opérateur et confirmez. Votre paiement est généralement confirmé sous 5 minutes.</p>
+    </header>
 
-<div class="grid">
-    <section class="card">
-        <h2 class="card-title">Votre commande</h2>
-        <p class="card-meta">Dernière vérification avant paiement</p>
+    {% if app.user %}
+        <div class="payment-grid">
+            <div class="payment-main">
+                <div class="field">
+                    <label>Pays</label>
+                    <input class="form-control" value="🇹🇩 Chad (+235)" readonly />
+                </div>
 
-        {% if lignes|length > 0 %}
-            <div class="panier-lignes">
+                <div class="field">
+                    <label>Moyen de paiement</label>
+                    <div id="payment-methods" class="method-grid"></div>
+                    <small id="method-help" class="field-help"></small>
+                </div>
+
+                <div class="field">
+                    <label for="phone">Numéro mobile money</label>
+                    <input id="phone" type="tel" class="form-control" placeholder="+235 63 51 96 78" autocomplete="tel" />
+                    <small id="phone-help" class="field-help">Format MSISDN invalide.</small>
+                </div>
+
+                <div class="field">
+                    <label for="amount">Montant</label>
+                    <div class="amount-row">
+                        <input id="amount" type="number" class="form-control" min="1" step="1" value="{{ total|number_format(0, '.', '') }}" readonly />
+                        <span id="currency-pill" class="currency-pill">XAF</span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <h3 class="resume-title">Résumé</h3>
+                    <div class="resume-box">
+                        <div><span>Montant</span><strong id="resume-amount">{{ total|number_format(0, '.', ' ') }} XAF</strong></div>
+                        <div><span>Pays</span><strong id="resume-country">-</strong></div>
+                        <div><span>Opérateur</span><strong id="resume-operator">-</strong></div>
+                        <div><span>Numéro</span><strong id="resume-phone">-</strong></div>
+                    </div>
+                </div>
+
+                <div id="status-box" class="status-box status-idle">Prêt à lancer le paiement.</div>
+
+                <div class="actions">
+                    <button id="pay-btn" type="button" class="btn btn-primary btn-block">
+                        <span id="pay-btn-text">Confirmer le paiement</span>
+                        <span id="pay-btn-loader" class="loader" hidden></span>
+                    </button>
+                    <a href="{{ path('panier.index') }}" class="btn btn-ghost btn-block">Retour au panier</a>
+                </div>
+            </div>
+
+            <aside class="payment-side">
+                <h3>Votre panier</h3>
                 {% for ligne in lignes %}
-                    <article class="panier-ligne">
-                        <img class="panier-img" src="{{ ligne.produit.image }}" alt="Affiche de l'événement : {{ ligne.produit.titre }}" loading="lazy" />
-                        <div class="panier-info">
-                            <div class="panier-titre">{{ ligne.produit.titre }}</div>
-                            <div class="panier-meta">
-                                <span class="pill">{{ ligne.produit.date|date('d/m') }}</span>
-                                <span class="pill">{{ ligne.produit.ville }}</span>
-                            </div>
-                            <div class="panier-details">
-                                <small>{{ ligne.produit.date|date('H:i') }} • {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
-                            </div>
+                    <article class="line">
+                        <img src="{{ ligne.produit.image }}" alt="Affiche {{ ligne.produit.titre }}" loading="lazy">
+                        <div>
+                            <p>{{ ligne.produit.titre }}</p>
+                            <small>{{ ligne.quantite }} x {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
                         </div>
-                        <div class="panier-quantite">
-                            <div class="quantite-display">
-                                <span class="quantite-label">Quantité</span>
-                                <span class="quantite-value">{{ ligne.quantite }}</span>
-                            </div>
-                            <div class="panier-sous-total">
-                                <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
-                            </div>
-                        </div>
+                        <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
                     </article>
                 {% endfor %}
+                <div class="side-total">
+                    <span>Total</span>
+                    <strong>{{ total|number_format(0, '.', ' ') }} XAF</strong>
+                </div>
+            </aside>
+        </div>
+    {% else %}
+        <div class="card">
+            <p>Connectez-vous pour effectuer un achat.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
+                <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
             </div>
-        {% else %}
-            <p class="card-meta">Votre panier est vide.</p>
-            <div class="card-actions">
-                <a class="btn btn-primary" href="{{ path('evenement.index') }}">Explorer les événements</a>
-            </div>
-        {% endif %}
-    </section>
-
-    <aside class="card">
-        <h2 class="card-title">💳 Paiement</h2>
-        
-        {% if app.user %}
-            <form method="post" action="{{ path('achat.paiement') }}">
-                <div class="form-group">
-                    <label class="form-label">Méthode de paiement *</label>
-                    <div class="payment-methods">
-                        <label class="payment-method">
-                            <input type="radio" name="methode_paiement" value="momo" checked required>
-                            <span class="payment-icon"></span>
-                            <div class="payment-info">
-                                <span class="payment-name">Moov Money</span>
-                                <small>Mobile Money (Moov)</small>
-                            </div>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="methode_paiement" value="airtel" required>
-                            <span class="payment-icon"></span>
-                            <div class="payment-info">
-                                <span class="payment-name">Airtel Money</span>
-                                <small>Airtel Money</small>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="telephone">Numéro de téléphone *</label>
-                    <input type="tel" id="telephone" name="telephone" class="form-control" 
-                           placeholder="235 00 00 00 00" pattern="[0-9\s]+" required>
-                    <small class="form-help">
-                        Formats acceptés : 235 XX XX XX XX, 235XXXXXXXX, +235XXXXXXXX
-                    </small>
-                </div>
-
-                <table class="table" id="achat-recap-table">
-                    <thead>
-                        <tr>
-                            <th>Libellé</th>
-                            <th>Valeur</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th>Sous-total</th>
-                            <td>{{ total|number_format(0, '.', ' ') }} XAF</td>
-                        </tr>
-                        <tr>
-                            <th>Frais de service</th>
-                            <td>0 XAF</td>
-                        </tr>
-                        <tr class="total-row">
-                            <th>Total à payer</th>
-                            <td><strong>{{ total|number_format(0, '.', ' ') }} XAF</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="trust-section">
-                    <p class="trust-title">Sécurité & confiance</p>
-                    <div class="trust-badges">
-                        <span>Transaction vérifiée manuellement</span>
-                        <span>Référence unique obligatoire</span>
-                        <span>Billet garanti après validation</span>
-                    </div>
-                    <p class="support-whatsapp">Besoin d'aide ? <a href="https://wa.me/23563519678" target="_blank" rel="noopener">Support WhatsApp</a></p>
-                </div>
-
-                <div class="card-actions">
-                    <button type="submit" class="btn btn-primary btn-large" onclick="return confirmPaiement()">
-                        Confirmer le paiement
-                    </button>
-                    <a href="{{ path('panier.index') }}" class="btn">Retour au panier</a>
-                </div>
-            </form>
-        {% else %}
-            <div class="auth-required">
-                <p class="card-meta">🔐 Connectez-vous pour effectuer un achat</p>
-                <div class="card-actions">
-                    <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
-                    <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
-                </div>
-            </div>
-        {% endif %}
-    </aside>
-</div>
+        </div>
+    {% endif %}
+</section>
 
 <style>
-.payment-methods {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    margin-top: 8px;
-}
-
-.payment-method {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border: 2px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.payment-method:hover {
-    border-color: var(--couleur-primaire);
-    background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
-}
-
-.payment-method input[type="radio"] {
-    margin: 0;
-}
-
-.payment-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.payment-name {
-    font-weight: 600;
-    color: var(--couleur-texte);
-}
-
-.payment-info small {
-    color: var(--couleur-texte-secondaire);
-    font-size: 0.875rem;
-}
-
-.total-row {
-    border-top: 2px solid var(--couleur-bordure);
-    font-size: 1.1rem;
-}
-
-.btn-large {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    width: 100%;
-    justify-content: center;
-    border-radius: var(--rayon);
-    transition: all 0.2s ease;
-}
-
-.btn-large:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.trust-section {
-    margin: 1rem 0;
-    padding: 1rem;
-    background: color-mix(in srgb, var(--couleur-success) 16%, var(--couleur-surface));
-    border: 1px solid var(--couleur-success);
-    border-radius: var(--rayon);
-}
-.trust-title { font-weight: 600; margin: 0 0 0.5rem 0; }
-.trust-badges { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; color: var(--couleur-texte); }
-.support-whatsapp { margin-top: 0.75rem; font-size: 0.9rem; }
-.support-whatsapp a { color: var(--couleur-primaire); }
-
-.auth-required {
-    text-align: center;
-    padding: 2rem;
-    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-fond));
-    border: 1px solid var(--couleur-warning);
-    border-radius: var(--rayon);
-}
-
-.panier-ligne {
-    display: grid;
-    grid-template-columns: 80px 1fr auto;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--couleur-bordure);
-}
-
-.panier-img {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: var(--rayon);
-}
-
-.quantite-display {
-    text-align: right;
-}
-
-.quantite-label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--couleur-texte-secondaire);
-    text-transform: uppercase;
-}
-
-.quantite-value {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--couleur-primaire);
-}
-
-.panier-sous-total {
-    text-align: right;
-    color: var(--couleur-texte);
-    font-weight: 600;
-}
+.payment-shell { max-width: 1100px; margin: 0 auto; display: grid; gap: 1rem; }
+.payment-header { display: grid; gap: .35rem; }
+.payment-kicker { margin: 0; font-size: .8rem; text-transform: uppercase; color: var(--couleur-texte-secondaire); }
+.payment-title { margin: 0; font-size: clamp(1.3rem, 1rem + 1.5vw, 2rem); }
+.payment-subtitle { margin: 0; color: var(--couleur-texte-secondaire); }
+.payment-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+.payment-main, .payment-side { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: 14px; padding: 1rem; }
+.payment-main { display: grid; gap: .9rem; }
+.field { display: grid; gap: .4rem; }
+.field label { font-weight: 600; }
+.field-help { font-size: .82rem; color: var(--couleur-texte-secondaire); }
+.method-grid { display: grid; gap: .5rem; grid-template-columns: 1fr; }
+.method-btn { border: 1px solid var(--couleur-bordure); background: var(--couleur-fond); border-radius: 12px; padding: .65rem .8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.method-btn.is-active { border-color: var(--couleur-primaire); background: color-mix(in srgb, var(--couleur-primaire) 10%, var(--couleur-fond)); }
+.method-left { display: inline-flex; align-items: center; gap: .55rem; }
+.method-logo { font-size: 1.05rem; }
+.amount-row { display: flex; gap: .5rem; align-items: center; }
+.currency-pill { border: 1px solid var(--couleur-bordure); border-radius: 999px; padding: .45rem .7rem; font-weight: 700; min-width: 58px; text-align: center; }
+.resume-title { margin: 0; font-size: 1rem; }
+.resume-box { border: 1px solid var(--couleur-bordure); border-radius: 12px; padding: .7rem; display: grid; gap: .45rem; }
+.resume-box > div { display: flex; justify-content: space-between; gap: .75rem; font-size: .95rem; }
+.status-box { border-radius: 10px; padding: .7rem .8rem; font-weight: 500; border: 1px solid var(--couleur-bordure); }
+.status-idle { background: var(--couleur-fond); }
+.status-pending { background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-fond)); border-color: var(--couleur-warning); }
+.status-success { background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-fond)); border-color: var(--couleur-success); }
+.status-error { background: color-mix(in srgb, var(--couleur-error) 18%, var(--couleur-fond)); border-color: var(--couleur-error); }
+.actions { display: grid; gap: .5rem; }
+.loader { width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-left: .35rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.payment-side h3 { margin-top: 0; }
+.line { display: grid; grid-template-columns: 52px 1fr auto; gap: .6rem; align-items: center; padding: .5rem 0; border-bottom: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure)); }
+.line img { width: 52px; height: 42px; object-fit: cover; border-radius: 8px; }
+.line p { margin: 0; font-size: .92rem; font-weight: 600; }
+.line small { color: var(--couleur-texte-secondaire); }
+.side-total { display: flex; justify-content: space-between; margin-top: .6rem; font-size: 1rem; font-weight: 700; }
+@media (min-width: 900px) { .payment-grid { grid-template-columns: 1.25fr .75fr; } }
 </style>
 
 <script>
-function confirmPaiement() {
-    const telephone = document.getElementById('telephone').value;
-    const methode = document.querySelector('input[name="methode_paiement"]:checked').value;
-    
-    if (!telephone || !methode) {
-        alert('Veuillez remplir tous les champs');
-        return false;
-    }
-    
-    // Validation du numéro de téléphone
-    const cleanPhone = telephone.replace(/\s/g, '');
-    if (!/^235\d{8}$/.test(cleanPhone) && !/^\+235\d{8}$/.test(cleanPhone)) {
-        alert('Format du numéro de téléphone invalide. Format attendu : 235 XX XX XX XX');
-        return false;
-    }
-    
-    return confirm(`Confirmer le paiement de {{ total|number_format(0, '.', ' ') }} XAF par ${methode.toUpperCase()} ?`);
-}
+(() => {
+    const total = {{ total|number_format(0, '.', '') }};
+    const apiCreateUrl = "{{ path('api.payments.create') }}";
+    const methodsBox = document.getElementById('payment-methods');
+    const methodHelp = document.getElementById('method-help');
+    const phoneInput = document.getElementById('phone');
+    const amountInput = document.getElementById('amount');
+    const currencyPill = document.getElementById('currency-pill');
+    const statusBox = document.getElementById('status-box');
+    const payBtn = document.getElementById('pay-btn');
+    const payBtnText = document.getElementById('pay-btn-text');
+    const payBtnLoader = document.getElementById('pay-btn-loader');
+    const phoneHelp = document.getElementById('phone-help');
+    const resumeCountry = document.getElementById('resume-country');
+    const resumeOperator = document.getElementById('resume-operator');
+    const resumePhone = document.getElementById('resume-phone');
+    const resumeAmount = document.getElementById('resume-amount');
 
+    const countries = [
+        {
+            code: 'TD',
+            label: '🇹🇩 Chad (+235)',
+            dialCode: '+235',
+            currency: 'XAF',
+            minDigits: 8,
+            methods: [
+                { id: 'momo', name: 'Moov Money', logo: '🟦' },
+                { id: 'airtel', name: 'Airtel Money', logo: '🟥' }
+            ]
+        }
+    ];
+
+    const operatorRules = {
+        airtel: {
+            label: 'préfixe 6',
+            isValid: (local) => local.startsWith('6')
+        },
+        momo: {
+            label: 'préfixe 9',
+            isValid: (local) => local.startsWith('9')
+        }
+    };
+
+    let selectedCountry = countries[0];
+    let selectedMethod = selectedCountry.methods[0];
+    let currentPollUrl = null;
+    let pollTimer = null;
+    let pollAttempts = 0;
+    const maxPollAttempts = 24; // 24 x 5s = 2 minutes
+
+    function setStatus(type, message) {
+        statusBox.className = 'status-box';
+        statusBox.classList.add(`status-${type}`);
+        statusBox.textContent = message;
+    }
+
+    function renderMethods() {
+        methodsBox.innerHTML = selectedCountry.methods.map((m) => `
+            <button type="button" class="method-btn ${m.id === selectedMethod.id ? 'is-active' : ''}" data-method="${m.id}">
+                <span class="method-left"><span class="method-logo">${m.logo}</span><span>${m.name}</span></span>
+                <span>${m.id === selectedMethod.id ? '✓' : ''}</span>
+            </button>
+        `).join('');
+        methodHelp.textContent = 'Méthodes disponibles: Airtel Money et Moov Money.';
+    }
+
+    function normalizePhone(phone) {
+        const digits = phone.replace(/\D+/g, '');
+        if (!digits) return '';
+        if (digits.startsWith(selectedCountry.dialCode.replace('+', ''))) return `+${digits}`;
+        return `${selectedCountry.dialCode}${digits}`;
+    }
+
+    function validatePhone() {
+        const e164 = normalizePhone(phoneInput.value);
+        const expectedPrefix = selectedCountry.dialCode.replace('+', '');
+        const digits = e164.replace('+', '');
+        const okPrefix = digits.startsWith(expectedPrefix);
+        const local = digits.slice(expectedPrefix.length);
+        const localLen = local.length;
+        const okLen = localLen === selectedCountry.minDigits;
+        const operatorRule = operatorRules[selectedMethod.id];
+        const okOperatorPrefix = operatorRule ? operatorRule.isValid(local) : false;
+        const isValid = okPrefix && okLen && okOperatorPrefix;
+        phoneHelp.textContent = isValid
+            ? 'Numéro valide.'
+            : `Format attendu: ${selectedCountry.dialCode}XXXXXXXX (${selectedMethod.name}: ${operatorRule ? operatorRule.label : 'préfixe invalide'}).`;
+        phoneHelp.style.color = isValid ? 'var(--couleur-success)' : 'var(--couleur-error)';
+        return { isValid, e164 };
+    }
+
+    function updateResume() {
+        resumeCountry.textContent = selectedCountry.label;
+        resumeOperator.textContent = selectedMethod.name;
+        const { e164 } = validatePhone();
+        resumePhone.textContent = e164 || '-';
+        resumeAmount.textContent = `${Number(amountInput.value || total).toLocaleString('fr-FR')} ${selectedCountry.currency}`;
+        currencyPill.textContent = selectedCountry.currency;
+    }
+
+    function pickCountry(code) {
+        const found = countries.find((c) => c.code === code);
+        if (!found) return;
+        selectedCountry = found;
+        selectedMethod = selectedCountry.methods[0];
+        if (!phoneInput.value.startsWith(selectedCountry.dialCode)) {
+            phoneInput.value = `${selectedCountry.dialCode} `;
+        }
+        renderMethods();
+        updateResume();
+    }
+
+    async function pollStatus() {
+        if (!currentPollUrl) return;
+        pollAttempts += 1;
+        try {
+            const response = await fetch(currentPollUrl, { headers: { 'Accept': 'application/json' } });
+            const data = await response.json();
+            const s = String(data.statut || '').toLowerCase();
+
+            if (s === 'paid') {
+                clearInterval(pollTimer);
+                setStatus('success', 'Paiement reussi. Redirection vers vos billets...');
+                setTimeout(() => { window.location.href = `/achat/confirmation/${lastReference}`; }, 1200);
+                return;
+            }
+
+            if (s === 'rejected' || s === 'expired') {
+                clearInterval(pollTimer);
+                setStatus('error', 'Paiement echoue ou expire. Veuillez reessayer.');
+                payBtn.disabled = false;
+                payBtnText.textContent = 'Confirmer le paiement';
+                payBtnLoader.hidden = true;
+                return;
+            }
+
+            setStatus('pending', 'Paiement en attente de confirmation...');
+
+            if (pollAttempts >= maxPollAttempts) {
+                clearInterval(pollTimer);
+                setStatus('error', 'Toujours en attente. Ouvrez la page de suivi pour continuer.');
+                payBtn.disabled = false;
+                payBtnText.textContent = 'Reprendre le paiement';
+                payBtnLoader.hidden = true;
+            }
+        } catch {
+            setStatus('error', 'Impossible de verifier le statut pour le moment.');
+            clearInterval(pollTimer);
+            payBtn.disabled = false;
+            payBtnText.textContent = 'Reprendre le paiement';
+            payBtnLoader.hidden = true;
+        }
+    }
+
+    let lastReference = '';
+    async function createPayment() {
+        const { isValid, e164 } = validatePhone();
+        if (!isValid) {
+            setStatus('error', 'Veuillez corriger le numero de telephone.');
+            return;
+        }
+
+        payBtn.disabled = true;
+        payBtnText.textContent = 'Traitement en cours...';
+        payBtnLoader.hidden = false;
+        setStatus('pending', 'Creation de la transaction...');
+
+        try {
+            const response = await fetch(apiCreateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    country: selectedCountry.code,
+                    methode_paiement: selectedMethod.id,
+                    telephone: e164,
+                    amount: Number(amountInput.value || total)
+                })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'Creation de paiement impossible');
+            }
+
+            lastReference = data.reference;
+            currentPollUrl = data.poll_url;
+
+            // Si PawaPay n'a pas pu initier le depot, la commande reste "Pending" (mode manuel)
+            if (!data.processing) {
+                setStatus('pending', 'Paiement en cours de confirmation. Delai estime: environ 5 minutes.');
+                window.setTimeout(() => { window.location.href = data.instructions_url; }, 700);
+                return;
+            }
+
+            setStatus('pending', 'Demande envoyee. Confirmez sur votre telephone.');
+
+            clearInterval(pollTimer);
+            pollAttempts = 0;
+            pollTimer = setInterval(pollStatus, 5000);
+            pollStatus();
+        } catch (error) {
+            setStatus('error', error.message || 'Une erreur est survenue.');
+            payBtn.disabled = false;
+            payBtnText.textContent = 'Confirmer le paiement';
+            payBtnLoader.hidden = true;
+        }
+    }
+
+    renderMethods();
+    amountInput.value = total;
+    pickCountry(selectedCountry.code);
+    updateResume();
+    methodsBox.addEventListener('click', (e) => {
+        const btn = e.target.closest('.method-btn');
+        if (!btn) return;
+        const method = selectedCountry.methods.find((m) => m.id === btn.dataset.method);
+        if (!method) return;
+        selectedMethod = method;
+        renderMethods();
+        updateResume();
+    });
+    phoneInput.addEventListener('input', updateResume);
+    payBtn.addEventListener('click', createPayment);
+})();
 </script>
 {% endblock %}

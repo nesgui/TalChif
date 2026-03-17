@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ma Balance - TalChif{% endblock %}
+
+{% block body %}
+<div class="balance-header">
+    <h1 class="page-title">Ma Balance</h1>
+    <p class="page-subtitle">Suivez vos gains et votre balance de fidélité</p>
+</div>
+
+<div class="balance-grid">
+    <section class="card balance-card">
+        <h2 class="card-title">Solde Actuel</h2>
+        <div class="balance-amount">
+            <span class="balance-currency">{{ balance }} FCFA</span>
+            <span class="balance-label">Balance disponible</span>
+        </div>
+        
+        <div class="balance-info">
+            <div class="info-item">
+                <span class="info-label">Cashback accumulé</span>
+                <span class="info-value">{{ balance }} FCFA</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Transactions validées</span>
+                <span class="info-value">{{ user.billets|length }}</span>
+            </div>
+        </div>
+
+        {% if is_granted('ROLE_ADMIN') %}
+        <div class="admin-actions">
+            <h3>Actions Administrateur</h3>
+            <button type="button" class="btn btn-primary" onclick="checkPayments()">
+                <span class="btn-icon">🔄</span>
+                Vérifier les paiements en attente
+            </button>
+            <div id="checkResults" class="check-results" style="display: none;">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+        {% endif %}
+    </section>
+
+    <aside class="card balance-stats">
+        <h2 class="card-title">Statistiques</h2>
+        <div class="stats-list">
+            <div class="stat-item">
+                <span class="stat-label">Total des billets</span>
+                <span class="stat-value">{{ user.billets|length }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Membre depuis</span>
+                <span class="stat-value">{{ user.createdAt|date('d/m/Y') }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Statut du compte</span>
+                <span class="stat-value status-{{ user.actif ? 'active' : 'inactive' }}">
+                    {{ user.actif ? 'Actif' : 'Inactif' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="balance-actions">
+            <a href="{{ path('portefeuille.index') }}" class="btn btn-secondary">
+                Voir mes billets
+            </a>
+            <a href="{{ path('achat.commandes') }}" class="btn">
+                Historique des commandes
+            </a>
+        </div>
+    </aside>
+</div>
+
+<style>
+.balance-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; max-width: 1100px; margin: 0 auto; }
+.balance-amount { text-align: center; margin: 2rem 0; }
+.balance-currency { display: block; font-size: 3rem; font-weight: 700; color: var(--couleur-primaire); }
+.balance-label { display: block; font-size: 1rem; color: var(--couleur-texte-secondaire); margin-top: 0.5rem; }
+.balance-info { background: var(--couleur-surface); padding: 1.5rem; border-radius: var(--rayon); margin: 1.5rem 0; }
+.info-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--couleur-bordure); }
+.info-item:last-child { border-bottom: none; }
+.info-label { color: var(--couleur-texte-secondaire); }
+.info-value { font-weight: 600; }
+.stats-list { margin: 1rem 0; }
+.stat-item { display: flex; justify-content: space-between; padding: 0.5rem 0; }
+.stat-label { color: var(--couleur-texte-secondaire); }
+.stat-value { font-weight: 600; }
+.status-active { color: var(--couleur-success); }
+.status-inactive { color: var(--couleur-error); }
+.admin-actions { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--couleur-bordure); }
+.admin-actions h3 { margin-bottom: 1rem; color: var(--couleur-primaire); }
+.check-results { margin-top: 1rem; padding: 1rem; background: var(--couleur-surface); border-radius: var(--rayon); }
+.balance-actions { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+@media (max-width: 768px) { .balance-grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+{% if is_granted('ROLE_ADMIN') %}
+function checkPayments() {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-icon">⏳</span> Vérification en cours...';
+    
+    fetch('/balance/check-payments', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultsDiv = document.getElementById('checkResults');
+        
+        if (data.success) {
+            let html = `
+                <h4>Résultats de la vérification</h4>
+                <p><strong>${data.processed}/${data.total}</strong> paiements traités avec succès</p>
+                <div class="results-list">
+            `;
+            
+            data.results.forEach(result => {
+                const status = result.success ? '✅ Succès' : '⏳ En attente';
+                html += `
+                    <div class="result-item">
+                        <span class="result-ref">${result.reference}</span>
+                        <span class="result-status">${status}</span>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        } else {
+            resultsDiv.innerHTML = '<p class="error">Erreur lors de la vérification</p>';
+            resultsDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const resultsDiv = document.getElementById('checkResults');
+        resultsDiv.innerHTML = '<p class="error">Erreur lors de la vérification</p>';
+        resultsDiv.style.display = 'block';
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">🔄</span> Vérifier les paiements en attente';
+    });
+}
+{% endif %}
+
+// Mettre à jour la balance toutes les 30 secondes
+function updateBalance() {
+    fetch('/balance/api/balance')
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('.balance-currency').textContent = data.balance + ' FCFA';
+        })
+        .catch(error => console.error('Error updating balance:', error));
+}
+
+// Mettre à jour la balance toutes les 30 secondes
+setInterval(updateBalance, 30000);
+</script>
+{% endblock %}

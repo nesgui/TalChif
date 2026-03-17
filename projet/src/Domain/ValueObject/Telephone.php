@@ -7,7 +7,7 @@ namespace App\Domain\ValueObject;
 use App\Domain\Exception\InvalidTelephoneException;
 
 /**
- * Value Object représentant un numéro de téléphone tchadien.
+ * Value Object représentant un numéro mobile (MSISDN) supporté par le checkout.
  * Immutable et auto-validant.
  */
 final readonly class Telephone
@@ -16,7 +16,7 @@ final readonly class Telephone
     {
         if (!$this->estValide($value)) {
             throw new InvalidTelephoneException(
-                "Le numéro de téléphone '{$value}' n'est pas valide. Format attendu: 235 XX XX XX XX"
+                "Le numéro de téléphone '{$value}' n'est pas valide. Formats attendus: +235XXXXXXXX, +237XXXXXXXXX, +225XXXXXXXXXX"
             );
         }
     }
@@ -48,16 +48,23 @@ final readonly class Telephone
 
     private function estValide(string $value): bool
     {
-        $patterns = [
-            '/^235\d{8}$/',                          // 235XXXXXXXX
-            '/^\+235\d{8}$/',                        // +235XXXXXXXX
-            '/^235\s?\d{2}\s?\d{2}\s?\d{2}\s?\d{2}$/', // 235 XX XX XX XX
-        ];
+        $digits = preg_replace('/\D+/', '', $value) ?? '';
+        if ($digits === '') {
+            return false;
+        }
 
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $value)) {
-                return true;
-            }
+        // Pays supportés par le flow UI:
+        // TD: 235 + 8 chiffres
+        // CM: 237 + 9 chiffres
+        // CI: 225 + 10 chiffres
+        if (preg_match('/^235\d{8}$/', $digits)) {
+            return true;
+        }
+        if (preg_match('/^237\d{9}$/', $digits)) {
+            return true;
+        }
+        if (preg_match('/^225\d{10}$/', $digits)) {
+            return true;
         }
 
         return false;

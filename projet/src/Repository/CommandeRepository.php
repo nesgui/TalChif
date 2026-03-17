@@ -44,6 +44,22 @@ class CommandeRepository extends ServiceEntityRepository
     }
 
     /** @return Commande[] */
+    public function findPendingWithClientReference(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.statut = :pending')
+            ->andWhere('c.dateExpiration > :now')
+            ->andWhere('c.referenceTransactionClient IS NOT NULL')
+            ->andWhere('c.referenceTransactionClient <> :empty')
+            ->setParameter('pending', Commande::STATUT_PENDING)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('empty', '')
+            ->orderBy('c.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return Commande[] */
     public function findExpired(): array
     {
         return $this->createQueryBuilder('c')

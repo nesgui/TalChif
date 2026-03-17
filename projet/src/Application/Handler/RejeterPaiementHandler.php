@@ -42,7 +42,7 @@ final class RejeterPaiementHandler
         $this->entityManager->beginTransaction();
         try {
             $validateur = $this->userRepository->find($command->validateurId);
-            
+
             $commande->marquerRejetee($validateur);
             $this->commandeRepository->save($commande);
 
@@ -57,13 +57,13 @@ final class RejeterPaiementHandler
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
-            
+
             $this->loggerAction(
                 'REJET_PAIEMENT_ECHEC',
                 $commande->getReference(),
                 "Échec rejet : {$e->getMessage()}"
             );
-            
+
             throw $e;
         }
     }
@@ -74,12 +74,12 @@ final class RejeterPaiementHandler
         $log->setAction($action);
         $log->setReferenceCommande($reference);
         $log->setDetails($details);
-        
+
         $request = $this->requestStack->getCurrentRequest();
         if ($request) {
             $log->setIpAddress($request->getClientIp() ?? 'unknown');
         }
-        
+
         $this->logSecuriteRepository->save($log);
     }
 }

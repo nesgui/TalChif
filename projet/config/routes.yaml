@@ -12,3 +12,19 @@ controllers:
         path: ../src/Controller # routing.controllers
         namespace: App\Controller
     type: attribute
+
+# Routes manuelles pour BalanceController
+balance_index:
+    path: /balance
+    controller: App\Controller\BalanceController::index
+    methods: [GET]
+
+balance_check_payments:
+    path: /balance/check-payments
+    controller: App\Controller\BalanceController::checkPayments
+    methods: [POST]
+
+balance_api:
+    path: /balance/api/balance
+    controller: App\Controller\BalanceController::apiBalance
+    methods: [GET]

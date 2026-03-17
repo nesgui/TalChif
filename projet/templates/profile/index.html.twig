@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/form-validator.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+<section class="profile-shell">
+    <header>
+        <h1 class="page-title">Mon profil</h1>
+        <p class="page-subtitle">Mettez à jour vos informations et votre mot de passe.</p>
+    </header>
+
+    <div class="grid">
+        <section class="card">
+            <h2 class="card-title">Informations</h2>
+            <p><strong>Email:</strong> {{ app.user.email }}</p>
+            <p><strong>Type de compte:</strong> {{ app.user.role }}</p>
+            {{ form_start(infoForm, {'attr': {'class': 'auth-form'}}) }}
+                {% include 'partials/form_group_enhanced.html.twig' with {
+                    form: infoForm.nom,
+                    label: 'Nom complet',
+                    placeholder: 'Votre nom complet'
+                } %}
+                {% include 'partials/form_group_enhanced.html.twig' with {
+                    form: infoForm.telephone,
+                    label: 'Téléphone',
+                    placeholder: '+235 63 00 00 00',
+                    help: 'Numéro utilisé pour les notifications'
+                } %}
+                <div class="card-actions">
+                    <button class="btn btn-primary" type="submit">Enregistrer</button>
+                </div>
+            {{ form_end(infoForm) }}
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Sécurité</h2>
+            {{ form_start(passwordForm, {'attr': {'class': 'auth-form'}}) }}
+                {% include 'partials/form_group_enhanced.html.twig' with {
+                    form: passwordForm.current_password,
+                    label: 'Mot de passe actuel',
+                    placeholder: 'Votre mot de passe actuel'
+                } %}
+                {% include 'partials/form_group_enhanced.html.twig' with {
+                    form: passwordForm.new_password,
+                    label: 'Nouveau mot de passe',
+                    placeholder: 'Au moins 6 caractères'
+                } %}
+                {% include 'partials/form_group_enhanced.html.twig' with {
+                    form: passwordForm.new_password_confirm,
+                    label: 'Confirmer le nouveau mot de passe',
+                    placeholder: 'Répétez le mot de passe'
+                } %}
+                <div class="card-actions">
+                    <button class="btn btn-primary" type="submit">Changer le mot de passe</button>
+                </div>
+            {{ form_end(passwordForm) }}
+        </section>
+    </div>
+</section>
+{% endblock %}
+

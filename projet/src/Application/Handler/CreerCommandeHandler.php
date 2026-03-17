@@ -13,7 +13,9 @@ use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\Payment\PawaPayClient;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -29,7 +31,9 @@ final class CreerCommandeHandler
         #[Autowire('%app.commission_taux%')]
         private float $commissionTaux,
         #[Autowire('%app.commande.expiration_minutes%')]
-        private int $expirationMinutes
+        private int $expirationMinutes,
+        private PawaPayClient $pawaPayClient,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -37,7 +41,7 @@ final class CreerCommandeHandler
     {
         // Validation du numéro
         $telephone = Telephone::fromString($command->numeroClient);
-        
+
         $user = $this->userRepository->find($command->userId);
         if (!$user) {
             throw new \RuntimeException('Utilisateur non trouvé.');
@@ -51,18 +55,18 @@ final class CreerCommandeHandler
             // Verrouiller les événements
             foreach ($command->panier as $idEvenement => $quantite) {
                 $evenement = $this->evenementRepository->findByIdWithLock($idEvenement);
-                
+
                 if (!$evenement) {
                     continue;
                 }
-                
+
                 if (!$evenement->peutAccepterReservation($quantite)) {
                     throw new PlacesInsuffisantesException(
                         "Impossible de réserver {$quantite} places pour « {$evenement->getNom()} ». " .
                         "Places restantes : {$evenement->getPlacesRestantes()}"
                     );
                 }
-                
+
                 $prix = $evenement->getPrixSimple();
                 $sousTotal = $prix * $quantite;
                 $total += $sousTotal;
@@ -90,7 +94,7 @@ final class CreerCommandeHandler
             $commande->setCommissionPlateforme($commission);
             $commande->setMontantNetOrganisateur($montantNet);
             $commande->setClient($user);
-            
+
             $dateExpiration = (new \DateTimeImmutable())->modify("+{$this->expirationMinutes} minutes");
             $commande->setDateExpiration($dateExpiration);
 
@@ -107,6 +111,20 @@ final class CreerCommandeHandler
 
             $this->commandeRepository->save($commande);
             $this->entityManager->flush();
+
+            // Phase 1: pour le Tchad (+235), on garde un flux manuel (pas d'initiation PawaPay auto).
+            // Pour les autres pays/methodes supportes, on tente l'initiation automatique.
+            if (in_array($command->methodePaiement, ['airtel', 'momo', 'orange'], true) && !$this->isChadNumber($telephone->toString())) {
+                $this->initierDepotPawaPay($commande, $command->methodePaiement);
+            } else {
+                $this->logger->info('Paiement manuel conserve pour cette commande', [
+                    'reference' => $commande->getReference(),
+                    'methode' => $command->methodePaiement,
+                    'numero' => $telephone->toString(),
+                    'sla' => 'validation < 10 min',
+                ]);
+            }
+
             $this->entityManager->commit();
 
             return $commande;
@@ -116,12 +134,54 @@ final class CreerCommandeHandler
         }
     }
 
+    private function initierDepotPawaPay(Commande $commande, string $methode): void
+    {
+        try {
+            $depositId = $this->genererUuid();
+            $this->pawaPayClient->initierDepot(
+                depositId: $depositId,
+                montant: $commande->getMontantTotal(),
+                telephone: $commande->getNumeroClient(),
+                methode: $methode,
+                description: 'TalChif ' . $commande->getReference()
+            );
+            $commande->marquerEnTraitement($depositId);
+            $this->commandeRepository->save($commande);
+            $this->entityManager->flush();
+        } catch (\Throwable $e) {
+            $this->logger->error('PawaPay dépôt échoué, fallback manuel', [
+                'reference' => $commande->getReference(),
+                'methode' => $methode,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    private function genererUuid(): string
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+    }
+
     private function genererReference(): string
     {
         do {
             $ref = 'EVT-' . random_int(1000, 9999) . '-' . strtoupper(bin2hex(random_bytes(2)));
         } while ($this->commandeRepository->referenceExists($ref));
-        
+
         return $ref;
+    }
+
+    private function isChadNumber(string $telephone): bool
+    {
+        $digits = preg_replace('/\D+/', '', $telephone) ?? '';
+        return str_starts_with($digits, '235');
     }
 }

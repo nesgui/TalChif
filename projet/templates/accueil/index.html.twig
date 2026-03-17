@@ -1,8 +1,8 @@
-﻿{% extends 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Accueil - TalChif{% endblock %}
 
-{% block meta_description %}DÃ©couvrez les prochains Ã©vÃ©nements prÃ¨s de chez vous au Tchad. Concerts, festivals, soirÃ©es - RÃ©servez vos billets en ligne.{% endblock %}
+{% block meta_description %}Découvrez les prochains événements près de chez vous au Tchad. Concerts, festivals, soirées - Réservez vos billets en ligne.{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -79,7 +79,7 @@
                     
                     <!-- Informations en bas Ã  gauche -->
                     <div class="slide-info-bottom-left">
-                        <div class="event-category">Ã‰VÃ‰NEMENT EN VEDETTE</div>
+                        <div class="event-category">ÉVÉNEMENT EN VEDETTE</div>
                         <h1 class="event-title">{{ evenement.titre }}</h1>
                         <div class="event-meta">
                             <div class="event-date">
@@ -100,7 +100,7 @@
                             </div>
                         </div>
                         <div class="event-actions">
-                            <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-primary btn-large" data-turbo="false">RÃ©server maintenant</a>
+                            <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-primary btn-large" data-turbo="false">Réserver maintenant</a>
                             <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-outline btn-large" data-turbo="false">Plus d'infos</a>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                     <!-- Informations en bas Ã  gauche -->
                     <div class="slide-info-bottom-left">
                         <div class="event-category">BIENVENUE SUR TALCHIF</div>
-                        <h1 class="event-title">DÃ©couvrez nos Ã©vÃ©nements</h1>
+                        <h1 class="event-title">Découvrez nos événements</h1>
                         <div class="event-meta">
                             <div class="event-date">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -137,7 +137,7 @@
                             </div>
                         </div>
                         <div class="event-actions">
-                            <a href="{{ path('evenement.index') }}" class="btn btn-primary btn-large">Voir tous les Ã©vÃ©nements</a>
+                            <a href="{{ path('evenement.index') }}" class="btn btn-primary btn-large">Voir tous les événements</a>
                             <a href="{{ path('accueil_index') }}" class="btn btn-outline btn-large">Explorer</a>
                         </div>
                     </div>
@@ -163,19 +163,19 @@
 </section>
 
 <section class="movie-categories">
-    <h2 class="categories-title">CatÃ©gories populaires</h2>
+    <h2 class="categories-title">Catégories populaires</h2>
     
     <!-- CatÃ©gorie Concerts & SoirÃ©es -->
 {% set concerts_evenements = evenements|filter(e => e.categorie is defined and e.categorie == 'concert') %}
 {% if concerts_evenements|length > 0 %}
 <div class="category-row">
     <div class="category-header">
-        <h3>Concerts & SoirÃ©es</h3>
-        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout â†’</a>
+        <h3>Concerts & Soirées</h3>
+        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout &rarr;</a>
     </div>
     <div class="movie-row-container">
-        <button class="movie-nav prev" data-category="concerts">â€¹</button>
-        <button class="movie-nav next" data-category="concerts">â€º</button>
+        <button class="movie-nav prev" data-category="concerts" aria-label="Précédent">&#8249;</button>
+        <button class="movie-nav next" data-category="concerts" aria-label="Suivant">&#8250;</button>
         <div class="movie-row" id="concerts-row">
             {% for evenement in concerts_evenements|slice(0, 5) %}
                 {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
@@ -200,12 +200,12 @@
 {% if sport_evenements|length > 0 %}
 <div class="category-row">
     <div class="category-header">
-        <h3>Sport & CompÃ©titions</h3>
-        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout â†’</a>
+        <h3>Sport & Compétitions</h3>
+        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout &rarr;</a>
     </div>
     <div class="movie-row-container">
-        <button class="movie-nav prev" data-category="sport">â€¹</button>
-        <button class="movie-nav next" data-category="sport">â€º</button>
+        <button class="movie-nav prev" data-category="sport" aria-label="Précédent">&#8249;</button>
+        <button class="movie-nav next" data-category="sport" aria-label="Suivant">&#8250;</button>
         <div class="movie-row" id="sport-row">
             {% for evenement in sport_evenements|slice(0, 5) %}
                 {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
@@ -231,11 +231,11 @@
 <div class="category-row">
     <div class="category-header">
         <h3>Culture & Spectacles</h3>
-        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout â†’</a>
+        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout &rarr;</a>
     </div>
     <div class="movie-row-container">
-        <button class="movie-nav prev" data-category="culture">â€¹</button>
-        <button class="movie-nav next" data-category="culture">â€º</button>
+        <button class="movie-nav prev" data-category="culture" aria-label="Précédent">&#8249;</button>
+        <button class="movie-nav next" data-category="culture" aria-label="Suivant">&#8250;</button>
         <div class="movie-row" id="culture-row">
             {% for evenement in culture_evenements|slice(0, 5) %}
                 {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
@@ -260,17 +260,18 @@
 <div class="category-row">
     <div class="category-header">
         <h3>Recommandations pour vous</h3>
-        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout â†’</a>
+        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout &rarr;</a>
     </div>
     <div class="movie-row-container">
-        <button class="movie-nav prev" data-category="recommendations">â€¹</button>
-        <button class="movie-nav next" data-category="recommendations">â€º</button>
+        <button class="movie-nav prev" data-category="recommendations" aria-label="Précédent">&#8249;</button>
+        <button class="movie-nav next" data-category="recommendations" aria-label="Suivant">&#8250;</button>
         <div class="movie-row" id="recommendations-row">
             {% for evenement in evenements %}
                 <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="movie-card-link" data-turbo="false">
                     <div class="movie-card">
                         <div class="movie-poster">
-                            <img src="{{ evenement.image|slice(1) }}" alt="Affiche de l'Ã©vÃ©nement : {{ evenement.titre }}">
+                            {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
+                            <img src="{{ image_path }}" alt="Affiche de l'événement : {{ evenement.titre }}" onerror="this.src='/images/evenements/default-event.jpg';">
                         </div>
                         <h4>{{ evenement.titre }}</h4>
                         <p>{{ evenement.date|date('d M Y') }}</p>
@@ -344,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         startAutoPlay() {
             this.stopAutoPlay();
-            this.autoPlayInterval = setInterval(() => this.nextSlide(), 5000);
+            this.autoPlayInterval = setInterval(() => this.nextSlide(), 6500);
         },
         
         stopAutoPlay() {
@@ -379,8 +380,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Bind navigation events
             document.querySelectorAll('.movie-nav').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const category = e.target.dataset.category;
-                    const direction = e.target.classList.contains('prev') ? 'prev' : 'next';
+                    const navBtn = e.target.closest('.movie-nav');
+                    if (!navBtn) return;
+                    const category = navBtn.dataset.category;
+                    const direction = navBtn.classList.contains('prev') ? 'prev' : 'next';
+                    if (!category) return;
                     this.navigate(category, direction);
                 });
             });

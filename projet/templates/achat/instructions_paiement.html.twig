@@ -3,155 +3,100 @@
 {% block title %}Instructions de paiement - {{ commande.reference }}{% endblock %}
 
 {% block body %}
-<div class="purchase-header">
-    <div class="payment-badge">
-        Paiement Mobile Money
-    </div>
-    <h1 class="page-title">Effectuez votre paiement</h1>
-    <p class="page-subtitle">Vous avez <strong id="timeLeft">10:00</strong> pour effectuer le transfert</p>
-</div>
+<section class="instructions-shell">
+    <header class="instructions-head">
+        <p class="instructions-kicker">Paiement Mobile Money</p>
+        <h1>Finaliser votre paiement</h1>
+        <p>Temps restant: <strong id="timeLeft">10:00</strong> • Confirmation moyenne en 5 min</p>
+    </header>
 
-<div class="instructions-grid">
-    <section class="card instructions-card">
-        <h2 class="card-title">Instructions</h2>
-        
-        <div class="instruction-box highlight">
-            <div class="instruction-row">
-                <span class="instruction-label">Référence (obligatoire)</span>
-                <span class="instruction-value copyable" id="refValue" data-copy="{{ commande.reference }}">{{ commande.reference }}</span>
-                <button type="button" class="btn-copy" onclick="copyRef()" title="Copier">Copier</button>
-            </div>
-            <div class="instruction-row">
-                <span class="instruction-label">Montant exact</span>
-                <span class="instruction-value">{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</span>
-            </div>
-            <div class="instruction-row">
-                <span class="instruction-label">Numéro Mobile Money</span>
-                <span class="instruction-value copyable" data-copy="{{ momoNumero }}">{{ momoNumero }}</span>
-                <button type="button" class="btn-copy" onclick="copyMomo()" title="Copier">Copier</button>
-            </div>
-            <div class="instruction-row">
-                <span class="instruction-label">Nom bénéficiaire</span>
-                <span class="instruction-value">{{ momoBeneficiaire }}</span>
-            </div>
-        </div>
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash flash-{{ label == 'error' ? 'error' : 'success' }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
 
-        <div class="message-obligatoire">
-            <p class="message-title">Message obligatoire dans le transfert :</p>
-            <p class="message-ref">{{ commande.reference }}</p>
-            <p class="message-hint">Veuillez mettre la référence dans le champ message du transfert.</p>
-        </div>
-
-        <div class="trust-badges">
-            <div class="trust-badge">
-                <span>Transaction vérifiée manuellement</span>
-            </div>
-            <div class="trust-badge">
-                <span>Référence unique obligatoire</span>
-            </div>
-            <div class="trust-badge">
-                <span>Billet garanti après validation</span>
-            </div>
-        </div>
-
-        <div class="support-section">
-            <p><strong>Besoin d'aide ?</strong></p>
-            <a href="https://wa.me/23563519678" class="btn btn-secondary" target="_blank" rel="noopener">
-                Support WhatsApp
-            </a>
-            <a href="{{ path('achat.commandes') }}" class="btn">Voir toutes mes commandes</a>
-        </div>
-    </section>
-
-    <aside class="card recap-card">
-        <h2 class="card-title">Récapitulatif</h2>
-        <div class="recap-list">
-            {% for ligne in commande.lignes %}
-            <div class="recap-item">
-                <strong>{{ ligne.evenement.nom }}</strong>
-                <span>{{ ligne.quantite }} × {{ ligne.prixUnitaire|number_format(0, '.', ' ') }} FCFA</span>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="recap-total">
-            <span>Total à payer</span>
+    <div class="core-info">
+        <div class="info-row">
+            <span>Montant à envoyer</span>
             <strong>{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</strong>
         </div>
-        <p class="recap-expiry">Expire à {{ commande.dateExpiration|date('H:i') }}</p>
-
-        <div class="status-panel" id="statusPanel">
-            <div class="status pending" id="statusPending">
-                <span class="status-dot"></span>
-                En attente de paiement
-            </div>
-            <div class="status paid" id="statusPaid" style="display:none;">
-                <span class="status-dot success"></span>
-                Paiement validé ! Vos billets sont disponibles.
-            </div>
-            <div class="status expired" id="statusExpired" style="display:none;">
-                <span class="status-dot error"></span>
-                Commande expirée
-            </div>
-            <div class="card-actions" id="actionsArea">
-                <a href="{{ path('achat.confirmation', {transactionId: commande.reference}) }}" class="btn btn-primary" id="btnVoirBillets" style="display:none;">
-                    Voir mes billets
-                </a>
-                <a href="{{ path('portefeuille.index') }}" class="btn">Mes billets</a>
-            </div>
+        <div class="info-row">
+            <span>Numéro destinataire</span>
+            <strong>{{ momoNumero }}</strong>
+            <button type="button" class="btn-copy" onclick="copyMomo()">Copier</button>
         </div>
-    </aside>
-</div>
+        <div class="info-row">
+            <span>Bénéficiaire</span>
+            <strong>{{ momoBeneficiaire }}</strong>
+        </div>
+        <div class="info-row info-highlight">
+            <span>Référence à mettre dans le transfert</span>
+            <strong id="refValue">{{ commande.reference }}</strong>
+            <button type="button" class="btn-copy" onclick="copyRef()">Copier</button>
+        </div>
+    </div>
+
+    <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
+        <h2>J’ai déjà payé</h2>
+        <p>Entrez la référence reçue pour accélérer la validation.</p>
+        <div class="confirm-grid">
+            <label>
+                Opérateur
+                <select name="operateur" required>
+                    <option value="Airtel Money">Airtel Money</option>
+                    <option value="Moov Money">Moov Money</option>
+                </select>
+            </label>
+            <label>
+                Référence transaction
+                <input type="text" name="transaction_reference" required minlength="4" maxlength="64" placeholder="Ex: TXN-4589231">
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Envoyer ma référence</button>
+    </form>
+
+    <div class="status-panel">
+        <div class="status pending" id="statusPending">En attente de paiement</div>
+        <div class="status processing" id="statusProcessing" style="display:none;">Paiement en cours de validation...</div>
+        <div class="status paid" id="statusPaid" style="display:none;">Paiement validé. Vos billets sont prêts.</div>
+        <div class="status expired" id="statusExpired" style="display:none;">Commande expirée.</div>
+        <div class="actions">
+            <a href="{{ path('achat.confirmation', {transactionId: commande.reference}) }}" class="btn btn-primary" id="btnVoirBillets" style="display:none;">Voir mes billets</a>
+            <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
+            <a href="https://wa.me/23563519678" class="btn btn-secondary" target="_blank" rel="noopener">Support WhatsApp</a>
+        </div>
+    </div>
+</section>
 
 <style>
-.instructions-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; max-width: 1100px; margin: 0 auto; }
-.instruction-box { background: var(--couleur-surface); padding: 1.5rem; border-radius: var(--rayon); margin: 1rem 0; }
-.instruction-box.highlight { border: 2px solid var(--couleur-primaire); }
-.instruction-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.75rem 0; }
-.instruction-label { flex: 0 0 160px; color: var(--couleur-texte-secondaire); }
-.instruction-value { flex: 1; font-weight: 600; font-size: 1.1rem; }
-.btn-copy { background: none; border: 1px solid var(--couleur-bordure); padding: 0.25rem 0.5rem; cursor: pointer; border-radius: var(--rayon); }
-.message-obligatoire {
-    background: var(--couleur-surface);
-    border: 2px solid var(--couleur-primaire);
-    border-radius: var(--rayon);
-    padding: 1rem;
-    margin: 1rem 0;
-    color: var(--couleur-texte);
-}
-.message-obligatoire .message-title,
-.message-obligatoire .message-hint { color: var(--couleur-texte); }
-.message-ref { font-size: 1.25rem; font-weight: 700; text-align: center; margin: 0.5rem 0; color: var(--couleur-primaire); }
-.trust-badges { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
-.trust-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--couleur-success); }
-.badge-icon { color: var(--couleur-success); }
-.support-section { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--couleur-bordure); }
-.recap-item { display: flex; justify-content: space-between; padding: 0.5rem 0; }
-.recap-total { display: flex; justify-content: space-between; font-size: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--couleur-bordure); }
-.recap-expiry { font-size: 0.875rem; color: var(--couleur-texte-secondaire); margin-top: 0.5rem; }
-.status { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: var(--rayon); margin: 1rem 0; }
-.status.pending {
-    background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface));
-    border: 1px solid var(--couleur-warning);
-}
-.status.paid {
-    background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface));
-    border: 1px solid var(--couleur-success);
-}
-.status.expired {
-    background: color-mix(in srgb, var(--couleur-error, #ef4444) 18%, var(--couleur-surface));
-    border: 1px solid var(--couleur-error, #ef4444);
-}
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--couleur-warning);
-    animation: pulse 1.5s infinite;
-}
-.status-dot.success { background: var(--couleur-success); }
-.status-dot.error { background: var(--couleur-error, #ef4444); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-@media (max-width: 768px) { .instructions-grid { grid-template-columns: 1fr; } }
+.instructions-shell { max-width: 760px; margin: 0 auto; display: grid; gap: 1rem; }
+.instructions-head h1 { margin: .15rem 0; }
+.instructions-head p { margin: 0; color: var(--couleur-texte-secondaire); }
+.instructions-kicker { margin: 0; text-transform: uppercase; font-size: .82rem; color: var(--couleur-texte-secondaire); }
+.flash { padding: .75rem 1rem; border-radius: var(--rayon); font-weight: 600; }
+.flash-success { background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface)); border: 1px solid var(--couleur-success); }
+.flash-error { background: color-mix(in srgb, var(--couleur-error, #ef4444) 18%, var(--couleur-surface)); border: 1px solid var(--couleur-error, #ef4444); }
+.core-info { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; display: grid; gap: .55rem; }
+.info-row { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; align-items: center; padding: .45rem .35rem; border-bottom: 1px solid var(--couleur-bordure); }
+.info-row:last-child { border-bottom: none; }
+.info-row > span { color: var(--couleur-texte-secondaire); }
+.info-highlight { background: color-mix(in srgb, var(--couleur-primaire) 9%, var(--couleur-surface)); border-radius: var(--rayon); }
+.btn-copy { background: none; border: 1px solid var(--couleur-bordure); padding: .3rem .55rem; border-radius: var(--rayon); cursor: pointer; }
+.confirm-form { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .95rem; display: grid; gap: .6rem; }
+.confirm-form h2 { margin: 0; font-size: 1.05rem; }
+.confirm-form p { margin: 0; color: var(--couleur-texte-secondaire); }
+.confirm-grid { display: grid; gap: .6rem; }
+.confirm-grid label { display: grid; gap: .35rem; font-weight: 600; }
+.confirm-grid input, .confirm-grid select { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .62rem .72rem; background: var(--couleur-surface); color: var(--couleur-texte); }
+.status-panel { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; display: grid; gap: .65rem; }
+.status { border-radius: var(--rayon); padding: .7rem .8rem; border: 1px solid var(--couleur-bordure); font-weight: 600; }
+.status.pending { background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface)); border-color: var(--couleur-warning); }
+.status.processing { background: color-mix(in srgb, var(--couleur-primaire) 18%, var(--couleur-surface)); border-color: var(--couleur-primaire); }
+.status.paid { background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface)); border-color: var(--couleur-success); }
+.status.expired { background: color-mix(in srgb, var(--couleur-error, #ef4444) 18%, var(--couleur-surface)); border-color: var(--couleur-error, #ef4444); }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 </style>
 
 <script>
@@ -178,11 +123,18 @@ function checkStatus() {
         .then(data => {
             if (data.statut === 'Paid') {
                 document.getElementById('statusPending').style.display = 'none';
+                document.getElementById('statusProcessing').style.display = 'none';
                 document.getElementById('statusExpired').style.display = 'none';
                 document.getElementById('statusPaid').style.display = 'flex';
                 document.getElementById('btnVoirBillets').style.display = 'inline-flex';
+            } else if (data.statut === 'Processing') {
+                document.getElementById('statusPending').style.display = 'none';
+                document.getElementById('statusProcessing').style.display = 'flex';
+                document.getElementById('statusExpired').style.display = 'none';
+                document.getElementById('statusPaid').style.display = 'none';
             } else if (data.statut === 'Expired') {
                 document.getElementById('statusPending').style.display = 'none';
+                document.getElementById('statusProcessing').style.display = 'none';
                 document.getElementById('statusPaid').style.display = 'none';
                 document.getElementById('statusExpired').style.display = 'flex';
             }
@@ -192,16 +144,39 @@ function checkStatus() {
 
 function copyRef() {
     navigator.clipboard.writeText(ref);
-    alert('Référence copiée !');
+    alert('Reference copiee !');
 }
 
 function copyMomo() {
     navigator.clipboard.writeText('{{ momoNumero }}');
-    alert('Numéro copié !');
+    alert('Numero copie !');
+}
+
+// Afficher le bon statut au chargement
+function showInitialStatus() {
+    const currentStatus = '{{ commande.statut }}';
+    if (currentStatus === 'Processing') {
+        document.getElementById('statusPending').style.display = 'none';
+        document.getElementById('statusProcessing').style.display = 'flex';
+        document.getElementById('statusExpired').style.display = 'none';
+        document.getElementById('statusPaid').style.display = 'none';
+    } else if (currentStatus === 'Paid') {
+        document.getElementById('statusPending').style.display = 'none';
+        document.getElementById('statusProcessing').style.display = 'none';
+        document.getElementById('statusExpired').style.display = 'none';
+        document.getElementById('statusPaid').style.display = 'flex';
+        document.getElementById('btnVoirBillets').style.display = 'inline-flex';
+    } else if (currentStatus === 'Expired') {
+        document.getElementById('statusPending').style.display = 'none';
+        document.getElementById('statusProcessing').style.display = 'none';
+        document.getElementById('statusPaid').style.display = 'none';
+        document.getElementById('statusExpired').style.display = 'flex';
+    }
 }
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
+showInitialStatus();
 checkStatus();
 setInterval(checkStatus, 15000);
 </script>

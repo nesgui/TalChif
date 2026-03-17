@@ -534,6 +534,18 @@ html[data-theme="dark"] .public-drawer-link:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+html[data-theme="dark"] .public-drawer-link.public-drawer-link-danger {
+    background: var(--couleur-error);
+    border-color: var(--couleur-error);
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .public-drawer-link.public-drawer-link-danger:hover {
+    background: var(--couleur-error-hover);
+    border-color: var(--couleur-error-hover);
+    color: #ffffff;
+}
+
 html[data-theme="dark"] .public-drawer-welcome {
     color: var(--couleur-texte);
 }
@@ -545,6 +557,16 @@ html[data-theme="dark"] .public-drawer-sep {
 .public-drawer-link-highlight {
     font-weight: 700;
     border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.public-drawer-link-danger {
+    background: var(--couleur-error);
+    color: #ffffff;
+}
+
+.public-drawer-link-danger:hover {
+    background: var(--couleur-error-hover);
+    color: #ffffff;
 }
 
 .public-drawer-sep {

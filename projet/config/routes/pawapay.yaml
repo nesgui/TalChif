@@ -1,0 +1,4 @@
+pawapay_webhook:
+    path: /webhook/pawapay
+    controller: App\Controller\PawaPayWebhookController
+    methods: [POST]

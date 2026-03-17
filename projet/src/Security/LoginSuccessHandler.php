@@ -39,6 +39,10 @@ final class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             return new RedirectResponse($this->urlGenerator->generate('organisateur.dashboard'));
         }
 
+        if (in_array('ROLE_CLIENT', $roles, true)) {
+            return new RedirectResponse($this->urlGenerator->generate('portefeuille.index'));
+        }
+
         return new RedirectResponse($this->urlGenerator->generate('accueil'));
     }
 }

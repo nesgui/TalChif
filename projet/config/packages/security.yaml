@@ -29,20 +29,23 @@ security:
                 target: accueil
 
     access_control:
+        - { path: ^/webhook/pawapay, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/organisateur, roles: ROLE_ORGANISATEUR }
         - { path: ^/validation, roles: ROLE_ORGANISATEUR }
         - { path: ^/api/organisateur, roles: ROLE_ORGANISATEUR }
         - { path: ^/api/validation, roles: ROLE_ORGANISATEUR }
-        - { path: ^/mes-billets, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/mes-commandes, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/mes-billets, roles: ROLE_CLIENT }
+        - { path: ^/mes-commandes, roles: ROLE_CLIENT }
+        - { path: ^/profil, roles: ROLE_USER }
         - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/evenements, roles: PUBLIC_ACCESS }
         - { path: ^/panier, roles: PUBLIC_ACCESS }
-        - { path: ^/portefeuille, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/achat, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/commande, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/portefeuille, roles: ROLE_CLIENT }
+        - { path: ^/achat, roles: ROLE_CLIENT }
+        - { path: ^/api/payments, roles: ROLE_CLIENT }
+        - { path: ^/api/commande, roles: ROLE_CLIENT }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/$, roles: PUBLIC_ACCESS }
 

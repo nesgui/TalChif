@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_CLIENT')]
 final class BilletController extends AbstractController
 {
     public function __construct(
@@ -19,7 +20,6 @@ final class BilletController extends AbstractController
     }
 
     #[Route('/mes-billets', name: 'billet.index')]
-    #[IsGranted('ROLE_USER')]
     public function index(): Response
     {
         $user = $this->getUser();
@@ -54,7 +54,6 @@ final class BilletController extends AbstractController
     }
 
     #[Route('/mes-billets/avenir', name: 'billet.avenir')]
-    #[IsGranted('ROLE_USER')]
     public function billetsAVenir(): Response
     {
         $user = $this->getUser();
@@ -69,7 +68,6 @@ final class BilletController extends AbstractController
     }
 
     #[Route('/mes-billets/passes', name: 'billet.passes')]
-    #[IsGranted('ROLE_USER')]
     public function billetsPasses(): Response
     {
         $user = $this->getUser();

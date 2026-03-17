@@ -8,6 +8,7 @@
 
 {% block dashboard_actions %}
 <a href="{{ path('admin.commande.export') }}" class="btn btn-secondary">Export CSV</a>
+<a href="{{ path('admin.commande.references') }}" class="btn btn-primary">Références à vérifier ({{ pendingWithReference|length }})</a>
 {% endblock %}
 
 {% block dashboard_content %}
@@ -37,6 +38,7 @@
                         <th>Client</th>
                         <th>Tél.</th>
                         <th>Montant</th>
+                        <th>Réf. transaction client</th>
                         <th>Expire</th>
                         <th>Actions</th>
                     </tr>
@@ -48,6 +50,7 @@
                         <td>{{ c.client.email }}</td>
                         <td>{{ c.numeroClient }}</td>
                         <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                        <td>{{ c.referenceTransactionClient ?: '-' }}</td>
                         <td>{{ c.dateExpiration|date('H:i') }}</td>
                         <td>
                             <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline validate-form">
@@ -213,9 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (document.querySelector('#commandes-pending-table')) {
         DataTableOS.init('#commandes-pending-table', {
-            order: [[4, 'asc']],
+            order: [[5, 'asc']],
             columnDefs: [
-                { targets: [5], orderable: false }
+                { targets: [6], orderable: false }
             ]
         });
     }

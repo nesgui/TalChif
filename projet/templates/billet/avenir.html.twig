@@ -3,381 +3,57 @@
 {% block title %}Mes Billets - À Venir{% endblock %}
 
 {% block body %}
-<div class="tickets-header">
-<h1 class="page-title">Billets à Venir</h1>
-    <p class="page-subtitle">Vos événements futurs</p>
-</div>
+<section class="tickets-shell">
+    <header class="tickets-header">
+        <h1 class="page-title">Billets à venir</h1>
+        <p class="page-subtitle">{{ billets|length }} billet(s)</p>
+    </header>
 
-<div class="tickets-nav">
-    <a href="{{ path('billet.index') }}" class="nav-btn">
-        📋 Tous les billets
-    </a>
-    <a href="{{ path('billet.avenir') }}" class="nav-btn active">
-        À venir
-    </a>
-    <a href="{{ path('billet.passes') }}" class="nav-btn">
-        Passés
-    </a>
-</div>
-
-{% if billets|length > 0 %}
-    <div class="upcoming-events">
-        {% for billet in billets %}
-            <div class="upcoming-ticket">
-                <div class="ticket-header">
-                    <img class="event-image" src="{{ billet.evenement.affichePrincipale ?: '/images/evenements/default.svg' }}" 
-                         alt="Affiche de l'événement : {{ billet.evenement.nom }}" loading="lazy" />
-                    <div class="event-info">
-                        <h3 class="event-title">{{ billet.evenement.nom }}</h3>
-                        <div class="event-meta">
-                            <span class="pill">{{ billet.evenement.dateEvenement|date('d/m/Y H:i') }}</span>
-                            <span class="pill">{{ billet.evenement.ville }}</span>
-                            <span class="pill pill-primary">{{ billet.type }}</span>
-                        </div>
-                        <div class="countdown" data-date="{{ billet.evenement.dateEvenement|date('Y-m-d H:i') }}">
-                            <span class="countdown-label">Dans</span>
-                            <span class="countdown-time">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ticket-details">
-                    <div class="ticket-qr">
-                        <div class="qr-code">
-                            
-                            <small>QR Code</small>
-                        </div>
-                        <div class="qr-text">{{ billet.qrCode }}</div>
-                    </div>
-                    
-                    <div class="ticket-info">
-                        <div class="ticket-price">{{ billet.prix|number_format(0, '.', ' ') }} XAF</div>
-                        <div class="ticket-status">
-                            <span class="status-badge valid">Valide</span>
-                        </div>
-                    </div>
-                    
-                    <div class="ticket-actions">
-                        <a href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" 
-                           class="btn btn-primary" target="_blank">
-                            Voir le billet
-                        </a>
-                        <button class="btn" onclick="copyQRCode('{{ billet.qrCode }}')">
-                            Copier QR
-                        </button>
-                        <a href="{{ path('evenement.show', {slug: billet.evenement.slug, id: billet.evenement.id}) }}" 
-                           class="btn btn-sm">
-                            Détails
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+    <div class="tickets-nav">
+        <a href="{{ path('billet.index') }}" class="nav-btn">Tous</a>
+        <a href="{{ path('billet.avenir') }}" class="nav-btn active">À venir</a>
+        <a href="{{ path('billet.passes') }}" class="nav-btn">Passés</a>
+        <a href="{{ path('achat.commandes') }}" class="nav-btn">Mes commandes</a>
     </div>
-{% else %}
-    <div class="empty-tickets">
-        <div class="empty-icon"></div>
-        <h3>Aucun billet à venir</h3>
-        <p>Vous n'avez pas de billets pour des événements futurs</p>
-        <div class="card-actions">
-            <a href="{{ path('evenement.index') }}" class="btn btn-primary">Explorer les événements</a>
+
+    {% if billets|length > 0 %}
+        <div class="tickets-list">
+            {% for billet in billets %}
+                <article class="ticket-row">
+                    <img class="event-image" src="{{ billet.evenement.affichePrincipale ?: '/images/evenements/default.svg' }}" alt="Affiche {{ billet.evenement.nom }}" loading="lazy">
+                    <div>
+                        <h3>{{ billet.evenement.nom }}</h3>
+                        <p>{{ billet.evenement.dateEvenement|date('d/m/Y H:i') }} • {{ billet.evenement.ville }}</p>
+                        <small>{{ billet.type }} • {{ billet.prix|number_format(0, '.', ' ') }} XAF</small>
+                    </div>
+                    <a href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" class="btn btn-primary">Voir billet</a>
+                </article>
+            {% endfor %}
         </div>
-    </div>
-{% endif %}
+    {% else %}
+        <section class="card empty">
+            <h2>Aucun billet à venir</h2>
+            <p>Vous n'avez pas de billets pour des événements futurs.</p>
+            <a href="{{ path('evenement.index') }}" class="btn btn-primary">Explorer les événements</a>
+        </section>
+    {% endif %}
+</section>
 
 <style>
-.tickets-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.tickets-nav {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.nav-btn {
-    padding: 0.75rem 1.5rem;
-    background: var(--couleur-surface);
-    border: 1px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    text-decoration: none;
-    color: var(--couleur-texte);
-    transition: all 0.2s ease;
-}
-
-.nav-btn:hover {
-    border-color: var(--couleur-primaire);
-    background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
-}
-
-.nav-btn.active {
-    background: var(--couleur-primaire);
-    color: white;
-    border-color: var(--couleur-primaire);
-}
-
-.upcoming-events {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.upcoming-ticket {
-    background: var(--couleur-fond);
-    border: 1px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    overflow: hidden;
-    transition: all 0.2s ease;
-}
-
-.upcoming-ticket:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.ticket-header {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, var(--couleur-surface), color-mix(in srgb, var(--couleur-surface) 90%, var(--couleur-primaire) 10%));
-}
-
-.event-image {
-    width: 120px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: var(--rayon);
-}
-
-.event-title {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.event-meta {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-}
-
-.pill-primary {
-    background: var(--couleur-primaire);
-    color: white;
-}
-
-.countdown {
-    background: rgba(255,255,255,0.2);
-    padding: 0.5rem 1rem;
-    border-radius: var(--rayon);
-    text-align: center;
-}
-
-.countdown-label {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--couleur-texte-secondaire);
-}
-
-.countdown-time {
-    display: block;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--couleur-primaire);
-}
-
-.ticket-details {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem;
-    gap: 1rem;
-}
-
-.ticket-qr {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.qr-code {
-    width: 50px;
-    height: 50px;
-    background: white;
-    border: 1px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-}
-
-.qr-code small {
-    font-size: 0.6rem;
-    color: var(--couleur-texte-secondaire);
-}
-
-.qr-text {
-    font-family: monospace;
-    font-size: 0.75rem;
-    color: var(--couleur-texte);
-}
-
-.ticket-info {
-    text-align: center;
-}
-
-.ticket-price {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--couleur-texte);
-    margin-bottom: 0.5rem;
-}
-
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--rayon);
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.status-badge.valid {
-    background: color-mix(in srgb, var(--couleur-success) 20%, var(--couleur-fond));
-    color: var(--couleur-success);
-}
-
-.ticket-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.empty-tickets {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: var(--couleur-surface);
-    border: 2px dashed var(--couleur-bordure);
-    border-radius: var(--rayon);
-}
-
-.empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
-    opacity: 0.3;
-}
-
-.empty-tickets h3 {
-    margin: 0 0 1rem 0;
-    color: var(--couleur-texte);
-}
-
-.empty-tickets p {
-    margin: 0 0 2rem 0;
-    color: var(--couleur-texte-secondaire);
-}
-
-@media (max-width: 768px) {
-    .ticket-header {
-        grid-template-columns: 80px 1fr;
-        gap: 0.75rem;
-        padding: 1rem;
-    }
-    
-    .event-image {
-        width: 80px;
-        height: 60px;
-    }
-    
-    .ticket-details {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
-    }
-    
-    .ticket-qr {
-        justify-content: center;
-    }
-    
-    .ticket-actions {
-        justify-content: center;
-    }
+.tickets-shell { max-width: 900px; margin: 0 auto; display: grid; gap: 1rem; }
+.tickets-nav { display: flex; gap: .5rem; flex-wrap: wrap; }
+.nav-btn { padding: .45rem .8rem; background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); text-decoration: none; color: var(--couleur-texte); }
+.nav-btn.active { background: var(--couleur-primaire); color: var(--couleur-texte-inverse); border-color: var(--couleur-primaire); }
+.tickets-list { display: grid; gap: .7rem; }
+.ticket-row { display: grid; grid-template-columns: 90px 1fr auto; gap: .75rem; align-items: center; padding: .75rem; border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); background: var(--couleur-surface); }
+.event-image { width: 90px; height: 68px; object-fit: cover; border-radius: var(--rayon); }
+.ticket-row h3 { margin: 0; }
+.ticket-row p { margin: .2rem 0; color: var(--couleur-texte-secondaire); }
+.empty { text-align: center; }
+@media (max-width: 760px) {
+    .ticket-row { grid-template-columns: 70px 1fr; }
+    .event-image { width: 70px; height: 54px; }
+    .ticket-row .btn { grid-column: 1 / -1; width: 100%; }
 }
 </style>
-
-<script>
-function copyQRCode(qrCode) {
-    navigator.clipboard.writeText(qrCode).then(() => {
-        const notification = document.createElement('div');
-        notification.textContent = 'QR Code copié !';
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--couleur-primaire);
-            color: white;
-            padding: 1rem;
-            border-radius: var(--rayon);
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 2000);
-    });
-}
-
-// Countdown timer
-function updateCountdowns() {
-    const countdowns = document.querySelectorAll('.countdown');
-    
-    countdowns.forEach(countdown => {
-        const eventDate = new Date(countdown.dataset.date);
-        const now = new Date();
-        const diff = eventDate - now;
-        
-        if (diff > 0) {
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            
-            let timeText = '';
-            if (days > 0) timeText += `${days}j `;
-            if (hours > 0) timeText += `${hours}h `;
-            if (minutes > 0) timeText += `${minutes}min`;
-            
-            countdown.querySelector('.countdown-time').textContent = timeText || 'Maintenant';
-        } else {
-            countdown.querySelector('.countdown-time').textContent = 'Événement terminé';
-        }
-    });
-}
-
-// Update countdowns immediately and every minute
-updateCountdowns();
-setInterval(updateCountdowns, 60000);
-
-// Add animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
-</script>
 {% endblock %}

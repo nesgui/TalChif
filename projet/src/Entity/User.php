@@ -64,6 +64,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $actif = true;
 
+    #[ORM\Column(type: 'integer')]
+    private int $balance = 0;
+
     #[ORM\OneToMany(mappedBy: 'organisateur', targetEntity: Evenement::class)]
     private Collection $evenementsOrganises;
 
@@ -295,6 +298,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function getBalance(): int
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(int $balance): static
+    {
+        $this->balance = $balance;
+        return $this;
+    }
+
+    public function addBalance(int $amount): static
+    {
+        $this->balance += $amount;
+        return $this;
+    }
+
+    public function deductBalance(int $amount): static
+    {
+        if ($this->balance < $amount) {
+            throw new \RuntimeException('Balance insuffisante');
+        }
+        $this->balance -= $amount;
         return $this;
     }
 

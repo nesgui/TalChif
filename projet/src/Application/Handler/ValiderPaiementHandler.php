@@ -50,7 +50,7 @@ final class ValiderPaiementHandler
         // Validation du montant
         $montantAttendu = Montant::fromFloat($commande->getMontantTotal());
         $montantRecu = Montant::fromFloat($command->montantRecu);
-        
+
         if (!$montantRecu->estEgalA($montantAttendu)) {
             throw new \RuntimeException(
                 "Montant incorrect. Attendu : {$montantAttendu}, Reçu : {$montantRecu}"
@@ -60,7 +60,7 @@ final class ValiderPaiementHandler
         // Validation du numéro
         $numeroClient = Telephone::fromString($command->numeroClient);
         $numeroCommande = Telephone::fromString($commande->getNumeroClient());
-        
+
         if (!$numeroClient->equals($numeroCommande)) {
             throw new \RuntimeException(
                 "Le numéro expéditeur ne correspond pas au numéro de la commande."
@@ -81,7 +81,7 @@ final class ValiderPaiementHandler
             // Générer les billets
             foreach ($commande->getLignes() as $ligne) {
                 $evenement = $ligne->getEvenement();
-                
+
                 // Verrouiller l'événement
                 $evenementLocked = $this->evenementRepository->findByIdWithLock($evenement->getId());
                 if (!$evenementLocked) {
@@ -137,14 +137,14 @@ final class ValiderPaiementHandler
             $this->entityManager->commit();
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
-            
+
             // Logger l'échec
             $this->loggerAction(
                 'VALIDATION_PAIEMENT_ECHEC',
                 $commande->getReference(),
                 "Échec validation : {$e->getMessage()}"
             );
-            
+
             throw $e;
         }
     }
@@ -160,12 +160,12 @@ final class ValiderPaiementHandler
         $log->setAction($action);
         $log->setReferenceCommande($reference);
         $log->setDetails($details);
-        
+
         $request = $this->requestStack->getCurrentRequest();
         if ($request) {
             $log->setIpAddress($request->getClientIp() ?? 'unknown');
         }
-        
+
         $this->logSecuriteRepository->save($log);
     }
 }

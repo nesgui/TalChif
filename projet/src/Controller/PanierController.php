@@ -88,6 +88,9 @@ final class PanierController extends AbstractController
         $this->addFlash('success', 'Événement ajouté au panier');
 
         $redirect = $request->request->get('redirect');
+        if ($redirect === 'achat') {
+            return $this->redirectToRoute('achat.index');
+        }
         if ($redirect === 'precedent') {
             return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }

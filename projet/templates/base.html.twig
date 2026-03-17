@@ -142,15 +142,15 @@
                             </span>
                             <div class="public-drawer-actions">
                                 {% if is_granted('ROLE_ORGANISATEUR') %}
-                                    <a class="public-drawer-link public-drawer-link-highlight" href="{{ path('organisateur.dashboard') }}">Espace organisateur</a>
+                                    <a class="public-drawer-link public-drawer-link-highlight" href="{{ path('organisateur.dashboard') }}" data-turbo="false">Espace organisateur</a>
                                 {% endif %}
                                 {% if is_granted('ROLE_ADMIN') %}
-                                    <a class="public-drawer-link public-drawer-link-highlight" href="{{ path('admin.dashboard') }}">Administration</a>
+                                    <a class="public-drawer-link public-drawer-link-highlight" href="{{ path('admin.dashboard') }}" data-turbo="false">Administration</a>
                                 {% endif %}
                                 {% if is_granted('ROLE_ORGANISATEUR') %}
                                     <a class="public-drawer-link" href="{{ path('validation.index') }}">Validation</a>
                                 {% endif %}
-                                <a class="public-drawer-link" href="{{ path('auth.logout') }}">Déconnexion</a>
+                                <a class="public-drawer-link public-drawer-link-danger" href="{{ path('auth.logout') }}">Déconnexion</a>
                             </div>
                         </div>
                     {% endif %}
@@ -193,7 +193,8 @@
                     <span class="public-tab-label">Panier</span>
                 </a>
                 {% if app.user %}
-                <a class="public-tab" href="{{ path('billet.index') }}" {% if app.request.attributes.get('_route') starts with 'billet.' %}aria-current="page"{% endif %}>
+                {% if is_granted('ROLE_CLIENT') %}
+                <a class="public-tab" href="{{ path('portefeuille.index') }}" {% if app.request.attributes.get('_route') starts with 'portefeuille.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 7h15a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
@@ -201,17 +202,20 @@
                             <path d="M7 7V6a2 2 0 0 1 2-2h10" />
                         </svg>
                     </span>
-                    <span class="public-tab-label">Portefeuille</span>
+                    <span class="public-tab-label">Espace client</span>
                 </a>
-                <a class="public-tab" href="{{ path('portefeuille.index') }}" {% if app.request.attributes.get('_route') starts with 'portefeuille.' %}aria-current="page"{% endif %}>
+                {% endif %}
+                {% if not is_granted('ROLE_CLIENT') %}
+                <a class="public-tab" href="{{ path('profile.index') }}" {% if app.request.attributes.get('_route') starts with 'profile.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20 21a8 8 0 0 0-16 0" />
                             <circle cx="12" cy="8" r="4" />
                         </svg>
                     </span>
-                    <span class="public-tab-label">Mon compte</span>
+                    <span class="public-tab-label">Profil</span>
                 </a>
+                {% endif %}
                 {% else %}
                 <a class="public-tab public-me-trigger" href="#" role="button" aria-haspopup="menu" aria-expanded="false" data-turbo="false" {% if app.request.attributes.get('_route') starts with 'public.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">

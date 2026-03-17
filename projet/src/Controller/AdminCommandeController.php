@@ -42,6 +42,7 @@ final class AdminCommandeController extends AbstractController
     public function index(): Response
     {
         $pending = $this->commandeRepository->findPending();
+        $pendingWithReference = $this->commandeRepository->findPendingWithClientReference();
         $paid = $this->commandeRepository->findPaid();
         $expired = $this->commandeRepository->findExpired();
         $rejected = $this->commandeRepository->findRejected();
@@ -60,6 +61,7 @@ final class AdminCommandeController extends AbstractController
 
         return $this->render('admin_commande/index.html.twig', [
             'pending' => $pending,
+            'pendingWithReference' => $pendingWithReference,
             'paid' => $paid,
             'expired' => $expired,
             'rejected' => $rejected,
@@ -67,6 +69,16 @@ final class AdminCommandeController extends AbstractController
             'totalCommission' => $totalCommission,
             'logs' => $logs,
             'evenementsAPayer' => $evenementsAvecSolde,
+        ]);
+    }
+
+    #[Route('/references-a-verifier', name: 'admin.commande.references', methods: ['GET'])]
+    public function referencesAVerifier(): Response
+    {
+        $pendingWithReference = $this->commandeRepository->findPendingWithClientReference();
+
+        return $this->render('admin_commande/references.html.twig', [
+            'pendingWithReference' => $pendingWithReference,
         ]);
     }
 

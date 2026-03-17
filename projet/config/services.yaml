@@ -35,64 +35,86 @@ services:
     # ========================================
     # Architecture Hexagonale - Repositories
     # ========================================
-    
+
     # Interfaces de repositories (ports) -> Implémentations Doctrine (adapters)
     App\Domain\Repository\EvenementRepositoryInterface:
         alias: App\Infrastructure\Doctrine\Repository\DoctrineEvenementRepository
-    
+
     App\Domain\Repository\BilletRepositoryInterface:
         alias: App\Infrastructure\Doctrine\Repository\DoctrineBilletRepository
-    
+
     App\Domain\Repository\CommandeRepositoryInterface:
         alias: App\Infrastructure\Doctrine\Repository\DoctrineCommandeRepository
-    
+
+    # ========================================
+    # Services
+    # ========================================
+
+    App\Service\Payment\PawaPayClient:
+        arguments:
+            $client: '@http_client'
+            $logger: '@Psr\Log\LoggerInterface'
+            $baseUrl: '%app.pawapay.base_url%'
+            $apiToken: '%app.pawapay.api_token%'
+            $currency: '%app.pawapay.currency%'
+            $correspondents: '%app.pawapay.correspondents%'
+
     # ========================================
     # Architecture Hexagonale - Handlers (Use Cases)
     # ========================================
-    
+
     App\Application\Handler\AcheterBilletsHandler:
         arguments:
             $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
             $billetRepository: '@App\Domain\Repository\BilletRepositoryInterface'
-    
+
     App\Application\Handler\CreerCommandeHandler:
         arguments:
             $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
             $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-    
+            $pawaPayClient: '@App\Service\Payment\PawaPayClient'
+            $logger: '@Psr\Log\LoggerInterface'
+
     App\Application\Handler\ValiderPaiementHandler:
         arguments:
             $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
             $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
             $billetRepository: '@App\Domain\Repository\BilletRepositoryInterface'
-    
+
     App\Application\Handler\RejeterPaiementHandler:
         arguments:
             $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-    
+
     App\Application\Handler\ExpirerCommandesHandler:
         arguments:
             $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-    
+
     # ========================================
     # CQRS - Query Handlers (Lectures)
     # ========================================
-    
+
     App\Application\Handler\ObtenirMesBilletsHandler:
         arguments:
             $billetRepository: '@App\Domain\Repository\BilletRepositoryInterface'
-    
+
     App\Application\Handler\ObtenirMesCommandesHandler: ~
-    
+
     App\Application\Handler\ObtenirEvenementHandler:
         arguments:
             $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
-    
+
     App\Application\Handler\ListerEvenementsActifsHandler: ~
-    
+
     App\Application\Handler\ObtenirCommandeHandler:
         arguments:
             $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-    
+
+    App\Service\Payment\PaymentVerificationService:
+        arguments:
+            $pawaPayClient: '@App\Service\Payment\PawaPayClient'
+            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
+            $entityManager: '@Doctrine\ORM\EntityManagerInterface'
+            $logger: '@Psr\Log\LoggerInterface'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

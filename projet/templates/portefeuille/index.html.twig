@@ -1,73 +1,41 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Portefeuille{% endblock %}
+{% block title %}Espace client{% endblock %}
 
 {% block body %}
-<div class="grid">
-    <section class="card">
-        <h1 class="page-title">Bienvenue, {{ app.user.nom }} !</h1>
-        <p class="page-subtitle">Votre espace personnel</p>
-        
-        <div class="user-info">
-            <h2>Informations du compte</h2>
-            <table class="table" id="portefeuille-compte-table">
-                <thead>
-                    <tr>
-                        <th>Champ</th>
-                        <th>Valeur</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>Email</th>
-                        <td>{{ app.user.email }}</td>
-                    </tr>
-                    <tr>
-                        <th>Rôle</th>
-                        <td><span class="pill">{{ app.user.role }}</span></td>
-                    </tr>
-                    <tr>
-                        <th>Téléphone</th>
-                        <td>{{ app.user.telephone ?: 'Non renseigné' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Compte vérifié</th>
-                        <td>
-                            {% if app.user.isVerified %}
-                                <span class="pill pill-success">Oui</span>
-                            {% else %}
-                                <span class="pill pill-warning">Non</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="user-actions">
-            <h2>Actions rapides</h2>
+<section class="client-shell">
+    <header>
+        <h1 class="page-title">Espace client</h1>
+        <p class="page-subtitle">Bienvenue {{ app.user.nom }}. Gérez vos achats.</p>
+    </header>
+
+    <div class="grid">
+        <section class="card">
+            <h2 class="card-title">Mon compte</h2>
+            <p><strong>Email:</strong> {{ app.user.email }}</p>
+            <p><strong>Téléphone:</strong> {{ app.user.telephone ?: 'Non renseigné' }}</p>
+            <p>
+                <strong>Compte vérifié:</strong>
+                {% if app.user.isVerified %}
+                    <span class="pill pill-success">Oui</span>
+                {% else %}
+                    <span class="pill pill-warning">Non</span>
+                {% endif %}
+            </p>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Actions rapides</h2>
             <div class="card-actions">
-                <a href="{{ path('billet.index') }}" class="btn btn-primary">
-                    Mes billets
-                </a>
-                <a href="{{ path('achat.commandes') }}" class="btn">
-                    Mes commandes
-                </a>
-                
-                {% if is_granted('ROLE_ORGANISATEUR') %}
-                    <a href="{{ path('organisateur.dashboard') }}" class="btn">Gestion des événements</a>
-                {% endif %}
-                
-                {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('admin.dashboard') }}" class="btn">Back-office admin</a>
-                {% endif %}
-                
+                <a href="{{ path('profile.index') }}" class="btn">Mon profil</a>
+                <a href="{{ path('billet.index') }}" class="btn btn-primary">Mes billets</a>
+                <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
                 <a href="{{ path('panier.index') }}" class="btn">Mon panier</a>
                 <a href="{{ path('evenement.index') }}" class="btn">Voir les événements</a>
                 <a href="{{ path('auth.logout') }}" class="btn btn-danger">Se déconnecter</a>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
+    </div>
+</section>
 
 {% endblock %}

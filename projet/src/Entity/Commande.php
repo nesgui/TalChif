@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Commande
 {
     public const STATUT_PENDING = 'Pending Payment';
+    public const STATUT_PROCESSING = 'Processing';
     public const STATUT_PAID = 'Paid';
     public const STATUT_EXPIRED = 'Expired';
     public const STATUT_REJECTED = 'Rejected';
@@ -64,6 +65,12 @@ class Commande
 
     #[ORM\Column(type: 'integer')]
     private int $tentativeValidation = 0;
+
+    #[ORM\Column(length: 255, nullable: true, unique: true)]
+    private ?string $depositId = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $referenceTransactionClient = null;
 
     #[ORM\OneToMany(mappedBy: 'commande', targetEntity: CommandeLigne::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $lignes;
@@ -249,6 +256,11 @@ class Commande
         return $this->statut === self::STATUT_PENDING;
     }
 
+    public function isProcessing(): bool
+    {
+        return $this->statut === self::STATUT_PROCESSING;
+    }
+
     public function isPaid(): bool
     {
         return $this->statut === self::STATUT_PAID;
@@ -264,9 +276,20 @@ class Commande
         return $this->statut === self::STATUT_REJECTED;
     }
 
+    public function marquerEnTraitement(string $depositId): void
+    {
+        $this->statut = self::STATUT_PROCESSING;
+        $this->depositId = $depositId;
+    }
+
     public function estExpiree(): bool
     {
-        return $this->dateExpiration && $this->dateExpiration < new \DateTimeImmutable();
+        if (!$this->dateExpiration) {
+            return false;
+        }
+        
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        return $this->dateExpiration < $now;
     }
 
     public function getPremierEvenement(): ?Evenement
@@ -289,7 +312,7 @@ class Commande
      */
     public function marquerPayee(?User $validateur = null): void
     {
-        if (!$this->isPending()) {
+        if (!$this->isPending() && !$this->isProcessing()) {
             throw new \RuntimeException(
                 "La commande {$this->reference} n'est pas en attente de paiement."
             );
@@ -341,7 +364,11 @@ class Commande
      */
     public function peutEtreValidee(): bool
     {
-        return $this->isPending() && !$this->estExpiree();
+        $isPending = $this->isPending();
+        $isProcessing = $this->isProcessing();
+        $estExpiree = $this->estExpiree();
+        
+        return ($isPending || $isProcessing) && !$estExpiree;
     }
 
     /**
@@ -381,5 +408,27 @@ class Commande
         $now = new \DateTimeImmutable();
         $diff = $this->dateExpiration->getTimestamp() - $now->getTimestamp();
         return (int) ceil($diff / 60);
+    }
+
+    public function getDepositId(): ?string
+    {
+        return $this->depositId;
+    }
+
+    public function setDepositId(?string $depositId): self
+    {
+        $this->depositId = $depositId;
+        return $this;
+    }
+
+    public function getReferenceTransactionClient(): ?string
+    {
+        return $this->referenceTransactionClient;
+    }
+
+    public function setReferenceTransactionClient(?string $referenceTransactionClient): self
+    {
+        $this->referenceTransactionClient = $referenceTransactionClient;
+        return $this;
     }
 }

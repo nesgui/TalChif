@@ -1,0 +1,85 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Références à vérifier{% endblock %}
+{% block dashboard_title %}Références à vérifier{% endblock %}
+
+{% block dashboard_actions %}
+<a href="{{ path('admin.commande.index') }}" class="btn btn-secondary">Retour commandes</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Commandes en statut Pending Payment avec référence de transaction soumise par le client.</p>
+
+<section class="card">
+    <h2 class="card-title">Références reçues ({{ pendingWithReference|length }})</h2>
+    {% if pendingWithReference|length > 0 %}
+    <div class="table-responsive">
+        <table class="table" id="commandes-references-table">
+            <thead>
+                <tr>
+                    <th>Réf. commande</th>
+                    <th>Réf. transaction client</th>
+                    <th>Client</th>
+                    <th>Tél.</th>
+                    <th>Montant</th>
+                    <th>Expire</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in pendingWithReference %}
+                <tr>
+                    <td><code>{{ c.reference }}</code></td>
+                    <td><code>{{ c.referenceTransactionClient }}</code></td>
+                    <td>{{ c.client.email }}</td>
+                    <td>{{ c.numeroClient }}</td>
+                    <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                    <td>{{ c.dateExpiration|date('H:i') }}</td>
+                    <td>
+                        <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
+                            <input type="number" name="montant_recu" step="1" min="0" value="{{ c.montantTotal }}" required placeholder="Montant reçu">
+                            <input type="text" name="numero_expediteur" value="{{ c.numeroClient }}" required placeholder="Num. expéditeur">
+                            <button type="submit" class="btn btn-primary btn-sm">Valider</button>
+                        </form>
+                        <form method="post" action="{{ path('admin.commande.rejeter', {reference: c.reference}) }}" class="form-inline" onsubmit="return confirm('Rejeter cette commande ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('rejeter_' ~ c.reference) }}">
+                            <input type="text" name="raison" placeholder="Raison (optionnel)">
+                            <button type="submit" class="btn btn-error btn-sm">Rejeter</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="card-meta">Aucune référence client à vérifier pour le moment.</p>
+    {% endif %}
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+    if (document.querySelector('#commandes-references-table')) {
+        DataTableOS.init('#commandes-references-table', {
+            order: [[5, 'asc']],
+            columnDefs: [{ targets: [6], orderable: false }]
+        });
+    }
+});
+</script>
+
+<style>
+.table-responsive { overflow-x: auto; }
+.form-inline { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.25rem 0; }
+.form-inline input[type="number"],
+.form-inline input[type="text"] { max-width: 140px; padding: 0.25rem 0.5rem; }
+.btn-error { background: var(--couleur-error); color: white; }
+</style>
+{% endblock %}
+

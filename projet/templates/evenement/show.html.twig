@@ -12,257 +12,46 @@
 {% block og_type %}event{% endblock %}
 
 {% block body %}
-
-<section class="product-page">
-    <div class="product-hero">
-        <div class="product-hero-media">
-            <img class="product-hero-img" src="{{ evenement.image ?: '/images/evenements/evenement-1.jpg' }}" alt="Affiche principale de l'événement : {{ evenement.titre }}" />
-        </div>
-
-        {# Colonne centrale : informations principales (résumé, façon fiche produit Apple) #}
-        <div class="product-hero-body">
+<section class="event-simple">
+    <div class="event-card">
+        <img class="event-img" src="{{ evenement.image ?: '/images/evenements/evenement-1.jpg' }}" alt="Affiche de l'événement {{ evenement.titre }}">
+        <div class="event-content">
             <h1 class="page-title">{{ evenement.titre }}</h1>
+            <p class="event-desc">{{ evenement.description|striptags|slice(0, 220) ~ (evenement.description|length > 220 ? '…' : '') }}</p>
 
-            {# Résumé court directement sous le titre #}
-            <p class="card-meta">
-                {{ evenement.description|striptags|slice(0, 220) ~ (evenement.description|length > 220 ? '…' : '') }}
-            </p>
-
-            <p class="card-meta">
-                <strong>À propos de l’événement</strong><br>
-                Types de billets : {{ evenement.types_billets is defined ? evenement.types_billets|length : 2 }}&nbsp;
-            </p>
-        </div>
-
-        {# Colonne droite : buy box (inspirée d'Amazon) #}
-        <aside class="product-hero-buybox">
-            <div class="product-hero-buybox-price">
-                À partir de <strong>{{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</strong>
-            </div>
-
-            <div class="product-hero-buybox-meta">
-                <p>
-                    <strong>Date :</strong> {{ evenement.date|date('d/m/Y H:i') }}<br>
-                    <strong>Lieu :</strong> {{ evenement.lieu }}, {{ evenement.ville }}
-                </p>
-                <p>
-                    <strong>Places restantes :</strong> {{ evenement.places_disponibles }}<br>
-                    <strong>Places totales :</strong> {{ evenement.places_total }}
-                </p>
-                <p>
-                    <strong>Organisateur :</strong> {{ evenement.organisateur }}
-                </p>
-                {% if evenement.ventes is defined and evenement.ventes > 0 %}
-                    <p>
-                        <strong>Popularité :</strong><br>
-                        {{ evenement.ventes }} personne{{ evenement.ventes > 1 ? 's' : '' }} ont déjà acheté un billet.
-                    </p>
-                {% endif %}
+            <div class="event-essential">
+                <p><strong>Prix</strong> : à partir de {{ evenement.prix_min|number_format(0, '.', ' ') }} XAF</p>
+                <p><strong>Date</strong> : {{ evenement.date|date('d/m/Y H:i') }}</p>
+                <p><strong>Lieu</strong> : {{ evenement.lieu }}, {{ evenement.ville }}</p>
+                <p><strong>Places restantes</strong> : {{ evenement.places_disponibles }}</p>
             </div>
 
             <div class="card-actions">
-                <a class="btn btn-primary btn-block" href="{{ path('achat.evenement', {slug: evenement.slug, id: evenement.id}) }}">
-                    Acheter maintenant
-                </a>
-                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" data-controller="loading" class="btn-block">
-                    <input type="hidden" name="quantite" value="1" />
-                    <input type="hidden" name="redirect" value="panier" />
-                    <button class="btn btn-secondary btn-block" type="submit" data-loading-target="submitButton">
-                        Ajouter au panier
-                    </button>
+                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" class="btn-block">
+                    <input type="hidden" name="quantite" value="1">
+                    <input type="hidden" name="redirect" value="achat">
+                    <button class="btn btn-primary btn-block" type="submit">Acheter maintenant</button>
+                </form>
+                <form method="post" action="{{ path('panier.ajouter', {id: evenement.id}) }}" class="btn-block">
+                    <input type="hidden" name="quantite" value="1">
+                    <input type="hidden" name="redirect" value="panier">
+                    <button class="btn btn-secondary btn-block" type="submit">Ajouter au panier</button>
                 </form>
             </div>
-        </aside>
-    </div>
-    {% if evenement.types_billets is defined and evenement.types_billets|length > 0 %}
-    <section class="card" style="margin-top: 1.5rem;">
-        <h2 class="card-title">Choisissez votre type de billet</h2>
-        <div class="ticket-options-grid">
-            {% for type in evenement.types_billets %}
-                <div class="ticket-option">
-                    <div class="ticket-option-header">
-                        <span class="ticket-option-name">
-                            {{ type.code == 'VIP' ? 'Billet VIP' : 'Billet simple' }}
-                        </span>
-                        <span class="ticket-option-price">
-                            {{ type.prix|number_format(0, '.', ' ') }} XAF
-                        </span>
-                    </div>
-                    <p class="ticket-option-meta">
-                        {{ type.code == 'VIP'
-                            ? 'Accès privilégié et expérience améliorée (selon l’organisateur).'
-                            : 'Accès standard à l’événement.' }}
-                    </p>
-                </div>
-            {% endfor %}
         </div>
-        <p class="card-meta" style="margin-top: 0.75rem;">
-            Vous pourrez sélectionner le type de billet et la quantité à l’étape d’achat.
-        </p>
-    </section>
-    {% endif %}
-
-    <div class="grid product-details-grid">
-
-        {# Infos organisateur (détails complémentaires uniquement) #}
-        <section class="card">
-            <h2 class="card-title">Infos organisateur</h2>
-            <div class="info-list">
-                <div class="info-row">
-                    <span class="info-label">Plus d'événements de cet organisateur</span>
-                    <a class="btn btn-sm btn-secondary"
-                       href="{{ path('evenement.index') ~ '?q=' ~ evenement.organisateur|url_encode }}">
-                        Voir les autres événements
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        {# Contexte pratique (complément sous la buy box) #}
-        <section class="card">
-            <h2 class="card-title">Infos pratiques</h2>
-            <p class="card-meta">Lieu & accès</p>
-
-            <p class="card-meta" style="margin-top: 0.75rem;">
-                <strong>Dress code & âge minimum :</strong><br>
-                Les informations détaillées sont communiquées par l'organisateur. Pensez à vérifier l'email et le billet reçus.
-            </p>
-        </section>
-
-        {# Confiance / social proof #}
-        <section class="card">
-            <h2 class="card-title">Confiance & avis</h2>
-
-            <div class="info-list">
-                {% if evenement.note is defined and evenement.note is not null %}
-                    <div class="info-row">
-                        <span class="info-label">Note moyenne</span>
-                        <span class="info-value">
-                            {{ evenement.note }}/5
-                            {% if evenement.avis is defined and evenement.avis is not null %}
-                                ({{ evenement.avis }} avis)
-                            {% endif %}
-                        </span>
-                    </div>
-                {% else %}
-                    <p class="card-meta">Aucune note n'a encore été attribuée pour cet événement.</p>
-                {% endif %}
-
-                {% if evenement.ventes is defined and evenement.ventes > 0 %}
-                    <div class="info-row">
-                        <span class="info-label">Popularité</span>
-                        <span class="info-value">
-                            {{ evenement.ventes }} personne{{ evenement.ventes > 1 ? 's' : '' }} ont déjà acheté un billet.
-                        </span>
-                    </div>
-                {% endif %}
-            </div>
-        </section>
-
-        {# Partage #}
-        <section class="card">
-            <h2 class="card-title">Partager l'événement</h2>
-            <p class="card-meta">Invite tes amis à te rejoindre.</p>
-
-            {% set url_evenement = app.request.uri %}
-            <div class="card-actions">
-                <button class="btn btn-sm btn-secondary" type="button"
-                        data-share="copy"
-                        data-share-url="{{ url_evenement }}">
-                    Copier le lien de l'événement
-                </button>
-            </div>
-            <p class="card-meta" style="margin-top: 0.5rem;">
-                Ou partager via
-                <a href="https://wa.me/?text={{ ('Je t’invite à découvrir cet événement : ' ~ url_evenement)|url_encode }}"
-                   target="_blank" rel="noopener noreferrer">WhatsApp</a>
-                ·
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_evenement|url_encode }}"
-                   target="_blank" rel="noopener noreferrer">Facebook</a>
-            </p>
-        </section>
     </div>
 </section>
 
 <style>
-.ticket-options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-}
-.ticket-option {
-    border-radius: var(--rayon);
-    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
-    padding: 0.9rem 1rem;
-    background: var(--couleur-surface);
-}
-.ticket-option-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.4rem;
-}
-.ticket-option-name {
-    font-weight: 600;
-}
-.ticket-option-price {
-    font-weight: 600;
-}
-.ticket-option-meta {
-    font-size: 0.9rem;
-    color: var(--couleur-texte-secondaire);
-    margin: 0;
-}
-
-/* Harmoniser la hauteur des cards de la grille de détails */
-.product-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem;
-    align-items: stretch;
-}
-
-.product-details-grid > .card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+.event-simple { max-width: 920px; margin: 0 auto; }
+.event-card { display: grid; grid-template-columns: 300px 1fr; gap: 1rem; background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: 1rem; }
+.event-img { width: 100%; height: 100%; max-height: 320px; object-fit: cover; border-radius: var(--rayon); }
+.event-content { display: grid; gap: .75rem; }
+.event-desc { margin: 0; color: var(--couleur-texte-secondaire); }
+.event-essential p { margin: .3rem 0; }
+@media (max-width: 820px) {
+    .event-card { grid-template-columns: 1fr; }
+    .event-img { max-height: 240px; }
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof DataTableOS !== 'undefined') {
-        if (document.querySelector('#tickets-table')) {
-            DataTableOS.init('#tickets-table', {
-                order: [[1, 'asc']], // Tri par prix (croissant)
-                columns: [
-                    { width: '80px', orderable: false },
-                    null,
-                    { width: '100px' },
-                    { width: '120px', orderable: false },
-                    { width: '150px', orderable: false }
-                ]
-            });
-        }
-    }
-
-    // Partage : bouton "Copier le lien" avec Clipboard API
-    const copyButtons = document.querySelectorAll('[data-share="copy"]');
-    copyButtons.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const url = btn.getAttribute('data-share-url') || window.location.href;
-            try {
-                await navigator.clipboard.writeText(url);
-                btn.textContent = 'Lien copié !';
-                setTimeout(() => {
-                    btn.textContent = 'Copier le lien';
-                }, 2000);
-            } catch (e) {
-                alert('Impossible de copier le lien. Vous pouvez le copier manuellement depuis la barre d’adresse.');
-            }
-        });
-    });
-});
-</script>
 {% endblock %}

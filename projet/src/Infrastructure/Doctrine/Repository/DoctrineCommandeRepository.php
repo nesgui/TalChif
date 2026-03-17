@@ -50,4 +50,9 @@ final class DoctrineCommandeRepository implements CommandeRepositoryInterface
     {
         $this->entityManager->flush();
     }
+
+    public function findByDepositId(string $depositId): ?Commande
+    {
+        return $this->doctrineRepository->findOneBy(['depositId' => $depositId]);
+    }
 }

@@ -12,12 +12,12 @@ use App\Entity\Commande;
 interface CommandeRepositoryInterface
 {
     public function findByReference(string $reference): ?Commande;
-    
+
     public function referenceExists(string $reference): bool;
-    
+
     public function findPendingExpired(\DateTimeImmutable $expirationDate): array;
-    
+
     public function save(Commande $commande): void;
-    
+
     public function flush(): void;
 }

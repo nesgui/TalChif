@@ -32,6 +32,7 @@
                     </details>
 
                     <div class="dashboard-nav-title">Général</div>
+                    <a class="dashboard-link" href="{{ path('profile.index') }}" data-turbo-frame="_top">Mon profil</a>
                     <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
                 {% elseif section == 'admin' %}
                     <div class="dashboard-nav-title">Administration</div>
@@ -43,6 +44,7 @@
                         <div class="dashboard-sub">
                             <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">Utilisateurs</a>
                             <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">Commandes & validation</a>
+                            <a class="dashboard-sublink" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">Références à vérifier</a>
                             {# Événements, Organisateurs, Finance, Sécurité #}
                         </div>
                     </details>
