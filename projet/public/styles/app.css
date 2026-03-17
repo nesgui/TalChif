@@ -1315,11 +1315,12 @@ html[data-theme="dark"] .section-title {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    border-radius: var(--rayon);
-    padding: 12px 20px;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 0.42rem 0.82rem;
     font-weight: var(--fw-semibold);
     font-size: var(--ui-btn);
+    line-height: 1.2;
     text-decoration: none;
     border: 1px solid transparent;
     color: var(--couleur-texte-inverse);
@@ -1328,7 +1329,7 @@ html[data-theme="dark"] .section-title {
     transition: all var(--transition-rapide);
     white-space: nowrap;
     user-select: none;
-    min-height: 44px; /* Accessibilité */
+    min-height: 34px;
 }
 
 .btn:hover {
@@ -1433,15 +1434,15 @@ html[data-theme="dark"] .section-title {
 
 /* Tailles de boutons */
 .btn-sm {
-    padding: 8px 16px;
+    padding: 0.34rem 0.68rem;
     font-size: var(--ui-btn-sm);
-    min-height: 36px;
+    min-height: 30px;
 }
 
 .btn-lg {
-    padding: 16px 24px;
+    padding: 0.54rem 1rem;
     font-size: var(--ui-btn-lg);
-    min-height: 52px;
+    min-height: 38px;
 }
 
 .btn-block {
@@ -2599,21 +2600,21 @@ button.btn {
 /* Boutons plus compacts sur mobile */
 @media (max-width: 719px) {
     .btn {
-        padding: 8px 14px;
+        padding: 0.38rem 0.76rem;
         font-size: var(--ui-btn);
-        min-height: 38px;
+        min-height: 32px;
         gap: 6px;
     }
 
     .btn-sm {
-        padding: 6px 10px;
-        font-size: 0.75rem;
-        min-height: 34px;
+        padding: 0.3rem 0.56rem;
+        font-size: 0.72rem;
+        min-height: 28px;
     }
 
     .btn-lg {
-        padding: 12px 20px;
-        font-size: 0.9375rem;
+        padding: 0.48rem 0.92rem;
+        font-size: 0.86rem;
     }
 
     .btn-icon {
@@ -2630,15 +2631,15 @@ button.btn {
 
 @media (max-width: 380px) {
     .btn {
-        padding: 7px 12px;
-        font-size: 0.75rem;
-        min-height: 34px;
+        padding: 0.34rem 0.64rem;
+        font-size: 0.74rem;
+        min-height: 30px;
     }
 
     .btn-sm {
-        padding: 5px 8px;
-        font-size: 0.6875rem;
-        min-height: 30px;
+        padding: 0.26rem 0.5rem;
+        font-size: 0.68rem;
+        min-height: 26px;
     }
 }
 

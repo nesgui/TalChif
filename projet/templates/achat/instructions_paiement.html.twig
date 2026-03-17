@@ -37,25 +37,39 @@
         </div>
     </div>
 
-    <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form">
-        <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
-        <h2>J’ai déjà payé</h2>
-        <p>Entrez la référence reçue pour accélérer la validation.</p>
-        <div class="confirm-grid">
-            <label>
-                Opérateur
-                <select name="operateur" required>
-                    <option value="Airtel Money">Airtel Money</option>
-                    <option value="Moov Money">Moov Money</option>
-                </select>
-            </label>
-            <label>
-                Référence transaction
-                <input type="text" name="transaction_reference" required minlength="4" maxlength="64" placeholder="Ex: TXN-4589231">
-            </label>
+    {% set referenceDejaEnvoyee = commande.referenceTransactionClient is not null and commande.referenceTransactionClient|trim != '' %}
+    {% if not referenceDejaEnvoyee %}
+        <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
+            <h2>J’ai déjà payé</h2>
+            <p>Entrez la référence reçue pour accélérer la validation.</p>
+            <div class="confirm-grid">
+                <label>
+                    Opérateur
+                    <select name="operateur" required>
+                        <option value="Airtel Money">Airtel Money</option>
+                        <option value="Moov Money">Moov Money</option>
+                    </select>
+                </label>
+                <label>
+                    Référence transaction (SMS opérateur)
+                    <input type="text" name="transaction_reference" required minlength="4" maxlength="64" placeholder="Ex: TXN-4589231">
+                </label>
+            </div>
+            <p class="confirm-note">
+                Saisissez uniquement la référence SMS fournie par votre opérateur après le paiement.
+            </p>
+            <button type="submit" class="btn btn-primary">Envoyer ma référence</button>
+        </form>
+    {% else %}
+        <div class="confirm-form">
+            <h2>Référence déjà envoyée</h2>
+            <p>Votre référence SMS est bien reçue et en cours de validation.</p>
+            <p class="confirm-note">
+                Référence envoyée : <strong>{{ commande.referenceTransactionClient }}</strong>
+            </p>
         </div>
-        <button type="submit" class="btn btn-primary">Envoyer ma référence</button>
-    </form>
+    {% endif %}
 
     <div class="status-panel">
         <div class="status pending" id="statusPending">En attente de paiement</div>
@@ -90,6 +104,8 @@
 .confirm-grid { display: grid; gap: .6rem; }
 .confirm-grid label { display: grid; gap: .35rem; font-weight: 600; }
 .confirm-grid input, .confirm-grid select { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .62rem .72rem; background: var(--couleur-surface); color: var(--couleur-texte); }
+.confirm-note { margin: 0; font-size: .92rem; color: var(--couleur-texte-secondaire); }
+.btn-inline { justify-self: start; }
 .status-panel { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; display: grid; gap: .65rem; }
 .status { border-radius: var(--rayon); padding: .7rem .8rem; border: 1px solid var(--couleur-bordure); font-weight: 600; }
 .status.pending { background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface)); border-color: var(--couleur-warning); }

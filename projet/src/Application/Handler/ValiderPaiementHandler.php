@@ -43,7 +43,7 @@ final class ValiderPaiementHandler
             throw new \RuntimeException("Commande {$command->referenceCommande} introuvable.");
         }
 
-        if (!$commande->isPending()) {
+        if (!$commande->isPending() && !$commande->isProcessing()) {
             throw new \RuntimeException("La commande {$command->referenceCommande} n'est pas en attente.");
         }
 

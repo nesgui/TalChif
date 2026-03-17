@@ -3,265 +3,78 @@
 {% block title %}Confirmation d'achat{% endblock %}
 
 {% block body %}
-<div class="text-center">
-    <div class="success-icon"></div>
-    <h1 class="page-title">Paiement réussi !</h1>
-    <p class="page-subtitle">Vos billets ont été générés avec succès</p>
-</div>
+<section class="confirmation-wrap">
+    <header class="confirmation-hero card">
+        <p class="confirmation-kicker">Paiement confirme</p>
+        <h1 class="page-title">Vos billets sont disponibles</h1>
+        <p class="page-subtitle">Transaction <strong>{{ transactionId }}</strong></p>
+        <div class="confirmation-metrics">
+            <div class="metric">
+                <span>Billets</span>
+                <strong>{{ billets|length }}</strong>
+            </div>
+            <div class="metric">
+                <span>Total paye</span>
+                <strong>{{ total|number_format(0, '.', ' ') }} FCFA</strong>
+            </div>
+        </div>
+    </header>
 
-<div class="card">
-    <h2 class="card-title">Détails de la transaction</h2>
-    <p class="card-meta">Transaction ID: {{ transactionId }}</p>
-    
-    <table class="table" id="achat-confirmation-billets-table">
-        <thead>
-            <tr>
-                <th>Événement</th>
-                <th>Type</th>
-                <th>Prix</th>
-                <th>QR Code</th>
-            </tr>
-        </thead>
-        <tbody>
+    <section class="card">
+        <h2 class="card-title">Mes billets</h2>
+        <div class="tickets-grid">
             {% for billet in billets %}
-                <tr>
-                    <td>
-                        <strong>{{ billet.evenement.nom }}</strong><br>
-                        <small>{{ billet.evenement.dateEvenement|date('d/m/Y H:i') }} - {{ billet.evenement.ville }}</small>
-                    </td>
-                    <td><span class="pill pill-{{ billet.type|lower }}">{{ billet.type }}</span></td>
-                    <td><strong>{{ billet.prix|number_format(0, '.', ' ') }} XAF</strong></td>
-                    <td>
-                        <button class="btn btn-sm" onclick="showQRCode('{{ billet.qrCode }}')">
-                            Voir QR Code
-                        </button>
-                    </td>
-                </tr>
+                <article class="ticket-card">
+                    <div class="ticket-top">
+                        <div>
+                            <h3>{{ billet.evenement.nom }}</h3>
+                            <p>{{ billet.evenement.dateEvenement|date('d/m/Y H:i') }} - {{ billet.evenement.ville }}</p>
+                        </div>
+                        <span class="pill pill-{{ billet.type|lower }}">{{ billet.type|upper }}</span>
+                    </div>
+                    <div class="ticket-bottom">
+                        <strong>{{ billet.prix|number_format(0, '.', ' ') }} FCFA</strong>
+                        <a href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" class="btn btn-sm btn-primary">Voir billet</a>
+                    </div>
+                </article>
             {% endfor %}
-        </tbody>
-    </table>
-    
-    <div class="summary">
-        <div class="summary-row">
-            <span>Total payé:</span>
-            <strong>{{ total|number_format(0, '.', ' ') }} XAF</strong>
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="card">
-    <h2 class="card-title">Instructions importantes</h2>
-    <div class="instructions">
-        <div class="instruction-item">
-            <span class="instruction-icon"></span>
-            <div class="instruction-text">
-                <strong>Conservez vos QR codes</strong><br>
-                Présentez-les à l'entrée de l'événement
-            </div>
-        </div>
-        <div class="instruction-item">
-            <span class="instruction-icon"></span>
-            <div class="instruction-text">
-                <strong>Sécurité</strong><br>
-                Ne partagez jamais vos QR codes avec d'autres personnes
-            </div>
-        </div>
-        <div class="instruction-item">
-            <span class="instruction-icon">📧</span>
-            <div class="instruction-text">
-                <strong>Email de confirmation</strong><br>
-                Un email récapitulatif vous a été envoyé
-            </div>
-        </div>
-    </div>
-</div>
+    <section class="card info-card">
+        <h2 class="card-title">A retenir</h2>
+        <p class="card-meta">Presentez votre billet a l'entree et ne partagez pas votre QR code.</p>
+    </section>
 
-<div class="card-actions">
-    <a href="{{ path('portefeuille.index') }}" class="btn btn-primary">Voir mes billets</a>
-    <a href="{{ path('evenement.index') }}" class="btn">Explorer d'autres événements</a>
-</div>
-
-<!-- Modal QR Code -->
-<div id="qrModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>QR Code du billet</h3>
-            <button class="modal-close" onclick="closeQRModal()">&times;</button>
-        </div>
-        <div class="modal-body text-center">
-        <div id="qrCodeDisplay"></div>
-            <p class="qr-code-text"></p>
-            <button class="btn btn-primary" onclick="downloadQR()">Télécharger</button>
-        </div>
+    <div class="card-actions">
+        <a href="{{ path('portefeuille.index') }}" class="btn btn-primary">Espace client</a>
+        <a href="{{ path('achat.commandes') }}" class="btn btn-secondary">Mes commandes</a>
+        <a href="{{ path('evenement.index') }}" class="btn">Autres evenements</a>
     </div>
-</div>
+</section>
 
 <style>
-.success-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
-
-.summary {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: var(--couleur-surface);
-    border-radius: var(--rayon);
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.1rem;
-}
-
-.instructions {
-    display: grid;
-    gap: 1rem;
-}
-
-.instruction-item {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.instruction-icon {
-    font-size: 1.5rem;
-    flex-shrink: 0;
-}
-
-.instruction-text strong {
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: var(--couleur-fond);
-    border-radius: var(--rayon);
-    max-width: 400px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--couleur-bordure);
-}
-
-.modal-body {
-    padding: 1rem;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--couleur-texte);
-}
-
-#qrCodeDisplay {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 1rem;
-    border: 2px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    text-align: center;
-    padding: 1rem;
-    background: white;
-}
-
-.qr-code-text {
-    font-family: monospace;
-    font-size: 0.9rem;
-    color: var(--couleur-texte-secondaire);
-    word-break: break-all;
-}
-
-.pill-vip {
-    background: var(--couleur-warning);
-    color: white;
-}
-
-.pill-simple {
-    background: var(--couleur-primaire);
-    color: white;
+.confirmation-wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 1rem; }
+.confirmation-hero { display: grid; gap: .55rem; }
+.confirmation-kicker { margin: 0; text-transform: uppercase; font-size: .82rem; color: var(--couleur-texte-secondaire); letter-spacing: .08em; }
+.confirmation-hero .page-title { margin: 0; }
+.confirmation-hero .page-subtitle { margin: 0; color: var(--couleur-texte-secondaire); }
+.confirmation-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin-top: .4rem; }
+.metric { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; background: color-mix(in srgb, var(--couleur-primaire) 8%, var(--couleur-surface)); display: grid; gap: .2rem; }
+.metric span { font-size: .84rem; color: var(--couleur-texte-secondaire); }
+.metric strong { font-size: 1.05rem; }
+.tickets-grid { display: grid; gap: .75rem; }
+.ticket-card { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .8rem; display: grid; gap: .6rem; }
+.ticket-top { display: flex; justify-content: space-between; gap: .7rem; align-items: flex-start; }
+.ticket-top h3 { margin: 0; font-size: 1rem; }
+.ticket-top p { margin: .2rem 0 0; color: var(--couleur-texte-secondaire); font-size: .9rem; }
+.ticket-bottom { display: flex; justify-content: space-between; align-items: center; gap: .7rem; }
+.pill-vip { background: var(--couleur-warning); color: #fff; }
+.pill-simple { background: var(--couleur-primaire); color: #fff; }
+.info-card .card-meta { margin: 0; }
+@media (max-width: 700px) {
+    .confirmation-metrics { grid-template-columns: 1fr; }
+    .ticket-top, .ticket-bottom { flex-direction: column; align-items: flex-start; }
 }
 </style>
-
-<script>
-let currentQRCode = '';
-
-function showQRCode(qrCode) {
-    currentQRCode = qrCode;
-    const modal = document.getElementById('qrModal');
-    const display = document.getElementById('qrCodeDisplay');
-    const text = document.querySelector('.qr-code-text');
-    
-    // Aperçu du QR code
-    display.innerHTML = `
-        <div style="font-size: 0.8rem; margin-top: 0.5rem;">QR Code</div>
-    `;
-    text.textContent = qrCode;
-    
-    modal.style.display = 'flex';
-}
-
-function closeQRModal() {
-    document.getElementById('qrModal').style.display = 'none';
-}
-
-function downloadQR() {
-    // Téléchargement de l'aperçu
-    const link = document.createElement('a');
-    link.download = `billet-${currentQRCode}.png`;
-    link.href = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-    link.click();
-}
-
-// Fermer le modal en cliquant à l'extérieur
-document.getElementById('qrModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeQRModal();
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof DataTableOS === 'undefined') {
-        return;
-    }
-
-    if (document.querySelector('#achat-confirmation-billets-table')) {
-        DataTableOS.init('#achat-confirmation-billets-table', {
-            paging: false,
-            searching: false,
-            info: false,
-            order: [],
-        });
-    }
-});
-</script>
 {% endblock %}

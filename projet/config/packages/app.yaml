@@ -41,6 +41,6 @@ parameters:
         orange: 'ORANGE_TCD'
 
     # Notifications de verification (asynchrones via Messenger)
-    app.notifications.whatsapp.enabled: '%env(bool:default:false:WHATSAPP_ENABLED)%'
+    app.notifications.whatsapp.enabled: '%env(bool:WHATSAPP_ENABLED)%'
     app.notifications.whatsapp.token: '%env(default::WHATSAPP_API_TOKEN)%'
     app.notifications.whatsapp.phone_number_id: '%env(default::WHATSAPP_PHONE_NUMBER_ID)%'

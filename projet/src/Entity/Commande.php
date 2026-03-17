@@ -253,7 +253,7 @@ class Commande
 
     public function isPending(): bool
     {
-        return $this->statut === self::STATUT_PENDING;
+        return $this->statut === self::STATUT_PENDING || $this->statut === 'Pending';
     }
 
     public function isProcessing(): bool
@@ -348,7 +348,7 @@ class Commande
      */
     public function marquerRejetee(?User $validateur = null): void
     {
-        if (!$this->isPending()) {
+        if (!$this->isPending() && !$this->isProcessing()) {
             throw new \RuntimeException(
                 "La commande {$this->reference} n'est pas en attente."
             );

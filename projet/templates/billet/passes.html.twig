@@ -10,10 +10,10 @@
     </header>
 
     <div class="tickets-nav">
-        <a href="{{ path('billet.index') }}" class="nav-btn">Tous</a>
-        <a href="{{ path('billet.avenir') }}" class="nav-btn">À venir</a>
-        <a href="{{ path('billet.passes') }}" class="nav-btn active">Passés</a>
-        <a href="{{ path('achat.commandes') }}" class="nav-btn">Mes commandes</a>
+        <a href="{{ path('billet.index') }}" class="ticket-filter-btn">Tous</a>
+        <a href="{{ path('billet.avenir') }}" class="ticket-filter-btn">À venir</a>
+        <a href="{{ path('billet.passes') }}" class="ticket-filter-btn active">Passés</a>
+        <a href="{{ path('achat.commandes') }}" class="ticket-filter-btn">Mes commandes</a>
     </div>
 
     {% if billets|length > 0 %}
@@ -41,14 +41,19 @@
 
 <style>
 .tickets-shell { max-width: 900px; margin: 0 auto; display: grid; gap: 1rem; }
-.tickets-nav { display: flex; gap: .5rem; flex-wrap: wrap; }
-.nav-btn { padding: .45rem .8rem; background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); text-decoration: none; color: var(--couleur-texte); }
-.nav-btn.active { background: var(--couleur-primaire); color: var(--couleur-texte-inverse); border-color: var(--couleur-primaire); }
+.tickets-nav { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+a.ticket-filter-btn { display: inline-flex; align-items: center; justify-content: center; padding: .34rem .68rem; border: 1px solid var(--couleur-bordure); border-radius: 999px; text-decoration: none; color: var(--couleur-texte); background: var(--couleur-surface); font-size: .8rem; font-weight: 600; line-height: 1.2; min-height: auto; }
+a.ticket-filter-btn:hover { border-color: var(--couleur-secondaire); background: color-mix(in srgb, var(--couleur-surface) 90%, var(--couleur-secondaire) 10%); }
+a.ticket-filter-btn.active { background: var(--couleur-primaire); color: var(--couleur-texte-inverse); border-color: var(--couleur-primaire); }
+html[data-theme="dark"] .tickets-nav .ticket-filter-btn,
+html[data-theme="dark"] .tickets-nav .ticket-filter-btn:hover,
+html[data-theme="dark"] .tickets-nav .ticket-filter-btn.active { color: #fff !important; }
 .tickets-list { display: grid; gap: .7rem; }
 .ticket-row { display: grid; grid-template-columns: 90px 1fr auto; gap: .75rem; align-items: center; padding: .75rem; border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); background: var(--couleur-surface); opacity: .92; }
 .event-image { width: 90px; height: 68px; object-fit: cover; border-radius: var(--rayon); }
 .ticket-row h3 { margin: 0; }
 .ticket-row p { margin: .2rem 0; color: var(--couleur-texte-secondaire); }
+.ticket-row .btn { padding: .35rem .65rem; font-size: .78rem; border-radius: 999px; }
 .empty { text-align: center; }
 @media (max-width: 760px) {
     .ticket-row { grid-template-columns: 70px 1fr; }

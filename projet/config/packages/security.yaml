@@ -30,6 +30,7 @@ security:
 
     access_control:
         - { path: ^/webhook/pawapay, roles: PUBLIC_ACCESS }
+        - { path: ^/organisateur/references-a-verifier/email, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/organisateur, roles: ROLE_ORGANISATEUR }
         - { path: ^/validation, roles: ROLE_ORGANISATEUR }

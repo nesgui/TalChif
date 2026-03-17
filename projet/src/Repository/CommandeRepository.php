@@ -15,6 +15,13 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommandeRepository extends ServiceEntityRepository
 {
+    /** @return string[] */
+    private function pendingStatuses(): array
+    {
+        // Compatibilite avec anciennes donnees "Pending".
+        return [Commande::STATUT_PENDING, 'Pending'];
+    }
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Commande::class);
@@ -30,13 +37,28 @@ class CommandeRepository extends ServiceEntityRepository
         return $this->findByReference($reference) !== null;
     }
 
+    public function isTransactionReferenceAlreadyUsed(string $transactionReference, ?int $excludeCommandeId = null): bool
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('LOWER(c.referenceTransactionClient) = :reference')
+            ->setParameter('reference', mb_strtolower($transactionReference));
+
+        if ($excludeCommandeId !== null) {
+            $qb->andWhere('c.id != :excludeId')
+                ->setParameter('excludeId', $excludeCommandeId);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
+
     /** @return Commande[] */
     public function findPending(): array
     {
         return $this->createQueryBuilder('c')
-            ->where('c.statut = :pending')
+            ->where('c.statut IN (:pending)')
             ->andWhere('c.dateExpiration > :now')
-            ->setParameter('pending', Commande::STATUT_PENDING)
+            ->setParameter('pending', $this->pendingStatuses())
             ->setParameter('now', new \DateTimeImmutable())
             ->orderBy('c.createdAt', 'DESC')
             ->getQuery()
@@ -47,13 +69,34 @@ class CommandeRepository extends ServiceEntityRepository
     public function findPendingWithClientReference(): array
     {
         return $this->createQueryBuilder('c')
-            ->where('c.statut = :pending')
+            ->where('c.statut IN (:statuts)')
             ->andWhere('c.dateExpiration > :now')
             ->andWhere('c.referenceTransactionClient IS NOT NULL')
             ->andWhere('c.referenceTransactionClient <> :empty')
-            ->setParameter('pending', Commande::STATUT_PENDING)
+            ->setParameter('statuts', [...$this->pendingStatuses(), Commande::STATUT_PROCESSING])
             ->setParameter('now', new \DateTimeImmutable())
             ->setParameter('empty', '')
+            ->orderBy('c.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return Commande[] */
+    public function findPendingWithClientReferenceByOrganisateur(User $organisateur): array
+    {
+        return $this->createQueryBuilder('c')
+            ->distinct()
+            ->join('c.lignes', 'l')
+            ->join('l.evenement', 'e')
+            ->where('c.statut IN (:statuts)')
+            ->andWhere('c.dateExpiration > :now')
+            ->andWhere('c.referenceTransactionClient IS NOT NULL')
+            ->andWhere('c.referenceTransactionClient <> :empty')
+            ->andWhere('e.organisateur = :organisateur')
+            ->setParameter('statuts', [...$this->pendingStatuses(), Commande::STATUT_PROCESSING])
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('empty', '')
+            ->setParameter('organisateur', $organisateur)
             ->orderBy('c.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -96,9 +139,9 @@ class CommandeRepository extends ServiceEntityRepository
     public function findToExpire(): array
     {
         return $this->createQueryBuilder('c')
-            ->where('c.statut = :pending')
+            ->where('c.statut IN (:pending)')
             ->andWhere('c.dateExpiration <= :now')
-            ->setParameter('pending', Commande::STATUT_PENDING)
+            ->setParameter('pending', $this->pendingStatuses())
             ->setParameter('now', new \DateTimeImmutable())
             ->getQuery()
             ->getResult();
@@ -114,9 +157,9 @@ class CommandeRepository extends ServiceEntityRepository
     {
         return (int) $this->createQueryBuilder('c')
             ->select('COUNT(c.id)')
-            ->where('c.statut = :pending')
+            ->where('c.statut IN (:pending)')
             ->andWhere('c.dateExpiration > :now')
-            ->setParameter('pending', Commande::STATUT_PENDING)
+            ->setParameter('pending', $this->pendingStatuses())
             ->setParameter('now', new \DateTimeImmutable())
             ->getQuery()
             ->getSingleScalarResult();

@@ -90,7 +90,7 @@ final class CreerCommandeHandler
             $commande->setMontantTotal($total);
             $commande->setNumeroClient($telephone->toString());
             $commande->setMethodePaiement($command->methodePaiement);
-            $commande->setStatut('Pending');
+            $commande->setStatut(Commande::STATUT_PENDING);
             $commande->setCommissionPlateforme($commission);
             $commande->setMontantNetOrganisateur($montantNet);
             $commande->setClient($user);

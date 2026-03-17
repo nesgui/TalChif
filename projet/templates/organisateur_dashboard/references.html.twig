@@ -1,0 +1,101 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block title %}Références à vérifier{% endblock %}
+{% block dashboard_title %}Références à vérifier{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="page-title">Références de paiement client</h1>
+        <p class="page-subtitle">Validez ou rejetez rapidement les demandes envoyées par vos clients.</p>
+    </div>
+
+    {% if references|length > 0 %}
+        <section class="card">
+            <h2 class="card-title">Références reçues ({{ references|length }})</h2>
+            <div class="table-responsive">
+                <table class="table" id="organisateur-references-table">
+                    <thead>
+                    <tr>
+                        <th>Commande</th>
+                        <th>Client</th>
+                        <th>Montant</th>
+                        <th>Opérateur</th>
+                        <th>Réf transaction</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for commande in references %}
+                        <tr>
+                            <td><code class="cell-code" title="{{ commande.reference }}">{{ commande.reference }}</code></td>
+                            <td><span class="cell-truncate" title="{{ commande.client.nom ?: commande.client.email }}">{{ commande.client.nom ?: commande.client.email }}</span></td>
+                            <td>{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                            <td><span class="cell-truncate">{{ commande.methodePaiement|upper }}</span></td>
+                            <td><code class="cell-code" title="{{ commande.referenceTransactionClient ?: '-' }}">{{ commande.referenceTransactionClient ?: '-' }}</code></td>
+                            <td>
+                                <div class="actions-cell">
+                                    <form method="post" action="{{ path('organisateur.commande.valider', {reference: commande.reference}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('organisateur_valider_' ~ commande.reference) }}">
+                                        <button type="submit" class="btn btn-success btn-sm">Valider</button>
+                                    </form>
+                                    <form method="post" action="{{ path('organisateur.commande.rejeter', {reference: commande.reference}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('organisateur_rejeter_' ~ commande.reference) }}">
+                                        <input type="hidden" name="raison" value="Référence non conforme">
+                                        <button type="submit" class="btn btn-danger btn-sm">Rejeter</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% else %}
+        <section class="card">
+            <p class="card-meta">Aucune référence en attente pour le moment.</p>
+        </section>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DataTableOS === 'undefined') {
+        return;
+    }
+    if (document.querySelector('#organisateur-references-table')) {
+        DataTableOS.init('#organisateur-references-table', {
+            order: [[0, 'desc']],
+            pageLength: 10,
+            columnDefs: [
+                { targets: [5], orderable: false }
+            ]
+        });
+    }
+});
+</script>
+
+<style>
+.table-responsive { overflow-x: auto; }
+#organisateur-references-table { table-layout: fixed; width: 100%; }
+#organisateur-references-table th,
+#organisateur-references-table td { vertical-align: middle; }
+#organisateur-references-table th:last-child,
+#organisateur-references-table td:last-child { width: 170px; }
+.cell-truncate { display: inline-block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.cell-code { display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.actions-cell { display: flex; flex-wrap: nowrap; gap: .35rem; align-items: center; }
+.actions-cell form { margin: 0; display: inline-flex; }
+.actions-cell .btn { padding: .32rem .62rem; font-size: .74rem; line-height: 1.1; border-radius: 999px; min-height: auto; }
+@media (max-width: 900px) {
+    .cell-truncate { max-width: 160px; }
+    .cell-code { max-width: 180px; }
+    #organisateur-references-table th:last-child,
+    #organisateur-references-table td:last-child { width: 150px; }
+    .actions-cell .btn { padding: .3rem .55rem; font-size: .72rem; }
+}
+</style>
+{% endblock %}

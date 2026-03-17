@@ -2,9 +2,15 @@
 
 namespace App\Controller;
 
+use App\Application\Command\RejeterPaiementCommand;
+use App\Application\Command\ValiderPaiementCommand;
+use App\Application\Handler\RejeterPaiementHandler;
+use App\Application\Handler\ValiderPaiementHandler;
 use App\Entity\Billet;
+use App\Entity\Commande;
 use App\Entity\Evenement;
 use App\Repository\BilletRepository;
+use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LogSecuriteRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,6 +20,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -22,8 +29,11 @@ final class OrganisateurDashboardController extends AbstractController
     public function __construct(
         private EvenementRepository $evenementRepository,
         private BilletRepository $billetRepository,
+        private CommandeRepository $commandeRepository,
         private LogSecuriteRepository $logSecuriteRepository,
         private EntityManagerInterface $entityManager,
+        private ValiderPaiementHandler $validerPaiementHandler,
+        private RejeterPaiementHandler $rejeterPaiementHandler,
         #[Autowire('%app.commission_taux%')]
         private float $commissionTaux
     ) {
@@ -87,6 +97,166 @@ final class OrganisateurDashboardController extends AbstractController
             'evenements' => $evenements,
             'stats' => $stats
         ]);
+    }
+
+    #[Route('/organisateur/references-a-verifier', name: 'organisateur.commande.references', methods: ['GET'])]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function referencesAVerifier(): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('auth.login');
+        }
+
+        $references = $this->commandeRepository->findPendingWithClientReferenceByOrganisateur($user);
+
+        return $this->render('organisateur_dashboard/references.html.twig', [
+            'references' => $references,
+        ]);
+    }
+
+    #[Route('/organisateur/references-a-verifier/valider/{reference}', name: 'organisateur.commande.valider', methods: ['POST'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function validerReference(Request $request, string $reference): Response
+    {
+        $token = (string) $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('organisateur_valider_' . $reference, $token)) {
+            $this->addFlash('error', 'Token invalide.');
+            return $this->redirectToRoute('organisateur.commande.references');
+        }
+
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande || !$this->canOrganisateurManageCommande($commande)) {
+            $this->addFlash('error', 'Commande introuvable.');
+            return $this->redirectToRoute('organisateur.commande.references');
+        }
+
+        try {
+            $this->validerPaiementHandler->handle(new ValiderPaiementCommand(
+                referenceCommande: $commande->getReference(),
+                montantRecu: $commande->getMontantTotal(),
+                numeroClient: (string) $commande->getNumeroClient(),
+                validateurId: $this->getUser()?->getId() ?? 0
+            ));
+            $this->addFlash('success', 'Paiement validé. Le client peut maintenant récupérer ses billets.');
+        } catch (\RuntimeException $e) {
+            $this->addFlash('error', $e->getMessage());
+        } catch (\Throwable) {
+            $this->addFlash('error', 'Erreur technique lors de la validation. Veuillez réessayer.');
+        }
+
+        return $this->redirectToRoute('organisateur.commande.references');
+    }
+
+    #[Route('/organisateur/references-a-verifier/valider/{reference}', name: 'organisateur.commande.valider_get', methods: ['GET'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function validerReferenceGet(string $reference): Response
+    {
+        $this->addFlash('warning', 'Action invalide en GET. Utilisez le bouton "Valider" depuis la liste.');
+        return $this->redirectToRoute('organisateur.commande.references');
+    }
+
+    #[Route('/organisateur/references-a-verifier/rejeter/{reference}', name: 'organisateur.commande.rejeter', methods: ['POST'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function rejeterReference(Request $request, string $reference): Response
+    {
+        $token = (string) $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('organisateur_rejeter_' . $reference, $token)) {
+            $this->addFlash('error', 'Token invalide.');
+            return $this->redirectToRoute('organisateur.commande.references');
+        }
+
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande || !$this->canOrganisateurManageCommande($commande)) {
+            $this->addFlash('error', 'Commande introuvable.');
+            return $this->redirectToRoute('organisateur.commande.references');
+        }
+
+        $raison = trim((string) $request->request->get('raison', 'Référence non conforme'));
+
+        try {
+            $this->rejeterPaiementHandler->handle(new RejeterPaiementCommand(
+                referenceCommande: $commande->getReference(),
+                raison: $raison,
+                validateurId: $this->getUser()?->getId() ?? 0
+            ));
+            $this->addFlash('success', 'Commande rejetée.');
+        } catch (\RuntimeException $e) {
+            $this->addFlash('error', $e->getMessage());
+        } catch (\Throwable) {
+            $this->addFlash('error', 'Erreur technique lors du rejet. Veuillez réessayer.');
+        }
+
+        return $this->redirectToRoute('organisateur.commande.references');
+    }
+
+    #[Route('/organisateur/references-a-verifier/rejeter/{reference}', name: 'organisateur.commande.rejeter_get', methods: ['GET'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function rejeterReferenceGet(string $reference): Response
+    {
+        $this->addFlash('warning', 'Action invalide en GET. Utilisez le bouton "Rejeter" depuis la liste.');
+        return $this->redirectToRoute('organisateur.commande.references');
+    }
+
+    #[Route('/organisateur/references-a-verifier/email/valider/{reference}', name: 'organisateur.commande.valider_email', methods: ['GET'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    public function validerReferenceEmail(Request $request, string $reference, UriSigner $uriSigner): Response
+    {
+        if (!$uriSigner->check($request->getUri())) {
+            return new Response('Lien invalide.', Response::HTTP_FORBIDDEN);
+        }
+
+        $expires = (int) $request->query->get('expires', 0);
+        if ($expires <= time()) {
+            return new Response('Lien expiré.', Response::HTTP_GONE);
+        }
+
+        $recipient = trim((string) $request->query->get('recipient', ''));
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande || !$this->canOrganisateurManageCommandeByRecipient($commande, $recipient)) {
+            return new Response('Commande introuvable.', Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $this->validerPaiementHandler->handle(new ValiderPaiementCommand(
+                referenceCommande: $commande->getReference(),
+                montantRecu: $commande->getMontantTotal(),
+                numeroClient: (string) $commande->getNumeroClient(),
+                validateurId: $this->resolveValidateurIdFromRecipient($commande, $recipient)
+            ));
+            return new Response('Paiement validé avec succès. Le client peut récupérer ses billets.', Response::HTTP_OK);
+        } catch (\RuntimeException $e) {
+            return new Response('Validation impossible: ' . $e->getMessage(), Response::HTTP_CONFLICT);
+        }
+    }
+
+    #[Route('/organisateur/references-a-verifier/email/rejeter/{reference}', name: 'organisateur.commande.rejeter_email', methods: ['GET'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    public function rejeterReferenceEmail(Request $request, string $reference, UriSigner $uriSigner): Response
+    {
+        if (!$uriSigner->check($request->getUri())) {
+            return new Response('Lien invalide.', Response::HTTP_FORBIDDEN);
+        }
+
+        $expires = (int) $request->query->get('expires', 0);
+        if ($expires <= time()) {
+            return new Response('Lien expiré.', Response::HTTP_GONE);
+        }
+
+        $recipient = trim((string) $request->query->get('recipient', ''));
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande || !$this->canOrganisateurManageCommandeByRecipient($commande, $recipient)) {
+            return new Response('Commande introuvable.', Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $this->rejeterPaiementHandler->handle(new RejeterPaiementCommand(
+                referenceCommande: $commande->getReference(),
+                raison: 'Rejet via lien email signé',
+                validateurId: $this->resolveValidateurIdFromRecipient($commande, $recipient)
+            ));
+            return new Response('Commande rejetée avec succès.', Response::HTTP_OK);
+        } catch (\RuntimeException $e) {
+            return new Response('Rejet impossible: ' . $e->getMessage(), Response::HTTP_CONFLICT);
+        }
     }
 
     #[Route('/organisateur/evenement/{id}/stats', name: 'organisateur.evenement.stats')]
@@ -224,5 +394,52 @@ final class OrganisateurDashboardController extends AbstractController
         ];
 
         return new JsonResponse($stats);
+    }
+
+    private function canOrganisateurManageCommande(Commande $commande): bool
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return false;
+        }
+
+        foreach ($commande->getLignes() as $ligne) {
+            $organisateur = $ligne->getEvenement()?->getOrganisateur();
+            if ($organisateur && $organisateur->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function canOrganisateurManageCommandeByRecipient(Commande $commande, string $recipient): bool
+    {
+        if ($recipient === '') {
+            return false;
+        }
+        $recipient = mb_strtolower($recipient);
+
+        foreach ($commande->getLignes() as $ligne) {
+            $organisateurEmail = $ligne->getEvenement()?->getOrganisateur()?->getEmail();
+            if ($organisateurEmail && mb_strtolower($organisateurEmail) === $recipient) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function resolveValidateurIdFromRecipient(Commande $commande, string $recipient): int
+    {
+        $recipient = mb_strtolower($recipient);
+        foreach ($commande->getLignes() as $ligne) {
+            $organisateur = $ligne->getEvenement()?->getOrganisateur();
+            if ($organisateur && mb_strtolower((string) $organisateur->getEmail()) === $recipient) {
+                return (int) $organisateur->getId();
+            }
+        }
+
+        return 0;
     }
 }

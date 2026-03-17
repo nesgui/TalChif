@@ -320,20 +320,32 @@ final class AchatController extends AbstractController
         if (!$commande || $commande->getClient()->getId() !== $user->getId()) {
             throw $this->createNotFoundException('Commande non trouvée');
         }
+        if (($commande->getReferenceTransactionClient() ?? '') !== '') {
+            $this->addFlash('info', 'Votre référence est déjà envoyée et en cours de traitement. Vous ne pouvez plus la modifier.');
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+        }
 
         if (!$this->isCsrfTokenValid('notifier_paiement_' . $reference, (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Session expirée, veuillez réessayer.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
 
-        $transactionRef = trim((string) $request->request->get('transaction_reference', ''));
+        $transactionRef = preg_replace('/\s+/', '', trim((string) $request->request->get('transaction_reference', ''))) ?? '';
         $operateur = trim((string) $request->request->get('operateur', ''));
         if ($transactionRef === '') {
             $this->addFlash('error', 'Veuillez saisir la référence de transaction envoyée par votre opérateur.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
-        if (!preg_match('/^[A-Za-z0-9\-_\/]{4,64}$/', $transactionRef)) {
-            $this->addFlash('error', 'Référence transaction invalide. Utilisez uniquement lettres, chiffres, tirets, slash et underscore.');
+        if (!preg_match('/^[A-Za-z0-9\-_\/\.\:]{4,64}$/', $transactionRef)) {
+            $this->addFlash('error', 'Référence SMS invalide. Utilisez lettres, chiffres, tirets, slash, underscore, point ou deux-points.');
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+        }
+        if (strcasecmp($transactionRef, $commande->getReference()) === 0) {
+            $this->addFlash('error', 'Veuillez saisir la référence SMS reçue de votre opérateur (et non la référence commande).');
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+        }
+        if ($this->commandeRepository->isTransactionReferenceAlreadyUsed($transactionRef, $commande->getId())) {
+            $this->addFlash('error', 'Cette référence SMS est déjà utilisée pour une autre commande. Vérifiez le SMS reçu.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
 
@@ -351,6 +363,15 @@ final class AchatController extends AbstractController
         }
 
         $commande->setReferenceTransactionClient($transactionRef);
+        // Donner un feedback immédiat côté client après envoi de référence.
+        if ($commande->isPending()) {
+            $commande->setStatut(Commande::STATUT_PROCESSING);
+        }
+        // Laisser le temps à l'organisateur de traiter la demande après soumission client.
+        $minimumDeadline = (new \DateTimeImmutable())->modify('+30 minutes');
+        if (($commande->getDateExpiration() ?? $minimumDeadline) < $minimumDeadline) {
+            $commande->setDateExpiration($minimumDeadline);
+        }
         $this->entityManager->persist($commande);
 
         $log = new LogSecurite();
@@ -380,7 +401,7 @@ final class AchatController extends AbstractController
             ));
         }
 
-        $this->addFlash('success', 'Référence envoyée. Votre confirmation est traitée sous environ 5 minutes.');
+        $this->addFlash('success', 'Référence envoyée avec succès. Nous traitons votre demande sous environ 5 minutes. Vous ne pouvez plus la ressaisir.');
 
         return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
     }

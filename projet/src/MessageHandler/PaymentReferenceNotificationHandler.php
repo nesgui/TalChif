@@ -7,9 +7,11 @@ namespace App\MessageHandler;
 use App\Message\PaymentReferenceNotificationMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsMessageHandler]
@@ -18,6 +20,8 @@ final class PaymentReferenceNotificationHandler
     public function __construct(
         private MailerInterface $mailer,
         private HttpClientInterface $httpClient,
+        private UrlGeneratorInterface $urlGenerator,
+        private UriSigner $uriSigner,
         private LoggerInterface $logger,
         #[Autowire('%app.notifications.whatsapp.enabled%')]
         private bool $whatsAppEnabled,
@@ -48,20 +52,40 @@ final class PaymentReferenceNotificationHandler
     private function sendEmail(PaymentReferenceNotificationMessage $message, string $recipient, string $evenement): void
     {
         try {
+            $dashboardUrl = $this->urlGenerator->generate('organisateur.commande.references', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $expiresAt = (new \DateTimeImmutable('+30 minutes'))->getTimestamp();
+            $validateUrl = $this->uriSigner->sign($this->urlGenerator->generate(
+                'organisateur.commande.valider_email',
+                [
+                    'reference' => $message->commandeReference,
+                    'recipient' => $recipient,
+                    'expires' => $expiresAt,
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ));
+            $rejectUrl = $this->uriSigner->sign($this->urlGenerator->generate(
+                'organisateur.commande.rejeter_email',
+                [
+                    'reference' => $message->commandeReference,
+                    'recipient' => $recipient,
+                    'expires' => $expiresAt,
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ));
             $email = (new Email())
                 ->from('no-reply@talchif.local')
                 ->to($recipient)
-                ->subject('Verification paiement client - ' . $message->commandeReference)
+                ->subject('Paiement a verifier - ' . $message->commandeReference)
                 ->text(
-                    "Verification paiement client\n\n" .
+                    "Paiement client a verifier.\n\n" .
                     "Evenement: {$evenement}\n" .
                     "Commande: {$message->commandeReference}\n" .
                     "Montant: " . number_format($message->montantTotal, 0, '.', ' ') . " FCFA\n" .
-                    "Client: {$message->clientNom} ({$message->clientEmail})\n" .
-                    "Telephone client: {$message->clientTelephone}\n" .
                     "Operateur: {$message->operateur}\n" .
-                    "Reference transaction client: {$message->referenceTransactionClient}\n\n" .
-                    "Merci de verifier puis valider la commande dans l'admin."
+                    "Reference SMS: {$message->referenceTransactionClient}\n\n" .
+                    "Valider (30 min):\n{$validateUrl}\n\n" .
+                    "Rejeter (30 min):\n{$rejectUrl}\n\n" .
+                    "Dashboard:\n{$dashboardUrl}"
                 );
             $this->mailer->send($email);
         } catch (\Throwable $e) {
@@ -85,7 +109,7 @@ final class PaymentReferenceNotificationHandler
 
         $url = sprintf('https://graph.facebook.com/v18.0/%s/messages', $this->whatsAppPhoneNumberId);
         $bodyText =
-            "Verification paiement client\n" .
+            "Nouvelle reference paiement\n" .
             "Evt: {$evenement}\n" .
             "Ref cmd: {$message->commandeReference}\n" .
             "Montant: " . number_format($message->montantTotal, 0, '.', ' ') . " FCFA\n" .

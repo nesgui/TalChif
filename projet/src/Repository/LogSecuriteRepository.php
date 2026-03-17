@@ -23,4 +23,12 @@ class LogSecuriteRepository extends ServiceEntityRepository
     {
         return $this->findBy([], ['createdAt' => 'DESC'], $limit);
     }
+
+    public function save(LogSecurite $log, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($log);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 }
