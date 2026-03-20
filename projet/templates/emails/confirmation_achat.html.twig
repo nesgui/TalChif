@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation d'achat</title>
+</head>
+<body style="font-family: Arial, Helvetica, sans-serif; color:#111; line-height:1.4;">
+<div style="max-width: 680px; margin: 0 auto; padding: 16px;">
+
+    <h2 style="margin: 0 0 12px 0;">Confirmation de votre achat</h2>
+
+    <p style="margin: 0 0 10px 0;">
+        Bonjour <strong>{{ client.fullName }}</strong>,
+    </p>
+
+    <p style="margin: 0 0 10px 0;">
+        Votre commande <strong>{{ commande.reference }}</strong> a été validée. Voici vos billets :
+    </p>
+
+    <div style="margin: 16px 0; padding: 12px; background:#f7f7f7; border-radius: 10px;">
+        <p style="margin: 0;">
+            Montant total : <strong>{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</strong>
+        </p>
+    </div>
+
+    <div style="margin-top: 14px;">
+        {% for card in billetsCards %}
+            {% set billet = card.billet %}
+            <div style="padding: 12px; border:1px solid #e6e6e6; border-radius: 12px; margin-bottom: 12px;">
+                <p style="margin: 0 0 6px 0;">
+                    <strong>{{ billet.evenement.nom }}</strong>
+                </p>
+                <p style="margin: 0 0 6px 0; color:#444;">
+                    {{ billet.evenement.dateEvenement|date('d/m/Y H:i') }}
+                    {% if billet.evenement.ville %}
+                        - {{ billet.evenement.ville }}
+                    {% endif %}
+                </p>
+                <p style="margin: 0 0 6px 0; color:#444;">
+                    Type : <strong>{{ billet.type }}</strong> -
+                    Prix : <strong>{{ billet.prix ? billet.prix|number_format(0, '.', ' ') : '0' }} FCFA</strong>
+                </p>
+                <p style="margin: 0 0 10px 0; color:#444;">
+                    QR Code : <code style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">{{ billet.qrCode }}</code>
+                </p>
+
+                <p style="margin: 0;">
+                    <a href="{{ card.billetUrl }}"
+                       style="display:inline-block; text-decoration:none; background:#111; color:#fff; padding:10px 14px; border-radius: 999px;">
+                        Voir billet
+                    </a>
+                </p>
+            </div>
+        {% else %}
+            <p style="margin: 0;">Aucun billet trouvé pour cette commande.</p>
+        {% endfor %}
+    </div>
+
+    <p style="margin: 18px 0 0 0; color:#666; font-size: 12px;">
+        Important : gardez ce message à portée de main. Si vous avez une question, contactez l'organisateur via votre espace client.
+    </p>
+</div>
+</body>
+</html>
+
