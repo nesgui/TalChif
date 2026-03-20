@@ -70,7 +70,7 @@ Production (recommandations):
 - Éventuellement 2FA pour ADMIN
 
 CRéER UN ADMIN LOCAL
-php bin/console app:create-admin admin@gmail.com "Admin1234!"
+php bin/console app:create-admin superroot@gmail.com "Superroot"
 
 # Arrêter les processus PHP (SERVEURS QUI TOURNES)
 taskkill /F /IM php.exe
