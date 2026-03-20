@@ -171,9 +171,15 @@ final class AdminCommandeController extends AbstractController
         return $this->redirectToRoute('admin.commande.index');
     }
 
-    #[Route('/export', name: 'admin.commande.export', methods: ['GET'])]
-    public function export(): Response
+    #[Route('/export', name: 'admin.commande.export', methods: ['POST'])]
+    public function export(Request $request): Response
     {
+        // Vérification CSRF
+        if (!$this->isCsrfTokenValid('admin_export_commandes', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('admin.commande.index');
+        }
+
         $commandes = array_merge(
             $this->commandeRepository->findPaid(),
             $this->commandeRepository->findPending(),
@@ -183,7 +189,9 @@ final class AdminCommandeController extends AbstractController
 
         $response = new StreamedResponse(function () use ($commandes) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Référence', 'Client', 'Téléphone', 'Montant', 'Commission', 'Statut', 'Date', 'Validé par']);
+            // BOM UTF-8 pour Excel
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($handle, ['Référence', 'Client', 'Téléphone', 'Montant', 'Commission', 'Statut', 'Date', 'Validé par'], ';');
             foreach ($commandes as $c) {
                 fputcsv($handle, [
                     $c->getReference(),
@@ -194,12 +202,23 @@ final class AdminCommandeController extends AbstractController
                     $c->getStatut(),
                     $c->getCreatedAt()?->format('Y-m-d H:i'),
                     $c->getValidePar()?->getEmail() ?? '',
-                ]);
+                ], ';');
             }
             fclose($handle);
         });
+
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="commandes_' . date('Y-m-d') . '.csv"');
+
+        // Logger l'export
+        $log = new LogSecurite();
+        $log->setAction('EXPORT_CSV_COMMANDES');
+        $log->setDetails('Export CSV déclenché par ' . $this->getUser()->getEmail() . ' — ' . count($commandes) . ' commandes');
+        $log->setUtilisateur($this->getUser());
+        $log->setIpAddress($request->getClientIp());
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
         return $response;
     }
 }

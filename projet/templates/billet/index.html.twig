@@ -34,7 +34,7 @@
                     </div>
                     <div class="codes">
                         {% for billet in data.billets %}
-                            <a class="code-pill" href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" target="_blank" rel="noopener">
+                            <a class="code-pill" href="{{ path('achat.billet', {id: billet.id}) }}" target="_blank" rel="noopener">
                                 {{ billet.type|upper }} • Voir billet
                             </a>
                         {% endfor %}

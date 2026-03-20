@@ -7,7 +7,10 @@
 {% block dashboard_title %}Commandes & validation Mobile Money{% endblock %}
 
 {% block dashboard_actions %}
-<a href="{{ path('admin.commande.export') }}" class="btn btn-secondary">Export CSV</a>
+<form method="post" action="{{ path('admin.commande.export') }}" style="display: inline;">
+    <input type="hidden" name="_token" value="{{ csrf_token('admin_export_commandes') }}">
+    <button type="submit" class="btn btn-secondary">Export CSV</button>
+</form>
 <a href="{{ path('admin.commande.references') }}" class="btn btn-primary">Références à vérifier ({{ pendingWithReference|length }})</a>
 {% endblock %}
 

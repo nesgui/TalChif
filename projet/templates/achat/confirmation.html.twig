@@ -34,7 +34,7 @@
                     </div>
                     <div class="ticket-bottom">
                         <strong>{{ billet.prix|number_format(0, '.', ' ') }} FCFA</strong>
-                        <a href="{{ path('achat.billet', {qrCode: billet.qrCode}) }}" class="btn btn-sm btn-primary">Voir billet</a>
+                        <a href="{{ path('achat.billet', {id: billet.id}) }}" class="btn btn-sm btn-primary">Voir billet</a>
                     </div>
                 </article>
             {% endfor %}

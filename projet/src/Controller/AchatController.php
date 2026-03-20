@@ -457,14 +457,22 @@ final class AchatController extends AbstractController
         ]);
     }
 
-    #[Route('/achat/billet/{qrCode}', name: 'achat.billet')]
+    #[Route('/achat/billet/{id}', name: 'achat.billet', requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_CLIENT')]
-    public function billet(string $qrCode): Response
+    public function billet(int $id): Response
     {
-        $billet = $this->entityManager->getRepository(Billet::class)->findOneBy(['qrCode' => $qrCode]);
+        $user = $this->getUser();
+
+        $billet = $this->entityManager->getRepository(Billet::class)->find($id);
+
         if (!$billet) {
             throw $this->createNotFoundException('Billet non trouvé');
         }
+
+        if ($billet->getClient()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('Accès non autorisé à ce billet.');
+        }
+
         return $this->render('achat/billet.html.twig', ['billet' => $billet]);
     }
 
