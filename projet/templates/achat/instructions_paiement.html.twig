@@ -7,7 +7,7 @@
     <header class="instructions-head">
         <p class="instructions-kicker">Paiement Mobile Money</p>
         <h1>Finaliser votre paiement</h1>
-        <p>Temps restant: <strong id="timeLeft">10:00</strong> • Confirmation moyenne en 5 min</p>
+        <p>Temps restant: <strong id="timeLeft">10:00</strong></p>
     </header>
 
     {% for label, messages in app.flashes %}
@@ -39,27 +39,31 @@
 
     {% set referenceDejaEnvoyee = commande.referenceTransactionClient is not null and commande.referenceTransactionClient|trim != '' %}
     {% if not referenceDejaEnvoyee %}
-        <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form">
+        <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
             <h2>J’ai déjà payé</h2>
-            <p>Entrez la référence reçue pour accélérer la validation.</p>
-            <div class="confirm-grid">
-                <label>
-                    Opérateur
-                    <select name="operateur" required>
-                        <option value="Airtel Money">Airtel Money</option>
-                        <option value="Moov Money">Moov Money</option>
-                    </select>
-                </label>
-                <label>
-                    Référence transaction (SMS opérateur)
-                    <input type="text" name="transaction_reference" required minlength="4" maxlength="64" placeholder="Ex: TXN-4589231">
-                </label>
+            <p>Votre paiement est en cours de validation.</p>
+            <div class="info-message">
+                <strong>⏰ Délai de validation : 10 minutes</strong><br>
+                Vos billets seront disponibles après la validation de votre capture par notre équipe.
             </div>
-            <p class="confirm-note">
-                Saisissez uniquement la référence SMS fournie par votre opérateur après le paiement.
-            </p>
-            <button type="submit" class="btn btn-primary">Envoyer ma référence</button>
+            
+            <div class="form-group">
+                <label for="capture_transaction">
+                    📸 Capture d'écran de la transaction
+                    <span style="color: #e53e3e;">*</span>
+                </label>
+                <input
+                    type="file"
+                    name="capture_transaction"
+                    id="capture_transaction"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                >
+                <small>Formats acceptés : JPG, PNG, WEBP (max 5 Mo)</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Envoyer la capture</button>
         </form>
     {% else %}
         <div class="confirm-form">
@@ -75,7 +79,7 @@
         <div class="status pending" id="statusPending">En attente de paiement</div>
         <div class="status processing" id="statusProcessing" style="display:none;">Paiement en cours de validation...</div>
         <div class="status paid" id="statusPaid" style="display:none;">Paiement validé. Vos billets sont prêts.</div>
-        <div class="status expired" id="statusExpired" style="display:none;">Commande expirée.</div>
+        <div class="status expired" id="statusExpired" style="display:none;">Expirée</div>
         <div class="actions">
             <a href="{{ path('achat.confirmation', {transactionId: commande.reference}) }}" class="btn btn-primary" id="btnVoirBillets" style="display:none;">Voir mes billets</a>
             <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
@@ -113,6 +117,55 @@
 .status.paid { background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface)); border-color: var(--couleur-success); }
 .status.expired { background: color-mix(in srgb, var(--couleur-error, #ef4444) 18%, var(--couleur-surface)); border-color: var(--couleur-error, #ef4444); }
 .actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* Styles pour le formulaire d'upload */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.form-group input[type="file"] {
+    padding: 8px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #1a73e8;
+    background: #f0f6ff;
+}
+
+.form-group small {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.info-message {
+    background: #e8f4fd;
+    border: 1px solid #b3d9ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    color: #1565c0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.info-message strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 15px;
+}
 </style>
 
 <script>
@@ -122,7 +175,7 @@ const expiry = new Date('{{ commande.dateExpiration|date('c') }}');
 function updateCountdown() {
     const now = new Date();
     if (now >= expiry) {
-        document.getElementById('timeLeft').textContent = 'Expiré';
+        document.getElementById('timeLeft').textContent = '';
         document.getElementById('statusPending').style.display = 'none';
         document.getElementById('statusExpired').style.display = 'flex';
         return;

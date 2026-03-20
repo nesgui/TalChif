@@ -72,6 +72,9 @@ class Commande
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $referenceTransactionClient = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $capturePreuvePaiement = null;
+
     #[ORM\OneToMany(mappedBy: 'commande', targetEntity: CommandeLigne::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $lignes;
 
@@ -429,6 +432,17 @@ class Commande
     public function setReferenceTransactionClient(?string $referenceTransactionClient): self
     {
         $this->referenceTransactionClient = $referenceTransactionClient;
+        return $this;
+    }
+
+    public function getCapturePreuvePaiement(): ?string
+    {
+        return $this->capturePreuvePaiement;
+    }
+
+    public function setCapturePreuvePaiement(?string $capturePreuvePaiement): self
+    {
+        $this->capturePreuvePaiement = $capturePreuvePaiement;
         return $this;
     }
 }

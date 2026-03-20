@@ -27,7 +27,12 @@ final class DoctrineCommandeRepository implements CommandeRepositoryInterface
 
     public function referenceExists(string $reference): bool
     {
-        return $this->doctrineRepository->referenceExiste($reference);
+        return $this->doctrineRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.reference = :reference')
+            ->setParameter('reference', $reference)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
     }
 
     public function findPendingExpired(\DateTimeImmutable $expirationDate): array

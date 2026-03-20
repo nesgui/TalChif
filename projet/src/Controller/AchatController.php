@@ -332,22 +332,37 @@ final class AchatController extends AbstractController
 
         $transactionRef = preg_replace('/\s+/', '', trim((string) $request->request->get('transaction_reference', ''))) ?? '';
         $operateur = trim((string) $request->request->get('operateur', ''));
-        if ($transactionRef === '') {
-            $this->addFlash('error', 'Veuillez saisir la référence de transaction envoyée par votre opérateur.');
+        $captureFile = $request->files->get('capture_transaction');
+
+        // La capture est maintenant obligatoire
+        if (!$captureFile) {
+            $this->addFlash('error', 'Veuillez fournir une capture d\'écran de la transaction.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
-        if (!preg_match('/^[A-Za-z0-9\-_\/\.\:]{4,64}$/', $transactionRef)) {
-            $this->addFlash('error', 'Référence SMS invalide. Utilisez lettres, chiffres, tirets, slash, underscore, point ou deux-points.');
+
+        // Validation du fichier uploadé
+        $typesAutorises = ['image/jpeg', 'image/png', 'image/webp'];
+        $mime = mime_content_type($captureFile->getPathname());
+
+        if (!in_array($mime, $typesAutorises, true)) {
+            $this->addFlash('error', 'Format de fichier non autorisé. Utilisez JPG, PNG ou WEBP.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
-        if (strcasecmp($transactionRef, $commande->getReference()) === 0) {
-            $this->addFlash('error', 'Veuillez saisir la référence SMS reçue de votre opérateur (et non la référence commande).');
+        if ($captureFile->getSize() > 5 * 1024 * 1024) {
+            $this->addFlash('error', 'Le fichier est trop lourd. Maximum 5 Mo.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
-        if ($this->commandeRepository->isTransactionReferenceAlreadyUsed($transactionRef, $commande->getId())) {
-            $this->addFlash('error', 'Cette référence SMS est déjà utilisée pour une autre commande. Vérifiez le SMS reçu.');
-            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+
+        // Stockage du fichier
+        $nomFichier = 'preuve-' . $commande->getReference() . '-' . bin2hex(random_bytes(6)) . '.' . ($captureFile->guessExtension() ?? 'jpg');
+        $dossier = $this->getParameter('kernel.project_dir') . '/var/preuves-paiement/';
+
+        if (!is_dir($dossier)) {
+            mkdir($dossier, 0750, true);
         }
+
+        $captureFile->move($dossier, $nomFichier);
+        $commande->setCapturePreuvePaiement($nomFichier);
 
         $destinataires = [];
         foreach ($commande->getLignes() as $ligne) {
@@ -362,13 +377,13 @@ final class AchatController extends AbstractController
             }
         }
 
-        $commande->setReferenceTransactionClient($transactionRef);
-        // Donner un feedback immédiat côté client après envoi de référence.
+        $commande->setReferenceTransactionClient($transactionRef ?: 'Capture envoyée');
+        // Donner un feedback immédiat côté client après envoi de capture.
         if ($commande->isPending()) {
             $commande->setStatut(Commande::STATUT_PROCESSING);
         }
         // Laisser le temps à l'organisateur de traiter la demande après soumission client.
-        $minimumDeadline = (new \DateTimeImmutable())->modify('+30 minutes');
+        $minimumDeadline = (new \DateTimeImmutable())->modify('+10 minutes');
         if (($commande->getDateExpiration() ?? $minimumDeadline) < $minimumDeadline) {
             $commande->setDateExpiration($minimumDeadline);
         }
@@ -380,10 +395,9 @@ final class AchatController extends AbstractController
         $log->setUtilisateur($user);
         $log->setIpAddress($request->getClientIp());
         $log->setDetails(sprintf(
-            'Client: %s | Operateur: %s | Reference transaction: %s',
+            'Client: %s | Capture: %s',
             $user->getEmail(),
-            $operateur !== '' ? $operateur : 'Non précisé',
-            $transactionRef
+            $nomFichier ?? 'Non fournie'
         ));
         $this->entityManager->persist($log);
         $this->entityManager->flush();
