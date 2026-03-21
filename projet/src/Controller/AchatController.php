@@ -63,6 +63,9 @@ final class AchatController extends AbstractController
             $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
             $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
             
+            // S'assurer que la quantité est un entier
+            $quantite = is_numeric($quantite) ? (int) $quantite : 1;
+            
             // Utiliser le bon prix selon le type
             $prix = $type === 'VIP' && $evenement->getPrixVip()
                 ? $evenement->getPrixVip()

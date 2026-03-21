@@ -114,17 +114,6 @@ class CommandeRepository extends ServiceEntityRepository
     }
 
     /** @return Commande[] */
-    public function findPaid(): array
-    {
-        return $this->createQueryBuilder('c')
-            ->where('c.statut = :paid')
-            ->setParameter('paid', Commande::STATUT_PAID)
-            ->orderBy('c.dateValidation', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /** @return Commande[] */
     public function findRejected(): array
     {
         return $this->createQueryBuilder('c')
@@ -153,29 +142,6 @@ class CommandeRepository extends ServiceEntityRepository
         return $this->findBy(['client' => $client], ['createdAt' => 'DESC']);
     }
 
-    public function countPending(): int
-    {
-        return (int) $this->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->where('c.statut IN (:pending)')
-            ->andWhere('c.dateExpiration > :now')
-            ->setParameter('pending', $this->pendingStatuses())
-            ->setParameter('now', new \DateTimeImmutable())
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    public function getTotalEncaisse(): float
-    {
-        $result = $this->createQueryBuilder('c')
-            ->select('SUM(c.montantTotal)')
-            ->where('c.statut = :paid')
-            ->setParameter('paid', Commande::STATUT_PAID)
-            ->getQuery()
-            ->getSingleScalarResult();
-        return (float) ($result ?? 0);
-    }
-
     public function getTotalCommission(): float
     {
         $result = $this->createQueryBuilder('c')
@@ -197,6 +163,38 @@ class CommandeRepository extends ServiceEntityRepository
             ->andWhere('e.organisateur = :organisateur')
             ->setParameter('paid', Commande::STATUT_PAID)
             ->setParameter('organisateur', $organisateur)
+            ->orderBy('c.dateValidation', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countPending(): int
+    {
+        return $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.statut IN (:statuses)')
+            ->setParameter('statuses', $this->pendingStatuses())
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getTotalEncaisse(): float
+    {
+        $result = $this->createQueryBuilder('c')
+            ->select('SUM(c.montantTotal)')
+            ->where('c.statut = :paid')
+            ->setParameter('paid', Commande::STATUT_PAID)
+            ->getQuery()
+            ->getSingleScalarResult();
+        return (float) ($result ?? 0);
+    }
+
+    /** @return Commande[] */
+    public function findPaid(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.statut = :paid')
+            ->setParameter('paid', Commande::STATUT_PAID)
             ->orderBy('c.dateValidation', 'DESC')
             ->getQuery()
             ->getResult();

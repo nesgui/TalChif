@@ -3872,3 +3872,50 @@ html[data-theme="dark"] .auth-btn-secondary:hover {
         padding-bottom: 80px;
     }
 }
+
+/* ============================================
+   FOOTER AMÉLIORÉ
+   ============================================ */
+.footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.footer-logo {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.footer-tagline {
+    font-size: 0.78rem;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-link {
+    font-size: 0.85rem;
+    color: var(--couleur-texte-secondaire);
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    color: var(--couleur-texte);
+}
+
+.footer-copy {
+    font-size: 0.8rem;
+}

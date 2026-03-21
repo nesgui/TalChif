@@ -5,37 +5,68 @@
 {% block body %}
 <section class="client-shell">
     <header>
-        <h1 class="page-title">Espace client</h1>
-        <p class="page-subtitle">Bienvenue {{ app.user.nom }}. Gérez vos achats.</p>
+        <h1 class="page-title">Bonjour, {{ app.user.nom }} 👋</h1>
+        <p class="page-subtitle">Bienvenue dans votre espace personnel.</p>
     </header>
 
-    <div class="grid">
-        <section class="card">
-            <h2 class="card-title">Mon compte</h2>
-            <p><strong>Email:</strong> {{ app.user.email }}</p>
-            <p><strong>Téléphone:</strong> {{ app.user.telephone ?: 'Non renseigné' }}</p>
-            <p>
-                <strong>Compte vérifié:</strong>
-                {% if app.user.isVerified %}
-                    <span class="pill pill-success">Oui</span>
-                {% else %}
-                    <span class="pill pill-warning">Non</span>
-                {% endif %}
-            </p>
-        </section>
-
-        <section class="card">
-            <h2 class="card-title">Actions rapides</h2>
-            <div class="card-actions">
-                <a href="{{ path('profile.index') }}" class="btn">Mon profil</a>
-                <a href="{{ path('billet.index') }}" class="btn btn-primary">Mes billets</a>
-                <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
-                <a href="{{ path('panier.index') }}" class="btn">Mon panier</a>
-                <a href="{{ path('evenement.index') }}" class="btn">Voir les événements</a>
-                <a href="{{ path('auth.logout') }}" class="btn btn-danger">Se déconnecter</a>
+    {# Commandes en attente #}
+    {% if commandes_pending|length > 0 %}
+    <section class="card card-warning">
+        <h2 class="card-title">⏳ Paiements en attente</h2>
+        {% for commande in commandes_pending %}
+            <div class="pending-row">
+                <span>Commande <strong>{{ commande.reference }}</strong></span>
+                <span>{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</span>
+                <a href="{{ path('achat.instructions', {reference: commande.reference}) }}" class="btn btn-sm btn-primary">Finaliser</a>
             </div>
-        </section>
-    </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    {# Billets à venir #}
+    <section class="card">
+        <h2 class="card-title">Mes billets à venir</h2>
+        {% if billets_a_venir|length > 0 %}
+            <div class="billets-grid">
+                {% for billet in billets_a_venir %}
+                <article class="billet-mini">
+                    <div class="billet-mini-info">
+                        <strong>{{ billet.evenement.nom }}</strong>
+                        <span>{{ billet.evenement.dateEvenement|date('d/m/Y H:i') }}</span>
+                        <span>{{ billet.evenement.lieu }}</span>
+                    </div>
+                    <span class="pill pill-{{ billet.type|lower }}">{{ billet.type }}</span>
+                    <a href="{{ path('achat.billet', {id: billet.id}) }}" class="btn btn-sm">Voir QR</a>
+                </article>
+                {% endfor %}
+            </div>
+            <a href="{{ path('billet.index') }}" class="btn btn-secondary" style="margin-top: .5rem;">Tous mes billets</a>
+        {% else %}
+            <p class="muted">Aucun billet à venir.</p>
+        {% endif %}
+    </section>
+
+    {# Actions rapides #}
+    <section class="card">
+        <h2 class="card-title">Actions rapides</h2>
+        <div class="card-actions">
+            <a href="{{ path('evenement.index') }}" class="btn btn-primary">Voir les événements</a>
+            <a href="{{ path('billet.index') }}" class="btn">Mes billets</a>
+            <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
+            <a href="{{ path('profile.index') }}" class="btn">Mon profil</a>
+        </div>
+    </section>
 </section>
 
+<style>
+.client-shell { max-width: 900px; margin: 0 auto; display: grid; gap: 1rem; }
+.card-warning { border-left: 3px solid var(--couleur-warning); }
+.pending-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid var(--couleur-bordure); }
+.pending-row:last-child { border-bottom: none; }
+.billets-grid { display: grid; gap: .65rem; }
+.billet-mini { display: flex; align-items: center; gap: .75rem; padding: .6rem; border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); }
+.billet-mini-info { flex: 1; display: grid; gap: .15rem; }
+.billet-mini-info strong { font-size: .95rem; }
+.billet-mini-info span { font-size: .82rem; color: var(--couleur-texte-secondaire); }
+</style>
 {% endblock %}

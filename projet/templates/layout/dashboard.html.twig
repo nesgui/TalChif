@@ -43,15 +43,44 @@
                     <details class="dashboard-group" open>
                         <summary>Gestion</summary>
                         <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">Utilisateurs</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">Commandes & validation</a>
-                            <a class="dashboard-sublink" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">Références à vérifier</a>
-                            {# Événements, Organisateurs, Finance, Sécurité #}
+                            <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">
+                                Utilisateurs
+                            </a>
+                            <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}" data-turbo-frame="dashboard-main-frame">
+                                Organisateurs
+                            </a>
+                            <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">
+                                Commandes & validation
+                            </a>
+                            <a class="dashboard-sublink" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">
+                                Références à vérifier
+                            </a>
+                        </div>
+                    </details>
+
+                    <details class="dashboard-group">
+                        <summary>Finance & stats</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}" data-turbo-frame="dashboard-main-frame">
+                                Tableau financier
+                            </a>
+                            <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}" data-turbo-frame="dashboard-main-frame">
+                                Événements
+                            </a>
+                        </div>
+                    </details>
+
+                    <details class="dashboard-group">
+                        <summary>Sécurité</summary>
+                        <div class="dashboard-sub">
+                            <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}" data-turbo-frame="dashboard-main-frame">
+                                Logs de sécurité
+                            </a>
                         </div>
                     </details>
 
                     <div class="dashboard-nav-title">Général</div>
-                    <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
+                    <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour au site</a>
                 {% endif %}
             </nav>
         </aside>
@@ -82,6 +111,10 @@
     {% block stylesheets %}
         {{ parent() }}
         <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
+        <!-- Debug: Vérification chargement CSS admin -->
+        {% if section is defined and section == 'admin' %}
+            <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
+        {% endif %}
     {% endblock %}
     
     {% block javascripts %}

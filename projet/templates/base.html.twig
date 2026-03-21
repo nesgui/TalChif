@@ -72,24 +72,29 @@
         {% endblock %}
 
         {% block javascripts %}
-            <!-- jQuery (DataTables uniquement) -->
-            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-            <!-- DataTables core -->
-            <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-            <!-- Bibliothèques pour les exports DataTables -->
-            <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-            <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-            <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-
             {% block importmap %}{{ importmap('app') }}{% endblock %}
+            
             <!-- Load services via importmap (système custom moderne) -->
-            <script src="{{ asset('services/notification_service.js') }}"></script>
+            <script type="module" src="{{ asset('services/notification_service.js') }}"></script>
             <script type="module" src="{{ asset('services/theme_service.js') }}"></script>
-            <script type="module" src="{{ asset('services/datatables-service.js') }}"></script>
-            <!-- Lazy loading amélioré pour les images -->
+            
+            <!-- Scripts spécifiques admin (DataTables) -->
+            {% if section is defined and section == 'admin' %}
+                <!-- jQuery (DataTables uniquement) -->
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+                <!-- DataTables core -->
+                <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+                <!-- Bibliothèques pour les exports DataTables -->
+                <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+                <!-- JSZip local pour éviter les problèmes de tracking -->
+                <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+                <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+                <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+                <script type="module" src="{{ asset('services/datatables-service.js') }}"></script>
+            {% endif %}
+            
+            <!-- Scripts globaux -->
             <script src="{{ asset('scripts/lazy-images.js') }}" defer></script>
-            <!-- Tables responsive card-style sur mobile -->
             <script src="{{ asset('scripts/responsive-tables.js') }}" defer></script>
         {% endblock %}
     </head>
@@ -279,8 +284,17 @@
 
             <footer class="site-footer">
                 <div class="container footer-inner">
-                    <div class="muted">TalChif</div>
-                    <div class="muted">TalChif</div>
+                    <div class="footer-brand">
+                        <span class="footer-logo">TalChif</span>
+                        <span class="muted footer-tagline">La billetterie du Tchad</span>
+                    </div>
+                    <nav class="footer-links" aria-label="Liens du pied de page">
+                        <a href="{{ path('evenement.index') }}" class="footer-link">Événements</a>
+                        <a href="{{ path('public.devenir_organisateur') }}" class="footer-link">Devenir organisateur</a>
+                        <a href="{{ path('public.a_propos') }}" class="footer-link">À propos</a>
+                        <a href="{{ path('public.infos') }}" class="footer-link">Aide</a>
+                    </nav>
+                    <div class="footer-copy muted">© {{ "now"|date("Y") }} TalChif</div>
                 </div>
             </footer>
         {% endblock %}

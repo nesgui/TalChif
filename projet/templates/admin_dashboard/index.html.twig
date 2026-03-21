@@ -1,22 +1,55 @@
 {% extends 'layout/dashboard.html.twig' %}
-
 {% set section = 'admin' %}
-
 {% block title %}Dashboard admin{% endblock %}
-
 {% block dashboard_title %}Back-office admin{% endblock %}
 
 {% block dashboard_content %}
 <p class="page-subtitle">Bienvenue dans l'espace d'administration TalChif.</p>
 
-<div class="grid">
-    <section class="card">
-        <h2 class="card-title">Accès rapides</h2>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="{{ path('admin.user.index') }}">Gérer les utilisateurs</a>
-            <a class="btn btn-secondary" href="{{ path('admin.commande.index') }}">Commandes &amp; paiements</a>
-            <a class="btn" href="{{ path('accueil') }}">Retour au site</a>
-        </div>
-    </section>
+<div class="kpi-grid">
+    <div class="kpi-card kpi-warning">
+        <div class="kpi-value">{{ stats.commandes_en_attente }}</div>
+        <div class="kpi-label">Commandes en attente</div>
+        <a href="{{ path('admin.commande.index') }}" class="kpi-link">Traiter →</a>
+    </div>
+    <div class="kpi-card kpi-success">
+        <div class="kpi-value">{{ stats.total_encaisse|number_format(0, '.', ' ') }}</div>
+        <div class="kpi-label">FCFA encaissés</div>
+        <a href="{{ path('admin.finance.index') }}" class="kpi-link">Détails →</a>
+    </div>
+    <div class="kpi-card kpi-info">
+        <div class="kpi-value">{{ stats.total_commission|number_format(0, '.', ' ') }}</div>
+        <div class="kpi-label">FCFA commissions</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.evenements_actifs }}</div>
+        <div class="kpi-label">Événements actifs</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.total_clients }}</div>
+        <div class="kpi-label">Clients inscrits</div>
+        <a href="{{ path('admin.user.index') }}" class="kpi-link">Gérer →</a>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.total_organisateurs }}</div>
+        <div class="kpi-label">Organisateurs</div>
+        <a href="{{ path('admin.organisateur.index') }}" class="kpi-link">Gérer →</a>
+    </div>
 </div>
+
+<section class="card" style="margin-top: 1rem;">
+    <h2 class="card-title">Accès rapides</h2>
+    <div class="card-actions">
+        <a class="btn btn-primary" href="{{ path('admin.commande.index') }}">
+            Commandes & paiements
+            {% if stats.commandes_en_attente > 0 %}
+                <span class="badge badge-warning">{{ stats.commandes_en_attente }}</span>
+            {% endif %}
+        </a>
+        <a class="btn btn-secondary" href="{{ path('admin.user.index') }}">Utilisateurs</a>
+        <a class="btn" href="{{ path('admin.finance.index') }}">Finance</a>
+        <a class="btn" href="{{ path('admin.securite.index') }}">Logs sécurité</a>
+        <a class="btn" href="{{ path('accueil') }}">Retour au site</a>
+    </div>
+</section>
 {% endblock %}

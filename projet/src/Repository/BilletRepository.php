@@ -95,36 +95,6 @@ class BilletRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findBilletsAVenir(User $client): array
-    {
-        return $this->createQueryBuilder('b')
-            ->join('b.evenement', 'e')
-            ->where('b.client = :client')
-            ->andWhere('b.statutPaiement = :paid')
-            ->andWhere('e.dateEvenement > :now')
-            ->setParameter('client', $client)
-            ->setParameter('paid', 'PAYE')
-            ->setParameter('now', new \DateTimeImmutable())
-            ->orderBy('e.dateEvenement', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findBilletsPasses(User $client): array
-    {
-        return $this->createQueryBuilder('b')
-            ->join('b.evenement', 'e')
-            ->where('b.client = :client')
-            ->andWhere('b.statutPaiement = :paid')
-            ->andWhere('e.dateEvenement <= :now')
-            ->setParameter('client', $client)
-            ->setParameter('paid', 'PAYE')
-            ->setParameter('now', new \DateTimeImmutable())
-            ->orderBy('e.dateEvenement', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
     public function findUsedTickets(int $limit = 50, int $offset = 0): array
     {
         return $this->createQueryBuilder('b')
@@ -313,5 +283,35 @@ class BilletRepository extends ServiceEntityRepository
             ->select('AVG(b.prix)')
             ->getQuery()
             ->getSingleScalarResult() ?? 0;
+    }
+
+    /** @return Billet[] */
+    public function findBilletsAVenir(User $user): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.evenement', 'e')
+            ->where('b.client = :user')
+            ->andWhere('e.dateEvenement >= :now')
+            ->andWhere('b.isValide = true')
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTime())
+            ->orderBy('e.dateEvenement', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return Billet[] */
+    public function findBilletsPasses(User $user): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.evenement', 'e')
+            ->where('b.client = :user')
+            ->andWhere('e.dateEvenement < :now')
+            ->andWhere('b.isValide = true')
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTime())
+            ->orderBy('e.dateEvenement', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }

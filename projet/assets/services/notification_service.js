@@ -5,8 +5,10 @@
  * @version 2.0 - Février 2026
  */
 
-(function() {
-if (window.NotificationService) return;
+// Vérification si le service existe déjà
+if (window.NotificationService) {
+    export { window.NotificationService as NotificationService };
+} else {
 
 class NotificationService {
     constructor() {
@@ -485,4 +487,7 @@ if (window.flashMessages && window.flashMessages.length > 0) {
     window.flashMessages = [];
 }
 
-})();
+// Export pour ES6 modules
+export { NotificationService };
+
+} // Fin du else

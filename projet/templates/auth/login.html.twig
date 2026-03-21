@@ -1,182 +1,64 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/auth.html.twig' %}
 
 {% block title %}Connexion{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('services/auth_service.js') }}" defer></script>
 {% endblock %}
 
-{% block site_header %}
-    <nav class="public-bottom-nav" aria-label="Navigation principale">
-        <a class="public-tab" href="{{ path('accueil') }}">
-            <span class="public-tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 11.5L12 4l9 7.5" />
-                    <path d="M5 10.5V20h14v-9.5" />
-                    <path d="M10 20v-6h4v6" />
-                </svg>
-            </span>
-            <span class="public-tab-label">Accueil</span>
-        </a>
-        <a class="public-tab" href="{{ path('evenement.index') }}">
-            <span class="public-tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 7h18" />
-                    <path d="M6 7V5a2 2 0 0 1 2-2h1" />
-                    <path d="M18 7V5a2 2 0 0 0-2-2h-1" />
-                    <rect x="3" y="7" width="18" height="14" rx="2" />
-                    <path d="M7 11h4" />
-                    <path d="M7 15h6" />
-                </svg>
-            </span>
-            <span class="public-tab-label">Événements</span>
-        </a>
-        <a class="public-tab" href="{{ path('panier.index') }}">
-            <span class="public-tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 7h15l-2 10H8L6 7z" />
-                    <path d="M6 7l-2 0" />
-                    <circle cx="9" cy="20" r="1" />
-                    <circle cx="18" cy="20" r="1" />
-                </svg>
-            </span>
-            <span class="public-tab-label">Panier</span>
-        </a>
-        <a class="public-tab public-me-trigger" href="#" role="button" aria-haspopup="menu" aria-expanded="false" data-turbo="false">
-            <span class="public-tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21a8 8 0 0 0-16 0" />
-                    <circle cx="12" cy="8" r="4" />
-                </svg>
-            </span>
-            <span class="public-tab-label">Moi</span>
-        </a>
-    </nav>
-
-    <div class="public-me-dropdown" id="public-me-dropdown" role="menu" aria-hidden="true">
-        <div class="public-me-dropdown-head">
-            <div class="public-me-dropdown-title">Veuillez vous connecter</div>
-            <a class="btn btn-xs btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
-        </div>
-        <div class="public-me-dropdown-list">
-            <a class="public-me-dropdown-item" role="menuitem" href="{{ path('public.devenir_organisateur') }}">
-                <span class="public-me-dropdown-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2v20" />
-                        <path d="M2 12h20" />
-                    </svg>
-                </span>
-                <span>Devenir Organisateur</span>
-            </a>
-            <a class="public-me-dropdown-item" role="menuitem" href="{{ path('public.infos') }}">
-                <span class="public-me-dropdown-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M12 16v-4" />
-                        <path d="M12 8h.01" />
-                    </svg>
-                </span>
-                <span>Plus d'informations</span>
-            </a>
-            <a class="public-me-dropdown-item" role="menuitem" href="{{ path('public.a_propos') }}">
-                <span class="public-me-dropdown-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 20h9" />
-                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                    </svg>
-                </span>
-                <span>A propos de nous</span>
-            </a>
-        </div>
+{% block auth_content %}
+    <div class="auth-header">
+        <h1 class="auth-title">Connexion</h1>
+        <p class="auth-subtitle">Accédez à votre espace personnel</p>
     </div>
-{% endblock %}
 
-{% block body %}
-<div class="auth-top-header">
-    <div class="auth-header-content">
-        <a href="{{ path('accueil') }}" class="auth-app-name" style="text-decoration: none;">TalChif</a>
-    </div>
-</div>
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1 class="auth-title">Connexion</h1>
-            <p class="auth-subtitle">Accédez à votre espace personnel</p>
-        </div>
-        
-        <div class="auth-body">
-            {% if error %}
-                <div class="auth-alert auth-alert-error">
+    <div class="auth-body">
+        {% if error %}
+            <div class="auth-alert auth-alert-error">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('auth.login') }}" class="auth-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="auth-form-group">
+                <label for="email" class="auth-label">Adresse email</label>
+                <input type="email" id="email" name="email" class="auth-input"
+                       value="{{ last_username }}" required autofocus
+                       placeholder="Entrez votre email">
+            </div>
+
+            <div class="auth-form-group">
+                <label for="password" class="auth-label">Mot de passe</label>
+                <input type="password" id="password" name="password" class="auth-input"
+                       required placeholder="Entrez votre mot de passe">
+            </div>
+
+            <div class="auth-actions">
+                <button type="submit" class="auth-btn auth-btn-primary">
+                    Se connecter
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
                     </svg>
-                    {{ error.messageKey|trans(error.messageData, 'security') }}
-                </div>
-            {% endif %}
+                </button>
+            </div>
 
-            <form method="post" action="{{ path('auth.login') }}" class="auth-form">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                
-                <div class="auth-form-group">
-                    <label for="email" class="auth-label">Adresse email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        class="auth-input" 
-                        value="{{ last_username }}" 
-                        required 
-                        autofocus
-                        placeholder="Entrez votre email"
-                    >
-                </div>
+            <div class="auth-divider">ou</div>
 
-                <div class="auth-form-group">
-                    <label for="password" class="auth-label">Mot de passe</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="auth-input" 
-                        required
-                        placeholder="Entrez votre mot de passe"
-                    >
-                </div>
-
-                <div class="auth-actions">
-                    <button type="submit" class="auth-btn auth-btn-primary">
-                        Se connecter
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                            <polyline points="10 17 15 12 10 7"/>
-                            <line x1="15" y1="12" x2="3" y2="12"/>
-                        </svg>
-                    </button>
-                </div>
-
-                
-
-                <div class="auth-actions">
-                
-                    <a href="{{ path('auth.register') }}" class="auth-btn auth-btn-secondary">
-                        Créer un compte
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                            <circle cx="8.5" cy="7" r="4"/>
-                            <line x1="20" y1="8" x2="20" y2="14"/>
-                            <line x1="23" y1="11" x2="17" y2="11"/>
-                        </svg>
-                    </a>
-                </div>
-            </form>
-        </div>
+            <div class="auth-actions">
+                <a href="{{ path('auth.register') }}" class="auth-btn auth-btn-secondary">
+                    Créer un compte
+                </a>
+            </div>
+        </form>
     </div>
-</div>
 {% endblock %}
