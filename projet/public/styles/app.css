@@ -1439,6 +1439,14 @@ html[data-theme="dark"] .section-title {
     min-height: 30px;
 }
 
+.btn-xs {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.72rem;
+    border-radius: 5px;
+    min-height: 28px;
+    min-width: 28px;
+}
+
 .btn-lg {
     padding: 0.54rem 1rem;
     font-size: var(--ui-btn-lg);
@@ -1448,6 +1456,88 @@ html[data-theme="dark"] .section-title {
 .btn-block {
     width: 100%;
     display: flex;
+}
+
+/* Groupe de boutons responsif */
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+/* Sur mobile, les groupes de boutons passent en colonne */
+@media (max-width: 480px) {
+    .btn-group-mobile-col {
+        flex-direction: column;
+    }
+    .btn-group-mobile-col .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Boutons avec texte caché sur mobile */
+@media (max-width: 768px) {
+    .btn-label-desktop { 
+        display: none; 
+    }
+}
+
+/* Tables responsives */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--rayon, 8px);
+}
+
+/* Sécurité mobile globale */
+* {
+    box-sizing: border-box;
+}
+
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Évite le débordement horizontal global */
+body {
+    overflow-x: hidden;
+}
+
+/* Taille minimum des zones cliquables (accessibilité mobile) */
+.btn, a.public-tab, button {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.btn-sm {
+    min-height: 32px;
+    min-width: 32px;
+}
+
+/* Inputs plus grands sur mobile pour éviter le zoom auto iOS */
+@media (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important; /* Évite le zoom auto sur iOS */
+    }
+}
+
+/* Navigation bottom-nav mobile */
+.site-main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+
+/* Sur desktop, supprimer ce padding */
+@media (min-width: 768px) {
+    .site-main { 
+        padding-bottom: 0; 
+    }
+    .public-bottom-nav { 
+        display: none; /* ou position: static selon le design */ 
+    }
 }
 
 /* Boutons avec icônes */
@@ -3918,4 +4008,52 @@ html[data-theme="dark"] .auth-btn-secondary:hover {
 
 .footer-copy {
     font-size: 0.8rem;
+}
+
+/* ══════════════════════════════════════
+   SÉCURITÉ MOBILE GLOBALE
+   ══════════════════════════════════════ */
+
+/* Évite le débordement horizontal global */
+body {
+    overflow-x: hidden;
+}
+
+/* Images et médias responsifs */
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Taille minimum des zones cliquables (accessibilité mobile) */
+.btn, a.public-tab, button {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.btn-sm {
+    min-height: 32px;
+    min-width: 32px;
+}
+
+/* Inputs plus grands sur mobile pour éviter le zoom auto iOS */
+@media (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important; /* Évite le zoom auto sur iOS */
+    }
+}
+
+/* Padding bottom pour éviter que la bottom-nav cache le contenu */
+.site-main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+
+/* Sur desktop, supprimer ce padding */
+@media (min-width: 768px) {
+    .site-main { 
+        padding-bottom: 0; 
+    }
+    .public-bottom-nav { 
+        display: none; 
+    }
 }

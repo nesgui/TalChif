@@ -53,7 +53,7 @@
     <!-- Tableau des participants -->
     <div class="table-container">
         <div class="table-wrapper">
-            <table class="participants-table" id="participants-table">
+            <table class="participants-table dt-table" id="participants-table" data-order="[[4, 'desc']]">
                 <thead>
                     <tr>
                         <th>Nom complet</th>
@@ -63,7 +63,7 @@
                         <th>Date d'achat</th>
                         <th>Statut paiement</th>
                         <th>Statut utilisation</th>
-                        <th>Actions</th>
+                        <th data-no-sort>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,13 +109,23 @@
                             </span>
                         </td>
                         <td class="actions-cell">
-                            <div class="action-buttons">
-                                <button class="btn-small btn-view" onclick="viewQRCode('{{ participant.qrCode }}')">
-                                    QR Code
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline" onclick="viewQRCode('{{ participant.qrCode }}')" title="Voir QR Code">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <rect x="7" y="7" width="3" height="3"/>
+                                        <rect x="14" y="7" width="3" height="3"/>
+                                        <rect x="14" y="14" width="3" height="3"/>
+                                        <rect x="7" y="14" width="3" height="3"/>
+                                    </svg>
+                                    <span class="btn-label-desktop">QR Code</span>
                                 </button>
                                 {% if not participant.utilise %}
-                                    <button class="btn-small btn-validate" onclick="validateTicket('{{ participant.id }}')">
-                                        Valider
+                                    <button class="btn btn-sm btn-success" onclick="validateTicket('{{ participant.id }}')" title="Valider ce billet">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                        <span class="btn-label-desktop">Valider</span>
                                     </button>
                                 {% endif %}
                             </div>

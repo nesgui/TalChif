@@ -69,6 +69,21 @@ Structure stratégique des étapes et objectifs par tâches. Cocher à chaque é
 
 ---
 
+## 5. Corrections UI/UX & Améliorations Visuelles
+
+| # | Tâche | Objectif | Statut |
+|---|--------|----------|--------|
+| 5.1 | Style Netflix mobile | Correction affichage mobile page accueil (scroll horizontal cards) | ☑ |
+| 5.2 | Dashboard admin styles | KPIs et interface admin moderne | ☑ |
+| 5.3 | Espace client enrichi | Portefeuille avec billets à venir et commandes en attente | ☑ |
+| 5.4 | Footer amélioré | Liens utiles et layout responsive | ☑ |
+| 5.5 | Auth unifié | Templates login/register sur layout commun | ☑ |
+| 5.6 | Navigation responsive | Menu mobile et sidebar optimisés | ☐ |
+| 5.7 | Animations & transitions | Effets hover et micro-interactions | ☐ |
+| 5.8 | Thème complet | Système clair/sombre/auto avec persistance | ☑ |
+
+---
+
 ## Notes de suivi
 
 - **Validation des tâches :** À chaque tâche remplie et validée par l’équipe, cocher le statut (☐ → ☑) et faire une mise au point avant de passer à la suivante.

@@ -49,9 +49,68 @@
 .event-content { display: grid; gap: .75rem; }
 .event-desc { margin: 0; color: var(--couleur-texte-secondaire); }
 .event-essential p { margin: .3rem 0; }
+
+/* Correction boutons - éviter chevauchement */
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-top: 1rem;
+}
+
+.card-actions form {
+    margin: 0;
+    flex: 1;
+}
+
+.card-actions .btn {
+    width: 100%;
+    padding: .75rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--rayon);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Mobile : boutons en colonne */
 @media (max-width: 820px) {
-    .event-card { grid-template-columns: 1fr; }
-    .event-img { max-height: 240px; }
+    .event-card { 
+        grid-template-columns: 1fr; 
+        gap: 1.5rem;
+    }
+    .event-img { 
+        max-height: 240px; 
+        width: 100%;
+    }
+    .card-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .card-actions .btn {
+        padding: .8rem 1rem;
+        font-size: 1.1rem;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 480px) {
+    .event-simple {
+        padding: 0 .5rem;
+    }
+    .event-card {
+        padding: .75rem;
+        gap: 1rem;
+    }
+    .card-actions {
+        gap: .75rem;
+    }
+    .card-actions .btn {
+        padding: .7rem .9rem;
+        font-size: 1rem;
+    }
 }
 </style>
 {% endblock %}

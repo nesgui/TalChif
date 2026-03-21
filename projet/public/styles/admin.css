@@ -328,6 +328,49 @@ turbo-frame.dashboard-main,
     color: #fff;
 }
 
+/* DataTables overrides */
+.dt-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+
+.dt-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+
+table.dt-table {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+table.dt-table th,
+table.dt-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    padding: .5rem .6rem;
+    font-size: .88rem;
+}
+
+table.dt-table td.actions-col {
+    white-space: normal;
+    overflow: visible;
+}
+
+.dataTables_wrapper {
+    overflow-x: auto;
+}
+
 /* ============================================
    KPIs DASHBOARD ADMIN
    ============================================ */
@@ -408,4 +451,47 @@ turbo-frame.dashboard-main,
 .badge-warning {
     background: var(--couleur-warning);
     color: #fff;
+}
+
+/* DataTables overrides */
+.dt-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+
+.dt-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+
+table.dt-table {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+table.dt-table th,
+table.dt-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    padding: .5rem .6rem;
+    font-size: .88rem;
+}
+
+table.dt-table td.actions-col {
+    white-space: normal;
+    overflow: visible;
+}
+
+.dataTables_wrapper {
+    overflow-x: auto;
 }

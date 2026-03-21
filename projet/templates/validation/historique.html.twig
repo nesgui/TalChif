@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="table-container">
-                    <table class="table" id="validations-table">
+                    <table class="table dt-table" id="validations-table" data-order="[[0, 'desc']]">
                         <thead>
                             <tr>
                                 <th>Date/Heure</th>
@@ -56,7 +56,7 @@
                                 <th>Client</th>
                                 <th>Prix</th>
                                 <th>Validé par</th>
-                                <th>Actions</th>
+                                <th data-no-sort>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -93,12 +93,21 @@
                                         <span class="validator">{{ billet.validePar.email }}</span>
                                     </td>
                                     <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-outline" onclick="showDetails('{{ billet.qrCode }}')">
-                                                Détails
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline" onclick="showDetails('{{ billet.qrCode }}')" title="Voir les détails">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <line x1="12" y1="16" x2="12" y2="12"/>
+                                                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                                </svg>
+                                                <span class="btn-label-desktop">Détails</span>
                                             </button>
-                                            <button class="btn btn-sm btn-ghost" onclick="copyQRCode('{{ billet.qrCode }}')">
-                                                Copier
+                                            <button class="btn btn-sm btn-ghost" onclick="copyQRCode('{{ billet.qrCode }}')" title="Copier le QR Code">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                                </svg>
+                                                <span class="btn-label-desktop">Copier</span>
                                             </button>
                                         </div>
                                     </td>

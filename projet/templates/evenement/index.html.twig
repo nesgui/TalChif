@@ -445,5 +445,94 @@ html[data-theme="dark"] .empty-state {
 html[data-theme="dark"] .empty-state h3 {
     color: var(--couleur-texte);
 }
+
+/* Grille verticale sur mobile — remplace le scroll horizontal */
+@media (max-width: 640px) {
+    .category-row {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+        gap: .6rem !important;
+        padding: 0 !important;
+    }
+
+    /* Les cartes reprennent leur pleine largeur dans la grille */
+    .category-row .catalog-card {
+        flex: none !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* Image moins haute sur mobile */
+    .catalog-card img {
+        height: 180px !important;
+        object-fit: cover;
+    }
+
+    /* Masquer les boutons de navigation prev/next sur mobile */
+    .movie-nav {
+        display: none !important;
+    }
+
+    /* Afficher le contenu texte sous l'image */
+    .catalog-card-content {
+        display: block !important;
+        padding: .5rem;
+        background: var(--couleur-surface);
+    }
+
+    .catalog-card-title {
+        color: var(--couleur-texte) !important;
+        font-size: .82rem;
+        -webkit-line-clamp: 2;
+    }
+
+    .catalog-card-meta {
+        color: var(--couleur-texte-secondaire) !important;
+        font-size: .72rem;
+        margin-top: .2rem;
+    }
+
+    .catalog-card-price {
+        color: var(--couleur-primaire) !important;
+        font-size: .78rem;
+        margin-top: .15rem;
+        font-weight: 600;
+    }
+
+    /* Toolbar compacte */
+    .catalog-toolbar {
+        flex-direction: column;
+        gap: .5rem;
+        padding: .5rem 0 1rem;
+    }
+    .toolbar-right {
+        width: 100%;
+    }
+    .toolbar-right select {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* 3 colonnes sur tablette */
+@media (min-width: 641px) and (max-width: 900px) {
+    .category-row {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        overflow-x: visible !important;
+        gap: .75rem !important;
+    }
+    .category-row .catalog-card {
+        flex: none !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    .movie-nav { display: none !important; }
+    .catalog-card-content { display: block !important; padding: .5rem; }
+    .catalog-card-title { color: var(--couleur-texte) !important; }
+    .catalog-card-price { color: var(--couleur-primaire) !important; }
+}
 </style>
 {% endblock %}

@@ -1,9 +1,62 @@
 {% extends 'layout/dashboard.html.twig' %}
 {% set section = 'admin' %}
+
 {% block title %}Dashboard admin{% endblock %}
 {% block dashboard_title %}Back-office admin{% endblock %}
 
 {% block dashboard_content %}
+
+<style>
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.kpi-card {
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--couleur-texte);
+}
+.kpi-label {
+    font-size: 0.82rem;
+    color: var(--couleur-texte-secondaire);
+}
+.kpi-link {
+    font-size: 0.82rem;
+    color: var(--couleur-primaire);
+    text-decoration: none;
+    margin-top: auto;
+}
+.kpi-warning { border-left: 3px solid var(--couleur-warning); }
+.kpi-success { border-left: 3px solid var(--couleur-success); }
+.kpi-info    { border-left: 3px solid var(--couleur-primaire); }
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 6px;
+    background: var(--couleur-warning);
+    color: #fff;
+}
+</style>
+
 <p class="page-subtitle">Bienvenue dans l'espace d'administration TalChif.</p>
 
 <div class="kpi-grid">
@@ -37,13 +90,13 @@
     </div>
 </div>
 
-<section class="card" style="margin-top: 1rem;">
+<section class="card">
     <h2 class="card-title">Accès rapides</h2>
     <div class="card-actions">
         <a class="btn btn-primary" href="{{ path('admin.commande.index') }}">
             Commandes & paiements
             {% if stats.commandes_en_attente > 0 %}
-                <span class="badge badge-warning">{{ stats.commandes_en_attente }}</span>
+                <span class="badge">{{ stats.commandes_en_attente }}</span>
             {% endif %}
         </a>
         <a class="btn btn-secondary" href="{{ path('admin.user.index') }}">Utilisateurs</a>
@@ -52,4 +105,5 @@
         <a class="btn" href="{{ path('accueil') }}">Retour au site</a>
     </div>
 </section>
+
 {% endblock %}

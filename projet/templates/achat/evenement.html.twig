@@ -268,6 +268,26 @@
     border-radius: var(--rayon);
 }
 
+/* Boutons toujours visibles */
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+.card-actions .btn-block,
+.card-actions form {
+    width: 100%;
+}
+
+.card-actions .btn {
+    width: 100%;
+    justify-content: center;
+    padding: .75rem 1rem;
+    font-size: .95rem;
+}
+
 @media (max-width: 768px) {
     .event-header {
         grid-template-columns: 1fr;
@@ -278,6 +298,24 @@
         max-width: 300px;
         margin: 0 auto;
     }
+
+    /* Boutons sticky en bas sur mobile */
+    .card-actions {
+        position: sticky;
+        bottom: 70px; /* au dessus de la bottom-nav */
+        background: var(--couleur-surface);
+        padding: .75rem;
+        margin: 0 -.75rem -.75rem;
+        border-top: 1px solid var(--couleur-bordure);
+        z-index: 10;
+    }
+}
+
+@media (max-width: 480px) {
+    .event-purchase { padding: .25rem; }
+    .event-header { padding: .6rem; border-radius: 8px; }
+    .event-image { max-height: 200px; }
+    .card-actions .btn { font-size: .88rem; padding: .65rem; }
 }
 </style>
 {% endblock %}

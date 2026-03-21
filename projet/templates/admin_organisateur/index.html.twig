@@ -13,18 +13,19 @@
     <h2 class="card-title">Liste des Organisateurs</h2>
     <p class="card-meta">Tous les comptes organisateurs avec tri et recherche</p>
     
-    <table id="organizers-table" class="table">
+    <div class="table-responsive">
+        <table id="organizers-table" class="dt-table" data-order="[[0, 'asc']]">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Téléphone</th>
-                <th>Statut</th>
+                <th data-no-sort>Statut</th>
                 <th>Commission</th>
                 <th>Événements</th>
                 <th>Inscription</th>
-                <th>Actions</th>
+                <th data-no-sort>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -38,9 +39,11 @@
                 <td>15</td>
                 <td>2024-01-15</td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                    <a href="#" class="btn btn-sm">Modifier</a>
-                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
+                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -53,9 +56,11 @@
                 <td>8</td>
                 <td>2024-02-20</td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                    <a href="#" class="btn btn-sm">Modifier</a>
-                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
+                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -83,9 +88,11 @@
                 <td>35</td>
                 <td>2023-12-05</td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                    <a href="#" class="btn btn-sm">Modifier</a>
-                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
+                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -98,13 +105,16 @@
                 <td>12</td>
                 <td>2024-04-01</td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                    <a href="#" class="btn btn-sm">Modifier</a>
-                    <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
+                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
+    </div>
 </div>
 
 <script>

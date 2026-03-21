@@ -65,6 +65,24 @@
             
             <button type="submit" class="btn btn-primary">Envoyer la capture</button>
         </form>
+        
+        {% if not referenceDejaEnvoyee %}
+        <div style="margin-top: .75rem; text-align: center;">
+            <form method="post"
+                  action="{{ path('achat.annuler', {reference: commande.reference}) }}"
+                  onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
+                <input type="hidden" name="_token"
+                       value="{{ csrf_token('annuler_' ~ commande.reference) }}">
+                <button type="submit" class="btn btn-sm"
+                        style="color: var(--couleur-error, #ef4444); border-color: var(--couleur-error, #ef4444);">
+                    Annuler cette commande
+                </button>
+            </form>
+            <small class="muted" style="display:block; margin-top:.3rem;">
+                Vous pouvez annuler tant que vous n'avez pas envoyé votre preuve de paiement.
+            </small>
+        </div>
+        {% endif %}
     {% else %}
         <div class="confirm-form">
             <h2>Référence déjà envoyée</h2>

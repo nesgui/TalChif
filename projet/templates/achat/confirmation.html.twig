@@ -46,10 +46,10 @@
         <p class="card-meta">Presentez votre billet a l'entree et ne partagez pas votre QR code.</p>
     </section>
 
-    <div class="card-actions">
-        <a href="{{ path('portefeuille.index') }}" class="btn btn-primary">Espace client</a>
-        <a href="{{ path('achat.commandes') }}" class="btn btn-secondary">Mes commandes</a>
-        <a href="{{ path('evenement.index') }}" class="btn">Autres evenements</a>
+    <div class="card-actions-confirm">
+        <a href="{{ path('portefeuille.index') }}" class="btn btn-sm btn-primary">Espace client</a>
+        <a href="{{ path('achat.commandes') }}" class="btn btn-sm btn-secondary">Mes commandes</a>
+        <a href="{{ path('evenement.index') }}" class="btn btn-sm">Autres événements</a>
     </div>
 </section>
 
@@ -72,9 +72,37 @@
 .pill-vip { background: var(--couleur-warning); color: #fff; }
 .pill-simple { background: var(--couleur-primaire); color: #fff; }
 .info-card .card-meta { margin: 0; }
+.card-actions-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+}
+
+.card-actions-confirm .btn {
+    flex: 1 1 auto;
+    min-width: 120px;
+    text-align: center;
+    justify-content: center;
+}
+
 @media (max-width: 700px) {
-    .confirmation-metrics { grid-template-columns: 1fr; }
-    .ticket-top, .ticket-bottom { flex-direction: column; align-items: flex-start; }
+    .confirmation-wrap { gap: .75rem; }
+    .confirmation-metrics { grid-template-columns: 1fr 1fr; }
+    .ticket-top { flex-direction: row; flex-wrap: wrap; }
+    .ticket-bottom { flex-direction: row; align-items: center; flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+    .confirmation-metrics { grid-template-columns: 1fr 1fr; gap: .4rem; }
+    .ticket-top { flex-direction: column; align-items: flex-start; }
+    .ticket-bottom { flex-direction: column; align-items: flex-start; }
+    .card-actions-confirm {
+        flex-direction: column;
+    }
+    .card-actions-confirm .btn {
+        width: 100%;
+    }
 }
 </style>
 {% endblock %}

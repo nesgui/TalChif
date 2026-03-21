@@ -35,17 +35,18 @@
             {% endif %}
         </form>
         
-        <table id="users-table" class="table">
+        <div class="table-responsive">
+        <table id="users-table" class="dt-table" data-order="[[0, 'asc']]">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Email</th>
                     <th>Nom complet</th>
                     <th>Téléphone</th>
-                    <th>Rôle</th>
-                    <th>Statut</th>
+                    <th data-no-sort>Rôle</th>
+                    <th data-no-sort>Statut</th>
                     <th>Date d'inscription</th>
-                    <th>Actions</th>
+                    <th data-no-sort>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,19 +74,21 @@
                     </td>
                     <td>{{ user.createdAt ? user.createdAt|date('d/m/Y') : 'N/A' }}</td>
                     <td>
-                        <a href="{{ path('admin.user.edit', {id: user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
-                        {% if user != app.user %}
-                            <form method="post" action="{{ path('admin.user.toggle_actif', {id: user.id}) }}" style="display: inline;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_actif' ~ user.id) }}">
-                                {% if user.actif %}
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Désactiver le compte de {{ user.nom }} ? Il ne pourra plus se connecter.')">Désactiver</button>
-                                {% else %}
-                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Réactiver le compte de {{ user.nom }} ?')">Activer</button>
-                                {% endif %}
-                            </form>
-                        {% else %}
-                            <button type="button" class="btn btn-sm" disabled title="Vous ne pouvez pas désactiver votre propre compte">Vous</button>
-                        {% endif %}
+                        <div class="btn-group">
+                            <a href="{{ path('admin.user.edit', {id: user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                            {% if user != app.user %}
+                                <form method="post" action="{{ path('admin.user.toggle_actif', {id: user.id}) }}" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle_actif' ~ user.id) }}">
+                                    {% if user.actif %}
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Désactiver le compte de {{ user.nom }} ? Il ne pourra plus se connecter.')">Désactiver</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Réactiver le compte de {{ user.nom }} ?')">Activer</button>
+                                    {% endif %}
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-sm" disabled title="Vous ne pouvez pas désactiver votre propre compte">Vous</button>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% else %}
@@ -95,6 +98,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
 
         {% if total > 0 %}
             <nav class="table-pagination" aria-label="Pagination utilisateurs">

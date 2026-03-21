@@ -492,6 +492,53 @@ final class AchatController extends AbstractController
         return $this->render('achat/billet.html.twig', ['billet' => $billet]);
     }
 
+    #[Route('/achat/annuler/{reference}', name: 'achat.annuler', methods: ['POST'], requirements: ['reference' => '[A-Z0-9\-]+'])]
+    #[IsGranted('ROLE_CLIENT')]
+    public function annuler(string $reference, Request $request): Response
+    {
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('annuler_' . $reference, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('achat.commandes');
+        }
+
+        $commande = $this->commandeRepository->findByReference($reference);
+
+        if (!$commande || $commande->getClient()->getId() !== $user->getId()) {
+            throw $this->createNotFoundException('Commande introuvable.');
+        }
+
+        // Seules les commandes en attente peuvent être annulées
+        if (!$commande->isPending() && !$commande->isProcessing()) {
+            $this->addFlash('error', 'Cette commande ne peut plus être annulée.');
+            return $this->redirectToRoute('achat.commandes');
+        }
+
+        // Empêcher l'annulation si une capture a déjà été envoyée
+        if ($commande->getReferenceTransactionClient()) {
+            $this->addFlash('error', 'Impossible d\'annuler : vous avez déjà soumis une preuve de paiement. Contactez le support.');
+            return $this->redirectToRoute('achat.commandes');
+        }
+
+        // Marquer comme expirée (annulée par le client)
+        $commande->marquerExpiree();
+        $this->entityManager->flush();
+
+        // Logger
+        $log = new \App\Entity\LogSecurite();
+        $log->setAction('CLIENT_ANNULATION_COMMANDE');
+        $log->setReferenceCommande($reference);
+        $log->setUtilisateur($user);
+        $log->setIpAddress($request->getClientIp());
+        $log->setDetails('Annulation demandée par le client ' . $user->getEmail());
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Commande ' . $reference . ' annulée avec succès.');
+        return $this->redirectToRoute('achat.commandes');
+    }
+
     private function isTelephoneCompatibleWithMethod(string $methodePaiement, string $telephone): bool
     {
         $digits = preg_replace('/\D+/', '', $telephone) ?? '';

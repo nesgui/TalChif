@@ -29,6 +29,22 @@
                 <a href="{{ path('achat.instructions', {reference: c.reference}) }}" class="btn btn-primary">
                     Voir les instructions
                 </a>
+                {% if not c.referenceTransactionClient %}
+                <form method="post"
+                      action="{{ path('achat.annuler', {reference: c.reference}) }}"
+                      onsubmit="return confirm('Annuler la commande {{ c.reference }} ?');"
+                      style="display: inline;">
+                    <input type="hidden" name="_token"
+                           value="{{ csrf_token('annuler_' ~ c.reference) }}">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        Annuler
+                    </button>
+                </form>
+                {% else %}
+                <span class="muted" style="font-size:.78rem;">
+                    Preuve envoyée — contactez le support pour annuler
+                </span>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

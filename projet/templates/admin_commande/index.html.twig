@@ -2,276 +2,578 @@
 
 {% set section = 'admin' %}
 
-{% block title %}Admin - Commandes & Validation paiements{% endblock %}
-
-{% block dashboard_title %}Commandes & validation Mobile Money{% endblock %}
+{% block title %}Admin - Commandes & Validation{% endblock %}
+{% block dashboard_title %}Commandes & paiements{% endblock %}
 
 {% block dashboard_actions %}
-<form method="post" action="{{ path('admin.commande.export') }}" style="display: inline;">
+<form method="post" action="{{ path('admin.commande.export') }}" style="display:inline;">
     <input type="hidden" name="_token" value="{{ csrf_token('admin_export_commandes') }}">
-    <button type="submit" class="btn btn-secondary">Export CSV</button>
+    <button type="submit" class="btn btn-sm btn-secondary">Export CSV</button>
 </form>
-<a href="{{ path('admin.commande.references') }}" class="btn btn-primary">Références à vérifier ({{ pendingWithReference|length }})</a>
 {% endblock %}
 
 {% block dashboard_content %}
-<p class="page-subtitle">Validation manuelle des paiements Mobile Money.</p>
 
-<div class="admin-stats">
-    <div class="stat-card">
-        <span class="stat-label">Total encaissé</span>
-        <span class="stat-value">{{ totalEncaisse|number_format(0, '.', ' ') }} FCFA</span>
+<style>
+.cmd-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+}
+.cmd-kpi {
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: .85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+}
+.cmd-kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--couleur-texte);
+}
+.cmd-kpi-label {
+    font-size: .78rem;
+    color: var(--couleur-texte-secondaire);
+}
+.cmd-kpi.kpi-warn { border-left: 3px solid var(--couleur-warning); }
+.cmd-kpi.kpi-ok   { border-left: 3px solid var(--couleur-success); }
+.cmd-kpi.kpi-info { border-left: 3px solid var(--couleur-primaire); }
+
+/* Sections */
+.cmd-section { display: none; }
+.cmd-section.active { display: block; }
+
+/* Bottom nav */
+.cmd-bottom-nav {
+    position: sticky;
+    bottom: 0;
+    background: var(--couleur-surface);
+    border-top: 1px solid var(--couleur-bordure);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    margin-top: 1.5rem;
+    z-index: 10;
+    border-radius: 0 0 var(--rayon) var(--rayon);
+}
+.cmd-nav-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .2rem;
+    padding: .5rem .9rem;
+    border-radius: var(--rayon);
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-fond);
+    color: var(--couleur-texte-secondaire);
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    text-decoration: none;
+    min-width: 80px;
+    text-align: center;
+    min-height: 44px;
+}
+.cmd-nav-btn:hover {
+    border-color: var(--couleur-primaire);
+    color: var(--couleur-primaire);
+}
+.cmd-nav-btn.active {
+    background: var(--couleur-primaire);
+    border-color: var(--couleur-primaire);
+    color: #fff;
+}
+.cmd-nav-btn .cmd-nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 700;
+    background: rgba(255,255,255,.3);
+    color: inherit;
+}
+.cmd-nav-btn:not(.active) .cmd-nav-badge {
+    background: var(--couleur-warning);
+    color: #fff;
+}
+.cmd-nav-icon { font-size: 1.1rem; }
+
+/* Tables */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.dt-table { width: 100% !important; border-collapse: collapse; }
+table.dt-table th, table.dt-table td {
+    padding: .5rem .6rem;
+    font-size: .85rem;
+    white-space: nowrap;
+}
+table.dt-table td.wrap { white-space: normal; }
+
+/* DataTables search */
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+    text-align: left;
+    float: none;
+    clear: both;
+}
+.dataTables_wrapper .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
+    font-weight: 500;
+}
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 999px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+    width: 250px;
+    transition: all 0.2s ease;
+}
+.dataTables_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 2px rgba(var(--couleur-primaire-rgb), 0.1);
+    background: var(--couleur-surface);
+}
+.dataTables_wrapper .dataTables_filter input::placeholder {
+    color: var(--couleur-texte-secondaire);
+    opacity: 0.7;
+}
+
+/* DataTables info */
+.dataTables_wrapper .dataTables_info {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--couleur-texte-secondaire);
+    text-align: left;
+    float: none;
+    clear: both;
+}
+
+/* DataTables pagination */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 1rem;
+    text-align: left;
+    float: none;
+    clear: both;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    margin: 0 2px;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 999px;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: var(--couleur-primaire);
+    color: var(--couleur-primaire);
+    background: var(--couleur-surface);
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--couleur-primaire);
+    border-color: var(--couleur-primaire);
+    color: #fff;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* DataTables length */
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 1rem;
+    float: none;
+    text-align: left;
+}
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+}
+
+/* Formulaires inline */
+.form-inline {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: .2rem 0;
+}
+.form-inline input[type="number"],
+.form-inline input[type="text"] {
+    max-width: 130px;
+    padding: .28rem .5rem;
+    font-size: .82rem;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+}
+
+/* Empty state */
+.empty-state-inline {
+    padding: 2rem;
+    text-align: center;
+    color: var(--couleur-texte-secondaire);
+    font-size: .9rem;
+}
+</style>
+
+{# ── KPIs ── #}
+<div class="cmd-kpis">
+    <div class="cmd-kpi kpi-warn">
+        <div class="cmd-kpi-value">{{ pending|length }}</div>
+        <div class="cmd-kpi-label">En attente</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">Total commission (10%)</span>
-        <span class="stat-value">{{ totalCommission|number_format(0, '.', ' ') }} FCFA</span>
+    <div class="cmd-kpi kpi-ok">
+        <div class="cmd-kpi-value">{{ totalEncaisse|number_format(0, '.', ' ') }}</div>
+        <div class="cmd-kpi-label">FCFA encaissés</div>
+    </div>
+    <div class="cmd-kpi kpi-info">
+        <div class="cmd-kpi-value">{{ totalCommission|number_format(0, '.', ' ') }}</div>
+        <div class="cmd-kpi-label">FCFA commission</div>
+    </div>
+    <div class="cmd-kpi">
+        <div class="cmd-kpi-value">{{ paid|length }}</div>
+        <div class="cmd-kpi-label">Validées</div>
+    </div>
+    <div class="cmd-kpi">
+        <div class="cmd-kpi-value">{{ expired|length }}</div>
+        <div class="cmd-kpi-label">Expirées</div>
     </div>
 </div>
 
-<div class="admin-sections">
-    <section class="card">
-        <h2 class="card-title">Commandes en attente ({{ pending|length }})</h2>
-        <p class="card-meta">En attente de validation - Vérifier dashboard opérateur Mobile Money</p>
+{# ── Section : En attente ── #}
+<div class="cmd-section active card" id="section-pending">
+    <h2 class="card-title">
+        Commandes en attente
         {% if pending|length > 0 %}
-        <div class="table-responsive">
-            <table class="table" id="commandes-pending-table">
-                <thead>
-                    <tr>
-                        <th>Réf.</th>
-                        <th>Client</th>
-                        <th>Tél.</th>
-                        <th>Montant</th>
-                        <th>Réf. transaction client</th>
-                        <th>Expire</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in pending %}
-                    <tr>
-                        <td><code>{{ c.reference }}</code></td>
-                        <td>{{ c.client.email }}</td>
-                        <td>{{ c.numeroClient }}</td>
-                        <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
-                        <td>{{ c.referenceTransactionClient ?: '-' }}</td>
-                        <td>{{ c.dateExpiration|date('H:i') }}</td>
-                        <td>
-                            {% if c.capturePreuvePaiement %}
-                                <a href="{{ path('admin.commande.preuve', {reference: c.reference}) }}"
-                                   target="_blank"
-                                   class="btn btn-sm btn-outline"
-                                   title="Voir la capture de transaction">
-                                    📸 Voir la preuve
-                                </a>
-                            {% endif %}
-                            <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline validate-form">
-                                <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
-                                <input type="number" name="montant_recu" step="1" min="0" value="{{ c.montantTotal }}" required placeholder="Montant reçu">
-                                <input type="text" name="numero_expediteur" value="{{ c.numeroClient }}" required placeholder="Num. expéditeur">
-                                <button type="submit" class="btn btn-primary btn-sm">Valider</button>
-                            </form>
-                            <form method="post" action="{{ path('admin.commande.rejeter', {reference: c.reference}) }}" class="form-inline" onsubmit="return confirm('Rejeter cette commande ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('rejeter_' ~ c.reference) }}">
-                                <input type="text" name="raison" placeholder="Raison (optionnel)">
-                                <button type="submit" class="btn btn-error btn-sm">Rejeter</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="card-meta">Aucune commande en attente.</p>
+            <span style="font-size:.82rem;font-weight:400;color:var(--couleur-texte-secondaire);">
+                — {{ pending|length }} à traiter
+            </span>
         {% endif %}
-    </section>
-
-    <section class="card">
-        <h2 class="card-title">Commandes payées</h2>
-        <p class="card-meta">{{ paid|length }} paiement(s) validé(s)</p>
-        {% if paid|length > 0 %}
-        <div class="table-responsive">
-            <table class="table" id="commandes-paid-table">
-                <thead>
-                    <tr>
-                        <th>Réf.</th>
-                        <th>Client</th>
-                        <th>Montant</th>
-                        <th>Commission</th>
-                        <th>Validé par</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in paid %}
-                    <tr>
-                        <td><code>{{ c.reference }}</code></td>
-                        <td>{{ c.client.email }}</td>
-                        <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
-                        <td>{{ c.commissionPlateforme|number_format(0, '.', ' ') }} FCFA</td>
-                        <td>{{ c.validePar ? c.validePar.email : '-' }}</td>
-                        <td>{{ c.dateValidation ? c.dateValidation|date('d/m H:i') : '-' }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="card-meta">Aucun paiement validé.</p>
-        {% endif %}
-    </section>
-
-    <section class="card">
-        <h2 class="card-title">Paiements organisateurs</h2>
-        <p class="card-meta">Événements terminés - Valider après transfert Mobile Money</p>
-        {% if evenementsAPayer|length > 0 %}
-        <div class="table-responsive">
-            <table class="table" id="paiements-organisateurs-table">
-                <thead>
-                    <tr>
-                        <th>Événement</th>
-                        <th>Organisateur</th>
-                        <th>Tél.</th>
-                        <th>Ventes</th>
-                        <th>Solde net</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in evenementsAPayer %}
-                    {% set evt = item.evenement %}
-                    <tr>
-                        <td>{{ evt.nom }}</td>
-                        <td>{{ evt.organisateur ? evt.organisateur.email : '-' }}</td>
-                        <td>{{ evt.organisateur ? evt.organisateur.telephone : '-' }}</td>
-                        <td>{{ evt.placesVendues }} billets</td>
-                        <td>{{ item.soldeNet|number_format(0, '.', ' ') }} FCFA</td>
-                        <td>
-                            <form method="post" action="{{ path('admin.commande.settle', {id: evt.id}) }}" onsubmit="return confirm('Confirmer le règlement vers l\'organisateur ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('settle_' ~ evt.id) }}">
-                                <button type="submit" class="btn btn-primary btn-sm">Valider événement</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="card-meta">Aucun événement en attente de règlement.</p>
-        {% endif %}
-    </section>
-
-    <section class="card">
-        <h2 class="card-title">Commandes expirées</h2>
-        <p class="card-meta">{{ expired|length }} commande(s) expirée(s)</p>
-        {% if expired|length > 0 %}
-        <div class="table-responsive">
-            <table class="table" id="commandes-expired-table">
-                <thead>
-                    <tr>
-                        <th>Réf.</th>
-                        <th>Montant</th>
-                        <th>Date création</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in expired %}
-                    <tr>
-                        <td><code>{{ c.reference }}</code></td>
-                        <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
-                        <td>{{ c.createdAt|date('d/m/Y H:i') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-    </section>
-
-    <section class="card">
-        <h2 class="card-title">Logs sécurité</h2>
-        <p class="card-meta">Historique des actions admin</p>
-        <div class="table-responsive">
-            <table class="table" id="logs-securite-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Action</th>
-                        <th>Réf.</th>
-                        <th>Détails</th>
-                        <th>Utilisateur</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in logs %}
-                    <tr>
-                        <td>{{ log.createdAt|date('d/m H:i:s') }}</td>
-                        <td><span class="pill pill-{{ log.action starts with 'VALIDATION_OK' ? 'success' : (log.action starts with 'VALIDATION_' ? 'warning' : 'info') }}">{{ log.action }}</span></td>
-                        <td><code>{{ log.referenceCommande }}</code></td>
-                        <td>{{ log.details|default('-') }}</td>
-                        <td>{{ log.utilisateur ? log.utilisateur.email : '-' }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+    </h2>
+    <p class="card-meta">Vérifier dans le dashboard opérateur Mobile Money avant de valider.</p>
+    {% if pending|length > 0 %}
+    <div class="table-responsive">
+        <table class="dt-table" data-order="[[5,'asc']]" data-search="true">
+            <thead>
+                <tr>
+                    <th>Réf.</th>
+                    <th>Client</th>
+                    <th>Tél.</th>
+                    <th>Montant</th>
+                    <th>Réf. SMS</th>
+                    <th>Expire</th>
+                    <th data-no-sort>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in pending %}
+                <tr>
+                    <td><code>{{ c.reference }}</code></td>
+                    <td>{{ c.client.email }}</td>
+                    <td>{{ c.numeroClient }}</td>
+                    <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                    <td>{{ c.referenceTransactionClient ?: '—' }}</td>
+                    <td>{{ c.dateExpiration|date('H:i') }}</td>
+                    <td class="wrap">
+                        {% if c.capturePreuvePaiement %}
+                            <a href="{{ path('admin.commande.preuve', {reference: c.reference}) }}"
+                               target="_blank" class="btn btn-sm btn-outline" title="Voir la capture">
+                                <span class="btn-label-desktop">Preuve</span>
+                            </a>
+                        {% endif %}
+                        <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
+                            <input type="number" name="montant_recu" step="1" min="0"
+                                   value="{{ c.montantTotal }}" required placeholder="Montant">
+                            <input type="text" name="numero_expediteur"
+                                   value="{{ c.numeroClient }}" required placeholder="Numéro">
+                            <button type="submit" class="btn btn-sm btn-primary">Valider</button>
+                        </form>
+                        <form method="post" action="{{ path('admin.commande.rejeter', {reference: c.reference}) }}"
+                              class="form-inline" onsubmit="return confirm('Rejeter cette commande ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('rejeter_' ~ c.reference) }}">
+                            <input type="text" name="raison" placeholder="Raison (optionnel)">
+                            <button type="submit" class="btn btn-sm btn-danger">Rejeter</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state-inline">Aucune commande en attente.</div>
+    {% endif %}
 </div>
+
+{# ── Section : Validées ── #}
+<div class="cmd-section card" id="section-paid">
+    <h2 class="card-title">Paiements validés</h2>
+    <p class="card-meta">{{ paid|length }} paiement(s) confirmé(s).</p>
+    {% if paid|length > 0 %}
+    <div class="table-responsive">
+        <table class="dt-table" data-order="[[5,'desc']]" data-search="true">
+            <thead>
+                <tr>
+                    <th>Réf.</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                    <th>Commission</th>
+                    <th>Validé par</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in paid %}
+                <tr>
+                    <td><code>{{ c.reference }}</code></td>
+                    <td>{{ c.client.email }}</td>
+                    <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                    <td>{{ c.commissionPlateforme|number_format(0, '.', ' ') }} FCFA</td>
+                    <td>{{ c.validePar ? c.validePar.email : '—' }}</td>
+                    <td>{{ c.dateValidation ? c.dateValidation|date('d/m H:i') : '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state-inline">Aucun paiement validé pour le moment.</div>
+    {% endif %}
+</div>
+
+{# ── Section : Réglements organisateurs ── #}
+<div class="cmd-section card" id="section-organisateurs">
+    <h2 class="card-title">Réglements organisateurs</h2>
+    <p class="card-meta">Événements terminés — valider après transfert Mobile Money.</p>
+    {% if evenementsAPayer|length > 0 %}
+    <div class="table-responsive">
+        <table class="dt-table" data-order="[[0,'asc']]" data-search="true">
+            <thead>
+                <tr>
+                    <th>Événement</th>
+                    <th>Organisateur</th>
+                    <th>Tél.</th>
+                    <th>Ventes</th>
+                    <th>Solde net</th>
+                    <th data-no-sort>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in evenementsAPayer %}
+                {% set evt = item.evenement %}
+                <tr>
+                    <td>{{ evt.nom }}</td>
+                    <td>{{ evt.organisateur ? evt.organisateur.email : '—' }}</td>
+                    <td>{{ evt.organisateur ? evt.organisateur.telephone : '—' }}</td>
+                    <td>{{ evt.placesVendues }} billets</td>
+                    <td>{{ item.soldeNet|number_format(0, '.', ' ') }} FCFA</td>
+                    <td>
+                        <form method="post" action="{{ path('admin.commande.settle', {id: evt.id}) }}"
+                              onsubmit="return confirm('Confirmer le règlement ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('settle_' ~ evt.id) }}">
+                            <button type="submit" class="btn btn-sm btn-primary">Valider</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state-inline">Aucun événement en attente de règlement.</div>
+    {% endif %}
+</div>
+
+{# ── Section : Expirées ── #}
+<div class="cmd-section card" id="section-expired">
+    <h2 class="card-title">Commandes expirées</h2>
+    <p class="card-meta">{{ expired|length }} commande(s) expirée(s).</p>
+    {% if expired|length > 0 %}
+    <div class="table-responsive">
+        <table class="dt-table" data-order="[[2,'desc']]" data-search="true">
+            <thead>
+                <tr>
+                    <th>Réf.</th>
+                    <th>Montant</th>
+                    <th>Date création</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in expired %}
+                <tr>
+                    <td><code>{{ c.reference }}</code></td>
+                    <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                    <td>{{ c.createdAt|date('d/m/Y H:i') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state-inline">Aucune commande expirée.</div>
+    {% endif %}
+</div>
+
+{# ── Section : Logs sécurité ── #}
+<div class="cmd-section card" id="section-logs">
+    <h2 class="card-title">Logs sécurité</h2>
+    <p class="card-meta">Historique des actions admin.</p>
+    <div class="table-responsive">
+        <table class="dt-table" data-order="[[0,'desc']]" data-page-length="15" data-search="true">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Réf.</th>
+                    <th>Détails</th>
+                    <th>Utilisateur</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.createdAt|date('d/m H:i:s') }}</td>
+                    <td>
+                        <span class="pill pill-{{
+                            log.action starts with 'VALIDATION_PAIEMENT' and 'ECHEC' not in log.action ? 'success' :
+                            (log.action ends with 'ECHEC' ? 'danger' : 'info')
+                        }}">{{ log.action }}</span>
+                    </td>
+                    <td><code>{{ log.referenceCommande }}</code></td>
+                    <td>{{ log.details|default('—') }}</td>
+                    <td>{{ log.utilisateur ? log.utilisateur.email : '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# ── Bottom navigation ── #}
+<nav class="cmd-bottom-nav" aria-label="Navigation sections">
+    <button class="cmd-nav-btn active" data-target="section-pending" onclick="showSection(this, 'section-pending')">
+        En attente
+        {% if pending|length > 0 %}
+            <span class="cmd-nav-badge">{{ pending|length }}</span>
+        {% endif %}
+    </button>
+    <button class="cmd-nav-btn" data-target="section-paid" onclick="showSection(this, 'section-paid')">
+        Validées
+    </button>
+    <button class="cmd-nav-btn" data-target="section-organisateurs" onclick="showSection(this, 'section-organisateurs')">
+        Réglements
+    </button>
+    <button class="cmd-nav-btn" data-target="section-expired" onclick="showSection(this, 'section-expired')">
+        Expirées
+    </button>
+    <button class="cmd-nav-btn" data-target="section-logs" onclick="showSection(this, 'section-logs')">
+        Logs
+    </button>
+</nav>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof DataTableOS === 'undefined') {
-        return;
-    }
-
-    if (document.querySelector('#commandes-pending-table')) {
-        DataTableOS.init('#commandes-pending-table', {
-            order: [[5, 'asc']],
-            columnDefs: [
-                { targets: [6], orderable: false }
-            ]
+    // Initialiser la première section visible (En attente)
+    initializeDataTables('section-pending');
+    
+    // Initialiser les autres sections quand elles deviennent actives
+    window.showSection = function(btn, targetId) {
+        // Masquer toutes les sections
+        document.querySelectorAll('.cmd-section').forEach(function(s) {
+            s.classList.remove('active');
         });
-    }
-
-    if (document.querySelector('#commandes-paid-table')) {
-        DataTableOS.init('#commandes-paid-table', {
-            order: [[5, 'desc']],
+        // Désactiver tous les boutons
+        document.querySelectorAll('.cmd-nav-btn').forEach(function(b) {
+            b.classList.remove('active');
         });
-    }
-
-    if (document.querySelector('#paiements-organisateurs-table')) {
-        DataTableOS.init('#paiements-organisateurs-table', {
-            order: [[0, 'asc']],
-            columnDefs: [
-                { targets: [5], orderable: false }
-            ]
-        });
-    }
-
-    if (document.querySelector('#commandes-expired-table')) {
-        DataTableOS.init('#commandes-expired-table', {
-            order: [[2, 'desc']],
-        });
-    }
-
-    if (document.querySelector('#logs-securite-table')) {
-        DataTableOS.init('#logs-securite-table', {
-            order: [[0, 'desc']],
+        // Afficher la section cible
+        const target = document.getElementById(targetId);
+        if (target) {
+            target.classList.add('active');
+            // Initialiser DataTables dans cette section si pas déjà fait
+            initializeDataTables(targetId);
+        }
+        // Activer le bouton cliqué
+        btn.classList.add('active');
+        // Scroll vers le haut de la section
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    
+    function initializeDataTables(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+        
+        const tables = section.querySelectorAll('table.dt-table');
+        tables.forEach(function(table) {
+            // Vérifier si DataTable est déjà initialisé
+            if (!$.fn.DataTable.isDataTable(table)) {
+                // Récupérer les attributs de données
+                const order = table.getAttribute('data-order') ? JSON.parse(table.getAttribute('data-order')) : [[0, 'asc']];
+                const pageLength = table.getAttribute('data-page-length') || 25;
+                const searchEnabled = table.getAttribute('data-search') !== 'false';
+                
+                // Initialiser DataTable
+                $(table).DataTable({
+                    language: {
+                        search: "Rechercher:",
+                        lengthMenu: "Afficher _MENU_ entrées",
+                        info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                        paginate: {
+                            first: "Premier",
+                            last: "Dernier",
+                            next: "Suivant",
+                            previous: "Précédent"
+                        }
+                    },
+                    searching: searchEnabled,
+                    ordering: true,
+                    order: order,
+                    pageLength: parseInt(pageLength),
+                    responsive: true,
+                    columnDefs: [
+                        { targets: '[data-no-sort]', orderable: false }
+                    ]
+                });
+            } else {
+                // Si déjà initialisé, juste ajuster les colonnes
+                $(table).DataTable().columns.adjust();
+            }
         });
     }
 });
 </script>
 
-<style>
-.admin-stats { display: flex; gap: 1rem; margin-bottom: 2rem; }
-.stat-card { flex: 1; padding: 1.5rem; background: var(--couleur-surface); border-radius: var(--rayon); border: 1px solid var(--couleur-bordure); }
-.stat-label { display: block; font-size: 0.875rem; color: var(--couleur-texte-secondaire); }
-.stat-value { font-size: 1.5rem; font-weight: 700; }
-.form-inline { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.25rem 0; }
-.form-inline input[type="number"],
-.form-inline input[type="text"] { max-width: 140px; padding: 0.25rem 0.5rem; }
-.btn-error { background: var(--couleur-error); color: white; }
-.table-responsive { overflow-x: auto; }
-</style>
 {% endblock %}
