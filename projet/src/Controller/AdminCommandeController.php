@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -220,5 +220,53 @@ final class AdminCommandeController extends AbstractController
         $this->entityManager->flush();
 
         return $response;
+    }
+
+    #[Route('/preuve/{reference}', name: 'admin.commande.preuve', requirements: ['reference' => '[A-Z0-9\-]+'], methods: ['GET'])]
+    public function voirPreuve(string $reference): Response
+    {
+        $commande = $this->commandeRepository->findByReference($reference);
+
+        if (!$commande) {
+            throw $this->createNotFoundException('Commande introuvable.');
+        }
+
+        $nomFichier = $commande->getCapturePreuvePaiement();
+        if (!$nomFichier) {
+            throw $this->createNotFoundException('Aucune capture disponible pour cette commande.');
+        }
+
+        $cheminAbsolu = $this->getParameter('kernel.project_dir') . '/var/preuves-paiement/' . $nomFichier;
+
+        if (!is_file($cheminAbsolu) || !is_readable($cheminAbsolu)) {
+            throw $this->createNotFoundException('Fichier introuvable sur le serveur.');
+        }
+
+        // Détecter le type MIME réel
+        $mime = mime_content_type($cheminAbsolu) ?: 'image/jpeg';
+        $typesAutorises = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!in_array($mime, $typesAutorises, true)) {
+            throw $this->createAccessDeniedException('Type de fichier non autorisé.');
+        }
+
+        // Logger la consultation
+        $log = new LogSecurite();
+        $log->setAction('ADMIN_CONSULTATION_PREUVE');
+        $log->setReferenceCommande($reference);
+        $log->setDetails('Preuve consultée par ' . $this->getUser()->getEmail());
+        $log->setUtilisateur($this->getUser());
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+        return new BinaryFileResponse(
+            $cheminAbsolu,
+            200,
+            [
+                'Content-Type'        => $mime,
+                'Content-Disposition' => 'inline; filename="preuve-' . $reference . '"',
+                'Cache-Control'       => 'no-store, no-cache',
+                'X-Content-Type-Options' => 'nosniff',
+            ]
+        );
     }
 }

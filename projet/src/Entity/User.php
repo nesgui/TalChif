@@ -58,6 +58,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $verificationToken = null;
+
     #[ORM\Column(type: 'string', length: 20)]
     private string $role = 'CLIENT'; // CLIENT, ORGANISATEUR, ADMIN
 
@@ -211,6 +214,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $token): static
+    {
+        $this->verificationToken = $token;
 
         return $this;
     }

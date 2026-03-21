@@ -119,6 +119,90 @@
 .actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 
 /* Styles pour le formulaire d'upload */
+.etapes-paiement {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.etape {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.etape-numero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    background: #1a73e8;
+    color: #fff;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.etape-texte {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 20px 0;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #222;
+}
+
+.champ-requis { color: #c0392b; margin-left: 4px; }
+.champ-conseille { font-weight: 400; color: #888; font-size: 12px; margin-left: 4px; }
+
+.form-hint {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.upload-zone {
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fafafa;
+}
+
+.upload-zone:hover {
+    border-color: #1a73e8;
+    background: #f0f6ff;
+}
+
+.upload-placeholder p {
+    margin: 8px 0 4px;
+    font-size: 14px;
+    color: #444;
+}
+
+.upload-placeholder small {
+    font-size: 12px;
+    color: #888;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -248,5 +332,47 @@ setInterval(updateCountdown, 1000);
 showInitialStatus();
 checkStatus();
 setInterval(checkStatus, 15000);
+
+// JavaScript pour l'upload de capture
+(function() {
+    const input = document.getElementById('capture_transaction');
+    const preview = document.getElementById('upload-preview');
+    const placeholder = document.getElementById('upload-placeholder');
+    const zone = document.getElementById('upload-zone');
+
+    if (!input) return;
+
+    input.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        // Vérification taille
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Le fichier est trop lourd. Maximum 5 Mo.');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            zone.style.borderColor = '#27ae60';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Drag and drop
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = '#1a73e8'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = '#e0e0e0'; });
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length > 0) {
+            input.files = e.dataTransfer.files;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+})();
 </script>
 {% endblock %}

@@ -11,6 +11,8 @@ use App\Domain\Exception\PlacesInsuffisantesException;
 use App\Entity\Billet;
 use App\Entity\Commande;
 use App\Entity\LogSecurite;
+use App\Service\Ticket\QrCodeGeneratorService;
+use App\Service\Notification\BilletEmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -24,6 +26,8 @@ final class ConfirmerDepotPawaPayHandler
         private CommandeRepositoryInterface $commandeRepository,
         private EvenementRepositoryInterface $evenementRepository,
         private BilletRepositoryInterface $billetRepository,
+        private QrCodeGeneratorService $qrCodeGenerator,
+        private BilletEmailService $billetEmailService,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger
     ) {
@@ -137,7 +141,7 @@ final class ConfirmerDepotPawaPayHandler
 
                 for ($i = 0; $i < $quantite; $i++) {
                     $billet = new Billet();
-                    $billet->setQrCode($this->genererCodeQr());
+                    $billet->setQrCode($this->qrCodeGenerator->generer());
                     $billet->setType($ligne->getTypeBillet());
                     $billet->setPrix($ligne->getPrixUnitaire());
                     $billet->setEvenement($evenementLocked);
@@ -170,6 +174,17 @@ final class ConfirmerDepotPawaPayHandler
 
             $this->entityManager->flush();
             $this->entityManager->commit();
+
+            // Envoyer l'email de confirmation
+            try {
+                $this->billetEmailService->envoyerConfirmationAchat($commande);
+            } catch (\Throwable $e) {
+                // Ne pas faire échouer la commande si l'email plante
+                $this->logger->warning('Email confirmation non envoyé', [
+                    'reference' => $commande->getReference(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
             
             $this->logger->info('PawaPay: balance mise à jour', [
                 'reference' => $commande->getReference(),
@@ -192,10 +207,6 @@ final class ConfirmerDepotPawaPayHandler
         }
     }
 
-    private function genererCodeQr(): string
-    {
-        return 'BILLET_' . uniqid('', true) . '_' . time();
-    }
 
     private function loggerAction(string $action, string $reference, string $details): void
     {

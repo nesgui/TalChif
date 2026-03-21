@@ -53,7 +53,11 @@ final class CreerCommandeHandler
             $lignesDonnees = [];
 
             // Verrouiller les événements
-            foreach ($command->panier as $idEvenement => $quantite) {
+            foreach ($command->panier as $idEvenement => $donneesPanier) {
+                // Compatibilité ancienne structure (int) et nouvelle (array)
+                $quantite = is_array($donneesPanier) ? $donneesPanier['quantite'] : $donneesPanier;
+                $typeBillet = is_array($donneesPanier) ? ($donneesPanier['type'] ?? 'SIMPLE') : 'SIMPLE';
+                
                 $evenement = $this->evenementRepository->findByIdWithLock($idEvenement);
 
                 if (!$evenement) {
@@ -67,13 +71,18 @@ final class CreerCommandeHandler
                     );
                 }
 
-                $prix = $evenement->getPrixSimple();
+                // Utiliser le bon prix selon le type
+                $prix = $typeBillet === 'VIP' && $evenement->getPrixVip()
+                    ? $evenement->getPrixVip()
+                    : $evenement->getPrixSimple();
+                
                 $sousTotal = $prix * $quantite;
                 $total += $sousTotal;
                 $lignesDonnees[] = [
                     'evenement' => $evenement,
                     'quantite' => $quantite,
-                    'prix' => $prix
+                    'prix' => $prix,
+                    'type' => $typeBillet
                 ];
             }
 
@@ -105,7 +114,7 @@ final class CreerCommandeHandler
                 $ligne->setEvenement($donnees['evenement']);
                 $ligne->setQuantite($donnees['quantite']);
                 $ligne->setPrixUnitaire($donnees['prix']);
-                $ligne->setTypeBillet('SIMPLE');
+                $ligne->setTypeBillet($donnees['type']);
                 $this->entityManager->persist($ligne);
             }
 
@@ -160,14 +169,7 @@ final class CreerCommandeHandler
 
     private function genererUuid(): string
     {
-        return sprintf(
-            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0x0fff) | 0x4000,
-            mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-        );
+        return \Symfony\Component\Uid\Uuid::v4()->toRfc4122();
     }
 
     private function genererReference(): string

@@ -51,7 +51,7 @@ final class TicketRenderService
             $typeBillet = TicketDesign::TYPE_VIP;
         } else {
             // compat legacy ("Simple")
-            $typeBillet = $type === 'SIMPLE' ? TicketDesign::TYPE_SIMPLE : TicketDesign::TYPE_SIMPLE;
+            $typeBillet = $type === 'VIP' ? TicketDesign::TYPE_VIP : TicketDesign::TYPE_SIMPLE;
         }
 
         $ticketDesign = $this->ticketDesignRepository->findOneForEvenementAndType($evenement, $typeBillet);

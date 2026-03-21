@@ -29,26 +29,36 @@ final class PanierController extends AbstractController
         $lignes = [];
         $total = 0;
 
-        foreach ($panier as $id => $quantite) {
+        foreach ($panier as $id => $donnees) {
+            // Compatibilité ancienne structure (int) et nouvelle (array)
+            $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
+            $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
+            
             $evenement = $this->evenementRepository->find($id);
             
             if (!$evenement || !$evenement->isActive()) {
                 continue;
             }
 
-            $prixMin = $evenement->getPrixSimple();
-            $sousTotal = $prixMin * $quantite;
+            $prix = $type === 'VIP' && $evenement->getPrixVip()
+                ? $evenement->getPrixVip()
+                : $evenement->getPrixSimple();
+            
+            $sousTotal = $prix * $quantite;
             $total += $sousTotal;
 
             $lignes[] = [
                 'id' => $id,
                 'quantite' => $quantite,
+                'type' => $type,
                 'produit' => [
                     'id' => $evenement->getId(),
                     'slug' => $evenement->getSlug(),
                     'titre' => $evenement->getNom(),
                     'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
-                    'prix_min' => $prixMin,
+                    'prix_simple' => $evenement->getPrixSimple(),
+                    'prix_vip' => $evenement->getPrixVip(),
+                    'prix_choisi' => $prix,
                     'ville' => $evenement->getVille(),
                     'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
                     'places_restantes' => $evenement->getPlacesRestantes(),
@@ -80,9 +90,15 @@ final class PanierController extends AbstractController
 
         $quantite = (int) $request->request->get('quantite', 1);
         $quantite = max(1, min($quantite, $evenement->getPlacesRestantes()));
+        $type = $request->request->get('type', 'SIMPLE'); // 'SIMPLE' ou 'VIP'
 
         $panier = $session->get('panier', []);
-        $panier[$id] = ($panier[$id] ?? 0) + $quantite;
+        
+        // Nouvelle structure : [id_evenement => ['quantite' => int, 'type' => string]]
+        $panier[$id] = [
+            'quantite' => ($panier[$id]['quantite'] ?? 0) + $quantite,
+            'type'     => $type,
+        ];
         $session->set('panier', $panier);
 
         $this->addFlash('success', 'Événement ajouté au panier');
@@ -121,7 +137,16 @@ final class PanierController extends AbstractController
             unset($panier[$id]);
             $this->addFlash('success', 'Article retiré du panier');
         } else {
-            $panier[$id] = $quantite;
+            // Préserver le type existant si nouvelle structure
+            if (isset($panier[$id]) && is_array($panier[$id])) {
+                $panier[$id]['quantite'] = $quantite;
+            } else {
+                // Ancienne structure ou nouvel article
+                $panier[$id] = [
+                    'quantite' => $quantite,
+                    'type' => 'SIMPLE'
+                ];
+            }
             $this->addFlash('success', 'Quantité mise à jour');
         }
 
@@ -157,7 +182,15 @@ final class PanierController extends AbstractController
 
     public function getNombreArticles(SessionInterface $session): int
     {
-        return array_sum($session->get('panier', []));
+        $panier = $session->get('panier', []);
+        $total = 0;
+
+        foreach ($panier as $donnees) {
+            // Compatibilité ancienne structure (int) et nouvelle (array)
+            $total += is_array($donnees) ? $donnees['quantite'] : $donnees;
+        }
+
+        return $total;
     }
 
     public function getTotal(SessionInterface $session): int
@@ -165,10 +198,17 @@ final class PanierController extends AbstractController
         $panier = $session->get('panier', []);
         $total = 0;
 
-        foreach ($panier as $id => $quantite) {
+        foreach ($panier as $id => $donnees) {
+            // Compatibilité ancienne structure (int) et nouvelle (array)
+            $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
+            $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
+            
             $evenement = $this->evenementRepository->find($id);
             if ($evenement && $evenement->isActive()) {
-                $total += $evenement->getPrixSimple() * $quantite;
+                $prix = $type === 'VIP' && $evenement->getPrixVip()
+                    ? $evenement->getPrixVip()
+                    : $evenement->getPrixSimple();
+                $total += $prix * $quantite;
             }
         }
 

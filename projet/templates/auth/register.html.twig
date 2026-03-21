@@ -9,6 +9,31 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('services/auth_service.js') }}" defer></script>
+    
+    <script>
+    (function () {
+        const field = document.getElementById('password-field');
+        const hint = document.getElementById('password-hint');
+        if (!field || !hint) return;
+
+        field.addEventListener('focus', () => hint.style.display = 'block');
+        field.addEventListener('input', () => {
+            const v = field.value;
+            const check = (id, ok) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.textContent = (ok ? '✅' : '❌') + el.textContent.slice(1);
+                el.style.color = ok ? 'green' : '#c0392b';
+            };
+            check('hint-length', v.length >= 8);
+            check('hint-upper', /[A-Z]/.test(v));
+            check('hint-number', /[0-9]/.test(v));
+        });
+        field.addEventListener('blur', () => {
+            if (field.value.length === 0) hint.style.display = 'none';
+        });
+    })();
+    </script>
 {% endblock %}
 
 {% block site_header %}
@@ -181,8 +206,21 @@
                     <label for="{{ form.password.vars.id }}" class="auth-label">Mot de passe <span style="color: #e53e3e;">*</span></label>
                     {{ form_widget(form.password, {'attr': {
                         'class': 'auth-input',
-                        'placeholder': 'Choisissez un mot de passe'
+                        'placeholder': 'Minimum 8 caractères',
+                        'id': 'password-field',
+                        'minlength': '8',
+                        'autocomplete': 'new-password'
                     }}) }}
+                    
+                    {# Indicateur de force en temps réel #}
+                    <div id="password-hint" style="margin-top: 6px; font-size: 13px; display: none;">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li id="hint-length">⬜ Au moins 8 caractères</li>
+                            <li id="hint-upper">⬜ Au moins une majuscule</li>
+                            <li id="hint-number">⬜ Au moins un chiffre</li>
+                        </ul>
+                    </div>
+                    
                     {% if form_errors(form.password) %}
                         <div class="auth-error-message">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

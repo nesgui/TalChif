@@ -296,12 +296,11 @@ class BilletRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function getConversionRate(Evenement $evenement): float
+    public function getConversionRate(Evenement $evenement): ?float
     {
-        $totalViews = 1000; // Simulé - à implémenter avec des logs de vues
-        $totalSales = $this->countSoldByEvenement($evenement);
-        
-        return $totalViews > 0 ? round(($totalSales / $totalViews) * 100, 2) : 0;
+        // TODO: Implémenter un vrai compteur de vues (table EvenementVue)
+        // Pour l'instant, retourne null pour éviter d'afficher des statistiques fausses
+        return null;
     }
 
     public function getAverageTicketPrice(Evenement $evenement): float

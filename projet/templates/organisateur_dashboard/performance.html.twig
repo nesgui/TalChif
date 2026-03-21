@@ -38,7 +38,7 @@
                 </div>
                 <div class="metric-row">
                     <div class="metric">
-                        <span class="metric-value">{{ performance.taux_conversion }}%</span>
+                        <span class="metric-value">{{ performance.taux_conversion is not null ? performance.taux_conversion ~ '%' : 'N/A' }}</span>
                         <span class="metric-label">Taux de conversion</span>
                     </div>
                     <div class="metric">

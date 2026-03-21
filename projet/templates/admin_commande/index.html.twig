@@ -56,6 +56,14 @@
                         <td>{{ c.referenceTransactionClient ?: '-' }}</td>
                         <td>{{ c.dateExpiration|date('H:i') }}</td>
                         <td>
+                            {% if c.capturePreuvePaiement %}
+                                <a href="{{ path('admin.commande.preuve', {reference: c.reference}) }}"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline"
+                                   title="Voir la capture de transaction">
+                                    📸 Voir la preuve
+                                </a>
+                            {% endif %}
                             <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline validate-form">
                                 <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
                                 <input type="number" name="montant_recu" step="1" min="0" value="{{ c.montantTotal }}" required placeholder="Montant reçu">

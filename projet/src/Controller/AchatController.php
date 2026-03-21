@@ -53,23 +53,33 @@ final class AchatController extends AbstractController
         $lignes = [];
         $total = 0.0;
 
-        foreach ($panier as $id => $quantite) {
+        foreach ($panier as $id => $donnees) {
             $evenement = $this->evenementRepository->find($id);
             if (!$evenement || !$evenement->isActive()) {
                 continue;
             }
-            $prixMin = $evenement->getPrixSimple();
-            $sousTotal = $prixMin * $quantite;
+            
+            // Compatibilité ancienne structure (int) et nouvelle (array)
+            $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
+            $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
+            
+            // Utiliser le bon prix selon le type
+            $prix = $type === 'VIP' && $evenement->getPrixVip()
+                ? $evenement->getPrixVip()
+                : $evenement->getPrixSimple();
+            
+            $sousTotal = $prix * $quantite;
             $total += $sousTotal;
             $lignes[] = [
                 'id' => $id,
                 'quantite' => $quantite,
+                'type' => $type,
                 'produit' => [
                     'id' => $evenement->getId(),
                     'slug' => $evenement->getSlug(),
                     'titre' => $evenement->getNom(),
                     'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
-                    'prix_min' => $prixMin,
+                    'prix_min' => $evenement->getPrixSimple(),
                     'prix_vip' => $evenement->getPrixVip(),
                     'ville' => $evenement->getVille(),
                     'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
@@ -334,35 +344,38 @@ final class AchatController extends AbstractController
         $operateur = trim((string) $request->request->get('operateur', ''));
         $captureFile = $request->files->get('capture_transaction');
 
-        // La capture est maintenant obligatoire
-        if (!$captureFile) {
-            $this->addFlash('error', 'Veuillez fournir une capture d\'écran de la transaction.');
+        // Référence texte maintenant optionnelle si une capture est fournie
+        if ($transactionRef === '' && !$captureFile) {
+            $this->addFlash('error', 'Veuillez fournir au moins la référence SMS ou une capture d\'écran de la transaction.');
             return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
         }
 
-        // Validation du fichier uploadé
-        $typesAutorises = ['image/jpeg', 'image/png', 'image/webp'];
-        $mime = mime_content_type($captureFile->getPathname());
+        // Si une capture est fournie, elle est obligatoire
+        if ($captureFile) {
+            // Validation du fichier uploadé
+            $typesAutorises = ['image/jpeg', 'image/png', 'image/webp'];
+            $mime = mime_content_type($captureFile->getPathname());
 
-        if (!in_array($mime, $typesAutorises, true)) {
-            $this->addFlash('error', 'Format de fichier non autorisé. Utilisez JPG, PNG ou WEBP.');
-            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+            if (!in_array($mime, $typesAutorises, true)) {
+                $this->addFlash('error', 'Format de fichier non autorisé. Utilisez JPG, PNG ou WEBP.');
+                return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+            }
+            if ($captureFile->getSize() > 5 * 1024 * 1024) {
+                $this->addFlash('error', 'Le fichier est trop lourd. Maximum 5 Mo.');
+                return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+            }
+
+            // Stockage du fichier
+            $nomFichier = 'preuve-' . $commande->getReference() . '-' . bin2hex(random_bytes(6)) . '.' . ($captureFile->guessExtension() ?? 'jpg');
+            $dossier = $this->getParameter('kernel.project_dir') . '/var/preuves-paiement/';
+
+            if (!is_dir($dossier)) {
+                mkdir($dossier, 0750, true);
+            }
+
+            $captureFile->move($dossier, $nomFichier);
+            $commande->setCapturePreuvePaiement($nomFichier);
         }
-        if ($captureFile->getSize() > 5 * 1024 * 1024) {
-            $this->addFlash('error', 'Le fichier est trop lourd. Maximum 5 Mo.');
-            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
-        }
-
-        // Stockage du fichier
-        $nomFichier = 'preuve-' . $commande->getReference() . '-' . bin2hex(random_bytes(6)) . '.' . ($captureFile->guessExtension() ?? 'jpg');
-        $dossier = $this->getParameter('kernel.project_dir') . '/var/preuves-paiement/';
-
-        if (!is_dir($dossier)) {
-            mkdir($dossier, 0750, true);
-        }
-
-        $captureFile->move($dossier, $nomFichier);
-        $commande->setCapturePreuvePaiement($nomFichier);
 
         $destinataires = [];
         foreach ($commande->getLignes() as $ligne) {

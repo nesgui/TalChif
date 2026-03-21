@@ -6,6 +6,8 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Service\ErrorHandlingService;
+// TODO: Décommenter quand le mailer sera configuré
+// use App\Service\Notification\EmailVerificationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,7 +87,15 @@ final class AuthController extends AbstractController
                 );
                 // Règle métier : inscription depuis la page de connexion (sans auth) = client
                 $user->setRole('CLIENT');
-                $user->setIsVerified(false); // TODO: Implémenter l'email de vérification
+                $user->setIsVerified(false); // Pas encore vérifié
+                
+                // TODO: Activer l'envoi d'email quand le mailer sera configuré
+                // Générer un token de vérification
+                // $verificationToken = bin2hex(random_bytes(32));
+                // $user->setVerificationToken($verificationToken);
+                
+                // Envoyer l'email de vérification
+                // $this->emailVerification->envoyerEmailVerification($user, $verificationToken);
 
                 // Sauvegarder en base
                 $this->userRepository->save($user, true);
@@ -108,6 +118,30 @@ final class AuthController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    // TODO: Décommenter cette route quand le mailer sera configuré
+    /*
+    #[Route('/verifier-email', name: 'auth.verify_email')]
+    public function verifyEmail(Request $request): Response
+    {
+        $token = $request->query->get('token');
+        $email = $request->query->get('email');
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user || !hash_equals($user->getVerificationToken() ?? '', (string) $token)) {
+            $this->addFlash('error', 'Lien de vérification invalide ou expiré.');
+            return $this->redirectToRoute('auth.login');
+        }
+
+        $user->setIsVerified(true);
+        $user->setVerificationToken(null);
+        $this->userRepository->save($user, true);
+
+        $this->addFlash('success', 'Votre email est vérifié. Vous pouvez vous connecter !');
+        return $this->redirectToRoute('auth.login');
+    }
+    */
 
     #[Route('/logout', name: 'auth.logout')]
     public function logout(): Response

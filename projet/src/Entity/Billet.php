@@ -14,7 +14,7 @@ class Billet
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 120, unique: true)]
     private ?string $qrCode = null;
 
     #[ORM\Column(length: 20)]

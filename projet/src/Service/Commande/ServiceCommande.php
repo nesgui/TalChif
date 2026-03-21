@@ -255,7 +255,11 @@ final class ServiceCommande
 
     private function genererCodeQr(): string
     {
-        return 'BILLET_' . uniqid('', true) . '_' . time();
+        $secret = $_ENV['APP_SECRET'] ?? 'fallback-secret';
+        $random = bin2hex(random_bytes(32));
+        $timestamp = (string) time();
+        $signature = hash_hmac('sha256', $random . $timestamp, $secret);
+        return 'BILLET-' . strtoupper(substr($random, 0, 8)) . '-' . substr($signature, 0, 16);
     }
 
     private function normaliserNumero(string $numero): string

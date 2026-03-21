@@ -16,7 +16,10 @@ use App\Entity\LogSecurite;
 use App\Repository\LogSecuriteRepository;
 use App\Repository\UserRepository;
 use App\Service\Ticket\TicketRenderService;
+use App\Service\Ticket\QrCodeGeneratorService;
+use App\Service\Notification\BilletEmailService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -31,8 +34,11 @@ final class ValiderPaiementHandler
         private UserRepository $userRepository,
         private LogSecuriteRepository $logSecuriteRepository,
         private TicketRenderService $ticketRenderService,
+        private QrCodeGeneratorService $qrCodeGenerator,
+        private BilletEmailService $billetEmailService,
         private EntityManagerInterface $entityManager,
-        private RequestStack $requestStack
+        private RequestStack $requestStack,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -97,7 +103,7 @@ final class ValiderPaiementHandler
 
                 for ($i = 0; $i < $quantite; $i++) {
                     $billet = new Billet();
-                    $billet->setQrCode($this->genererCodeQr());
+                    $billet->setQrCode($this->qrCodeGenerator->generer());
                     $billet->setType($ligne->getTypeBillet());
                     $billet->setPrix($ligne->getPrixUnitaire());
                     $billet->setEvenement($evenementLocked);
@@ -135,6 +141,17 @@ final class ValiderPaiementHandler
 
             $this->entityManager->flush();
             $this->entityManager->commit();
+
+            // Envoyer l'email de confirmation
+            try {
+                $this->billetEmailService->envoyerConfirmationAchat($commande);
+            } catch (\Throwable $e) {
+                // Ne pas faire échouer la commande si l'email plante
+                $this->logger->warning('Email confirmation non envoyé', [
+                    'reference' => $commande->getReference(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
         } catch (\Throwable $e) {
             $this->entityManager->rollback();
 
@@ -149,10 +166,6 @@ final class ValiderPaiementHandler
         }
     }
 
-    private function genererCodeQr(): string
-    {
-        return 'BILLET_' . uniqid('', true) . '_' . time();
-    }
 
     private function loggerAction(string $action, string $reference, string $details): void
     {

@@ -5,6 +5,7 @@ namespace App\Service\Payment;
 use App\Entity\Commande;
 use App\Entity\User;
 use App\Infrastructure\Doctrine\Repository\DoctrineCommandeRepository;
+use App\Service\Ticket\QrCodeGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -13,6 +14,7 @@ class PaymentVerificationService
     public function __construct(
         private PawaPayClient $pawaPayClient,
         private DoctrineCommandeRepository $commandeRepository,
+        private QrCodeGeneratorService $qrCodeGenerator,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger
     ) {}
@@ -64,29 +66,26 @@ class PaymentVerificationService
             return true;
         }
 
-        $user = $commande->getClient();
-        
-        // Mettre à jour la balance de l'utilisateur (cashback ou bonus)
-        $cashbackAmount = (int) ($commande->getMontantTotal() * 0.01); // 1% de cashback
-        $user->addBalance($cashbackAmount);
-        
-        // Mettre à jour la commande
+        // 1. Marquer la commande payée
         $commande->marquerPayee();
-        
-        // Générer les billets
+
+        // 2. Générer les billets EN PREMIER
         $this->generateTickets($commande);
-        
-        // Sauvegarder
+
+        // 3. Créditer le cashback SEULEMENT après succès de la génération
+        $user = $commande->getClient();
+        $cashbackAmount = (int) ($commande->getMontantTotal() * 0.01);
+        $user->addBalance($cashbackAmount);
+
+        // 4. Sauvegarder tout en une seule transaction
         $this->entityManager->flush();
-        
+
         $this->logger->info('Paiement validé avec succès', [
             'reference' => $commande->getReference(),
             'depositId' => $depositId,
-            'montant' => $commande->getMontantTotal(),
             'cashback' => $cashbackAmount,
-            'nouvelle_balance' => $user->getBalance()
         ]);
-        
+
         return true;
     }
 
@@ -112,28 +111,46 @@ class PaymentVerificationService
     private function generateTickets(Commande $commande): void
     {
         foreach ($commande->getLignes() as $ligne) {
-            for ($i = 0; $i < $ligne->getQuantite(); $i++) {
+            $evenement = $ligne->getEvenement();
+            
+            // Verrouiller l'événement pour éviter les race conditions
+            $evenementLocked = $this->entityManager->find(
+                Evenement::class,
+                $evenement->getId(),
+                \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE
+            );
+            
+            if (!$evenementLocked) {
+                throw new \RuntimeException("Événement introuvable.");
+            }
+            
+            $quantite = $ligne->getQuantite();
+            
+            // Vérifier à nouveau les places avec le verrou
+            if ($quantite > $evenementLocked->getPlacesRestantes()) {
+                throw new \App\Domain\Exception\PlacesInsuffisantesException(
+                    "Plus assez de places disponibles pour « {$evenementLocked->getNom()} »."
+                );
+            }
+            
+            for ($i = 0; $i < $quantite; $i++) {
                 $billet = new \App\Entity\Billet();
-                $billet->setQrCode($this->generateQrCode());
+                $billet->setQrCode($this->qrCodeGenerator->generer());
                 $billet->setType($ligne->getTypeBillet());
                 $billet->setPrix($ligne->getPrixUnitaire());
                 $billet->setClient($commande->getClient());
-                $billet->setEvenement($ligne->getEvenement());
+                $billet->setEvenement($evenementLocked);
                 $billet->setStatutPaiement('PAYE');
                 $billet->setTransactionId($commande->getReference());
                 
                 $this->entityManager->persist($billet);
-                
-                // Mettre à jour les places vendues de l'événement
-                $ligne->getEvenement()->incrementerPlacesVendues();
             }
+            
+            // Mettre à jour les places vendues de l'événement
+            $evenementLocked->reserverPlaces($quantite);
         }
     }
 
-    private function generateQrCode(): string
-    {
-        return 'BILLET_' . uniqid() . '_' . time();
-    }
 
     public function checkPendingPayments(): array
     {

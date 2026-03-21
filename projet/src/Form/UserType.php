@@ -67,10 +67,18 @@ class UserType extends AbstractType
                     'constraints' => [
                         new NotBlank(message: 'Le mot de passe est obligatoire'),
                         new Length(
-                            min: 6,
-                            max: 4096,
-                            minMessage: 'Le mot de passe doit faire au moins {{ limit }} caractères',
+                            min: 8,
+                            max: 128,
+                            minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères',
                             maxMessage: 'Le mot de passe ne peut pas dépasser {{ limit }} caractères'
+                        ),
+                        new Regex(
+                            pattern: '/[A-Z]/',
+                            message: 'Le mot de passe doit contenir au moins une majuscule'
+                        ),
+                        new Regex(
+                            pattern: '/[0-9]/',
+                            message: 'Le mot de passe doit contenir au moins un chiffre'
                         ),
                         new Regex(
                             pattern: '/^[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+$/',
