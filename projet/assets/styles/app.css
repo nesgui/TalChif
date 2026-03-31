@@ -1,3 +1,5 @@
+@import './typography-system.css';
+
 /* Thème par défaut (clair) - Palette TalChif cohérente et accessible */
 :root {
     /* Design tokens - palette fournie */
@@ -66,6 +68,15 @@
     --espace-xl: 32px;
     --espace-2xl: 48px;
     --espace-3xl: 64px;
+
+    --espace-fluid-xs: clamp(4px, 0.4vw + 2px, 8px);
+    --espace-fluid-sm: clamp(8px, 0.7vw + 4px, 14px);
+    --espace-fluid-md: clamp(12px, 1vw + 6px, 20px);
+    --espace-fluid-lg: clamp(16px, 1.5vw + 8px, 28px);
+    --espace-fluid-xl: clamp(20px, 2vw + 10px, 36px);
+
+    --container-max: 1100px;
+    --container-gutter: clamp(10px, 2.2vw, 24px);
 
     /* Typographie — échelle cohérente */
     --taille-xs: 0.75rem;   /* 12px — méta, badges */
@@ -418,7 +429,7 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
 }
 
 .container {
-    width: min(1100px, calc(100% - 32px));
+    width: min(var(--container-max), calc(100% - (var(--container-gutter) + var(--container-gutter))));
     margin: 0 auto;
 }
 
@@ -436,16 +447,51 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 0 6px;
+    padding: clamp(8px, 1.2vw, 12px) 0 clamp(6px, 1vw, 10px);
 }
 
 .public-brand {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     font-weight: 800;
     letter-spacing: 0.2px;
     color: var(--couleur-texte);
     text-decoration: none;
+}
+
+.public-search-form-inline {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    margin: 0 clamp(6px, 1.5vw, 16px);
+}
+
+.public-topbar-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.public-search-input-inline {
+    width: 100%;
+    min-width: 0;
+    border-radius: 999px;
+    border: 1px solid var(--couleur-bordure);
+    padding: clamp(6px, 1vw, 11px) clamp(10px, 1.5vw, 14px);
+    background: color-mix(in srgb, var(--couleur-fond) 92%, var(--couleur-texte) 8%);
+    color: var(--couleur-texte);
+    font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+    transition: border-color var(--transition-rapide), box-shadow var(--transition-rapide);
+}
+
+.public-search-input-inline::placeholder {
+    color: var(--couleur-texte-secondaire);
+}
+
+.public-search-input-inline:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 3px var(--couleur-primaire-clair);
 }
 
 .public-action {
@@ -2379,12 +2425,12 @@ img[loading="lazy"].loaded {
     left: 12px;
     right: 12px;
     bottom: calc(70px + env(safe-area-inset-bottom));
-    z-index: 20;
+    z-index: 200;
     background: var(--couleur-surface);
     border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
     border-radius: 16px;
     box-shadow: var(--ombre-lg);
-    padding: 12px;
+    padding: 14px;
     display: none;
 }
 

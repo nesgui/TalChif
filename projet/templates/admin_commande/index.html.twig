@@ -121,6 +121,72 @@ table.dt-table th, table.dt-table td {
 }
 table.dt-table td.wrap { white-space: normal; }
 
+#section-pending table.dt-table,
+#section-paid table.dt-table,
+#section-organisateurs table.dt-table,
+#section-expired table.dt-table,
+#section-logs table.dt-table {
+    table-layout: fixed;
+}
+
+#section-pending table.dt-table th:nth-child(1),
+#section-pending table.dt-table td:nth-child(1),
+#section-paid table.dt-table th:nth-child(1),
+#section-paid table.dt-table td:nth-child(1),
+#section-expired table.dt-table th:nth-child(1),
+#section-expired table.dt-table td:nth-child(1),
+#section-logs table.dt-table th:nth-child(3),
+#section-logs table.dt-table td:nth-child(3) {
+    white-space: nowrap;
+}
+
+#section-pending table.dt-table th:nth-child(4),
+#section-pending table.dt-table td:nth-child(4),
+#section-paid table.dt-table th:nth-child(3),
+#section-paid table.dt-table td:nth-child(3),
+#section-paid table.dt-table th:nth-child(4),
+#section-paid table.dt-table td:nth-child(4),
+#section-organisateurs table.dt-table th:nth-child(5),
+#section-organisateurs table.dt-table td:nth-child(5),
+#section-expired table.dt-table th:nth-child(2),
+#section-expired table.dt-table td:nth-child(2) {
+    white-space: nowrap;
+}
+
+#section-pending table.dt-table th:nth-child(6),
+#section-pending table.dt-table td:nth-child(6),
+#section-paid table.dt-table th:nth-child(6),
+#section-paid table.dt-table td:nth-child(6),
+#section-expired table.dt-table th:nth-child(3),
+#section-expired table.dt-table td:nth-child(3),
+#section-logs table.dt-table th:nth-child(1),
+#section-logs table.dt-table td:nth-child(1) {
+    width: 112px;
+}
+
+#section-pending table.dt-table th:nth-child(7),
+#section-pending table.dt-table td:nth-child(7) {
+    width: 360px;
+}
+
+#section-organisateurs table.dt-table th:nth-child(6),
+#section-organisateurs table.dt-table td:nth-child(6) {
+    width: 126px;
+}
+
+#section-logs table.dt-table th:nth-child(2),
+#section-logs table.dt-table td:nth-child(2) {
+    width: 180px;
+}
+
+#section-logs table.dt-table td:nth-child(2) .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    white-space: nowrap;
+}
+
 /* DataTables search */
 .dataTables_wrapper .dataTables_filter {
     margin-bottom: 1rem;
@@ -237,6 +303,46 @@ table.dt-table td.wrap { white-space: normal; }
     border-radius: var(--rayon);
     background: var(--couleur-fond);
     color: var(--couleur-texte);
+}
+
+.form-inline .btn,
+td.wrap > .btn {
+    min-width: 92px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+td.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    align-items: center;
+}
+
+td.wrap form {
+    margin: 0;
+}
+
+@media (max-width: 980px) {
+    #section-pending table.dt-table {
+        min-width: 1180px;
+    }
+
+    #section-paid table.dt-table {
+        min-width: 760px;
+    }
+
+    #section-organisateurs table.dt-table {
+        min-width: 860px;
+    }
+
+    #section-expired table.dt-table {
+        min-width: 420px;
+    }
+
+    #section-logs table.dt-table {
+        min-width: 920px;
+    }
 }
 
 /* Empty state */

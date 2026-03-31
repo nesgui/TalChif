@@ -50,14 +50,14 @@ html[data-theme="dark"] .tickets-nav .ticket-filter-btn:hover,
 html[data-theme="dark"] .tickets-nav .ticket-filter-btn.active { color: #fff !important; }
 .tickets-list { display: grid; gap: .7rem; }
 .ticket-row { display: grid; grid-template-columns: 90px 1fr auto; gap: .75rem; align-items: center; padding: .75rem; border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); background: var(--couleur-surface); opacity: .92; }
-.event-image { width: 90px; height: 68px; object-fit: cover; border-radius: var(--rayon); }
+.event-image { width: 90px; height: 68px; aspect-ratio: 4 / 3; object-fit: cover; object-position: center; border-radius: var(--rayon); display: block; flex-shrink: 0; }
 .ticket-row h3 { margin: 0; }
 .ticket-row p { margin: .2rem 0; color: var(--couleur-texte-secondaire); }
 .ticket-row .btn { padding: .35rem .65rem; font-size: .78rem; border-radius: 999px; }
 .empty { text-align: center; }
 @media (max-width: 760px) {
     .ticket-row { grid-template-columns: 70px 1fr; }
-    .event-image { width: 70px; height: 54px; }
+    .event-image { width: 70px; height: 54px; aspect-ratio: 4 / 3; }
     .ticket-row .btn { grid-column: 1 / -1; width: 100%; }
 }
 </style>

@@ -63,6 +63,7 @@
         <link rel="dns-prefetch" href="https://cdn.datatables.net">
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+            <link rel="stylesheet" href="{{ asset('styles/search-feedback.css') }}">
 
             {% if section is defined and section == 'admin' %}
                 <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
@@ -128,11 +129,22 @@
             <header class="public-header">
                 <div class="container public-topbar">
                     <a class="public-brand" href="{{ path('accueil') }}">TalChif</a>
+
+                    {% set current_route = app.request.attributes.get('_route') %}
+                    {% if current_route in ['accueil', 'evenement.index'] %}
+                        <form class="public-search-form-inline" action="{{ path('evenement.index') }}" method="get">
+                            <input class="public-search-input-inline" type="search" name="q"
+                                placeholder="Rechercher un événement…" autocomplete="off" />
+                        </form>
+                    {% else %}
+                        <div class="public-topbar-spacer" aria-hidden="true"></div>
+                    {% endif %}
+
                     <div class="public-topbar-actions">
-                        <button class="auth-theme-toggle" id="theme-toggle" 
-                                data-controller="theme" 
+                        <button class="auth-theme-toggle" id="theme-toggle"
+                                data-controller="theme"
                                 data-theme-target="toggle"
-                                data-action="click->theme#toggle" 
+                                data-action="click->theme#toggle"
                                 title="Basculer le thème">
                             <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="5"/>
@@ -151,12 +163,6 @@
                         </button>
                         <label class="public-action" for="public-menu" aria-label="Ouvrir le menu">☰</label>
                     </div>
-                </div>
-
-                <div class="container public-search">
-                    <form class="public-search-form" action="{{ path('evenement.index') }}" method="get">
-                        <input class="public-search-input" type="search" name="q" placeholder="Rechercher un événement…" autocomplete="off" />
-                    </form>
                 </div>
 
                 <div class="container public-drawer" aria-label="Menu">

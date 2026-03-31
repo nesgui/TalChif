@@ -15,29 +15,29 @@
 <section class="card">
     <h2 class="card-title">Références reçues ({{ pendingWithReference|length }})</h2>
     {% if pendingWithReference|length > 0 %}
-    <div class="table-responsive">
-        <table class="table" id="commandes-references-table">
+    <div class="table-responsive admin-command-references-wrap">
+        <table class="table admin-command-references-table" id="commandes-references-table">
             <thead>
                 <tr>
-                    <th>Réf. commande</th>
-                    <th>Réf. transaction client</th>
-                    <th>Client</th>
-                    <th>Tél.</th>
-                    <th>Montant</th>
-                    <th>Expire</th>
-                    <th>Actions</th>
+                    <th class="col-reference">Réf. commande</th>
+                    <th class="col-transaction">Réf. transaction client</th>
+                    <th class="col-client">Client</th>
+                    <th class="col-phone">Tél.</th>
+                    <th class="col-amount">Montant</th>
+                    <th class="col-expire">Expire</th>
+                    <th class="col-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for c in pendingWithReference %}
                 <tr>
-                    <td><code>{{ c.reference }}</code></td>
-                    <td><code>{{ c.referenceTransactionClient }}</code></td>
-                    <td>{{ c.client.email }}</td>
-                    <td>{{ c.numeroClient }}</td>
-                    <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
-                    <td>{{ c.dateExpiration|date('H:i') }}</td>
-                    <td>
+                    <td class="cell-reference"><code>{{ c.reference }}</code></td>
+                    <td class="cell-transaction"><code>{{ c.referenceTransactionClient }}</code></td>
+                    <td class="cell-client">{{ c.client.email }}</td>
+                    <td class="cell-phone">{{ c.numeroClient }}</td>
+                    <td class="cell-amount">{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                    <td class="cell-expire">{{ c.dateExpiration|date('H:i') }}</td>
+                    <td class="cell-actions">
                         <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
                             <input type="number" name="montant_recu" step="1" min="0" value="{{ c.montantTotal }}" required placeholder="Montant reçu">
@@ -76,10 +76,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 .table-responsive { overflow-x: auto; }
+.admin-command-references-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-command-references-table .col-expire,
+.admin-command-references-table .cell-expire {
+    width: 84px;
+    white-space: nowrap;
+}
+
+.admin-command-references-table .col-amount,
+.admin-command-references-table .cell-amount {
+    width: 120px;
+    white-space: nowrap;
+}
+
+.admin-command-references-table .col-actions,
+.admin-command-references-table .cell-actions {
+    width: 320px;
+}
+
+.admin-command-references-table .cell-reference code,
+.admin-command-references-table .cell-transaction code {
+    white-space: nowrap;
+}
+
+.admin-command-references-table .cell-client,
+.admin-command-references-table .cell-phone {
+    word-break: break-word;
+}
+
 .form-inline { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.25rem 0; }
 .form-inline input[type="number"],
 .form-inline input[type="text"] { max-width: 140px; padding: 0.25rem 0.5rem; }
+.cell-actions .form-inline {
+    margin: 0;
+}
+.cell-actions .form-inline .btn {
+    min-width: 92px;
+    white-space: nowrap;
+    justify-content: center;
+}
 .btn-error { background: var(--couleur-error); color: white; }
+
+@media (max-width: 980px) {
+    .admin-command-references-table {
+        min-width: 1080px;
+    }
+}
 </style>
 {% endblock %}
 

@@ -137,6 +137,88 @@ class EvenementRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Recherche floue : propose des événements similaires basés sur des mots-clés individuels.
+     * Utilisé quand la recherche exacte ne donne aucun résultat.
+     */
+    public function searchSimilarEvents(string $query, int $limit = 6): array
+    {
+        // Extraire les mots individuels (min 3 caractères)
+        $words = array_filter(
+            preg_split('/\s+/', mb_strtolower($query)),
+            fn($word) => mb_strlen($word) >= 3
+        );
+
+        if (empty($words)) {
+            return $this->findPopularEvents($limit);
+        }
+
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.isActive = :active')
+            ->setParameter('active', true);
+
+        // Construire une recherche OR pour chaque mot
+        $orConditions = [];
+        foreach ($words as $index => $word) {
+            $paramName = 'word' . $index;
+            $orConditions[] = $qb->expr()->orX(
+                $qb->expr()->like('LOWER(e.nom)', ':' . $paramName),
+                $qb->expr()->like('LOWER(e.description)', ':' . $paramName),
+                $qb->expr()->like('LOWER(e.lieu)', ':' . $paramName),
+                $qb->expr()->like('LOWER(e.ville)', ':' . $paramName),
+                $qb->expr()->like('LOWER(e.categorie)', ':' . $paramName)
+            );
+            $qb->setParameter($paramName, '%' . $word . '%');
+        }
+
+        if (!empty($orConditions)) {
+            $qb->andWhere($qb->expr()->orX(...$orConditions));
+        }
+
+        return $qb
+            ->orderBy('e.placesVendues', 'DESC')
+            ->addOrderBy('e.dateEvenement', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Extrait les termes/mots-clés uniques des événements actifs pour suggestions.
+     */
+    public function extractSearchKeywords(int $limit = 10): array
+    {
+        $events = $this->findActiveEvents(50);
+        $keywords = [];
+
+        foreach ($events as $event) {
+            // Extraire mots du nom
+            $words = preg_split('/\s+/', mb_strtolower($event->getNom()));
+            foreach ($words as $word) {
+                $word = trim($word, '.,;:!?');
+                if (mb_strlen($word) >= 4 && !in_array($word, ['avec', 'pour', 'dans', 'sans', 'plus'])) {
+                    $keywords[$word] = ($keywords[$word] ?? 0) + 1;
+                }
+            }
+
+            // Ajouter catégorie
+            if ($event->getCategorie()) {
+                $cat = mb_strtolower($event->getCategorie());
+                $keywords[$cat] = ($keywords[$cat] ?? 0) + 2;
+            }
+
+            // Ajouter ville
+            if ($event->getVille()) {
+                $ville = mb_strtolower($event->getVille());
+                $keywords[$ville] = ($keywords[$ville] ?? 0) + 1;
+            }
+        }
+
+        // Trier par fréquence décroissante
+        arsort($keywords);
+        return array_slice(array_keys($keywords), 0, $limit);
+    }
+
     public function findPopularEvents(int $limit = 10): array
     {
         return $this->createQueryBuilder('e')

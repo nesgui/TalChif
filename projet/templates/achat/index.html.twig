@@ -192,11 +192,16 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 .payment-side h3 { margin-top: 0; }
 .line { display: grid; grid-template-columns: 52px 1fr auto; gap: .6rem; align-items: center; padding: .5rem 0; border-bottom: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure)); }
-.line img { width: 52px; height: 42px; object-fit: cover; border-radius: 8px; }
+.line img { width: 52px; height: 42px; aspect-ratio: 13 / 10; object-fit: cover; object-position: center; border-radius: 8px; display: block; flex-shrink: 0; }
 .line p { margin: 0; font-size: .92rem; font-weight: 600; }
 .line small { color: var(--couleur-texte-secondaire); }
 .side-total { display: flex; justify-content: space-between; margin-top: .6rem; font-size: 1rem; font-weight: 700; }
 @media (min-width: 900px) { .payment-grid { grid-template-columns: 1.25fr .75fr; } }
+@media (max-width: 640px) {
+    .line { grid-template-columns: 44px 1fr; align-items: start; }
+    .line img { width: 44px; height: 44px; aspect-ratio: 1 / 1; }
+    .line strong { grid-column: 2; }
+}
 </style>
 
 <script>

@@ -30,53 +30,57 @@
 
     <section class="card">
         <h2 class="card-title">Contrôles (UI)</h2>
-        <table class="table" id="admin-securite-controles-table">
+        <div class="table-responsive admin-security-controls-wrap">
+        <table class="table admin-security-controls-table" id="admin-securite-controles-table">
             <thead>
                 <tr>
-                    <th>Contrôle</th>
-                    <th>Statut</th>
+                    <th class="col-control">Contrôle</th>
+                    <th class="col-status">Statut</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <th>Détection doublons billets</th>
-                    <td><span class="pill">Actif</span></td>
+                    <th class="cell-control">Détection doublons billets</th>
+                    <td class="cell-status"><span class="pill admin-security-pill">Actif</span></td>
                 </tr>
                 <tr>
-                    <th>Anomalies (sur-génération)</th>
-                    <td><span class="pill">Actif</span></td>
+                    <th class="cell-control">Anomalies (sur-génération)</th>
+                    <td class="cell-status"><span class="pill admin-security-pill">Actif</span></td>
                 </tr>
                 <tr>
-                    <th>Mode hors ligne</th>
-                    <td><span class="pill">À cadrer</span></td>
+                    <th class="cell-control">Mode hors ligne</th>
+                    <td class="cell-status"><span class="pill admin-security-pill">À cadrer</span></td>
                 </tr>
             </tbody>
         </table>
+        </div>
     </section>
 
     <section class="card">
         <h2 class="card-title">Logs (extraits)</h2>
-        <table class="table" id="admin-securite-logs-table">
+        <div class="table-responsive admin-security-logs-wrap">
+        <table class="table admin-security-logs-table" id="admin-securite-logs-table">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Action</th>
-                    <th>Statut</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-action">Action</th>
+                    <th class="col-status">Statut</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>2026-02-07 00:22</td>
-                    <td>Scan billet QR-XXXXX</td>
-                    <td><span class="pill">OK</span></td>
+                    <td class="cell-date">2026-02-07 00:22</td>
+                    <td class="cell-action">Scan billet QR-XXXXX</td>
+                    <td class="cell-status"><span class="pill admin-security-pill">OK</span></td>
                 </tr>
                 <tr>
-                    <td>2026-02-07 00:25</td>
-                    <td>Scan billet QR-XXXXX (doublon)</td>
-                    <td><span class="pill">ALERTE</span></td>
+                    <td class="cell-date">2026-02-07 00:25</td>
+                    <td class="cell-action">Scan billet QR-XXXXX (doublon)</td>
+                    <td class="cell-status"><span class="pill admin-security-pill">ALERTE</span></td>
                 </tr>
             </tbody>
         </table>
+        </div>
     </section>
 </div>
 
@@ -105,6 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+.table-responsive {
+    overflow-x: auto;
+}
+
 .quick-actions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -147,6 +155,49 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.875rem;
     color: var(--couleur-texte-secondaire);
     margin: 0;
+}
+
+.admin-security-controls-table,
+.admin-security-logs-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-security-controls-table .col-status,
+.admin-security-controls-table .cell-status,
+.admin-security-logs-table .col-status,
+.admin-security-logs-table .cell-status {
+    width: 110px;
+    text-align: center;
+}
+
+.admin-security-logs-table .col-date,
+.admin-security-logs-table .cell-date {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.admin-security-controls-table .cell-control,
+.admin-security-logs-table .cell-action {
+    word-break: break-word;
+}
+
+.admin-security-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .admin-security-controls-table {
+        min-width: 460px;
+    }
+
+    .admin-security-logs-table {
+        min-width: 620px;
+    }
 }
 </style>
 {% endblock %}
