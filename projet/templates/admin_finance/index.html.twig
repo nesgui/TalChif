@@ -144,6 +144,16 @@
     white-space: nowrap;
 }
 
+.admin-finance-table .col-event,
+.admin-finance-table .cell-event {
+    width: 220px;
+}
+
+.admin-finance-table .col-organizer,
+.admin-finance-table .cell-organizer {
+    width: 180px;
+}
+
 .admin-finance-table .col-type,
 .admin-finance-table .cell-type,
 .admin-finance-table .col-status,
@@ -170,7 +180,9 @@
 .admin-finance-table .cell-event,
 .admin-finance-table .cell-organizer,
 .admin-finance-table .cell-method {
-    word-break: break-word;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
 }
 
 .admin-finance-pill {

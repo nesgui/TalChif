@@ -79,69 +79,6 @@
         </div>
     </div>
 
-    <!-- Liste des événements -->
-    <div class="events-section">
-        <div class="section-header">
-            <h2 class="section-title">Vos événements</h2>
-            <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
-                Créer un événement
-            </a>
-        </div>
-
-        <div class="events-grid">
-            {% for evenement in evenements %}
-            <div class="event-card">
-                <div class="event-image">
-                    {% if evenement.affichePrincipale %}
-                        <img src="{{ evenement.affichePrincipale }}" alt="Affiche de l'événement : {{ evenement.nom }}" />
-                    {% else %}
-                        <div class="event-placeholder">
-                            <span></span>
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="event-content">
-                    <div class="event-header">
-                        <h3 class="event-title">{{ evenement.nom }}</h3>
-                        <div class="event-status">
-                            {% if evenement.isActive and evenement.isValide %}
-                                <span class="status-badge active">Actif</span>
-                            {% else %}
-                                <span class="status-badge inactive">Inactif</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="event-meta">
-                        <div class="meta-item">
-                            <span class="meta-icon"></span>
-                            <span class="meta-text">{{ evenement.dateEvenement|date('d/m/Y H:i') }}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-icon"></span>
-                            <span class="meta-text">{{ evenement.lieu }}</span>
-                        </div>
-                    </div>
-
-                    <div class="event-actions">
-                        <a href="{{ path('organisateur.evenement.stats', {id: evenement.id}) }}" class="btn btn-small btn-outline">Stats</a>
-                        <a href="{{ path('organisateur.evenement.edit', {id: evenement.id}) }}" class="btn btn-small btn-outline">Modifier</a>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-icon"></div>
-                <h3>Aucun événement</h3>
-                <p>Commencez par créer votre premier événement</p>
-                <a href="{{ path('organisateur.evenement.create') }}" class="btn btn-primary">
-                    Créer un événement
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
 
     <!-- Actions rapides -->
     <div class="quick-actions">
