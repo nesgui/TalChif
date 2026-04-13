@@ -6,106 +6,103 @@
 <section class="payment-shell">
     <header class="payment-header">
         <p class="payment-kicker">Paiement mobile money</p>
-        <h1 class="payment-title">Un seul écran pour payer vos billets</h1>
-        <p class="payment-subtitle">Choisissez l’opérateur et confirmez. Votre paiement est généralement confirmé sous 5 minutes.</p>
+        <h1 class="payment-title">Payez vos billets en quelques étapes</h1>
+        <p class="payment-subtitle">Saisissez votre email, choisissez l’opérateur puis confirmez le paiement. Vos billets seront envoyés par email après validation.</p>
     </header>
 
-    {% if app.user %}
-        <div class="payment-grid">
-            <div class="payment-main">
-                <div class="field">
-                    <label>Pays</label>
-                    <input class="form-control" value="🇹🇩 Chad (+235)" readonly />
-    </div>
-
-                <div class="field">
-                    <label>Moyen de paiement</label>
-                    <div class="payment-methods">
-                        <label class="payment-method-option" for="methode-moov">
-                            <input type="radio" id="methode-moov" name="methode_paiement" value="momo" required>
-                            <span class="payment-method-card">
-                                <img src="{{ asset('images/icons/icon-moovmoney.png') }}" alt="Moov Money" width="48" height="48" loading="lazy">
-                                <span class="payment-method-label">Moov Money</span>
-                                <span class="payment-method-prefix">Numéros commençant par 9</span>
-                            </span>
-                        </label>
-
-                        <label class="payment-method-option" for="methode-airtel">
-                            <input type="radio" id="methode-airtel" name="methode_paiement" value="airtel" required>
-                            <span class="payment-method-card">
-                                <img src="{{ asset('images/icons/icon-airtelmoney.svg') }}" alt="Airtel Money" width="48" height="48" loading="lazy">
-                                <span class="payment-method-label">Airtel Money</span>
-                                <span class="payment-method-prefix">Numéros commençant par 6</span>
-                            </span>
-                        </label>
-                    </div>
-                    <small id="method-help" class="field-help"></small>
-</div>
-
-                <div class="field">
-                    <label for="phone">Numéro mobile money</label>
-                    <input id="phone" type="tel" class="form-control" placeholder="+235 66 XX XX XX" 
-                           inputmode="numeric" pattern="[0-9+\s]*" maxlength="15" 
-                           autocomplete="tel" oninput="this.value = this.value.replace(/[^0-9+\s]/g, '')" />
-                    <small id="phone-help" class="field-help">Format MSISDN invalide.</small>
+    <div class="payment-grid">
+        <div class="payment-main">
+            <div class="field">
+                <label for="checkout-email">Adresse email</label>
+                <input id="checkout-email" type="email" class="form-control" placeholder="vous@exemple.com" value="{{ prefillEmail|default('') }}" autocomplete="email" required />
+                <small class="field-help">Nous envoyons vos billets à cette adresse. Votre espace client sera créé automatiquement si nécessaire.</small>
             </div>
 
-                <div class="field">
-                    <label for="amount">Montant</label>
-                    <div class="amount-row">
-                        <input id="amount" type="number" class="form-control" min="1" step="1" value="{{ total|number_format(0, '.', '') }}" readonly />
-                        <span id="currency-pill" class="currency-pill">XAF</span>
-                    </div>
+            <div class="field">
+                <label>Pays</label>
+                <input class="form-control" value="🇹🇩 Chad (+235)" readonly />
+            </div>
+
+            <div class="field">
+                <label>Moyen de paiement</label>
+                <div class="payment-methods">
+                    <label class="payment-method-option" for="methode-moov">
+                        <input type="radio" id="methode-moov" name="methode_paiement" value="momo" required>
+                        <span class="payment-method-card">
+                            <img src="{{ asset('images/icons/icon-moovmoney.png') }}" alt="Moov Money" width="48" height="48" loading="lazy">
+                            <span class="payment-method-label">Moov Money</span>
+                            <span class="payment-method-prefix">Numéros commençant par 9</span>
+                        </span>
+                    </label>
+
+                    <label class="payment-method-option" for="methode-airtel">
+                        <input type="radio" id="methode-airtel" name="methode_paiement" value="airtel" required>
+                        <span class="payment-method-card">
+                            <img src="{{ asset('images/icons/icon-airtelmoney.svg') }}" alt="Airtel Money" width="48" height="48" loading="lazy">
+                            <span class="payment-method-label">Airtel Money</span>
+                            <span class="payment-method-prefix">Numéros commençant par 6</span>
+                        </span>
+                    </label>
                 </div>
+                <small id="method-help" class="field-help"></small>
+            </div>
 
-                <div class="field">
-                    <h3 class="resume-title">Résumé</h3>
-                    <div class="resume-box">
-                        <div><span>Montant</span><strong id="resume-amount">{{ total|number_format(0, '.', ' ') }} XAF</strong></div>
-                        <div><span>Pays</span><strong id="resume-country">-</strong></div>
-                        <div><span>Opérateur</span><strong id="resume-operator">-</strong></div>
-                        <div><span>Numéro</span><strong id="resume-phone">-</strong></div>
-                    </div>
-                </div>
+            <div class="field">
+                <label for="phone">Numéro mobile money</label>
+                <input id="phone" type="tel" class="form-control" placeholder="+235 66 XX XX XX" inputmode="numeric" pattern="[0-9+\s]*" maxlength="15" autocomplete="tel" oninput="this.value = this.value.replace(/[^0-9+\s]/g, '')" />
+                <small id="phone-help" class="field-help">Saisissez le numéro qui recevra ou émettra la confirmation du paiement.</small>
+            </div>
 
-                <div id="status-box" class="status-box status-idle">Prêt à lancer le paiement.</div>
-
-                <div class="actions">
-                    <button id="pay-btn" type="button" class="btn btn-primary btn-block">
-                        <span id="pay-btn-text">Confirmer le paiement</span>
-                        <span id="pay-btn-loader" class="loader" hidden></span>
-                    </button>
-                    <a href="{{ path('panier.index') }}" class="btn btn-ghost btn-block">Retour au panier</a>
+            <div class="field">
+                <label for="amount">Montant</label>
+                <div class="amount-row">
+                    <input id="amount" type="number" class="form-control" min="1" step="1" value="{{ total|number_format(0, '.', '') }}" readonly />
+                    <span id="currency-pill" class="currency-pill">XAF</span>
                 </div>
             </div>
 
-            <aside class="payment-side">
-                <h3>Votre panier</h3>
-                {% for ligne in lignes %}
-                    <article class="line">
-                        <img src="{{ ligne.produit.image }}" alt="Affiche {{ ligne.produit.titre }}" loading="lazy">
-                        <div>
-                            <p>{{ ligne.produit.titre }}</p>
-                            <small>{{ ligne.quantite }} x {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
-                        </div>
-                        <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
-                    </article>
-                {% endfor %}
-                <div class="side-total">
-                    <span>Total</span>
-                    <strong>{{ total|number_format(0, '.', ' ') }} XAF</strong>
+            <div class="field">
+                <h3 class="resume-title">Résumé</h3>
+                <div class="resume-box">
+                    <div><span>Email</span><strong id="resume-email">{{ prefillEmail|default('-') }}</strong></div>
+                    <div><span>Montant</span><strong id="resume-amount">{{ total|number_format(0, '.', ' ') }} XAF</strong></div>
+                    <div><span>Pays</span><strong id="resume-country">-</strong></div>
+                    <div><span>Opérateur</span><strong id="resume-operator">-</strong></div>
+                    <div><span>Numéro</span><strong id="resume-phone">-</strong></div>
                 </div>
-            </aside>
-        </div>
-        {% else %}
-        <div class="card">
-            <p>Connectez-vous pour effectuer un achat.</p>
+            </div>
+
+            <div id="status-box" class="status-box status-idle">Prêt à lancer le paiement.</div>
+
+            <div class="status-box status-idle">Après l'achat, vous pourrez compléter votre nom, votre téléphone et votre mot de passe dans votre espace client.</div>
+
             <div class="actions">
-                    <a class="btn btn-primary" href="{{ path('auth.login') }}">Se connecter</a>
-                    <a class="btn" href="{{ path('auth.register') }}">Créer un compte</a>
-                </div>
+                <button id="pay-btn" type="button" class="btn btn-primary btn-block">
+                    <span id="pay-btn-text">Confirmer le paiement</span>
+                    <span id="pay-btn-loader" class="loader" hidden></span>
+                </button>
+                <a href="{{ path('panier.index') }}" class="btn btn-ghost btn-block">Retour au panier</a>
             </div>
-        {% endif %}
+        </div>
+
+        <aside class="payment-side">
+            <h3>Votre panier</h3>
+            {% for ligne in lignes %}
+                <article class="line">
+                    <img src="{{ ligne.produit.image }}" alt="Affiche {{ ligne.produit.titre }}" loading="lazy">
+                    <div>
+                        <p>{{ ligne.produit.titre }}</p>
+                        <small>{{ ligne.quantite }} x {{ ligne.produit.prix_min|number_format(0, '.', ' ') }} XAF</small>
+                    </div>
+                    <strong>{{ ligne.sous_total|number_format(0, '.', ' ') }} XAF</strong>
+                </article>
+            {% endfor %}
+            <div class="side-total">
+                <span>Total</span>
+                <strong>{{ total|number_format(0, '.', ' ') }} XAF</strong>
+            </div>
+        </aside>
+    </div>
 </section>
 
 <style>
@@ -120,63 +117,13 @@
 .field { display: grid; gap: .4rem; }
 .field label { font-weight: 600; }
 .field-help { font-size: .82rem; color: var(--couleur-texte-secondaire); }
-
-/* Styles pour les cartes de paiement */
-.payment-methods {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.payment-method-option input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.payment-method-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 16px 24px;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background: #fff;
-    min-width: 140px;
-}
-
-.payment-method-option input[type="radio"]:checked + .payment-method-card {
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
-}
-
-.payment-method-card img {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-}
-
-.payment-method-label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #222;
-}
-
-.payment-method-prefix {
-    font-size: 11px;
-    color: #888;
-    text-align: center;
-}
-
-.method-grid { display: grid; gap: .5rem; grid-template-columns: 1fr; }
-.method-btn { border: 1px solid var(--couleur-bordure); background: var(--couleur-fond); border-radius: 12px; padding: .65rem .8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-.method-btn.is-active { border-color: var(--couleur-primaire); background: color-mix(in srgb, var(--couleur-primaire) 10%, var(--couleur-fond)); }
-.method-left { display: inline-flex; align-items: center; gap: .55rem; }
-.method-logo { font-size: 1.05rem; }
+.payment-methods { display: flex; gap: 16px; flex-wrap: wrap; }
+.payment-method-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.payment-method-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 24px; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; background: #fff; min-width: 140px; }
+.payment-method-option input[type="radio"]:checked + .payment-method-card { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15); }
+.payment-method-card img { width: 48px; height: 48px; object-fit: contain; }
+.payment-method-label { font-weight: 600; font-size: 14px; color: #222; }
+.payment-method-prefix { font-size: 11px; color: #888; text-align: center; }
 .amount-row { display: flex; gap: .5rem; align-items: center; }
 .currency-pill { border: 1px solid var(--couleur-bordure); border-radius: 999px; padding: .45rem .7rem; font-weight: 700; min-width: 58px; text-align: center; }
 .resume-title { margin: 0; font-size: 1rem; }
@@ -208,7 +155,7 @@
 (() => {
     const total = {{ total|number_format(0, '.', '') }};
     const apiCreateUrl = "{{ path('api.payments.create') }}";
-    const methodHelp = document.getElementById('method-help');
+    const emailInput = document.getElementById('checkout-email');
     const phoneInput = document.getElementById('phone');
     const amountInput = document.getElementById('amount');
     const currencyPill = document.getElementById('currency-pill');
@@ -217,42 +164,44 @@
     const payBtnText = document.getElementById('pay-btn-text');
     const payBtnLoader = document.getElementById('pay-btn-loader');
     const phoneHelp = document.getElementById('phone-help');
+    const methodHelp = document.getElementById('method-help');
+    const resumeEmail = document.getElementById('resume-email');
     const resumeCountry = document.getElementById('resume-country');
     const resumeOperator = document.getElementById('resume-operator');
     const resumePhone = document.getElementById('resume-phone');
     const resumeAmount = document.getElementById('resume-amount');
 
-    const countries = [
-        {
-            code: 'TD',
-            label: '🇹🇩 Chad (+235)',
-            dialCode: '+235',
-            currency: 'XAF',
-            minDigits: 8,
-            methods: [
-                { id: 'momo', name: 'Moov Money', logo: '🟦' },
-                { id: 'airtel', name: 'Airtel Money', logo: '🟥' }
-            ]
-        }
-    ];
+    const selectedCountry = {
+        code: 'TD',
+        label: '🇹🇩 Chad (+235)',
+        dialCode: '+235',
+        currency: 'XAF',
+        minDigits: 8,
+    };
 
     const operatorRules = {
         airtel: {
+            name: 'Airtel Money',
             label: 'préfixe 6',
             isValid: (local) => local.startsWith('6')
         },
         momo: {
+            name: 'Moov Money',
             label: 'préfixe 9',
             isValid: (local) => local.startsWith('9')
         }
     };
 
-    let selectedCountry = countries[0];
-    let selectedMethod = selectedCountry.methods[0];
     let currentPollUrl = null;
     let pollTimer = null;
     let pollAttempts = 0;
-    const maxPollAttempts = 24; // 24 x 5s = 2 minutes
+    let lastReference = '';
+    const maxPollAttempts = 24;
+
+    function getSelectedMethod() {
+        const checkedRadio = document.querySelector('input[name="methode_paiement"]:checked');
+        return checkedRadio ? checkedRadio.value : '';
+    }
 
     function setStatus(type, message) {
         statusBox.className = 'status-box';
@@ -260,9 +209,41 @@
         statusBox.textContent = message;
     }
 
+    function validateEmail() {
+        const email = emailInput.value.trim();
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function normalizePhone(phone) {
+        const digits = phone.replace(/\D+/g, '');
+        if (!digits) return '';
+        if (digits.startsWith(selectedCountry.dialCode.replace('+', ''))) return `+${digits}`;
+        return `${selectedCountry.dialCode}${digits}`;
+    }
+
+    function validatePhone() {
+        const method = getSelectedMethod();
+        const rule = operatorRules[method];
+        const e164 = normalizePhone(phoneInput.value);
+        const digits = e164.replace('+', '');
+        const expectedPrefix = selectedCountry.dialCode.replace('+', '');
+        const local = digits.startsWith(expectedPrefix) ? digits.slice(expectedPrefix.length) : '';
+        const isValid = !!rule && local.length === selectedCountry.minDigits && rule.isValid(local);
+
+        phoneHelp.textContent = isValid
+            ? 'Numéro valide.'
+            : rule
+                ? `Format attendu : ${selectedCountry.dialCode}XXXXXXXX (${rule.label}).`
+                : 'Choisissez d’abord un moyen de paiement.';
+        phoneHelp.style.color = isValid ? 'var(--couleur-success)' : 'var(--couleur-error)';
+
+        return { isValid, e164 };
+    }
+
     function updateMethodSelection() {
-        // Mettre à jour l'état visuel des cartes
-        document.querySelectorAll('.payment-method-option').forEach(option => {
+        const method = getSelectedMethod();
+
+        document.querySelectorAll('.payment-method-option').forEach((option) => {
             const radio = option.querySelector('input[type="radio"]');
             const card = option.querySelector('.payment-method-card');
             if (radio.checked) {
@@ -274,78 +255,46 @@
             }
         });
 
-        // Mettre à jour la méthode sélectionnée
-        const checkedRadio = document.querySelector('input[name="methode_paiement"]:checked');
-        if (checkedRadio) {
-            selectedMethod = selectedCountry.methods.find(m => m.id === checkedRadio.value);
-        }
-        
+        methodHelp.textContent = method && operatorRules[method]
+            ? `Utilisez un numéro ${operatorRules[method].label}.`
+            : 'Choisissez votre opérateur.';
+
         updateResume();
-    }
-
-    function normalizePhone(phone) {
-        const digits = phone.replace(/\D+/g, '');
-        if (!digits) return '';
-        if (digits.startsWith(selectedCountry.dialCode.replace('+', ''))) return `+${digits}`;
-        return `${selectedCountry.dialCode}${digits}`;
-    }
-
-    function validatePhone() {
-        const e164 = normalizePhone(phoneInput.value);
-        const expectedPrefix = selectedCountry.dialCode.replace('+', '');
-        const digits = e164.replace('+', '');
-        const okPrefix = digits.startsWith(expectedPrefix);
-        const local = digits.slice(expectedPrefix.length);
-        const localLen = local.length;
-        const okLen = localLen === selectedCountry.minDigits;
-        const operatorRule = operatorRules[selectedMethod.id];
-        const okOperatorPrefix = operatorRule ? operatorRule.isValid(local) : false;
-        const isValid = okPrefix && okLen && okOperatorPrefix;
-        phoneHelp.textContent = isValid
-            ? 'Numéro valide.'
-            : `Format attendu: ${selectedCountry.dialCode}XXXXXXXX (${selectedMethod.name}: ${operatorRule ? operatorRule.label : 'préfixe invalide'}).`;
-        phoneHelp.style.color = isValid ? 'var(--couleur-success)' : 'var(--couleur-error)';
-        return { isValid, e164 };
     }
 
     function updateResume() {
+        const method = getSelectedMethod();
+        resumeEmail.textContent = emailInput.value.trim() || '-';
         resumeCountry.textContent = selectedCountry.label;
-        resumeOperator.textContent = selectedMethod.name;
-        const { e164 } = validatePhone();
-        resumePhone.textContent = e164 || '-';
+        resumeOperator.textContent = method && operatorRules[method] ? operatorRules[method].name : '-';
+        resumePhone.textContent = normalizePhone(phoneInput.value) || '-';
         resumeAmount.textContent = `${Number(amountInput.value || total).toLocaleString('fr-FR')} ${selectedCountry.currency}`;
         currencyPill.textContent = selectedCountry.currency;
-    }
-
-    function pickCountry(code) {
-        const found = countries.find((c) => c.code === code);
-        if (!found) return;
-        selectedCountry = found;
-        selectedMethod = selectedCountry.methods[0];
-        if (!phoneInput.value.startsWith(selectedCountry.dialCode)) {
-            phoneInput.value = `${selectedCountry.dialCode} `;
-        }
-        updateResume();
+        validatePhone();
     }
 
     async function pollStatus() {
         if (!currentPollUrl) return;
-        pollAttempts += 1;
-        try {
-            const response = await fetch(currentPollUrl, { headers: { 'Accept': 'application/json' } });
-            const data = await response.json();
-            const s = String(data.statut || '').toLowerCase();
 
-            if (s === 'paid') {
+        pollAttempts += 1;
+
+        try {
+            const response = await fetch(currentPollUrl, { headers: { Accept: 'application/json' } });
+            const data = await response.json();
+            const status = String(data.statut || '').toLowerCase();
+
+            if (status === 'paid') {
                 clearInterval(pollTimer);
-                setStatus('success', 'Paiement reussi. Redirection vers vos billets...');
-                setTimeout(() => { window.location.href = `/achat/confirmation/${lastReference}`; }, 1200);
+                setStatus('success', 'Paiement réussi. Redirection vers vos billets...');
+                setTimeout(() => {
+                    window.location.href = `/achat/confirmation/${lastReference}`;
+                }, 1200);
                 return;
             }
 
-            if (s === 'rejected' || s === 'expired') {
+            if (status === 'rejected' || status === 'expired') {
                 clearInterval(pollTimer);
-                setStatus('error', 'Paiement echoue ou expire. Veuillez reessayer.');
+                setStatus('error', 'Paiement échoué ou expiré. Veuillez réessayer.');
                 payBtn.disabled = false;
                 payBtnText.textContent = 'Confirmer le paiement';
                 payBtnLoader.hidden = true;
@@ -362,62 +311,72 @@
                 payBtnLoader.hidden = true;
             }
         } catch {
-            setStatus('error', 'Impossible de verifier le statut pour le moment.');
             clearInterval(pollTimer);
+            setStatus('error', 'Impossible de vérifier le statut pour le moment.');
             payBtn.disabled = false;
             payBtnText.textContent = 'Reprendre le paiement';
             payBtnLoader.hidden = true;
         }
     }
 
-    let lastReference = '';
     async function createPayment() {
-        const { isValid, e164 } = validatePhone();
-        if (!isValid) {
-            setStatus('error', 'Veuillez corriger le numero de telephone.');
+        if (!validateEmail()) {
+            setStatus('error', 'Saisissez une adresse email valide.');
+            emailInput.focus();
             return;
         }
 
-        // Vérifier qu'une méthode est sélectionnée
-        const checkedRadio = document.querySelector('input[name="methode_paiement"]:checked');
-        if (!checkedRadio) {
+        const method = getSelectedMethod();
+        if (!method) {
             setStatus('error', 'Veuillez choisir un moyen de paiement.');
+            return;
+        }
+
+        const { isValid, e164 } = validatePhone();
+        if (!isValid) {
+            setStatus('error', 'Veuillez corriger le numéro de téléphone.');
+            phoneInput.focus();
             return;
         }
 
         payBtn.disabled = true;
         payBtnText.textContent = 'Traitement en cours...';
         payBtnLoader.hidden = false;
-        setStatus('pending', 'Creation de la transaction...');
+        setStatus('pending', 'Création de la transaction...');
 
         try {
             const response = await fetch(apiCreateUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
                 body: JSON.stringify({
-                    country: selectedCountry.code,
-                    methode_paiement: selectedMethod.id,
+                    email: emailInput.value.trim(),
+                    methode_paiement: method,
                     telephone: e164,
-                    amount: Number(amountInput.value || total)
+                    country: selectedCountry.code
                 })
             });
+
             const data = await response.json();
+
             if (!response.ok || !data.ok) {
-                throw new Error(data.message || 'Creation de paiement impossible');
+                throw new Error(data.message || 'Création de paiement impossible');
             }
 
             lastReference = data.reference;
             currentPollUrl = data.poll_url;
 
-            // Si PawaPay n'a pas pu initier le depot, la commande reste "Pending" (mode manuel)
             if (!data.processing) {
-                setStatus('pending', 'Paiement en cours de confirmation. Delai estime: environ 5 minutes.');
-                window.setTimeout(() => { window.location.href = data.instructions_url; }, 700);
+                setStatus('pending', 'Paiement en cours de confirmation. Délai estimé : environ 5 minutes.');
+                setTimeout(() => {
+                    window.location.href = data.instructions_url;
+                }, 700);
                 return;
             }
 
-            setStatus('pending', 'Demande envoyee. Confirmez sur votre telephone.');
-
+            setStatus('pending', 'Demande envoyée. Confirmez sur votre téléphone.');
             clearInterval(pollTimer);
             pollAttempts = 0;
             pollTimer = setInterval(pollStatus, 5000);
@@ -430,19 +389,16 @@
         }
     }
 
-    // Initialisation
     amountInput.value = total;
-    pickCountry(selectedCountry.code);
-    
-    // Sélectionner Moov Money par défaut
     document.getElementById('methode-moov').checked = true;
     updateMethodSelection();
-    
-    // Écouter les changements de sélection
-    document.querySelectorAll('input[name="methode_paiement"]').forEach(radio => {
+    updateResume();
+
+    document.querySelectorAll('input[name="methode_paiement"]').forEach((radio) => {
         radio.addEventListener('change', updateMethodSelection);
     });
-    
+
+    emailInput.addEventListener('input', updateResume);
     phoneInput.addEventListener('input', updateResume);
     payBtn.addEventListener('click', createPayment);
 })();

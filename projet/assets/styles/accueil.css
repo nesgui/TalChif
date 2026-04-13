@@ -17,6 +17,10 @@ html, body {
     overflow-x: hidden;
 }
 
+.site-main {
+    padding-top: 0;
+}
+
 /* ══════════════════════════════════════
    CAROUSEL HERO
    ══════════════════════════════════════ */
@@ -24,8 +28,8 @@ html, body {
 .movie-carousel {
     position: relative;
     width: 100%;
-    height: clamp(38vh, 55vh + 10vw, 70vh);
-    min-height: clamp(280px, 40vh, 520px);
+    height: clamp(220px, 32vh, 380px);
+    min-height: clamp(220px, 32vh, 380px);
     overflow: hidden;
     background: linear-gradient(to bottom, 
         rgba(0, 0, 0, 1) 0%, 
@@ -43,7 +47,7 @@ html, body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: clamp(90px, 10vh, 160px);
+    height: clamp(48px, 8vh, 88px);
     background: linear-gradient(to top, 
         var(--couleur-fond) 0%, 
         transparent 100%
@@ -104,8 +108,11 @@ html, body {
     min-width: 100%;
     height: 100%;
     position: relative;
+    display: block;
     margin: 0;
     padding: 0;
+    text-decoration: none;
+    color: inherit;
 }
 
 .slide-background {
@@ -138,14 +145,19 @@ html, body {
 
 .slide-info-bottom-left {
     position: absolute;
-    bottom: clamp(14px, 4vh, 60px);
-    left: clamp(14px, 3.8vw, 60px);
+    bottom: 0;
+    left: clamp(14px, 3.8vw, 72px);
+    right: clamp(14px, 3.8vw, 72px);
     z-index: 10;
-    max-width: min(600px, calc(100% - 28px));
+    max-width: none;
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 1.6vw, 24px);
+    padding: 0 0 clamp(18px, 3vh, 24px);
 }
 
 .event-category {
-    display: inline-block;
+    display: none;
     background: var(--couleur-primaire);
     color: var(--couleur-texte-inverse);
     padding: clamp(3px, 0.6vw, 6px) clamp(6px, 1.2vw, 12px);
@@ -158,72 +170,40 @@ html, body {
 }
 
 .event-title {
-    font-size: clamp(1.25rem, 3.2vw + 0.9rem, 3.5rem);
-    font-weight: 700;
+    font-size: clamp(0.95rem, 1.1vw + 0.75rem, 1.2rem);
+    font-weight: 600;
     color: white;
-    margin-bottom: clamp(10px, 1.6vw, 20px);
-    line-height: 1.1;
+    margin: 0;
+    line-height: 1.2;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .event-meta {
     display: flex;
-    flex-direction: column;
-    gap: clamp(6px, 1vw, 10px);
-    margin-bottom: clamp(12px, 2.2vw, 30px);
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(12px, 1.6vw, 24px);
+    margin-bottom: 0;
+    flex-wrap: wrap;
 }
 
 .event-date,
 .event-location {
     display: flex;
     align-items: center;
-    gap: clamp(6px, 1vw, 10px);
+    gap: 6px;
     color: rgba(255, 255, 255, 0.9);
-    font-size: clamp(0.85rem, 0.55vw + 0.7rem, 1rem);
+    font-size: clamp(0.95rem, 1.1vw + 0.75rem, 1.2rem);
     font-weight: 500;
+    line-height: 1.2;
 }
 
 .event-date svg,
 .event-location svg {
     flex-shrink: 0;
     opacity: 0.8;
-}
-
-.event-actions {
-    display: flex;
-    gap: clamp(8px, 1.2vw, 15px);
-    align-items: center;
-}
-
-.btn-large {
-    padding: clamp(8px, 1.2vw + 6px, 15px) clamp(14px, 2vw + 8px, 30px);
-    font-size: clamp(0.85rem, 0.55vw + 0.7rem, 1rem);
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-primary.btn-large {
-    background: var(--couleur-primaire);
-    color: var(--couleur-texte-inverse);
-    border: none;
-}
-
-.btn-primary.btn-large:hover {
-    background: var(--couleur-primaire-hover);
-    transform: scale(1.05);
-}
-
-.btn-outline.btn-large {
-    background: transparent;
-    color: white;
-    border: 2px solid white;
-}
-
-.btn-outline.btn-large:hover {
-    background: white;
-    color: black;
+    width: 14px;
+    height: 14px;
 }
 
 .slide-card {
@@ -284,33 +264,24 @@ html, body {
 /* Tablette (768px - 920px) */
 @media (max-width: 920px) {
     .movie-carousel {
-        height: 50vh;
-        min-height: 350px;
-        max-height: 400px;
+        height: 300px;
+        min-height: 300px;
+        max-height: 300px;
     }
     
     .slide-info-bottom-left {
-        bottom: 30px;
         left: 20px;
         right: 20px;
-        max-width: none;
+        gap: 14px;
+        padding-bottom: 20px;
     }
     
     .event-title {
-        font-size: 1.8rem;
-        margin-bottom: 12px;
+        font-size: 1rem;
     }
     
     .event-meta {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    
-    .event-actions {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        gap: 14px;
     }
     
     .carousel-nav {
@@ -330,45 +301,37 @@ html, body {
 /* Smartphone (< 520px) - Compact pour laisser place aux cards */
 @media (max-width: 520px) {
     .movie-carousel {
-        height: 35vh;
-        min-height: 250px;
-        max-height: 300px;
+        height: 200px;
+        min-height: 200px;
+        max-height: 200px;
     }
     
     .slide-info-bottom-left {
-        bottom: 15px;
-        left: 15px;
-        right: 15px;
+        left: 14px;
+        right: 14px;
+        gap: 10px;
+        padding-bottom: 16px;
+        align-items: flex-end;
     }
     
     .event-title {
-        font-size: 1.25rem;
-        margin-bottom: 8px;
-    }
-    
-    .event-category {
-        font-size: 9px;
-        padding: 3px 6px;
-        margin-bottom: 8px;
+        font-size: 0.85rem;
     }
     
     .event-meta {
-        display: none;
+        display: flex;
+        gap: 10px;
     }
-    
-    .event-actions {
-        flex-direction: row;
-        gap: 8px;
+
+    .event-date,
+    .event-location {
+        font-size: 0.85rem;
     }
-    
-    .btn-large {
-        padding: 8px 16px;
-        font-size: 13px;
-        border-radius: 20px;
-    }
-    
-    .btn-outline.btn-large {
-        display: none;
+
+    .event-date svg,
+    .event-location svg {
+        width: 12px;
+        height: 12px;
     }
     
     .carousel-nav {
@@ -386,13 +349,46 @@ html, body {
     }
     
     .carousel-indicators {
-        bottom: 10px;
-        gap: 6px;
+        bottom: 8px;
+        gap: 5px;
     }
     
     .indicator {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
+    }
+}
+
+@media (max-width: 380px) {
+    .movie-carousel {
+        height: 184px;
+        min-height: 184px;
+        max-height: 184px;
+    }
+
+    .slide-info-bottom-left {
+        left: 12px;
+        right: 12px;
+        gap: 8px;
+        padding-bottom: 14px;
+    }
+
+    .event-title {
+        font-size: 0.78rem;
+    }
+
+    .event-meta {
+        gap: 8px;
+    }
+
+    .event-date,
+    .event-location {
+        font-size: 0.78rem;
+    }
+
+    .carousel-nav {
+        width: 28px;
+        height: 28px;
     }
 }
 
@@ -413,7 +409,7 @@ html, body {
 
 .movie-categories {
     background: var(--couleur-fond);
-    padding: 40px 0;
+    padding: 12px 0 40px;
     overflow-x: hidden;
 }
 

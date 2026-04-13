@@ -3,97 +3,105 @@
 {% block site_header %}{% endblock %}
 
 {% block site_main %}
-    <input class="dashboard-toggle" type="checkbox" id="dashboard-menu" />
+    {% if section is not defined %}
+        {% set section = 'client' %}
+    {% endif %}
+
+    {% set dashboard_sidebar_content %}
+        <div class="dashboard-sidebar-top">
+            <a class="dashboard-brand" href="{{ path('accueil') }}" data-turbo-frame="_top">TalChif</a>
+            <button type="button" class="dashboard-close" data-dashboard-close aria-label="Fermer le menu">Fermer</button>
+        </div>
+
+        <nav class="dashboard-nav">
+            {% if section == 'organisateur' %}
+                <div class="dashboard-nav-title">Organisateur</div>
+
+                <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
+
+                <details class="dashboard-group" open>
+                    <summary>Gestion des événements</summary>
+                    <div class="dashboard-sub">
+                        <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}" data-turbo-frame="dashboard-main-frame">Liste des événements</a>
+                        <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}" data-turbo-frame="dashboard-main-frame">Ajouter un événement</a>
+                        <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Vue globale ventes</a>
+                        <a class="dashboard-sublink" href="{{ path('organisateur.commande.references') }}" data-turbo-frame="dashboard-main-frame">Références à vérifier</a>
+                    </div>
+                </details>
+
+                <div class="dashboard-nav-title">Général</div>
+                <a class="dashboard-link" href="{{ path('profile.index') }}" data-turbo-frame="_top">Mon profil</a>
+                <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
+            {% elseif section == 'admin' %}
+                <div class="dashboard-nav-title">Administration</div>
+
+                <a class="dashboard-link" href="{{ path('admin.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
+
+                <details class="dashboard-group" open>
+                    <summary>Gestion</summary>
+                    <div class="dashboard-sub">
+                        <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">
+                            Utilisateurs
+                        </a>
+                        <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}" data-turbo-frame="dashboard-main-frame">
+                            Organisateurs
+                        </a>
+                        <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">
+                            Commandes & validation
+                        </a>
+                        <a class="dashboard-sublink" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">
+                            Références à vérifier
+                        </a>
+                    </div>
+                </details>
+
+                <details class="dashboard-group">
+                    <summary>Finance & stats</summary>
+                    <div class="dashboard-sub">
+                        <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}" data-turbo-frame="dashboard-main-frame">
+                            Tableau financier
+                        </a>
+                        <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}" data-turbo-frame="dashboard-main-frame">
+                            Événements
+                        </a>
+                    </div>
+                </details>
+
+                <details class="dashboard-group">
+                    <summary>Sécurité</summary>
+                    <div class="dashboard-sub">
+                        <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}" data-turbo-frame="dashboard-main-frame">
+                            Logs de sécurité
+                        </a>
+                    </div>
+                </details>
+
+                <div class="dashboard-nav-title">Général</div>
+                <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour au site</a>
+            {% endif %}
+        </nav>
+    {% endset %}
 
     <div class="dashboard">
         <aside class="dashboard-sidebar" aria-label="Menu latéral">
-            <div class="dashboard-sidebar-top">
-                <a class="dashboard-brand" href="{{ path('accueil') }}" data-turbo-frame="_top">TalChif</a>
-                <label class="dashboard-close" for="dashboard-menu">Fermer</label>
-            </div>
-
-            {% if section is not defined %}
-                {% set section = 'client' %}
-            {% endif %}
-
-            <nav class="dashboard-nav">
-                {% if section == 'organisateur' %}
-                    <div class="dashboard-nav-title">Organisateur</div>
-
-                    <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
-
-                    <details class="dashboard-group" open>
-                        <summary>Gestion des événements</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}" data-turbo-frame="dashboard-main-frame">Liste des événements</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}" data-turbo-frame="dashboard-main-frame">Ajouter un événement</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Vue globale ventes</a>
-                            <a class="dashboard-sublink" href="{{ path('organisateur.commande.references') }}" data-turbo-frame="dashboard-main-frame">Références à vérifier</a>
-                        </div>
-                    </details>
-
-                    <div class="dashboard-nav-title">Général</div>
-                    <a class="dashboard-link" href="{{ path('profile.index') }}" data-turbo-frame="_top">Mon profil</a>
-                    <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
-                {% elseif section == 'admin' %}
-                    <div class="dashboard-nav-title">Administration</div>
-
-                    <a class="dashboard-link" href="{{ path('admin.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
-
-                    <details class="dashboard-group" open>
-                        <summary>Gestion</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">
-                                Utilisateurs
-                            </a>
-                            <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}" data-turbo-frame="dashboard-main-frame">
-                                Organisateurs
-                            </a>
-                            <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">
-                                Commandes & validation
-                            </a>
-                            <a class="dashboard-sublink" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">
-                                Références à vérifier
-                            </a>
-                        </div>
-                    </details>
-
-                    <details class="dashboard-group">
-                        <summary>Finance & stats</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}" data-turbo-frame="dashboard-main-frame">
-                                Tableau financier
-                            </a>
-                            <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}" data-turbo-frame="dashboard-main-frame">
-                                Événements
-                            </a>
-                        </div>
-                    </details>
-
-                    <details class="dashboard-group">
-                        <summary>Sécurité</summary>
-                        <div class="dashboard-sub">
-                            <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}" data-turbo-frame="dashboard-main-frame">
-                                Logs de sécurité
-                            </a>
-                        </div>
-                    </details>
-
-                    <div class="dashboard-nav-title">Général</div>
-                    <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour au site</a>
-                {% endif %}
-            </nav>
+            {{ dashboard_sidebar_content }}
         </aside>
+
+        <dialog class="dashboard-sidebar-dialog" id="dashboard-sidebar-dialog" aria-label="Menu latéral mobile">
+            <div class="dashboard-sidebar-dialog-panel">
+                {{ dashboard_sidebar_content }}
+            </div>
+        </dialog>
 
         <turbo-frame id="dashboard-main-frame" data-turbo-action="advance" class="dashboard-main">
             {% include 'partials/flashes.html.twig' %}
             <header class="dashboard-topbar">
-                <label class="dashboard-burger" for="dashboard-menu" aria-label="Ouvrir le menu de navigation">
+                <button type="button" class="dashboard-burger" aria-label="Ouvrir le menu de navigation" aria-haspopup="dialog" aria-controls="dashboard-sidebar-dialog" aria-expanded="false" data-dashboard-open>
                     <span class="dashboard-burger-icon" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
                     </span>
                     <span class="dashboard-burger-text">Menu</span>
-                </label>
+                </button>
                 <div class="dashboard-topbar-title">
                     {% block dashboard_title %}{% endblock %}
                 </div>
@@ -111,10 +119,6 @@
     {% block stylesheets %}
         {{ parent() }}
         <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
-        <!-- Debug: Vérification chargement CSS admin -->
-        {% if section is defined and section == 'admin' %}
-            <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
-        {% endif %}
     {% endblock %}
     
     {% block javascripts %}

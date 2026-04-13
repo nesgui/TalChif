@@ -45,6 +45,9 @@ final class ProfileController extends AbstractController
         $passwordForm->handleRequest($request);
 
         if ($infoForm->isSubmitted() && $infoForm->isValid()) {
+            if ($user->isCheckoutAccount() && trim((string) $user->getNom()) !== '' && trim((string) $user->getTelephone()) !== '') {
+                $this->addFlash('info', 'Ajoutez maintenant un mot de passe pour sécuriser votre espace client.');
+            }
             $entityManager->flush();
             $this->addFlash('success', 'Profil mis à jour avec succès.');
             return $this->redirectToRoute('profile.index');
@@ -55,7 +58,7 @@ final class ProfileController extends AbstractController
             $newPassword = (string) $passwordForm->get('new_password')->getData();
             $newPasswordConfirm = (string) $passwordForm->get('new_password_confirm')->getData();
 
-            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+            if (!$user->isCheckoutAccount() && !$passwordHasher->isPasswordValid($user, $currentPassword)) {
                 $this->addFlash('error', 'Le mot de passe actuel est incorrect.');
                 return $this->redirectToRoute('profile.index');
             }
@@ -66,15 +69,19 @@ final class ProfileController extends AbstractController
             }
 
             $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+            if (trim((string) $user->getNom()) !== '' && trim((string) $user->getTelephone()) !== '') {
+                $user->setCheckoutAccount(false);
+            }
             $entityManager->flush();
 
-            $this->addFlash('success', 'Mot de passe mis à jour.');
+            $this->addFlash('success', $user->isProfileComplete() ? 'Profil sécurisé. Vous pouvez maintenant consulter vos billets dans votre espace client.' : 'Mot de passe mis à jour.');
             return $this->redirectToRoute('profile.index');
         }
 
         return $this->render('profile/index.html.twig', [
             'infoForm' => $infoForm->createView(),
             'passwordForm' => $passwordForm->createView(),
+            'profileIncomplete' => !$user->isProfileComplete(),
         ]);
     }
 }

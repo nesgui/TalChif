@@ -10,6 +10,7 @@ use App\Entity\LogSecurite;
 use App\Message\PaymentReferenceNotificationMessage;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +19,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -30,9 +34,12 @@ final class AchatController extends AbstractController
     public function __construct(
         private EvenementRepository $evenementRepository,
         private CommandeRepository $commandeRepository,
+        private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private CreerCommandeHandler $creerCommandeHandler,
         private MessageBusInterface $messageBus,
+        private UserPasswordHasherInterface $passwordHasher,
+        private TokenStorageInterface $tokenStorage,
         #[Autowire('%app.momo.numero%')]
         private string $momoNumero,
         #[Autowire('%app.momo.beneficiaire%')]
@@ -41,7 +48,6 @@ final class AchatController extends AbstractController
     }
 
     #[Route('/achat', name: 'achat.index')]
-    #[IsGranted('ROLE_CLIENT')]
     public function index(SessionInterface $session): Response
     {
         $panier = $session->get('panier', []);
@@ -94,6 +100,7 @@ final class AchatController extends AbstractController
         return $this->render('achat/index.html.twig', [
             'lignes' => $lignes,
             'total' => $total,
+            'prefillEmail' => $this->getUser()?->getEmail(),
         ]);
     }
 
@@ -102,7 +109,6 @@ final class AchatController extends AbstractController
         name: 'achat.evenement',
         requirements: ['id' => '\\d+', 'slug' => '[a-z0-9-]+']
     )]
-    #[IsGranted('ROLE_CLIENT')]
     public function achatEvenement(string $slug, int $id): Response
     {
         $evenement = $this->evenementRepository->find($id);
@@ -142,13 +148,12 @@ final class AchatController extends AbstractController
     }
 
     #[Route('/achat/paiement', name: 'achat.paiement', methods: ['POST'])]
-    #[IsGranted('ROLE_CLIENT')]
     public function paiement(Request $request, SessionInterface $session): Response
     {
-        $user = $this->getUser();
+        $user = $this->resolveCheckoutUser((string) $request->request->get('email', ''), $request);
         if (!$user) {
-            $this->addFlash('error', 'Vous devez être connecté pour effectuer un achat');
-            return $this->redirectToRoute('auth.login');
+            $this->addFlash('error', 'Veuillez saisir une adresse email valide pour continuer.');
+            return $this->redirectToRoute('achat.index');
         }
 
         $panier = $session->get('panier', []);
@@ -187,17 +192,8 @@ final class AchatController extends AbstractController
     }
 
     #[Route('/api/payments/create', name: 'api.payments.create', methods: ['POST'])]
-    #[IsGranted('ROLE_CLIENT')]
     public function createPayment(Request $request, SessionInterface $session): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->json([
-                'ok' => false,
-                'message' => 'Vous devez être connecté pour effectuer un paiement.'
-            ], 401);
-        }
-
         $panier = $session->get('panier', []);
         if (empty($panier)) {
             return $this->json([
@@ -214,7 +210,16 @@ final class AchatController extends AbstractController
 
         $methodePaiement = (string) ($data['methode_paiement'] ?? '');
         $telephone = trim((string) ($data['telephone'] ?? ''));
+        $email = trim((string) ($data['email'] ?? ''));
         $country = strtoupper((string) ($data['country'] ?? ''));
+
+        $user = $this->resolveCheckoutUser($email, $request);
+        if (!$user) {
+            return $this->json([
+                'ok' => false,
+                'message' => 'Une adresse email valide est obligatoire.'
+            ], 422);
+        }
 
         if ($methodePaiement === '' || $telephone === '') {
             return $this->json([
@@ -261,6 +266,49 @@ final class AchatController extends AbstractController
             'instructions_url' => $this->generateUrl('achat.instructions', ['reference' => $commande->getReference()]),
             'confirmation_url' => $this->generateUrl('achat.confirmation', ['transactionId' => $commande->getReference()]),
         ], 201);
+    }
+
+    private function resolveCheckoutUser(string $email, Request $request): ?\App\Entity\User
+    {
+        $currentUser = $this->getUser();
+        if ($currentUser instanceof \App\Entity\User) {
+            return $currentUser;
+        }
+
+        $normalizedEmail = mb_strtolower(trim($email));
+        if (!filter_var($normalizedEmail, FILTER_VALIDATE_EMAIL)) {
+            return null;
+        }
+
+        $user = $this->userRepository->findByEmail($normalizedEmail);
+        if (!$user) {
+            $user = new \App\Entity\User();
+            $user->setEmail($normalizedEmail);
+            $user->setNom('Compte à compléter');
+            $user->setTelephone(null);
+            $user->setRole('CLIENT');
+            $user->setActif(true);
+            $user->setIsVerified(false);
+            $user->setCheckoutAccount(true);
+            $user->setPassword($this->passwordHasher->hashPassword($user, bin2hex(random_bytes(16))));
+
+            $this->userRepository->save($user, true);
+        }
+
+        $this->authenticateCheckoutUser($user, $request);
+
+        return $user;
+    }
+
+    private function authenticateCheckoutUser(\App\Entity\User $user, Request $request): void
+    {
+        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
+        $this->tokenStorage->setToken($token);
+
+        $session = $request->getSession();
+        if ($session) {
+            $session->set('_security_main', serialize($token));
+        }
     }
 
     #[Route('/mes-commandes', name: 'achat.commandes')]
@@ -445,6 +493,11 @@ final class AchatController extends AbstractController
             return $this->redirectToRoute('auth.login');
         }
 
+        if (method_exists($user, 'isProfileComplete') && !$user->isProfileComplete()) {
+            $this->addFlash('warning', 'Complétez votre profil pour consulter vos billets dans votre espace client. Vos billets restent envoyés par email.');
+            return $this->redirectToRoute('profile.index');
+        }
+
         $billets = $this->entityManager->getRepository(Billet::class)->findBy([
             'transactionId' => $transactionId,
             'client' => $user,
@@ -478,6 +531,11 @@ final class AchatController extends AbstractController
     public function billet(int $id): Response
     {
         $user = $this->getUser();
+
+        if (method_exists($user, 'isProfileComplete') && !$user->isProfileComplete()) {
+            $this->addFlash('warning', 'Complétez votre profil pour consulter vos billets dans votre espace client. Vos billets restent envoyés par email.');
+            return $this->redirectToRoute('profile.index');
+        }
 
         $billet = $this->entityManager->getRepository(Billet::class)->find($id);
 

@@ -30,7 +30,10 @@ final class Version20260331175729 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_1F034AF6FD02F13 ON billet (evenement_id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_1F034AF67D8B1FB5 ON billet (qr_code)');
         $this->addSql('CREATE INDEX IDX_1F034AF66AF12ED9 ON billet (valide_par_id)');
-        $this->addSql('ALTER TABLE commande ADD COLUMN capture_preuve_paiement VARCHAR(255) DEFAULT NULL');
+        $columns = $this->connection->createSchemaManager()->listTableColumns('commande');
+        if (!isset($columns['capture_preuve_paiement'])) {
+            $this->addSql('ALTER TABLE commande ADD COLUMN capture_preuve_paiement VARCHAR(255) DEFAULT NULL');
+        }
         $this->addSql('CREATE TEMPORARY TABLE __temp__user AS SELECT id, email, roles, password, nom, telephone, created_at, updated_at, is_verified, role, actif, balance FROM user');
         $this->addSql('DROP TABLE user');
         $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, email VARCHAR(180) NOT NULL, roles CLOB NOT NULL, password VARCHAR(255) NOT NULL, nom VARCHAR(255) NOT NULL, telephone VARCHAR(20) DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, is_verified BOOLEAN NOT NULL, role VARCHAR(20) NOT NULL, actif BOOLEAN NOT NULL, balance INTEGER NOT NULL, verification_token VARCHAR(100) DEFAULT NULL)');

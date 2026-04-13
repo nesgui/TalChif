@@ -6,7 +6,7 @@
 <section class="panier-shell">
     <header class="panier-head">
         <h1 class="page-title">Mon panier</h1>
-        <p class="page-subtitle">Vérifiez vos billets puis passez au paiement.</p>
+        <p class="page-subtitle">Vérifiez vos billets puis passez au paiement. Votre email suffit pour continuer.</p>
     </header>
 
     {% if lignes|length > 0 %}
@@ -46,11 +46,7 @@
                 <h2 class="card-title">Total</h2>
                 <p class="total">{{ total|number_format(0, '.', ' ') }} XAF</p>
                 <div class="card-actions">
-                    {% if app.user %}
-                        <a class="btn btn-primary btn-block" href="{{ path('achat.index') }}">Passer au paiement</a>
-                    {% else %}
-                        <a class="btn btn-primary btn-block" href="{{ path('achat.index') }}">Se connecter pour payer</a>
-                    {% endif %}
+                    <a class="btn btn-primary btn-block" href="{{ path('achat.index') }}">Continuer vers le paiement</a>
                     <a class="btn btn-block" href="{{ path('evenement.index') }}">Continuer mes achats</a>
                 </div>
             </aside>

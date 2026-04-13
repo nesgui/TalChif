@@ -29,6 +29,7 @@ final class PortefeuilleController extends AbstractController
                 $this->commandeRepository->findByClient($user),
                 fn($c) => $c->isPending() && !$c->estExpiree()
             ),
+            'profileIncomplete' => method_exists($user, 'isProfileComplete') ? !$user->isProfileComplete() : false,
         ]);
     }
 }

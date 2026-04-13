@@ -20,9 +20,7 @@ final class ChangePasswordType extends AbstractType
             ->add('current_password', PasswordType::class, [
                 'label' => 'Mot de passe actuel',
                 'mapped' => false,
-                'constraints' => [
-                    new NotBlank(message: 'Le mot de passe actuel est obligatoire.'),
-                ],
+                'required' => false,
             ])
             ->add('new_password', PasswordType::class, [
                 'label' => 'Nouveau mot de passe',

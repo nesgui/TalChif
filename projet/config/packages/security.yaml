@@ -44,9 +44,9 @@ security:
         - { path: ^/evenements, roles: PUBLIC_ACCESS }
         - { path: ^/panier, roles: PUBLIC_ACCESS }
         - { path: ^/portefeuille, roles: ROLE_CLIENT }
-        - { path: ^/achat, roles: ROLE_CLIENT }
-        - { path: ^/api/payments, roles: ROLE_CLIENT }
-        - { path: ^/api/commande, roles: ROLE_CLIENT }
+        - { path: ^/achat, roles: PUBLIC_ACCESS }
+        - { path: ^/api/payments, roles: PUBLIC_ACCESS }
+        - { path: ^/api/commande, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/$, roles: PUBLIC_ACCESS }
 

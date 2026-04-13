@@ -175,7 +175,7 @@ class EvenementType extends AbstractType
                     'help' => 'Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB)',
                 ])
                 ->add('autresAffiches', FileType::class, [
-                    'label' => 'Autres affiches',
+                    'label' => 'Bannière de l\'événement (recommandé : 1600 × 600 px, soit environ 423 × 159 mm à 96 dpi)',
                     'required' => false,
                     'mapped' => false,
                     'multiple' => true,
@@ -194,16 +194,18 @@ class EvenementType extends AbstractType
                             )
                         ])
                     ],
-                    'help' => 'Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - Plusieurs images possibles',
+                    'help' => 'Formats acceptés: JPEG, PNG, GIF, WebP (max 5MB par image) - format conseillé 1600 × 600 px pour la banderole',
                 ])
                 ->add('isActive', CheckboxType::class, [
                     'label' => 'Événement actif (visible par les utilisateurs)',
                     'required' => false,
+                    'data' => false,
                     'help' => 'Désactivez cette option pour masquer temporairement l\'événement'
                 ])
                 ->add('isValide', CheckboxType::class, [
                     'label' => 'Événement validé (approuvé pour publication)',
                     'required' => false,
+                    'data' => false,
                     'help' => 'Cochez cette case lorsque l\'événement est prêt à être publié'
                 ]);
         }

@@ -42,15 +42,11 @@
         <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
             <h2>J’ai déjà payé</h2>
-            <p>Votre paiement est en cours de validation.</p>
-            <div class="info-message">
-                <strong>⏰ Délai de validation : 10 minutes</strong><br>
-                Vos billets seront disponibles après la validation de votre capture par notre équipe.
-            </div>
+            <p>Envoyez-nous maintenant la preuve de votre transaction pour que notre équipe puisse la vérifier.</p>
             
             <div class="form-group">
                 <label for="capture_transaction">
-                    📸 Capture d'écran de la transaction
+                    Filmer et envoyer nous une capture d'écran de la transaction
                     <span style="color: #e53e3e;">*</span>
                 </label>
                 <input
@@ -61,6 +57,12 @@
                     required
                 >
                 <small>Formats acceptés : JPG, PNG, WEBP (max 5 Mo)</small>
+            </div>
+
+            <div class="info-message">
+                <strong>Votre paiement est en cours de validation.</strong><br>
+                ⏰ Délai de validation : 10 minutes<br>
+                Vos billets seront disponibles après la validation de votre capture par notre équipe.
             </div>
             
             <button type="submit" class="btn btn-primary">Envoyer la capture</button>

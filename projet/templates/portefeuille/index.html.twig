@@ -9,6 +9,17 @@
         <p class="page-subtitle">Bienvenue dans votre espace personnel.</p>
     </header>
 
+    {% if profileIncomplete %}
+    <section class="card card-warning">
+        <h2 class="card-title">Complétez votre profil pour débloquer vos billets</h2>
+        <p class="card-meta">Vos billets achetés sont bien envoyés par email. Pour les consulter ici, ajoutez votre nom complet, votre téléphone et votre mot de passe.</p>
+        <div class="card-actions">
+            <a href="{{ path('profile.index') }}" class="btn btn-primary">Compléter mon profil</a>
+            <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
+        </div>
+    </section>
+    {% endif %}
+
     {# Commandes en attente #}
     {% if commandes_pending|length > 0 %}
     <section class="card card-warning">
@@ -26,7 +37,9 @@
     {# Billets à venir #}
     <section class="card">
         <h2 class="card-title">Mes billets à venir</h2>
-        {% if billets_a_venir|length > 0 %}
+        {% if profileIncomplete %}
+            <p class="muted">Complétez votre profil pour afficher vos billets ici.</p>
+        {% elseif billets_a_venir|length > 0 %}
             <div class="billets-grid">
                 {% for billet in billets_a_venir %}
                 <article class="billet-mini">
@@ -51,7 +64,7 @@
         <h2 class="card-title">Actions rapides</h2>
         <div class="card-actions">
             <a href="{{ path('evenement.index') }}" class="btn btn-primary">Voir les événements</a>
-            <a href="{{ path('billet.index') }}" class="btn">Mes billets</a>
+            {% if not profileIncomplete %}<a href="{{ path('billet.index') }}" class="btn">Mes billets</a>{% endif %}
             <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
             <a href="{{ path('profile.index') }}" class="btn">Mon profil</a>
         </div>

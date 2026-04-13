@@ -16,11 +16,12 @@
 }
 
 .dashboard {
-    min-height: 100vh;
+    height: 100dvh;
     display: grid;
     grid-template-columns: clamp(240px, 22vw, 300px) minmax(0, 1fr);
-    align-items: start;
+    align-items: stretch;
     background: var(--couleur-fond);
+    overflow: hidden;
 }
 
 .dashboard-sidebar {
@@ -29,9 +30,33 @@
     padding: var(--espace-fluid-md) var(--espace-fluid-sm);
     position: sticky;
     top: 0;
-    height: 100vh;
-    overflow: auto;
+    height: 100dvh;
+    align-self: stretch;
     box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.dashboard-sidebar-dialog {
+    display: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    max-width: none;
+    max-height: none;
+}
+
+.dashboard-sidebar-dialog-panel {
+    width: min(86vw, 320px);
+    height: 100dvh;
+    box-sizing: border-box;
+    padding: var(--espace-fluid-md) var(--espace-fluid-sm);
+    border-right: 1px solid var(--couleur-bordure);
+    background: var(--palette-dark-blue, #1D3557);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-shadow: 0 30px 80px var(--couleur-ombre);
 }
 
 .dashboard-sidebar-top {
@@ -157,8 +182,10 @@ turbo-frame.dashboard-main,
     display: grid;
     grid-template-rows: auto 1fr;
     min-width: 0;
-    min-height: 100vh;
+    min-height: 0;
+    height: 100dvh;
     background: var(--couleur-fond);
+    overflow: hidden;
 }
 
 .dashboard-topbar {
@@ -228,7 +255,10 @@ turbo-frame.dashboard-main,
     margin: 0 auto;
     padding: clamp(14px, 1.2vw + 10px, 20px) var(--espace-fluid-md) clamp(28px, 2vw + 16px, 44px);
     min-width: 0;
+    min-height: 0;
     overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 @media (max-width: 980px) {
@@ -237,18 +267,25 @@ turbo-frame.dashboard-main,
     }
 
     .dashboard-main {
-        min-height: 100vh;
+        height: 100dvh;
     }
 
     .dashboard-sidebar {
+        display: none;
+    }
+
+    .dashboard-sidebar-dialog[open] {
+        display: block;
         position: fixed;
-        top: 0;
-        left: 0;
+        inset: 0 auto 0 0;
         width: min(86vw, 320px);
-        transform: translateX(-110%);
-        transition: transform 200ms ease;
-        box-shadow: 0 30px 80px var(--couleur-ombre);
-        z-index: 20;
+        height: 100dvh;
+        overflow: visible;
+        z-index: 30;
+    }
+
+    .dashboard-sidebar-dialog::backdrop {
+        background: rgba(11, 17, 34, 0.42);
     }
 
     .dashboard-topbar {

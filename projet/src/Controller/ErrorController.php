@@ -23,7 +23,7 @@ class ErrorController extends AbstractController
         }
 
         // Pour les autres erreurs, utiliser le template par défaut
-        return $this->render('bundles/TwigBundle/Exception/error.html.twig', [
+        return $this->render('error/error.html.twig', [
             'exception' => $exception,
         ]);
     }

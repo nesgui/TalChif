@@ -1,22 +1,27 @@
 Prévention future
 Après chaque modification d'entité Doctrine et éviter des problèmes à l'avenir :
-# 1. Générer la migration
-# 2. Appliquer la migration
-# 3. Valider le schéma
-# 4. Warmup du cache
-# 5. Nettoyer le cache
+# 0. Installer les dépendances
+# 1. Générer la migration en mode non interactif
+# 2. Appliquer la migration en mode non interactif
+# 3. Valider le schéma 
+# 4. Nettoyer le cache 
+# 5. Warmup du cache 
+# 6. Compiler les assets 
 
+### composer install 
 
+php bin/console doctrine:migrations:diff --no-interaction
 
-php bin/console doctrine:migrations:diff
-
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:migrations:migrate --no-interaction
 
 php bin/console doctrine:schema:validate
 
+php bin/console cache:clear
+
 php bin/console cache:warmup
 
-php bin/console cache:clear
+php bin/console asset-map:compile
+
 
 
 
