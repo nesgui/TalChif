@@ -21,15 +21,34 @@ final class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): ?Response
     {
+        $roles = $token->getRoleNames();
+
         $session = $request->getSession();
         if ($session) {
             $targetPath = $this->getTargetPath($session, 'main');
             if ($targetPath) {
-                return new RedirectResponse($targetPath);
+                $path = parse_url($targetPath, PHP_URL_PATH) ?? '';
+
+                // Ne pas suivre un chemin protégé si l'utilisateur n'a pas le rôle requis.
+                // Sans cette vérification, un client qui visite /admin avant de se connecter
+                // se retrouve sur une page 403 après login.
+                $requiresAdmin = str_starts_with($path, '/admin');
+                $requiresOrga  = str_starts_with($path, '/organisateur')
+                               || str_starts_with($path, '/validation');
+
+                $canFollow = true;
+                if ($requiresAdmin && !in_array('ROLE_ADMIN', $roles, true)) {
+                    $canFollow = false;
+                }
+                if ($requiresOrga && !in_array('ROLE_ORGANISATEUR', $roles, true)) {
+                    $canFollow = false;
+                }
+
+                if ($canFollow) {
+                    return new RedirectResponse($targetPath);
+                }
             }
         }
-
-        $roles = $token->getRoleNames();
 
         if (in_array('ROLE_ADMIN', $roles, true)) {
             return new RedirectResponse($this->urlGenerator->generate('admin.dashboard'));

@@ -13,6 +13,8 @@ interface CommandeRepositoryInterface
 {
     public function findByReference(string $reference): ?Commande;
 
+    public function findByDepositId(string $depositId): ?Commande;
+
     public function referenceExists(string $reference): bool;
 
     public function findPendingExpired(\DateTimeImmutable $expirationDate): array;

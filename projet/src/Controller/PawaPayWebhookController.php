@@ -42,6 +42,24 @@ final class PawaPayWebhookController
             return new JsonResponse(['error' => 'Method not allowed'], 405);
         }
 
+        // Vérifier la signature HMAC avant tout traitement
+        if (!empty($this->webhookSecret)) {
+            $signature = $request->headers->get('x-pawapay-signature', '');
+            if (empty($signature)) {
+                $this->logger->warning('PawaPay webhook: en-tête de signature manquant', [
+                    'ip' => $request->getClientIp(),
+                ]);
+                return new JsonResponse(['error' => 'Missing signature'], 401);
+            }
+            $expected = hash_hmac('sha256', $request->getContent(), $this->webhookSecret);
+            if (!hash_equals($expected, $signature)) {
+                $this->logger->warning('PawaPay webhook: signature HMAC invalide', [
+                    'ip' => $request->getClientIp(),
+                ]);
+                return new JsonResponse(['error' => 'Invalid signature'], 401);
+            }
+        }
+
         // Parser le JSON
         $data = json_decode($request->getContent(), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -62,9 +80,6 @@ final class PawaPayWebhookController
             ]);
             return new JsonResponse(['error' => 'Missing required fields'], 400);
         }
-
-        // TODO: Vérifier la signature HMAC si webhook_secret est configuré
-        // Pour l'instant, on accepte sans vérification en sandbox
 
         try {
             $this->handler->handle($depositId, $status);

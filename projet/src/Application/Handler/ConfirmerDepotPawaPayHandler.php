@@ -100,28 +100,33 @@ final class ConfirmerDepotPawaPayHandler
             return;
         }
 
-        // Dépôt complété → générer les billets
-        $this->logger->info('PawaPay callback: vérification validabilité', [
-            'depositId' => $depositId,
-            'reference' => $commande->getReference(),
-            'statut' => $commande->getStatut(),
-            'isPending' => $commande->isPending(),
-            'isProcessing' => $commande->isProcessing(),
-            'estExpiree' => $commande->estExpiree(),
-            'dateExpiration' => $commande->getDateExpiration()?->format('Y-m-d H:i:s'),
-        ]);
+        // Dépôt complété → générer les billets dans une transaction atomique.
+        // La vérification peutEtreValidee() est faite DANS la transaction après un
+        // refresh pour éviter la fenêtre de compétition (TOCTOU) : deux callbacks
+        // simultanés pourraient sinon tous les deux passer la garde et générer des
+        // billets en double. marquerPayee() lève une exception si le statut a déjà
+        // changé, ce qui force le rollback du second concurrent.
+        $this->entityManager->beginTransaction();
+        try {
+            // Re-lire depuis la base dans la transaction pour avoir l'état le plus récent.
+            $this->entityManager->refresh($commande);
 
-        if (!$commande->peutEtreValidee()) {
-            $this->logger->warning('PawaPay callback: commande non validable', [
+            if (!$commande->peutEtreValidee()) {
+                $this->logger->warning('PawaPay callback: commande non validable', [
+                    'depositId' => $depositId,
+                    'reference' => $commande->getReference(),
+                    'statut' => $commande->getStatut(),
+                ]);
+                $this->entityManager->rollback();
+                return;
+            }
+
+            $this->logger->info('PawaPay callback: vérification validabilité OK', [
                 'depositId' => $depositId,
                 'reference' => $commande->getReference(),
                 'statut' => $commande->getStatut(),
             ]);
-            return;
-        }
 
-        $this->entityManager->beginTransaction();
-        try {
             // Générer les billets
             foreach ($commande->getLignes() as $ligne) {
                 $evenement = $ligne->getEvenement();

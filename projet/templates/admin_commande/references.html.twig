@@ -25,6 +25,7 @@
                     <th>Tél.</th>
                     <th>Montant</th>
                     <th>Expire</th>
+                    <th>Justificatif</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -37,6 +38,24 @@
                     <td>{{ c.numeroClient }}</td>
                     <td>{{ c.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
                     <td>{{ c.dateExpiration|date('H:i') }}</td>
+                    <td>
+                        {% if c.capturePreuvePaiement %}
+                            {% set ext = c.capturePreuvePaiement|split('.')|last|lower %}
+                            {% if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+                                <a href="/uploads/preuves/{{ c.capturePreuvePaiement }}" target="_blank" rel="noopener" class="proof-thumb-link">
+                                    <img src="/uploads/preuves/{{ c.capturePreuvePaiement }}"
+                                         alt="Justificatif {{ c.reference }}"
+                                         class="proof-thumb">
+                                </a>
+                            {% else %}
+                                <a href="/uploads/preuves/{{ c.capturePreuvePaiement }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+                                    Télécharger ({{ ext|upper }})
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <span class="cell-meta">Aucun justificatif</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <form method="post" action="{{ path('admin.commande.valider', {reference: c.reference}) }}" class="form-inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('valider_' ~ c.reference) }}">
@@ -80,6 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .form-inline input[type="number"],
 .form-inline input[type="text"] { max-width: 140px; padding: 0.25rem 0.5rem; }
 .btn-error { background: var(--couleur-error); color: white; }
+.proof-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: var(--rayon-sm); border: 1px solid var(--couleur-bordure); display: block; }
+.proof-thumb-link:hover .proof-thumb { opacity: 0.85; }
+.cell-meta { color: var(--couleur-texte-secondaire); font-size: .82rem; }
 </style>
 {% endblock %}
 

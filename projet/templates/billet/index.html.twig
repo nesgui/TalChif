@@ -80,8 +80,13 @@ html[data-theme="dark"] .tickets-nav .ticket-filter-btn.active {
 .event-meta { margin: .22rem 0 0; color: var(--couleur-texte-secondaire); font-size: .86rem; }
 .event-total { white-space: nowrap; font-size: .95rem; }
 .codes { margin-top: .72rem; display: flex; flex-wrap: wrap; gap: .45rem; }
-.code-pill { text-decoration: none; border: 1px solid var(--couleur-bordure); border-radius: 999px; padding: .4rem .68rem; color: var(--couleur-texte); background: var(--couleur-fond); font-size: .84rem; }
+.code-pill { text-decoration: none; border: 1px solid var(--couleur-bordure); border-radius: 999px; padding: .4rem .68rem; color: var(--couleur-texte); background: var(--couleur-fond); font-size: .84rem; transition: border-color var(--transition-rapide), color var(--transition-rapide); }
 .code-pill:hover { border-color: var(--couleur-primaire); color: var(--couleur-primaire); }
+/* En thème sombre, --couleur-primaire (#1D3557) est trop proche de --couleur-fond (#0d1321) :
+   le texte devenait invisible au survol. On force une couleur lisible. */
+html[data-theme="dark"] .code-pill { color: var(--couleur-texte); background: var(--couleur-surface); }
+html[data-theme="dark"] .code-pill:hover { border-color: var(--couleur-secondaire); color: var(--couleur-texte); background: color-mix(in srgb, var(--couleur-surface) 80%, var(--couleur-secondaire) 20%); }
+html[data-theme="dark"] .code-pill:focus-visible { outline: 2px solid var(--couleur-secondaire); color: var(--couleur-texte); }
 .empty { text-align: center; }
 @media (max-width: 760px) {
     .tickets-nav { gap: .35rem; }
