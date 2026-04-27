@@ -1,3 +1,5 @@
+@import './typography-system.css';
+
 /* Thème par défaut (clair) - Palette TalChif cohérente et accessible */
 :root {
     /* Design tokens - palette fournie */
@@ -66,6 +68,15 @@
     --espace-xl: 32px;
     --espace-2xl: 48px;
     --espace-3xl: 64px;
+
+    --espace-fluid-xs: clamp(4px, 0.4vw + 2px, 8px);
+    --espace-fluid-sm: clamp(8px, 0.7vw + 4px, 14px);
+    --espace-fluid-md: clamp(12px, 1vw + 6px, 20px);
+    --espace-fluid-lg: clamp(16px, 1.5vw + 8px, 28px);
+    --espace-fluid-xl: clamp(20px, 2vw + 10px, 36px);
+
+    --container-max: 1100px;
+    --container-gutter: clamp(10px, 2.2vw, 24px);
 
     /* Typographie — échelle cohérente */
     --taille-xs: 0.75rem;   /* 12px — méta, badges */
@@ -418,7 +429,7 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
 }
 
 .container {
-    width: min(1100px, calc(100% - 32px));
+    width: min(var(--container-max), calc(100% - (var(--container-gutter) + var(--container-gutter))));
     margin: 0 auto;
 }
 
@@ -436,16 +447,51 @@ html[data-theme="dark"] .auth-theme-toggle:hover svg {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 0 6px;
+    padding: clamp(8px, 1.2vw, 12px) 0 clamp(6px, 1vw, 10px);
 }
 
 .public-brand {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     font-weight: 800;
     letter-spacing: 0.2px;
     color: var(--couleur-texte);
     text-decoration: none;
+}
+
+.public-search-form-inline {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    margin: 0 clamp(6px, 1.5vw, 16px);
+}
+
+.public-topbar-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.public-search-input-inline {
+    width: 100%;
+    min-width: 0;
+    border-radius: 999px;
+    border: 1px solid var(--couleur-bordure);
+    padding: clamp(6px, 1vw, 11px) clamp(10px, 1.5vw, 14px);
+    background: color-mix(in srgb, var(--couleur-fond) 92%, var(--couleur-texte) 8%);
+    color: var(--couleur-texte);
+    font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+    transition: border-color var(--transition-rapide), box-shadow var(--transition-rapide);
+}
+
+.public-search-input-inline::placeholder {
+    color: var(--couleur-texte-secondaire);
+}
+
+.public-search-input-inline:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 3px var(--couleur-primaire-clair);
 }
 
 .public-action {
@@ -2379,12 +2425,12 @@ img[loading="lazy"].loaded {
     left: 12px;
     right: 12px;
     bottom: calc(70px + env(safe-area-inset-bottom));
-    z-index: 20;
+    z-index: 200;
     background: var(--couleur-surface);
     border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
     border-radius: 16px;
     box-shadow: var(--ombre-lg);
-    padding: 12px;
+    padding: 14px;
     display: none;
 }
 
@@ -2551,10 +2597,246 @@ img[loading="lazy"].loaded {
     margin-bottom: 0.25rem;
 }
 
+/* Page Devenir Organisateur */
+.devenir-org-section {
+    position: relative;
+}
+
+.devenir-org-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    gap: 1.5rem;
+    align-items: stretch;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 85% 0%, color-mix(in srgb, #25d366 14%, transparent) 0, transparent 50%),
+        radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--couleur-primaire) 12%, transparent) 0, transparent 45%),
+        var(--couleur-surface-elevated, var(--couleur-surface));
+    box-shadow: var(--ombre-sm);
+}
+
+.devenir-org-hero h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.devenir-org-kicker {
+    margin: 0 0 0.55rem;
+    color: var(--couleur-primaire);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.devenir-org-lead {
+    margin: 0.9rem 0 0;
+    max-width: 62ch;
+    color: var(--couleur-texte-secondaire);
+}
+
+.devenir-org-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+}
+
+.devenir-org-pill {
+    border-radius: 999px;
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    background: color-mix(in srgb, var(--couleur-surface-elevated, var(--couleur-surface)) 90%, #ffffff 10%);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.devenir-org-grid {
+    margin-top: 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.devenir-org-card {
+    border: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--couleur-surface-elevated, var(--couleur-surface)) 95%, #ffffff 5%);
+    padding: 1rem;
+}
+
+.devenir-org-card h3 {
+    margin: 0 0 0.35rem;
+    font-size: 0.97rem;
+}
+
+.devenir-org-card p {
+    margin: 0;
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.89rem;
+    line-height: 1.45;
+}
+
+.devenir-org-whatsapp {
+    border-radius: 18px;
+    padding: 1.2rem;
+    color: #ffffff;
+    background: linear-gradient(152deg, #064e45 0%, #128c7e 48%, #25d366 100%);
+    box-shadow: 0 10px 28px rgba(18, 140, 126, 0.28);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.devenir-org-whatsapp::before,
+.devenir-org-whatsapp::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.16;
+    background: #ffffff;
+}
+
+.devenir-org-whatsapp::before {
+    width: 150px;
+    height: 150px;
+    top: -68px;
+    right: -70px;
+}
+
+.devenir-org-whatsapp::after {
+    width: 110px;
+    height: 110px;
+    bottom: -58px;
+    left: -42px;
+}
+
+.devenir-org-whatsapp-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.devenir-org-whatsapp-badge svg {
+    width: 30px;
+    height: 30px;
+}
+
+.devenir-org-whatsapp-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.28;
+    position: relative;
+    z-index: 1;
+}
+
+.devenir-org-whatsapp-text {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    position: relative;
+    z-index: 1;
+}
+
+.devenir-org-whatsapp-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.62rem 1rem;
+    font-weight: 700;
+    background: #ffffff;
+    color: #075e54;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+    position: relative;
+    z-index: 1;
+}
+
+.devenir-org-whatsapp-btn:hover {
+    background: #f2fff7;
+    text-decoration: none;
+}
+
+.devenir-org-steps {
+    list-style: none;
+    margin: 0.3rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+    position: relative;
+    z-index: 1;
+}
+
+.devenir-org-steps li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+}
+
+.devenir-org-steps li span {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.23);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.devenir-org-footnote {
+    margin-top: 0.9rem;
+    text-align: center;
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.9rem;
+}
+
 @media (max-width: 920px) {
     .organisateur-block {
         grid-template-columns: minmax(0, 1fr);
         padding: 2rem 1.5rem;
+    }
+
+    .devenir-org-shell {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .devenir-org-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .devenir-org-section {
+        padding-inline: 0.15rem;
+    }
+
+    .devenir-org-shell {
+        padding: 0.95rem;
+        border-radius: 18px;
+    }
+
+    .devenir-org-whatsapp {
+        padding: 1rem;
     }
 }
 

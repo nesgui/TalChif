@@ -70,6 +70,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private int $balance = 0;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $checkoutAccount = false;
+
     #[ORM\OneToMany(mappedBy: 'organisateur', targetEntity: Evenement::class)]
     private Collection $evenementsOrganises;
 
@@ -284,6 +287,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->actif = $actif;
 
         return $this;
+    }
+
+    public function isCheckoutAccount(): bool
+    {
+        return $this->checkoutAccount;
+    }
+
+    public function setCheckoutAccount(bool $checkoutAccount): static
+    {
+        $this->checkoutAccount = $checkoutAccount;
+
+        return $this;
+    }
+
+    public function hasPasswordConfigured(): bool
+    {
+        return $this->password !== null && $this->password !== '';
+    }
+
+    public function isProfileComplete(): bool
+    {
+        return !$this->checkoutAccount
+            && trim((string) $this->nom) !== ''
+            && trim((string) $this->telephone) !== ''
+            && $this->hasPasswordConfigured();
     }
 
     /**

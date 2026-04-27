@@ -5,7 +5,7 @@
 {% block body %}
 <div class="commandes-header">
     <h1 class="page-title">Mes commandes</h1>
-    <p class="page-subtitle">Suivez vos demandes d'achat et accédez à vos billets</p>
+    <p class="page-subtitle">Suivez vos paiements. Vos billets sont envoyés par email après validation.</p>
 </div>
 
 <div class="commandes-nav">
@@ -55,7 +55,7 @@
 {% if paid|length > 0 %}
 <section class="card commandes-section">
     <h2 class="card-title">Payées ({{ paid|length }})</h2>
-    <p class="card-meta">Vos billets sont disponibles</p>
+    <p class="card-meta">Vos billets ont été envoyés par email et restent disponibles dans votre espace client une fois le profil complété.</p>
     <div class="commandes-list">
         {% for c in paid %}
         <div class="commande-item paid">

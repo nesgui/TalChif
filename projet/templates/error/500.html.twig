@@ -1,20 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accès refusé - TalChif{% endblock %}
+{% block title %}Erreur serveur - TalChif{% endblock %}
 
 {% block body %}
 <div class="error-page-wrapper">
     <div class="error-page-content-centered">
-        <div class="error-page-icon error-icon-warning">
+        <div class="error-page-icon error-icon-error">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4"/>
+                <path d="M12 16h.01"/>
             </svg>
         </div>
         
-        <div class="error-page-code-watermark">403</div>
-        <h1 class="error-page-title">Accès refusé</h1>
-        <p class="error-page-description">Vous n'avez pas les permissions nécessaires pour accéder à cette page. Cette zone est réservée aux utilisateurs autorisés.</p>
+        <div class="error-page-code-watermark">500</div>
+        <h1 class="error-page-title">Erreur serveur</h1>
+        <p class="error-page-description">Une erreur interne s'est produite sur nos serveurs. Notre équipe technique a été automatiquement notifiée et travaille à résoudre le problème.</p>
         
         <div class="error-page-info-box">
             <div class="error-page-info-icon">
@@ -26,18 +27,13 @@
             </div>
             <div class="error-page-info-text">
                 <strong>Que faire ?</strong>
-                <ul class="error-suggestions-list">
-                    <li><strong>Si vous êtes organisateur</strong> : Connectez-vous avec votre compte organisateur</li>
-                    <li><strong>Si vous êtes client</strong> : Accédez aux pages publiques (accueil, événements)</li>
-                    <li><strong>Si vous voulez devenir organisateur</strong> : Contactez l'administration</li>
-                </ul>
+                <p>Veuillez réessayer dans quelques instants. Si le problème persiste, contactez notre support.</p>
             </div>
         </div>
         
         <div class="error-page-actions">
             <a href="{{ path('accueil') }}" class="btn btn-primary">Retour à l'accueil</a>
-            <a href="{{ path('auth.login') }}" class="btn btn-secondary">Se connecter</a>
-            <a href="{{ path('auth.register') }}" class="btn btn-secondary">Créer un compte</a>
+            <button onclick="window.location.reload()" class="btn btn-secondary">Réessayer</button>
         </div>
     </div>
 </div>
@@ -64,8 +60,8 @@
     opacity: 0.9;
 }
 
-.error-icon-warning {
-    color: var(--couleur-warning);
+.error-icon-error {
+    color: var(--couleur-error);
 }
 
 .error-page-icon svg {
@@ -126,18 +122,11 @@
     display: block;
     font-weight: 600;
     color: var(--couleur-texte);
-    margin-bottom: var(--espace-sm);
+    margin-bottom: var(--espace-xs);
 }
 
-.error-suggestions-list {
-    list-style: none;
+.error-page-info-text p {
     margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--espace-sm);
-}
-
-.error-suggestions-list li {
     font-size: 0.9rem;
     color: var(--couleur-texte-secondaire);
     line-height: 1.5;

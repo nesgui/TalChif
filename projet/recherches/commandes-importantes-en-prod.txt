@@ -1,0 +1,5 @@
+# 1. servir les AssetMapper
+# 2. 
+
+
+php bin/console asset-map:compile

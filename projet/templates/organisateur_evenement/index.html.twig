@@ -35,34 +35,35 @@
             {% endif %}
         </form>
         
-        <table id="events-table" class="table">
+        <div class="organizer-events-table-wrap">
+        <table id="events-table" class="table organizer-events-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Date</th>
-                    <th>Lieu</th>
-                    <th>Statut</th>
-                    <th>Places</th>
-                    <th>Actions</th>
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Nom</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-location">Lieu</th>
+                    <th class="col-status">Statut</th>
+                    <th class="col-places">Places</th>
+                    <th class="col-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for evenement in evenements %}
                     <tr>
-                        <td>{{ evenement.id }}</td>
-                        <td>{{ evenement.nom }}</td>
-                        <td>{{ evenement.dateEvenement|date('d/m/Y H:i') }}</td>
-                        <td>{{ evenement.lieu }}</td>
-                        <td>
+                        <td class="cell-id">{{ evenement.id }}</td>
+                        <td class="cell-name">{{ evenement.nom }}</td>
+                        <td class="cell-date">{{ evenement.dateEvenement|date('d/m/Y H:i') }}</td>
+                        <td class="cell-location">{{ evenement.lieu }}</td>
+                        <td class="cell-status">
                             {% if evenement.isActive and evenement.isValide %}
-                                <span class="pill pill-success">Publié</span>
+                                <span class="pill pill-success event-status-pill">Publié</span>
                             {% else %}
-                                <span class="pill pill-warning">Brouillon</span>
+                                <span class="pill pill-warning event-status-pill">Brouillon</span>
                             {% endif %}
                         </td>
-                        <td>{{ evenement.placesVendues }}/{{ evenement.placesDisponibles }}</td>
-                        <td>
+                        <td class="cell-places"><span class="event-places-value">{{ evenement.placesVendues }}/{{ evenement.placesDisponibles }}</span></td>
+                        <td class="cell-actions">
                             <div class="actions-cell">
                                 <a href="{{ path('organisateur.evenement.show', {id: evenement.id}) }}" class="btn btn-sm btn-primary">Voir</a>
 
@@ -83,6 +84,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
 
         {% if total > 0 %}
             <nav class="table-pagination" aria-label="Pagination événements">
@@ -103,6 +105,133 @@
         {% endif %}
     </section>
 </div>
+
+<style>
+.organizer-events-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.organizer-events-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.organizer-events-table .col-id,
+.organizer-events-table .cell-id {
+    width: 64px;
+    white-space: nowrap;
+}
+
+.organizer-events-table .col-date,
+.organizer-events-table .cell-date {
+    width: 148px;
+}
+
+.organizer-events-table .col-status,
+.organizer-events-table .cell-status {
+    width: 110px;
+    text-align: center;
+}
+
+.organizer-events-table .col-places,
+.organizer-events-table .cell-places {
+    width: 96px;
+    text-align: center;
+}
+
+.organizer-events-table .col-actions,
+.organizer-events-table .cell-actions {
+    width: 190px;
+}
+
+.organizer-events-table .cell-name {
+    font-weight: 600;
+}
+
+.organizer-events-table .cell-location {
+    line-height: 1.45;
+}
+
+.organizer-events-table .cell-date,
+.organizer-events-table .cell-location {
+    word-break: break-word;
+}
+
+.event-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.event-places-value {
+    display: inline-block;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.actions-cell {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.actions-cell form {
+    margin: 0;
+}
+
+.actions-cell .btn {
+    min-width: 96px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+    .organizer-events-table {
+        min-width: 860px;
+    }
+}
+
+@media (max-width: 768px) {
+    .organizer-events-table .col-id,
+    .organizer-events-table .cell-id {
+        width: 56px;
+    }
+
+    .organizer-events-table .col-date,
+    .organizer-events-table .cell-date {
+        width: 132px;
+    }
+
+    .organizer-events-table .col-status,
+    .organizer-events-table .cell-status {
+        width: 104px;
+    }
+
+    .organizer-events-table .col-places,
+    .organizer-events-table .cell-places {
+        width: 88px;
+    }
+
+    .organizer-events-table .col-actions,
+    .organizer-events-table .cell-actions {
+        width: 168px;
+    }
+
+    .actions-cell {
+        gap: .4rem;
+    }
+
+    .actions-cell .btn {
+        min-width: 84px;
+        padding-inline: .7rem;
+    }
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -147,13 +276,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             ],
             columns: [
-                { width: '60px' },
+                { width: '64px' },
                 null,
-                { width: '150px' },
+                { width: '148px' },
                 null,
-                null,
-                { width: '100px' },
-                { width: '180px', orderable: false }
+                { width: '110px' },
+                { width: '96px' },
+                { width: '190px', orderable: false }
             ]
         });
     }

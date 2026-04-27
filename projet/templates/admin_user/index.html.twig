@@ -35,49 +35,49 @@
             {% endif %}
         </form>
         
-        <div class="table-responsive">
-        <table id="users-table" class="dt-table" data-order="[[0, 'asc']]">
+        <div class="table-responsive admin-users-table-wrap">
+        <table id="users-table" class="dt-table admin-users-table" data-order="[[0, 'asc']]">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Nom complet</th>
-                    <th>Téléphone</th>
-                    <th data-no-sort>Rôle</th>
-                    <th data-no-sort>Statut</th>
-                    <th>Date d'inscription</th>
-                    <th data-no-sort>Actions</th>
+                    <th class="col-id">ID</th>
+                    <th class="col-email">Email</th>
+                    <th class="col-name">Nom complet</th>
+                    <th class="col-phone">Téléphone</th>
+                    <th class="col-role" data-no-sort>Rôle</th>
+                    <th class="col-status" data-no-sort>Statut</th>
+                    <th class="col-date">Date d'inscription</th>
+                    <th class="col-actions" data-no-sort>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                 <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.nom }}</td>
-                    <td>{{ user.telephone ?: 'Non renseigné' }}</td>
-                    <td>
+                    <td class="cell-id">{{ user.id }}</td>
+                    <td class="cell-email">{{ user.email }}</td>
+                    <td class="cell-name">{{ user.nom }}</td>
+                    <td class="cell-phone">{{ user.telephone ?: 'Non renseigné' }}</td>
+                    <td class="cell-role">
                         {% if user.role == 'CLIENT' %}
-                            <span class="pill pill-info">Client</span>
+                            <span class="pill pill-info admin-user-pill">Client</span>
                         {% elseif user.role == 'ORGANISATEUR' %}
-                            <span class="pill pill-success">Organisateur</span>
+                            <span class="pill pill-success admin-user-pill">Organisateur</span>
                         {% elseif user.role == 'ADMIN' %}
-                            <span class="pill pill-warning">Admin</span>
+                            <span class="pill pill-warning admin-user-pill">Admin</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td class="cell-status">
                         {% if user.actif %}
-                            <span class="pill pill-success">Actif</span>
+                            <span class="pill pill-success admin-user-pill">Actif</span>
                         {% else %}
-                            <span class="pill pill-danger">Désactivé</span>
+                            <span class="pill pill-danger admin-user-pill">Désactivé</span>
                         {% endif %}
                     </td>
-                    <td>{{ user.createdAt ? user.createdAt|date('d/m/Y') : 'N/A' }}</td>
-                    <td>
-                        <div class="btn-group">
+                    <td class="cell-date">{{ user.createdAt ? user.createdAt|date('d/m/Y') : 'N/A' }}</td>
+                    <td class="cell-actions">
+                        <div class="btn-group admin-users-actions">
                             <a href="{{ path('admin.user.edit', {id: user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
                             {% if user != app.user %}
-                                <form method="post" action="{{ path('admin.user.toggle_actif', {id: user.id}) }}" style="display: inline;">
+                                <form method="post" action="{{ path('admin.user.toggle_actif', {id: user.id}) }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token('toggle_actif' ~ user.id) }}">
                                     {% if user.actif %}
                                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Désactiver le compte de {{ user.nom }} ? Il ne pourra plus se connecter.')">Désactiver</button>
@@ -120,6 +120,81 @@
     </section>
 </div>
 
+<style>
+.admin-users-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-users-table .col-id,
+.admin-users-table .cell-id {
+    width: 60px;
+    white-space: nowrap;
+}
+
+.admin-users-table .col-role,
+.admin-users-table .cell-role,
+.admin-users-table .col-status,
+.admin-users-table .cell-status {
+    width: 112px;
+    text-align: center;
+}
+
+.admin-users-table .col-date,
+.admin-users-table .cell-date {
+    width: 118px;
+    white-space: nowrap;
+}
+
+.admin-users-table .col-actions,
+.admin-users-table .cell-actions {
+    width: 190px;
+}
+
+.admin-users-table .cell-email,
+.admin-users-table .cell-phone,
+.admin-users-table .cell-name {
+    word-break: break-word;
+}
+
+.admin-user-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    white-space: nowrap;
+}
+
+.admin-users-actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.admin-users-actions form {
+    margin: 0;
+}
+
+.admin-users-actions .btn {
+    min-width: 92px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+    .admin-users-table {
+        min-width: 960px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-users-actions .btn {
+        min-width: 84px;
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser DataTables pour les utilisateurs
@@ -131,10 +206,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 null,
                 null,
                 null,
-                { width: '110px', orderable: false },
-                { width: '100px', orderable: false },
-                { width: '110px' },
-                { width: '180px', orderable: false }
+                { width: '112px', orderable: false },
+                { width: '112px', orderable: false },
+                { width: '118px' },
+                { width: '190px', orderable: false }
             ]
         });
     }

@@ -74,7 +74,7 @@ html[data-theme="dark"] .tickets-nav .ticket-filter-btn.active {
 .tickets-list { display: grid; gap: .9rem; }
 .ticket-event { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); background: var(--couleur-surface); padding: .9rem; }
 .event-top { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: .85rem; align-items: center; }
-.event-image { width: 96px; height: 72px; object-fit: cover; border-radius: var(--rayon); }
+.event-image { width: 96px; height: 72px; aspect-ratio: 4 / 3; object-fit: cover; object-position: center; border-radius: var(--rayon); display: block; flex-shrink: 0; }
 .event-main { min-width: 0; }
 .event-name { margin: 0; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .event-meta { margin: .22rem 0 0; color: var(--couleur-texte-secondaire); font-size: .86rem; }
@@ -92,7 +92,7 @@ html[data-theme="dark"] .code-pill:focus-visible { outline: 2px solid var(--coul
     .tickets-nav { gap: .35rem; }
     .ticket-filter-btn { padding: .34rem .62rem; font-size: .78rem; }
     .event-top { grid-template-columns: 72px 1fr; }
-    .event-image { width: 72px; height: 56px; }
+    .event-image { width: 72px; height: 54px; aspect-ratio: 4 / 3; }
     .event-total { grid-column: 2; justify-self: start; margin-top: .2rem; }
 }
 </style>

@@ -13,33 +13,33 @@
     <h2 class="card-title">Liste des Organisateurs</h2>
     <p class="card-meta">Tous les comptes organisateurs avec tri et recherche</p>
     
-    <div class="table-responsive">
-        <table id="organizers-table" class="dt-table" data-order="[[0, 'asc']]">
+    <div class="table-responsive admin-organizers-table-wrap">
+        <table id="organizers-table" class="dt-table admin-organizers-table" data-order="[[0, 'asc']]">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th data-no-sort>Statut</th>
-                <th>Commission</th>
-                <th>Événements</th>
-                <th>Inscription</th>
-                <th data-no-sort>Actions</th>
+                <th class="col-id">ID</th>
+                <th class="col-name">Nom</th>
+                <th class="col-email">Email</th>
+                <th class="col-phone">Téléphone</th>
+                <th class="col-status" data-no-sort>Statut</th>
+                <th class="col-commission">Commission</th>
+                <th class="col-events">Événements</th>
+                <th class="col-date">Inscription</th>
+                <th class="col-actions" data-no-sort>Actions</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>12</td>
-                <td>Alpha Events</td>
-                <td>alpha@talchif.td</td>
-                <td>+235 12 34 56 78</td>
-                <td><span class="pill pill-success">Actif</span></td>
-                <td>10%</td>
-                <td>15</td>
-                <td>2024-01-15</td>
-                <td>
-                    <div class="btn-group">
+                <td class="cell-id">12</td>
+                <td class="cell-name">Alpha Events</td>
+                <td class="cell-email">alpha@talchif.td</td>
+                <td class="cell-phone">+235 12 34 56 78</td>
+                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
+                <td class="cell-commission">10%</td>
+                <td class="cell-events">15</td>
+                <td class="cell-date">2024-01-15</td>
+                <td class="cell-actions">
+                    <div class="btn-group admin-organizers-actions">
                         <a href="#" class="btn btn-sm btn-primary">Voir</a>
                         <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
                         <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
@@ -47,16 +47,16 @@
                 </td>
             </tr>
             <tr>
-                <td>8</td>
-                <td>Beta Productions</td>
-                <td>beta@talchif.td</td>
-                <td>+235 23 45 67 89</td>
-                <td><span class="pill pill-success">Actif</span></td>
-                <td>8%</td>
-                <td>8</td>
-                <td>2024-02-20</td>
-                <td>
-                    <div class="btn-group">
+                <td class="cell-id">8</td>
+                <td class="cell-name">Beta Productions</td>
+                <td class="cell-email">beta@talchif.td</td>
+                <td class="cell-phone">+235 23 45 67 89</td>
+                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
+                <td class="cell-commission">8%</td>
+                <td class="cell-events">8</td>
+                <td class="cell-date">2024-02-20</td>
+                <td class="cell-actions">
+                    <div class="btn-group admin-organizers-actions">
                         <a href="#" class="btn btn-sm btn-primary">Voir</a>
                         <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
                         <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
@@ -64,31 +64,33 @@
                 </td>
             </tr>
             <tr>
-                <td>15</td>
-                <td>Gamma Concerts</td>
-                <td>gamma@talchif.td</td>
-                <td>+235 34 56 78 90</td>
-                <td><span class="pill pill-warning">Inactif</span></td>
-                <td>12%</td>
-                <td>22</td>
-                <td>2024-03-10</td>
-                <td>
+                <td class="cell-id">15</td>
+                <td class="cell-name">Gamma Concerts</td>
+                <td class="cell-email">gamma@talchif.td</td>
+                <td class="cell-phone">+235 34 56 78 90</td>
+                <td class="cell-status"><span class="pill pill-warning admin-organizer-pill">Inactif</span></td>
+                <td class="cell-commission">12%</td>
+                <td class="cell-events">22</td>
+                <td class="cell-date">2024-03-10</td>
+                <td class="cell-actions">
+                    <div class="btn-group admin-organizers-actions">
                     <a href="#" class="btn btn-sm btn-primary">Voir</a>
                     <a href="#" class="btn btn-sm">Modifier</a>
                     <a href="#" class="btn btn-sm btn-success">Activer</a>
+                    </div>
                 </td>
             </tr>
             <tr>
-                <td>3</td>
-                <td>Delta Shows</td>
-                <td>delta@talchif.td</td>
-                <td>+235 45 67 89 01</td>
-                <td><span class="pill pill-success">Actif</span></td>
-                <td>15%</td>
-                <td>35</td>
-                <td>2023-12-05</td>
-                <td>
-                    <div class="btn-group">
+                <td class="cell-id">3</td>
+                <td class="cell-name">Delta Shows</td>
+                <td class="cell-email">delta@talchif.td</td>
+                <td class="cell-phone">+235 45 67 89 01</td>
+                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
+                <td class="cell-commission">15%</td>
+                <td class="cell-events">35</td>
+                <td class="cell-date">2023-12-05</td>
+                <td class="cell-actions">
+                    <div class="btn-group admin-organizers-actions">
                         <a href="#" class="btn btn-sm btn-primary">Voir</a>
                         <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
                         <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
@@ -96,16 +98,16 @@
                 </td>
             </tr>
             <tr>
-                <td>20</td>
-                <td>Epsilon Events</td>
-                <td>epsilon@talchif.td</td>
-                <td>+235 56 78 90 12</td>
-                <td><span class="pill pill-success">Actif</span></td>
-                <td>7%</td>
-                <td>12</td>
-                <td>2024-04-01</td>
-                <td>
-                    <div class="btn-group">
+                <td class="cell-id">20</td>
+                <td class="cell-name">Epsilon Events</td>
+                <td class="cell-email">epsilon@talchif.td</td>
+                <td class="cell-phone">+235 56 78 90 12</td>
+                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
+                <td class="cell-commission">7%</td>
+                <td class="cell-events">12</td>
+                <td class="cell-date">2024-04-01</td>
+                <td class="cell-actions">
+                    <div class="btn-group admin-organizers-actions">
                         <a href="#" class="btn btn-sm btn-primary">Voir</a>
                         <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
                         <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
@@ -117,6 +119,70 @@
     </div>
 </div>
 
+<style>
+.admin-organizers-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-organizers-table .col-id,
+.admin-organizers-table .cell-id {
+    width: 54px;
+    white-space: nowrap;
+}
+
+.admin-organizers-table .col-status,
+.admin-organizers-table .cell-status,
+.admin-organizers-table .col-commission,
+.admin-organizers-table .cell-commission,
+.admin-organizers-table .col-events,
+.admin-organizers-table .cell-events,
+.admin-organizers-table .col-date,
+.admin-organizers-table .cell-date {
+    width: 96px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.admin-organizers-table .col-actions,
+.admin-organizers-table .cell-actions {
+    width: 220px;
+}
+
+.admin-organizers-table .cell-email,
+.admin-organizers-table .cell-phone,
+.admin-organizers-table .cell-name {
+    word-break: break-word;
+}
+
+.admin-organizer-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    white-space: nowrap;
+}
+
+.admin-organizers-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    align-items: center;
+}
+
+.admin-organizers-actions .btn {
+    min-width: 88px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+    .admin-organizers-table {
+        min-width: 1040px;
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser DataTables pour les organisateurs
@@ -124,15 +190,15 @@ document.addEventListener('DOMContentLoaded', function() {
         DataTableOS.init('#organizers-table', {
             order: [[0, 'asc']], // Tri par ID
             columns: [
-                { width: '50px' },
+                { width: '54px' },
                 null,
                 null,
                 null,
-                { width: '80px', orderable: false },
-                { width: '80px' },
-                { width: '80px' },
-                { width: '100px' },
-                { width: '150px', orderable: false }
+                { width: '96px', orderable: false },
+                { width: '96px' },
+                { width: '96px' },
+                { width: '96px' },
+                { width: '220px', orderable: false }
             ]
         });
     }

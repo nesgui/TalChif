@@ -16,8 +16,15 @@
 <section class="profile-shell">
     <header>
         <h1 class="page-title">Mon profil</h1>
-        <p class="page-subtitle">Mettez à jour vos informations et votre mot de passe.</p>
+        <p class="page-subtitle">Complétez vos informations et sécurisez votre espace client.</p>
     </header>
+
+    {% if profileIncomplete %}
+        <section class="card" style="border-left: 4px solid var(--couleur-warning);">
+            <h2 class="card-title">Complétez votre espace client</h2>
+            <p class="card-meta">Vos billets restent envoyés par email. Pour les consulter dans votre espace client, ajoutez votre nom complet, votre téléphone et votre mot de passe.</p>
+        </section>
+    {% endif %}
 
     <div class="grid">
         <section class="card">
@@ -44,11 +51,14 @@
 
         <section class="card">
             <h2 class="card-title">Sécurité</h2>
+            {% if profileIncomplete %}
+                <p class="card-meta">Définissez maintenant votre premier mot de passe pour verrouiller votre espace client.</p>
+            {% endif %}
             {{ form_start(passwordForm, {'attr': {'class': 'auth-form'}}) }}
                 {% include 'partials/form_group_enhanced.html.twig' with {
                     form: passwordForm.current_password,
                     label: 'Mot de passe actuel',
-                    placeholder: 'Votre mot de passe actuel'
+                    placeholder: 'Laissez vide si vous n\'avez pas encore défini de mot de passe'
                 } %}
                 {% include 'partials/form_group_enhanced.html.twig' with {
                     form: passwordForm.new_password,

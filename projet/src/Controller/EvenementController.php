@@ -20,14 +20,29 @@ final class EvenementController extends AbstractController
     public function index(Request $request): Response
     {
         $search = $request->query->get('q');
+        if (!is_string($search)) {
+            $search = null;
+        }
         // Limiter longueur et rejeter caractères de contrôle pour éviter données invalides
         if ($search !== null && $search !== '') {
             $search = trim($search);
             $search = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $search);
             $search = mb_substr($search, 0, 200);
         }
+        $searchQuery = null;
+        $searchSuggestions = [];
+        $similarEvents = [];
+        
         if ($search !== null && $search !== '') {
+            $searchQuery = $search;
             $evenements = $this->evenementRepository->searchEvents($search);
+            
+            // Si aucun résultat exact, proposer des événements similaires
+            if (empty($evenements)) {
+                $similarEvents = $this->evenementRepository->searchSimilarEvents($search);
+                // Extraire des mots-clés pour suggestions
+                $searchSuggestions = $this->evenementRepository->extractSearchKeywords(8);
+            }
         } else {
             $evenements = $this->evenementRepository->findActiveEvents();
         }
@@ -75,11 +90,30 @@ final class EvenementController extends AbstractController
             }
         }
 
+        // Transformer les événements similaires si présents
+        $similarEventsArray = [];
+        foreach ($similarEvents as $evenement) {
+            $similarEventsArray[] = [
+                'id' => $evenement->getId(),
+                'slug' => $evenement->getSlug(),
+                'titre' => $evenement->getNom(),
+                'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/evenement-1.jpg',
+                'ville' => $evenement->getVille(),
+                'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
+                'prix_min' => $evenement->getPrixSimple(),
+                'badge' => $this->getBadgeForEvent($evenement),
+                'categorie' => $evenement->getCategorie(),
+            ];
+        }
+
         return $this->render('evenement/index.html.twig', [
             'evenements' => $evenementsArray,
             'nouveaux_evenements' => $nouveauxEvenements,
             'plus_achetes' => $plusAchetes,
             'evenements_populaires' => $evenementsPopulaires,
+            'search_query' => $searchQuery,
+            'search_suggestions' => $searchSuggestions,
+            'similar_events' => $similarEventsArray,
         ]);
     }
 

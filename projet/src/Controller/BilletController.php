@@ -23,6 +23,10 @@ final class BilletController extends AbstractController
     public function index(): Response
     {
         $user = $this->getUser();
+        if (method_exists($user, 'isProfileComplete') && !$user->isProfileComplete()) {
+            $this->addFlash('warning', 'Complétez votre profil et définissez un mot de passe pour consulter vos billets dans votre espace client. Vos billets restent envoyés par email.');
+            return $this->redirectToRoute('profile.index');
+        }
         
         // ✅ CQRS Query : Obtenir les billets
         $query = new ObtenirMesBilletsQuery(userId: $user->getId());
@@ -57,6 +61,10 @@ final class BilletController extends AbstractController
     public function billetsAVenir(): Response
     {
         $user = $this->getUser();
+        if (method_exists($user, 'isProfileComplete') && !$user->isProfileComplete()) {
+            $this->addFlash('warning', 'Complétez votre profil et définissez un mot de passe pour consulter vos billets dans votre espace client. Vos billets restent envoyés par email.');
+            return $this->redirectToRoute('profile.index');
+        }
         
         // ✅ CQRS Query : Billets à venir
         $query = new ObtenirMesBilletsQuery(userId: $user->getId(), filtre: 'avenir');
@@ -71,6 +79,10 @@ final class BilletController extends AbstractController
     public function billetsPasses(): Response
     {
         $user = $this->getUser();
+        if (method_exists($user, 'isProfileComplete') && !$user->isProfileComplete()) {
+            $this->addFlash('warning', 'Complétez votre profil et définissez un mot de passe pour consulter vos billets dans votre espace client. Vos billets restent envoyés par email.');
+            return $this->redirectToRoute('profile.index');
+        }
         
         // ✅ CQRS Query : Billets passés
         $query = new ObtenirMesBilletsQuery(userId: $user->getId(), filtre: 'passes');

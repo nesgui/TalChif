@@ -1,8 +1,8 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Accueil - TalChif{% endblock %}
 
-{% block meta_description %}Découvrez les prochains événements près de chez vous au Tchad. Concerts, festivals, soirées - Réservez vos billets en ligne.{% endblock %}
+{% block meta_description %}Découvrez les prochains événements près de chez vous au Tchad. Concerts, rencontres, festivals, soirées - Réservez vos billets en ligne.{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -32,7 +32,7 @@
             
             {% if carousel_events|length > 0 %}
                 {% for evenement in carousel_events %}
-                <div class="carousel-slide {{ loop.first ? 'active' : '' }}">
+                <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="carousel-slide {{ loop.first ? 'active' : '' }}" data-turbo="false">
                     {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
                     {% set fallback_image = '/images/evenements/evenement-1.jpg' %}
                     
@@ -79,7 +79,6 @@
                     
                     <!-- Informations en bas Ã  gauche -->
                     <div class="slide-info-bottom-left">
-                        <div class="event-category">ÉVÉNEMENT EN VEDETTE</div>
                         <h1 class="event-title">{{ evenement.titre }}</h1>
                         <div class="event-meta">
                             <div class="event-date">
@@ -99,24 +98,19 @@
                                 {{ evenement.ville }}
                             </div>
                         </div>
-                        <div class="event-actions">
-                            <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-primary btn-large" data-turbo="false">Réserver maintenant</a>
-                            <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="btn btn-outline btn-large" data-turbo="false">Plus d'infos</a>
-                        </div>
                     </div>
 
                     <!-- Overlay sombre pour lisibilitÃ© -->
                     <div class="slide-overlay-gradient"></div>
-                </div>
+                </a>
                 {% endfor %}
             {% else %}
                 <!-- Slide par dÃ©faut si aucun Ã©vÃ©nement -->
-                <div class="carousel-slide active">
+                <a href="{{ path('evenement.index') }}" class="carousel-slide active" data-turbo="false">
                     <div class="slide-background" style="background-image: url('/images/evenements/evenement-1.jpg'); background-color: #1D3557; background-size: cover; background-position: center;"></div>
                     
                     <!-- Informations en bas Ã  gauche -->
                     <div class="slide-info-bottom-left">
-                        <div class="event-category">BIENVENUE SUR TALCHIF</div>
                         <h1 class="event-title">Découvrez nos événements</h1>
                         <div class="event-meta">
                             <div class="event-date">
@@ -136,15 +130,11 @@
                                 Partout au Tchad
                             </div>
                         </div>
-                        <div class="event-actions">
-                            <a href="{{ path('evenement.index') }}" class="btn btn-primary btn-large">Voir tous les événements</a>
-                            <a href="{{ path('accueil_index') }}" class="btn btn-outline btn-large">Explorer</a>
-                        </div>
                     </div>
 
                     <!-- Overlay sombre pour lisibilitÃ© -->
                     <div class="slide-overlay-gradient"></div>
-                </div>
+                </a>
             {% endif %}
         </div>
 
@@ -163,8 +153,7 @@
 </section>
 
 <section class="movie-categories">
-    <h2 class="categories-title">Catégories populaires</h2>
-    
+
     <!-- CatÃ©gorie Concerts & SoirÃ©es -->
 {% set concerts_evenements = evenements|filter(e => e.categorie is defined and e.categorie == 'concert') %}
 {% if concerts_evenements|length > 0 %}

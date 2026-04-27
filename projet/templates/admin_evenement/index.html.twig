@@ -10,34 +10,86 @@
 <p class="page-subtitle">Liste globale des événements publiés.</p>
 
 <div class="card">
-    <table class="table" id="admin-evenements-table">
+    <div class="table-responsive admin-events-table-wrap">
+    <table class="table admin-events-table" id="admin-evenements-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Organisateur</th>
-                <th>Statut</th>
-                <th>Action</th>
+                <th class="col-id">ID</th>
+                <th class="col-name">Nom</th>
+                <th class="col-organizer">Organisateur</th>
+                <th class="col-status">Statut</th>
+                <th class="col-action">Action</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>1</td>
-                <td>Concert Live</td>
-                <td>Org #12</td>
-                <td><span class="pill">Actif</span></td>
-                <td><a class="btn" href="#">Suspendre</a></td>
+                <td class="cell-id">1</td>
+                <td class="cell-name">Concert Live</td>
+                <td class="cell-organizer">Org #12</td>
+                <td class="cell-status"><span class="pill admin-event-pill">Actif</span></td>
+                <td class="cell-action"><a class="btn btn-sm" href="#">Suspendre</a></td>
             </tr>
             <tr>
-                <td>2</td>
-                <td>Match de foot</td>
-                <td>Org #08</td>
-                <td><span class="pill">Actif</span></td>
-                <td><a class="btn" href="#">Suspendre</a></td>
+                <td class="cell-id">2</td>
+                <td class="cell-name">Match de foot</td>
+                <td class="cell-organizer">Org #08</td>
+                <td class="cell-status"><span class="pill admin-event-pill">Actif</span></td>
+                <td class="cell-action"><a class="btn btn-sm" href="#">Suspendre</a></td>
             </tr>
         </tbody>
     </table>
+    </div>
 </div>
+
+<style>
+.admin-events-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-events-table .col-id,
+.admin-events-table .cell-id {
+    width: 60px;
+    white-space: nowrap;
+}
+
+.admin-events-table .col-status,
+.admin-events-table .cell-status {
+    width: 110px;
+    text-align: center;
+}
+
+.admin-events-table .col-action,
+.admin-events-table .cell-action {
+    width: 140px;
+    text-align: center;
+}
+
+.admin-events-table .cell-name,
+.admin-events-table .cell-organizer {
+    word-break: break-word;
+}
+
+.admin-event-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    white-space: nowrap;
+}
+
+.admin-events-table .cell-action .btn {
+    min-width: 104px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .admin-events-table {
+        min-width: 620px;
+    }
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -48,6 +100,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('#admin-evenements-table')) {
         DataTableOS.init('#admin-evenements-table', {
             order: [[0, 'asc']],
+            columns: [
+                { width: '60px' },
+                null,
+                null,
+                { width: '110px', orderable: false },
+                { width: '140px', orderable: false }
+            ],
             columnDefs: [
                 { targets: [4], orderable: false }
             ]

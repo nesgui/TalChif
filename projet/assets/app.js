@@ -28,13 +28,85 @@ document.addEventListener('turbo:frame-missing', function(event) {
     event.detail.visit(event.detail.response);
 });
 
-// Fermer le sidebar mobile après navigation dans le Turbo Frame dashboard
-document.addEventListener('turbo:frame-render', function(e) {
-    if (e.target.id === 'dashboard-main-frame') {
-        const toggle = document.getElementById('dashboard-menu');
-        if (toggle) toggle.checked = false;
+(function initDashboardSidebarDialog() {
+    let dashboardSidebarDialogBound = false;
+
+    function setExpandedState(isExpanded) {
+        document.querySelectorAll('[data-dashboard-open]').forEach((button) => {
+            button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        });
     }
-});
+
+    function closeDialog(dialog) {
+        if (!dialog || !dialog.open) {
+            setExpandedState(false);
+            return;
+        }
+
+        dialog.close();
+        setExpandedState(false);
+    }
+
+    function bindOnce() {
+        if (dashboardSidebarDialogBound) return;
+        dashboardSidebarDialogBound = true;
+
+        document.addEventListener('click', function(event) {
+            const openButton = event.target.closest('[data-dashboard-open]');
+            const closeButton = event.target.closest('[data-dashboard-close]');
+            const dialog = document.getElementById('dashboard-sidebar-dialog');
+
+            if (!dialog) return;
+
+            if (openButton) {
+                if (!window.matchMedia('(max-width: 980px)').matches) {
+                    setExpandedState(false);
+                    return;
+                }
+
+                if (dialog.open) {
+                    closeDialog(dialog);
+                } else {
+                    dialog.showModal();
+                    setExpandedState(true);
+                }
+                return;
+            }
+
+            if (closeButton) {
+                closeDialog(dialog);
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            const dialog = document.getElementById('dashboard-sidebar-dialog');
+            if (!dialog || !dialog.open || event.target !== dialog) return;
+            closeDialog(dialog);
+        });
+
+        document.addEventListener('close', function(event) {
+            if (event.target.id !== 'dashboard-sidebar-dialog') return;
+            setExpandedState(false);
+        }, true);
+
+        window.addEventListener('resize', function() {
+            const dialog = document.getElementById('dashboard-sidebar-dialog');
+            if (!dialog || !dialog.open) return;
+            if (!window.matchMedia('(max-width: 980px)').matches) {
+                closeDialog(dialog);
+            }
+        });
+
+        document.addEventListener('turbo:frame-render', function(e) {
+            if (e.target.id !== 'dashboard-main-frame') return;
+            closeDialog(document.getElementById('dashboard-sidebar-dialog'));
+        });
+    }
+
+    document.addEventListener('turbo:load', bindOnce);
+    document.addEventListener('DOMContentLoaded', bindOnce);
+    if (document.readyState !== 'loading') bindOnce();
+})();
 
 // Recharger les images après navigation Turbo pour corriger le problème d'affichage
 document.addEventListener('turbo:load', function() {
