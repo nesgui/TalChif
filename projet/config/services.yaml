@@ -32,6 +32,10 @@ services:
         arguments:
             $repertoireProjet: '%kernel.project_dir%'
 
+    App\EventSubscriber\CorsSubscriber:
+        arguments:
+            $corsAllowOrigin: '%env(APP_CORS_ALLOW_ORIGIN)%'
+
     # ========================================
     # Architecture Hexagonale - Repositories
     # ========================================

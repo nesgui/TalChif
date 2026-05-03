@@ -5,8 +5,6 @@
 {% block body %}
 <section class="payment-shell">
     <header class="payment-header">
-        <p class="payment-kicker">Paiement mobile money</p>
-        <h1 class="payment-title">Payez vos billets en quelques étapes</h1>
         <p class="payment-subtitle">Saisissez votre email, choisissez l’opérateur puis confirmez le paiement. Vos billets seront envoyés par email après validation.</p>
     </header>
 
@@ -16,11 +14,6 @@
                 <label for="checkout-email">Adresse email</label>
                 <input id="checkout-email" type="email" class="form-control" placeholder="vous@exemple.com" value="{{ prefillEmail|default('') }}" autocomplete="email" required />
                 <small class="field-help">Nous envoyons vos billets à cette adresse. Votre espace client sera créé automatiquement si nécessaire.</small>
-            </div>
-
-            <div class="field">
-                <label>Pays</label>
-                <input class="form-control" value="🇹🇩 Chad (+235)" readonly />
             </div>
 
             <div class="field">
@@ -49,14 +42,14 @@
 
             <div class="field">
                 <label for="phone">Numéro mobile money</label>
-                <input id="phone" type="tel" class="form-control" placeholder="+235 66 XX XX XX" inputmode="numeric" pattern="[0-9+\s]*" maxlength="15" autocomplete="tel" oninput="this.value = this.value.replace(/[^0-9+\s]/g, '')" />
-                <small id="phone-help" class="field-help">Saisissez le numéro qui recevra ou émettra la confirmation du paiement.</small>
+                <input id="phone" type="tel" class="form-control" placeholder="+235XXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+                <small id="phone-help" class="field-help">Saisissez votre numéro mobile money.</small>
             </div>
 
             <div class="field">
                 <label for="amount">Montant</label>
                 <div class="amount-row">
-                    <input id="amount" type="number" class="form-control" min="1" step="1" value="{{ total|number_format(0, '.', '') }}" readonly />
+                    <input id="amount" type="number" class="form-control" min="1" step="1" value="{{ total|number_format(0, '.', '') }}" readonly style="background: var(--couleur-fond, #f0f0f0); color: var(--couleur-texte-secondaire, #888); cursor: not-allowed; pointer-events: none;" />
                     <span id="currency-pill" class="currency-pill">XAF</span>
                 </div>
             </div>
@@ -72,7 +65,7 @@
                 </div>
             </div>
 
-            <div id="status-box" class="status-box status-idle">Prêt à lancer le paiement.</div>
+            <div id="status-box" class="status-box" style="display:none;"></div>
 
             <div class="status-box status-idle">Après l'achat, vous pourrez compléter votre nom, votre téléphone et votre mot de passe dans votre espace client.</div>
 
@@ -117,6 +110,7 @@
 .field { display: grid; gap: .4rem; }
 .field label { font-weight: 600; }
 .field-help { font-size: .82rem; color: var(--couleur-texte-secondaire); }
+#phone-help { transition: color .18s ease; font-weight: 500; }
 .payment-methods { display: flex; gap: 16px; flex-wrap: wrap; }
 .payment-method-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
 .payment-method-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 24px; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; background: #fff; min-width: 140px; }
@@ -207,6 +201,7 @@
         statusBox.className = 'status-box';
         statusBox.classList.add(`status-${type}`);
         statusBox.textContent = message;
+        statusBox.style.display = '';
     }
 
     function validateEmail() {
@@ -215,29 +210,52 @@
     }
 
     function normalizePhone(phone) {
-        const digits = phone.replace(/\D+/g, '');
+        let digits = phone.replace(/\D+/g, '');
         if (!digits) return '';
-        if (digits.startsWith(selectedCountry.dialCode.replace('+', ''))) return `+${digits}`;
+        const countryCode = selectedCountry.dialCode.replace('+', '');
+        if (digits.startsWith('00' + countryCode)) digits = digits.slice(2);
+        if (digits.startsWith(countryCode)) return `+${digits}`;
         return `${selectedCountry.dialCode}${digits}`;
     }
 
     function validatePhone() {
         const method = getSelectedMethod();
         const rule = operatorRules[method];
-        const e164 = normalizePhone(phoneInput.value);
-        const digits = e164.replace('+', '');
-        const expectedPrefix = selectedCountry.dialCode.replace('+', '');
-        const local = digits.startsWith(expectedPrefix) ? digits.slice(expectedPrefix.length) : '';
-        const isValid = !!rule && local.length === selectedCountry.minDigits && rule.isValid(local);
+        const raw = phoneInput.value;
 
-        phoneHelp.textContent = isValid
-            ? 'Numéro valide.'
-            : rule
-                ? `Format attendu : ${selectedCountry.dialCode}XXXXXXXX (${rule.label}).`
-                : 'Choisissez d’abord un moyen de paiement.';
-        phoneHelp.style.color = isValid ? 'var(--couleur-success)' : 'var(--couleur-error)';
+        if (!raw) {
+            phoneHelp.textContent = ‘Saisissez votre numéro mobile money.’;
+            phoneHelp.style.color = ‘var(--couleur-texte-secondaire)’;
+            return { isValid: false, e164: ‘’ };
+        }
 
-        return { isValid, e164 };
+        if (!rule) {
+            phoneHelp.textContent = "Choisissez d’abord un opérateur.";
+            phoneHelp.style.color = ‘var(--couleur-error)’;
+            return { isValid: false, e164: ‘’ };
+        }
+
+        const e164 = normalizePhone(raw);
+        const code = selectedCountry.dialCode.replace(‘+’, ‘’);
+        const allDigits = e164.replace(‘+’, ‘’);
+        const local = allDigits.startsWith(code) ? allDigits.slice(code.length) : allDigits;
+
+        if (local.length < selectedCountry.minDigits) {
+            const rest = selectedCountry.minDigits - local.length;
+            phoneHelp.textContent = `Numéro incomplet — encore ${rest} chiffre${rest > 1 ? ‘s’ : ‘’}.`;
+            phoneHelp.style.color = ‘var(--couleur-error)’;
+            return { isValid: false, e164 };
+        }
+
+        if (!rule.isValid(local)) {
+            phoneHelp.textContent = `Numéro invalide pour ${rule.name} — doit commencer par ${rule.label.replace(‘préfixe ‘, ‘’)}.`;
+            phoneHelp.style.color = ‘var(--couleur-error)’;
+            return { isValid: false, e164 };
+        }
+
+        phoneHelp.textContent = ‘✓ Numéro valide.’;
+        phoneHelp.style.color = ‘var(--couleur-success)’;
+        return { isValid: true, e164 };
     }
 
     function updateMethodSelection() {
@@ -399,7 +417,22 @@
     });
 
     emailInput.addEventListener('input', updateResume);
-    phoneInput.addEventListener('input', updateResume);
+    phoneInput.addEventListener('input', () => {
+        let val = phoneInput.value.replace(/[^0-9+]/g, '');
+
+        // Bloquer à 8 chiffres locaux (limite Tchad)
+        const norm = normalizePhone(val);
+        if (norm) {
+            const code = selectedCountry.dialCode.replace('+', '');
+            const local = norm.replace('+', '').slice(code.length);
+            if (local.length > selectedCountry.minDigits) {
+                val = val.slice(0, val.length - (local.length - selectedCountry.minDigits));
+            }
+        }
+
+        if (val !== phoneInput.value) phoneInput.value = val;
+        updateResume();
+    });
     payBtn.addEventListener('click', createPayment);
 })();
 </script>

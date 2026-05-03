@@ -16,27 +16,6 @@
         {% endfor %}
     {% endfor %}
 
-    <div class="core-info">
-        <div class="info-row">
-            <span>Montant à envoyer</span>
-            <strong>{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</strong>
-        </div>
-        <div class="info-row">
-            <span>Numéro destinataire</span>
-            <strong>{{ momoNumero }}</strong>
-            <button type="button" class="btn-copy" onclick="copyMomo()">Copier</button>
-        </div>
-        <div class="info-row">
-            <span>Bénéficiaire</span>
-            <strong>{{ momoBeneficiaire }}</strong>
-        </div>
-        <div class="info-row info-highlight">
-            <span>Référence à mettre dans le transfert</span>
-            <strong id="refValue">{{ commande.reference }}</strong>
-            <button type="button" class="btn-copy" onclick="copyRef()">Copier</button>
-        </div>
-    </div>
-
     {% set referenceDejaEnvoyee = commande.referenceTransactionClient is not null and commande.referenceTransactionClient|trim != '' %}
     {% if not referenceDejaEnvoyee %}
         <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form" enctype="multipart/form-data">
