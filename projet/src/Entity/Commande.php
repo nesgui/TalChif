@@ -35,8 +35,14 @@ class Commande
     private ?string $numeroClient = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $client = null;
+
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $checkoutEmail = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $accessToken = null;
 
     #[ORM\Column(length: 50)]
     private string $statut = self::STATUT_PENDING;
@@ -129,6 +135,28 @@ class Commande
     public function setClient(?User $client): static
     {
         $this->client = $client;
+        return $this;
+    }
+
+    public function getCheckoutEmail(): ?string
+    {
+        return $this->checkoutEmail;
+    }
+
+    public function setCheckoutEmail(?string $checkoutEmail): static
+    {
+        $this->checkoutEmail = $checkoutEmail;
+        return $this;
+    }
+
+    public function getAccessToken(): ?string
+    {
+        return $this->accessToken;
+    }
+
+    public function setAccessToken(?string $accessToken): static
+    {
+        $this->accessToken = $accessToken;
         return $this;
     }
 

@@ -20,6 +20,7 @@ use App\Service\Ticket\QrCodeGeneratorService;
 use App\Service\Notification\BilletEmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -38,6 +39,7 @@ final class ValiderPaiementHandler
         private BilletEmailService $billetEmailService,
         private EntityManagerInterface $entityManager,
         private RequestStack $requestStack,
+        private UserPasswordHasherInterface $passwordHasher,
         private LoggerInterface $logger
     ) {
     }
@@ -47,6 +49,10 @@ final class ValiderPaiementHandler
         $commande = $this->commandeRepository->findByReference($command->referenceCommande);
         if (!$commande) {
             throw new \RuntimeException("Commande {$command->referenceCommande} introuvable.");
+        }
+
+        if (!$commande->getClient() && ($commande->getCheckoutEmail() ?? '') === '') {
+            throw new \RuntimeException("Commande {$command->referenceCommande} sans email client.");
         }
 
         if (!$commande->isPending() && !$commande->isProcessing()) {
@@ -84,6 +90,25 @@ final class ValiderPaiementHandler
 
         $this->entityManager->beginTransaction();
         try {
+            $client = $commande->getClient();
+            if (!$client) {
+                $email = mb_strtolower(trim((string) $commande->getCheckoutEmail()));
+                $client = $this->userRepository->findByEmail($email);
+                if (!$client) {
+                    $client = new User();
+                    $client->setEmail($email);
+                    $client->setNom('Compte à compléter');
+                    $client->setTelephone(null);
+                    $client->setRole('CLIENT');
+                    $client->setActif(true);
+                    $client->setIsVerified(false);
+                    $client->setCheckoutAccount(true);
+                    $client->setPassword($this->passwordHasher->hashPassword($client, bin2hex(random_bytes(24))));
+                    $this->entityManager->persist($client);
+                }
+                $commande->setClient($client);
+            }
+
             // Générer les billets
             foreach ($commande->getLignes() as $ligne) {
                 $evenement = $ligne->getEvenement();
@@ -107,7 +132,7 @@ final class ValiderPaiementHandler
                     $billet->setType($ligne->getTypeBillet());
                     $billet->setPrix($ligne->getPrixUnitaire());
                     $billet->setEvenement($evenementLocked);
-                    $billet->setClient($commande->getClient());
+                    $billet->setClient($client);
                     $billet->setOrganisateur($evenementLocked->getOrganisateur());
                     $billet->setTransactionId($commande->getReference());
                     $billet->setStatutPaiement('PAYE');

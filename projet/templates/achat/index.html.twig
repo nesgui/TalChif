@@ -42,7 +42,7 @@
 
             <div class="field">
                 <label for="phone">Numéro mobile money</label>
-                <input id="phone" type="tel" class="form-control" placeholder="+235XXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+                <input id="phone" type="tel" class="form-control" placeholder="+235XXXXXXXX ou 00235XXXXXXXX" inputmode="numeric" maxlength="16" autocomplete="tel" />
                 <small id="phone-help" class="field-help">Saisissez votre numéro mobile money.</small>
             </div>
 
@@ -59,7 +59,6 @@
                 <div class="resume-box">
                     <div><span>Email</span><strong id="resume-email">{{ prefillEmail|default('-') }}</strong></div>
                     <div><span>Montant</span><strong id="resume-amount">{{ total|number_format(0, '.', ' ') }} XAF</strong></div>
-                    <div><span>Pays</span><strong id="resume-country">-</strong></div>
                     <div><span>Opérateur</span><strong id="resume-operator">-</strong></div>
                     <div><span>Numéro</span><strong id="resume-phone">-</strong></div>
                 </div>
@@ -160,14 +159,12 @@
     const phoneHelp = document.getElementById('phone-help');
     const methodHelp = document.getElementById('method-help');
     const resumeEmail = document.getElementById('resume-email');
-    const resumeCountry = document.getElementById('resume-country');
     const resumeOperator = document.getElementById('resume-operator');
     const resumePhone = document.getElementById('resume-phone');
     const resumeAmount = document.getElementById('resume-amount');
 
     const selectedCountry = {
         code: 'TD',
-        label: '🇹🇩 Chad (+235)',
         dialCode: '+235',
         currency: 'XAF',
         minDigits: 8,
@@ -224,37 +221,37 @@
         const raw = phoneInput.value;
 
         if (!raw) {
-            phoneHelp.textContent = ‘Saisissez votre numéro mobile money.’;
-            phoneHelp.style.color = ‘var(--couleur-texte-secondaire)’;
-            return { isValid: false, e164: ‘’ };
+            phoneHelp.textContent = 'Saisissez votre numéro mobile money.';
+            phoneHelp.style.color = 'var(--couleur-texte-secondaire)';
+            return { isValid: false, e164: '' };
         }
 
         if (!rule) {
             phoneHelp.textContent = "Choisissez d’abord un opérateur.";
-            phoneHelp.style.color = ‘var(--couleur-error)’;
-            return { isValid: false, e164: ‘’ };
+            phoneHelp.style.color = 'var(--couleur-error)';
+            return { isValid: false, e164: '' };
         }
 
         const e164 = normalizePhone(raw);
-        const code = selectedCountry.dialCode.replace(‘+’, ‘’);
-        const allDigits = e164.replace(‘+’, ‘’);
+        const code = selectedCountry.dialCode.replace('+', '');
+        const allDigits = e164.replace('+', '');
         const local = allDigits.startsWith(code) ? allDigits.slice(code.length) : allDigits;
 
         if (local.length < selectedCountry.minDigits) {
             const rest = selectedCountry.minDigits - local.length;
-            phoneHelp.textContent = `Numéro incomplet — encore ${rest} chiffre${rest > 1 ? ‘s’ : ‘’}.`;
-            phoneHelp.style.color = ‘var(--couleur-error)’;
+            phoneHelp.textContent = `Numéro incomplet — encore ${rest} chiffre${rest > 1 ? 's' : ''}.`;
+            phoneHelp.style.color = 'var(--couleur-error)';
             return { isValid: false, e164 };
         }
 
         if (!rule.isValid(local)) {
-            phoneHelp.textContent = `Numéro invalide pour ${rule.name} — doit commencer par ${rule.label.replace(‘préfixe ‘, ‘’)}.`;
-            phoneHelp.style.color = ‘var(--couleur-error)’;
+            phoneHelp.textContent = `Numéro invalide pour ${rule.name} — doit commencer par ${rule.label.replace('préfixe ', '')}.`;
+            phoneHelp.style.color = 'var(--couleur-error)';
             return { isValid: false, e164 };
         }
 
-        phoneHelp.textContent = ‘✓ Numéro valide.’;
-        phoneHelp.style.color = ‘var(--couleur-success)’;
+        phoneHelp.textContent = '✓ Numéro valide.';
+        phoneHelp.style.color = 'var(--couleur-success)';
         return { isValid: true, e164 };
     }
 
@@ -283,7 +280,6 @@
     function updateResume() {
         const method = getSelectedMethod();
         resumeEmail.textContent = emailInput.value.trim() || '-';
-        resumeCountry.textContent = selectedCountry.label;
         resumeOperator.textContent = method && operatorRules[method] ? operatorRules[method].name : '-';
         resumePhone.textContent = normalizePhone(phoneInput.value) || '-';
         resumeAmount.textContent = `${Number(amountInput.value || total).toLocaleString('fr-FR')} ${selectedCountry.currency}`;
@@ -418,7 +414,7 @@
 
     emailInput.addEventListener('input', updateResume);
     phoneInput.addEventListener('input', () => {
-        let val = phoneInput.value.replace(/[^0-9+]/g, '');
+        let val = phoneInput.value.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
 
         // Bloquer à 8 chiffres locaux (limite Tchad)
         const norm = normalizePhone(val);

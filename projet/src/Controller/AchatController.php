@@ -40,8 +40,8 @@ final class AchatController extends AbstractController
         private MessageBusInterface $messageBus,
         private UserPasswordHasherInterface $passwordHasher,
         private TokenStorageInterface $tokenStorage,
-        #[Autowire('%app.momo.numero%')]
-        private string $momoNumero,
+        #[Autowire('%app.depot.numeros%')]
+        private array $depotNumeros,
         #[Autowire('%app.momo.beneficiaire%')]
         private string $momoBeneficiaire
     ) {
@@ -150,12 +150,6 @@ final class AchatController extends AbstractController
     #[Route('/achat/paiement', name: 'achat.paiement', methods: ['POST'])]
     public function paiement(Request $request, SessionInterface $session): Response
     {
-        $user = $this->resolveCheckoutUser((string) $request->request->get('email', ''), $request);
-        if (!$user) {
-            $this->addFlash('error', 'Veuillez saisir une adresse email valide pour continuer.');
-            return $this->redirectToRoute('achat.index');
-        }
-
         $panier = $session->get('panier', []);
         if (empty($panier)) {
             $this->addFlash('error', 'Votre panier est vide');
@@ -171,7 +165,7 @@ final class AchatController extends AbstractController
 
         try {
             $command = new CreerCommandeCommand(
-                userId: $user->getId(),
+                checkoutEmail: trim((string) $request->request->get('email', '')),
                 panier: $panier,
                 methodePaiement: (string) $methodePaiement,
                 numeroClient: trim((string) $telephone)
@@ -188,6 +182,7 @@ final class AchatController extends AbstractController
 
         return $this->redirectToRoute('achat.instructions', [
             'reference' => $commande->getReference(),
+            'token' => $commande->getAccessToken(),
         ]);
     }
 
@@ -213,8 +208,7 @@ final class AchatController extends AbstractController
         $email = trim((string) ($data['email'] ?? ''));
         $country = strtoupper((string) ($data['country'] ?? ''));
 
-        $user = $this->resolveCheckoutUser($email, $request);
-        if (!$user) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return $this->json([
                 'ok' => false,
                 'message' => 'Une adresse email valide est obligatoire.'
@@ -236,7 +230,7 @@ final class AchatController extends AbstractController
 
         try {
             $commande = $this->creerCommandeHandler->handle(new CreerCommandeCommand(
-                userId: $user->getId(),
+                checkoutEmail: $email,
                 panier: $panier,
                 methodePaiement: $methodePaiement,
                 numeroClient: $telephone
@@ -262,8 +256,8 @@ final class AchatController extends AbstractController
             'country' => $country,
             'status' => $commande->getStatut(),
             'processing' => $commande->isProcessing(),
-            'poll_url' => $this->generateUrl('api.commande.statut', ['reference' => $commande->getReference()]),
-            'instructions_url' => $this->generateUrl('achat.instructions', ['reference' => $commande->getReference()]),
+            'poll_url' => $this->generateUrl('api.commande.statut', ['reference' => $commande->getReference(), 'token' => $commande->getAccessToken()]),
+            'instructions_url' => $this->generateUrl('achat.instructions', ['reference' => $commande->getReference(), 'token' => $commande->getAccessToken()]),
             'confirmation_url' => $this->generateUrl('achat.confirmation', ['transactionId' => $commande->getReference()]),
         ], 201);
     }
@@ -333,62 +327,65 @@ final class AchatController extends AbstractController
     }
 
     #[Route('/achat/instructions/{reference}', name: 'achat.instructions', requirements: ['reference' => '[A-Z0-9\-]+'])]
-    #[IsGranted('ROLE_CLIENT')]
-    public function instructions(string $reference): Response
+    public function instructions(string $reference, Request $request): Response
     {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('auth.login');
-        }
-
         $commande = $this->commandeRepository->findByReference($reference);
-        if (!$commande || $commande->getClient()->getId() !== $user->getId()) {
+        if (!$commande) {
             throw $this->createNotFoundException('Commande non trouvée');
         }
 
+        $token = (string) $request->query->get('token', '');
+        if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
+            throw $this->createAccessDeniedException('Accès non autorisé.');
+        }
+
+        $methode = (string) ($commande->getMethodePaiement() ?? '');
+        $depotNumero = $this->depotNumeros[$methode] ?? ($this->depotNumeros['momo'] ?? (string) reset($this->depotNumeros));
+
         return $this->render('achat/instructions_paiement.html.twig', [
             'commande' => $commande,
-            'momoNumero' => $this->momoNumero,
+            'depotNumero' => $depotNumero,
+            'depotOperateur' => $methode,
             'momoBeneficiaire' => $this->momoBeneficiaire,
+            'token' => $token,
         ]);
     }
 
     #[Route('/api/commande/statut/{reference}', name: 'api.commande.statut', requirements: ['reference' => '[A-Z0-9\-]+'], methods: ['GET'])]
-    #[IsGranted('ROLE_CLIENT')]
-    public function statutCommande(string $reference): Response
+    public function statutCommande(string $reference, Request $request): Response
     {
         $commande = $this->commandeRepository->findByReference($reference);
         if (!$commande) {
             return $this->json(['statut' => 'NotFound'], 404);
         }
-        $user = $this->getUser();
-        if (!$user || $commande->getClient()->getId() !== $user->getId()) {
+
+        $token = (string) $request->query->get('token', '');
+        if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
             return $this->json(['statut' => 'Forbidden'], 403);
         }
         return $this->json(['statut' => $commande->getStatut()]);
     }
 
     #[Route('/achat/notifier-paiement/{reference}', name: 'achat.notifier_paiement', requirements: ['reference' => '[A-Z0-9\-]+'], methods: ['POST'])]
-    #[IsGranted('ROLE_CLIENT')]
     public function notifierPaiement(string $reference, Request $request): Response
     {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('auth.login');
+        $commande = $this->commandeRepository->findByReference($reference);
+        if (!$commande) {
+            throw $this->createNotFoundException('Commande non trouvée');
         }
 
-        $commande = $this->commandeRepository->findByReference($reference);
-        if (!$commande || $commande->getClient()->getId() !== $user->getId()) {
-            throw $this->createNotFoundException('Commande non trouvée');
+        $token = (string) $request->query->get('token', '');
+        if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
+            throw $this->createAccessDeniedException('Accès non autorisé.');
         }
         if (($commande->getReferenceTransactionClient() ?? '') !== '') {
             $this->addFlash('info', 'Votre référence est déjà envoyée et en cours de traitement. Vous ne pouvez plus la modifier.');
-            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
         }
 
         if (!$this->isCsrfTokenValid('notifier_paiement_' . $reference, (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Session expirée, veuillez réessayer.');
-            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
         }
 
         $transactionRef = preg_replace('/\s+/', '', trim((string) $request->request->get('transaction_reference', ''))) ?? '';
@@ -398,7 +395,7 @@ final class AchatController extends AbstractController
         // Référence texte maintenant optionnelle si une capture est fournie
         if ($transactionRef === '' && !$captureFile) {
             $this->addFlash('error', 'Veuillez fournir au moins la référence SMS ou une capture d\'écran de la transaction.');
-            return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
         }
 
         // Si une capture est fournie, elle est obligatoire
@@ -409,11 +406,11 @@ final class AchatController extends AbstractController
 
             if (!in_array($mime, $typesAutorises, true)) {
                 $this->addFlash('error', 'Format de fichier non autorisé. Utilisez JPG, PNG ou WEBP.');
-                return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+                return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
             }
             if ($captureFile->getSize() > 5 * 1024 * 1024) {
                 $this->addFlash('error', 'Le fichier est trop lourd. Maximum 5 Mo.');
-                return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+                return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
             }
 
             // Stockage du fichier
@@ -456,11 +453,10 @@ final class AchatController extends AbstractController
         $log = new LogSecurite();
         $log->setAction('CLIENT_REFERENCE_PAIEMENT_ENVOYEE');
         $log->setReferenceCommande($commande->getReference());
-        $log->setUtilisateur($user);
         $log->setIpAddress($request->getClientIp());
         $log->setDetails(sprintf(
             'Client: %s | Capture: %s',
-            $user->getEmail(),
+            (string) ($commande->getCheckoutEmail() ?? 'guest'),
             $nomFichier ?? 'Non fournie'
         ));
         $this->entityManager->persist($log);
@@ -470,8 +466,8 @@ final class AchatController extends AbstractController
             $this->messageBus->dispatch(new PaymentReferenceNotificationMessage(
                 commandeReference: $commande->getReference(),
                 montantTotal: $commande->getMontantTotal(),
-                clientNom: (string) $user->getNom(),
-                clientEmail: (string) $user->getEmail(),
+                clientNom: 'Client',
+                clientEmail: (string) ($commande->getCheckoutEmail() ?? ''),
                 clientTelephone: (string) $commande->getNumeroClient(),
                 operateur: $operateur !== '' ? $operateur : 'Non précisé',
                 referenceTransactionClient: $transactionRef,
@@ -481,7 +477,7 @@ final class AchatController extends AbstractController
 
         $this->addFlash('success', 'Référence envoyée avec succès. Nous traitons votre demande sous environ 5 minutes. Vous ne pouvez plus la ressaisir.');
 
-        return $this->redirectToRoute('achat.instructions', ['reference' => $reference]);
+        return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
     }
 
     #[Route('/achat/confirmation/{transactionId}', name: 'achat.confirmation', requirements: ['transactionId' => '[A-Za-z0-9_\-\.]+'])]
@@ -551,32 +547,34 @@ final class AchatController extends AbstractController
     }
 
     #[Route('/achat/annuler/{reference}', name: 'achat.annuler', methods: ['POST'], requirements: ['reference' => '[A-Z0-9\-]+'])]
-    #[IsGranted('ROLE_CLIENT')]
     public function annuler(string $reference, Request $request): Response
     {
-        $user = $this->getUser();
-
-        if (!$this->isCsrfTokenValid('annuler_' . $reference, $request->request->get('_token'))) {
-            $this->addFlash('error', 'Token de sécurité invalide.');
-            return $this->redirectToRoute('achat.commandes');
-        }
-
         $commande = $this->commandeRepository->findByReference($reference);
 
-        if (!$commande || $commande->getClient()->getId() !== $user->getId()) {
+        if (!$commande) {
             throw $this->createNotFoundException('Commande introuvable.');
+        }
+
+        $token = (string) $request->query->get('token', '');
+        if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
+            throw $this->createAccessDeniedException('Accès non autorisé.');
+        }
+
+        if (!$this->isCsrfTokenValid('annuler_' . $reference, (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
         }
 
         // Seules les commandes en attente peuvent être annulées
         if (!$commande->isPending() && !$commande->isProcessing()) {
             $this->addFlash('error', 'Cette commande ne peut plus être annulée.');
-            return $this->redirectToRoute('achat.commandes');
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
         }
 
         // Empêcher l'annulation si une capture a déjà été envoyée
         if ($commande->getReferenceTransactionClient()) {
             $this->addFlash('error', 'Impossible d\'annuler : vous avez déjà soumis une preuve de paiement. Contactez le support.');
-            return $this->redirectToRoute('achat.commandes');
+            return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
         }
 
         // Marquer comme expirée (annulée par le client)
@@ -587,14 +585,13 @@ final class AchatController extends AbstractController
         $log = new \App\Entity\LogSecurite();
         $log->setAction('CLIENT_ANNULATION_COMMANDE');
         $log->setReferenceCommande($reference);
-        $log->setUtilisateur($user);
         $log->setIpAddress($request->getClientIp());
-        $log->setDetails('Annulation demandée par le client ' . $user->getEmail());
+        $log->setDetails('Annulation demandée par le client ' . (string) ($commande->getCheckoutEmail() ?? 'guest'));
         $this->entityManager->persist($log);
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Commande ' . $reference . ' annulée avec succès.');
-        return $this->redirectToRoute('achat.commandes');
+        return $this->redirectToRoute('achat.instructions', ['reference' => $reference, 'token' => $token]);
     }
 
     private function isTelephoneCompatibleWithMethod(string $methodePaiement, string $telephone): bool

@@ -166,7 +166,8 @@
                 </div>
 
                 <div class="container public-drawer" aria-label="Menu">
-                    {% if app.user %}
+                    {% set showAuthenticatedUi = app.user and (app.user.isCheckoutAccount is not defined or not app.user.isCheckoutAccount or (app.user.isProfileComplete is defined and app.user.isProfileComplete)) %}
+                    {% if showAuthenticatedUi %}
                         <div class="public-drawer-content">
                             <span class="public-drawer-welcome">
                                 Bonjour {{ app.user.nom|default(app.user.email) }}
@@ -223,7 +224,7 @@
                     </span>
                     <span class="public-tab-label">Panier</span>
                 </a>
-                {% if app.user %}
+                {% if showAuthenticatedUi %}
                 {% if is_granted('ROLE_CLIENT') %}
                 <a class="public-tab" href="{{ path('portefeuille.index') }}" {% if app.request.attributes.get('_route') starts with 'portefeuille.' %}aria-current="page"{% endif %}>
                     <span class="public-tab-icon" aria-hidden="true">
@@ -260,7 +261,7 @@
                 {% endif %}
             </nav>
 
-            {% if not app.user %}
+            {% if not showAuthenticatedUi %}
                 <div class="public-me-dropdown" id="public-me-dropdown" role="menu" aria-hidden="true">
                     <div class="public-me-dropdown-head">
                         <div class="public-me-dropdown-title">Veuillez vous connecter</div>

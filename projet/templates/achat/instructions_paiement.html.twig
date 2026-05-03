@@ -4,12 +4,6 @@
 
 {% block body %}
 <section class="instructions-shell">
-    <header class="instructions-head">
-        <p class="instructions-kicker">Paiement Mobile Money</p>
-        <h1>Finaliser votre paiement</h1>
-        <p>Temps restant: <strong id="timeLeft">10:00</strong></p>
-    </header>
-
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="flash flash-{{ label == 'error' ? 'error' : 'success' }}">{{ message }}</div>
@@ -17,278 +11,194 @@
     {% endfor %}
 
     {% set referenceDejaEnvoyee = commande.referenceTransactionClient is not null and commande.referenceTransactionClient|trim != '' %}
-    {% if not referenceDejaEnvoyee %}
-        <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference}) }}" class="confirm-form" enctype="multipart/form-data">
-            <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
-            <h2>J’ai déjà payé</h2>
-            <p>Envoyez-nous maintenant la preuve de votre transaction pour que notre équipe puisse la vérifier.</p>
-            
-            <div class="form-group">
-                <label for="capture_transaction">
-                    Filmer et envoyer nous une capture d'écran de la transaction
-                    <span style="color: #e53e3e;">*</span>
-                </label>
-                <input
-                    type="file"
-                    name="capture_transaction"
-                    id="capture_transaction"
-                    accept="image/jpeg,image/png,image/webp"
-                    required
-                >
-                <small>Formats acceptés : JPG, PNG, WEBP (max 5 Mo)</small>
-            </div>
-
-            <div class="info-message">
-                <strong>Votre paiement est en cours de validation.</strong><br>
-                ⏰ Délai de validation : 10 minutes<br>
-                Vos billets seront disponibles après la validation de votre capture par notre équipe.
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Envoyer la capture</button>
-        </form>
-        
+    <div class="mm-card">
         {% if not referenceDejaEnvoyee %}
-        <div style="margin-top: .75rem; text-align: center;">
-            <form method="post"
-                  action="{{ path('achat.annuler', {reference: commande.reference}) }}"
-                  onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
-                <input type="hidden" name="_token"
-                       value="{{ csrf_token('annuler_' ~ commande.reference) }}">
-                <button type="submit" class="btn btn-sm"
-                        style="color: var(--couleur-error, #ef4444); border-color: var(--couleur-error, #ef4444);">
-                    Annuler cette commande
-                </button>
-            </form>
-            <small class="muted" style="display:block; margin-top:.3rem;">
-                Vous pouvez annuler tant que vous n'avez pas envoyé votre preuve de paiement.
-            </small>
-        </div>
-        {% endif %}
-    {% else %}
-        <div class="confirm-form">
-            <h2>Référence déjà envoyée</h2>
-            <p>Votre référence SMS est bien reçue et en cours de validation.</p>
-            <p class="confirm-note">
-                Référence envoyée : <strong>{{ commande.referenceTransactionClient }}</strong>
-            </p>
-        </div>
-    {% endif %}
+            <form method="post" action="{{ path('achat.notifier_paiement', {reference: commande.reference, token: token}) }}" class="mm-form" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token('notifier_paiement_' ~ commande.reference) }}">
 
-    <div class="status-panel">
-        <div class="status pending" id="statusPending">En attente de paiement</div>
-        <div class="status processing" id="statusProcessing" style="display:none;">Paiement en cours de validation...</div>
-        <div class="status paid" id="statusPaid" style="display:none;">Paiement validé. Vos billets sont prêts.</div>
-        <div class="status expired" id="statusExpired" style="display:none;">Expirée</div>
-        <div class="actions">
-            <a href="{{ path('achat.confirmation', {transactionId: commande.reference}) }}" class="btn btn-primary" id="btnVoirBillets" style="display:none;">Voir mes billets</a>
-            <a href="{{ path('achat.commandes') }}" class="btn">Mes commandes</a>
-            <a href="https://wa.me/23563519678" class="btn btn-secondary" target="_blank" rel="noopener">Support WhatsApp</a>
-        </div>
+                <p class="mm-kicker">Paiement Mobile Money</p>
+
+                <div class="mm-headline">
+                    <div class="mm-hero">
+                        <div class="mm-hero-lead">Il vous reste</div>
+                        <div class="mm-hero-values">
+                            <strong id="timeLeft" class="mm-countdown mm-hero-time">10:00</strong>
+                            <span class="mm-hero-sep" aria-hidden="true">•</span>
+                            <button type="button" class="mm-link mm-hero-number" onclick="copyMomo()">{{ depotNumero }}</button>
+                        </div>
+                        <div class="mm-hero-sub">pour faire le dépôt sur notre numéro</div>
+                    </div>
+                    <div class="mm-progress" aria-hidden="true">
+                        <div class="mm-progress-bar" id="timeProgress"></div>
+                    </div>
+                </div>
+
+                <p class="mm-help">Envoyez-nous la preuve de votre transaction pour que notre équipe puisse la vérifier.</p>
+
+                <div class="mm-sep" aria-hidden="true"></div>
+
+                <div class="mm-field">
+                    <div class="mm-label">Capture d’écran de la transaction <span class="mm-required">*</span></div>
+
+                    <input
+                        type="file"
+                        name="capture_transaction"
+                        id="capture_transaction"
+                        accept="image/jpeg,image/png,image/webp"
+                        required
+                        class="mm-file"
+                    >
+
+                    <div class="mm-dropzone" id="upload-zone" tabindex="0" role="button">
+                        <div class="mm-dropzone-inner">
+                            <div class="mm-upload-icon" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="17 8 12 3 7 8" />
+                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
+                            </div>
+                            <div id="upload-placeholder">
+                                <div class="mm-dropzone-title">Glissez ou cliquez pour choisir un fichier</div>
+                                <div class="mm-dropzone-sub">JPG, PNG, WEBP — max 5 Mo</div>
+                            </div>
+                            <img id="upload-preview" alt="Aperçu de la capture" class="mm-preview" style="display:none;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mm-callout mm-callout-info" id="statusPending">
+                    <div class="mm-dot" aria-hidden="true"></div>
+                    <div>
+                        <div class="mm-callout-title">Paiement en cours de validation</div>
+                        <div class="mm-callout-text">Délai estimé : 10 minutes. Vos billets seront disponibles après vérification par notre équipe.</div>
+                    </div>
+                </div>
+                <div class="mm-callout mm-callout-info" id="statusProcessing" style="display:none;">
+                    <div class="mm-dot" aria-hidden="true"></div>
+                    <div>
+                        <div class="mm-callout-title">Paiement en cours de validation</div>
+                        <div class="mm-callout-text">Nous vérifions votre paiement. Merci de patienter.</div>
+                    </div>
+                </div>
+                <div class="mm-callout mm-callout-success" id="statusPaid" style="display:none;">
+                    <div class="mm-dot" aria-hidden="true"></div>
+                    <div>
+                        <div class="mm-callout-title">Paiement validé</div>
+                        <div class="mm-callout-text">Vos billets ont été envoyés par email.</div>
+                    </div>
+                </div>
+                <div class="mm-callout mm-callout-danger" id="statusExpired" style="display:none;">
+                    <div class="mm-dot" aria-hidden="true"></div>
+                    <div>
+                        <div class="mm-callout-title">Commande expirée</div>
+                        <div class="mm-callout-text">Le délai est dépassé. Recommencez un achat si besoin.</div>
+                    </div>
+                </div>
+
+                <div class="mm-actions">
+                    <button type="submit" class="mm-btn mm-btn-primary">Envoyer la capture</button>
+                </div>
+            </form>
+
+            <form method="post"
+                  action="{{ path('achat.annuler', {reference: commande.reference, token: token}) }}"
+                  class="mm-actions"
+                  onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('annuler_' ~ commande.reference) }}">
+                <button type="submit" class="mm-btn mm-btn-ghost">Annuler cette commande</button>
+            </form>
+        {% else %}
+            <div class="mm-form">
+                <p class="mm-kicker">Paiement Mobile Money</p>
+                <div class="mm-headline">
+                    <div class="mm-line">
+                        Votre preuve est déjà envoyée.
+                    </div>
+                    <div class="mm-help">Nous finalisons la vérification.</div>
+                </div>
+
+                <div class="mm-callout mm-callout-info" id="statusProcessing">
+                    <div class="mm-dot" aria-hidden="true"></div>
+                    <div>
+                        <div class="mm-callout-title">Paiement en cours de validation</div>
+                        <div class="mm-callout-text">Référence envoyée : <strong>{{ commande.referenceTransactionClient }}</strong></div>
+                    </div>
+                </div>
+
+                <div class="mm-actions mm-actions-row">
+                    <a href="{{ path('achat.commandes') }}" class="mm-btn mm-btn-secondary">Mes commandes</a>
+                    <a href="https://wa.me/23563519678" class="mm-btn mm-btn-secondary" target="_blank" rel="noopener">Support WhatsApp</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </section>
-
-<style>
-.instructions-shell { max-width: 760px; margin: 0 auto; display: grid; gap: 1rem; }
-.instructions-head h1 { margin: .15rem 0; }
-.instructions-head p { margin: 0; color: var(--couleur-texte-secondaire); }
-.instructions-kicker { margin: 0; text-transform: uppercase; font-size: .82rem; color: var(--couleur-texte-secondaire); }
-.flash { padding: .75rem 1rem; border-radius: var(--rayon); font-weight: 600; }
-.flash-success { background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface)); border: 1px solid var(--couleur-success); }
-.flash-error { background: color-mix(in srgb, var(--couleur-error, #ef4444) 18%, var(--couleur-surface)); border: 1px solid var(--couleur-error, #ef4444); }
-.core-info { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; display: grid; gap: .55rem; }
-.info-row { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; align-items: center; padding: .45rem .35rem; border-bottom: 1px solid var(--couleur-bordure); }
-.info-row:last-child { border-bottom: none; }
-.info-row > span { color: var(--couleur-texte-secondaire); }
-.info-highlight { background: color-mix(in srgb, var(--couleur-primaire) 9%, var(--couleur-surface)); border-radius: var(--rayon); }
-.btn-copy { background: none; border: 1px solid var(--couleur-bordure); padding: .3rem .55rem; border-radius: var(--rayon); cursor: pointer; }
-.confirm-form { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .95rem; display: grid; gap: .6rem; }
-.confirm-form h2 { margin: 0; font-size: 1.05rem; }
-.confirm-form p { margin: 0; color: var(--couleur-texte-secondaire); }
-.confirm-grid { display: grid; gap: .6rem; }
-.confirm-grid label { display: grid; gap: .35rem; font-weight: 600; }
-.confirm-grid input, .confirm-grid select { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .62rem .72rem; background: var(--couleur-surface); color: var(--couleur-texte); }
-.confirm-note { margin: 0; font-size: .92rem; color: var(--couleur-texte-secondaire); }
-.btn-inline { justify-self: start; }
-.status-panel { background: var(--couleur-surface); border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; display: grid; gap: .65rem; }
-.status { border-radius: var(--rayon); padding: .7rem .8rem; border: 1px solid var(--couleur-bordure); font-weight: 600; }
-.status.pending { background: color-mix(in srgb, var(--couleur-warning) 18%, var(--couleur-surface)); border-color: var(--couleur-warning); }
-.status.processing { background: color-mix(in srgb, var(--couleur-primaire) 18%, var(--couleur-surface)); border-color: var(--couleur-primaire); }
-.status.paid { background: color-mix(in srgb, var(--couleur-success) 18%, var(--couleur-surface)); border-color: var(--couleur-success); }
-.status.expired { background: color-mix(in srgb, var(--couleur-error, #ef4444) 18%, var(--couleur-surface)); border-color: var(--couleur-error, #ef4444); }
-.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
-
-/* Styles pour le formulaire d'upload */
-.etapes-paiement {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 28px;
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 12px;
-}
-
-.etape {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.etape-numero {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-    background: #1a73e8;
-    color: #fff;
-    border-radius: 50%;
-    font-weight: 700;
-    font-size: 13px;
-}
-
-.etape-texte {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #333;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 20px 0;
-}
-
-.form-group label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #222;
-}
-
-.champ-requis { color: #c0392b; margin-left: 4px; }
-.champ-conseille { font-weight: 400; color: #888; font-size: 12px; margin-left: 4px; }
-
-.form-hint {
-    font-size: 12px;
-    color: #666;
-    line-height: 1.5;
-}
-
-.upload-zone {
-    border: 2px dashed #e0e0e0;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    background: #fafafa;
-}
-
-.upload-zone:hover {
-    border-color: #1a73e8;
-    background: #f0f6ff;
-}
-
-.upload-placeholder p {
-    margin: 8px 0 4px;
-    font-size: 14px;
-    color: #444;
-}
-
-.upload-placeholder small {
-    font-size: 12px;
-    color: #888;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 20px 0;
-}
-
-.form-group label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #333;
-}
-
-.form-group input[type="file"] {
-    padding: 8px;
-    border: 2px dashed #e0e0e0;
-    border-radius: 8px;
-    background: #fafafa;
-}
-
-.form-group input[type="file"]:hover {
-    border-color: #1a73e8;
-    background: #f0f6ff;
-}
-
-.form-group small {
-    font-size: 12px;
-    color: #666;
-    line-height: 1.4;
-}
-
-.info-message {
-    background: #e8f4fd;
-    border: 1px solid #b3d9ff;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 16px 0;
-    color: #1565c0;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.info-message strong {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 15px;
-}
-</style>
-
 <script>
 const ref = '{{ commande.reference }}';
 const expiry = new Date('{{ commande.dateExpiration|date('c') }}');
+const token = '{{ token }}';
+const createdAt = new Date('{{ commande.createdAt|date('c') }}');
 
 function updateCountdown() {
     const now = new Date();
-    if (now >= expiry) {
-        document.getElementById('timeLeft').textContent = '';
-        document.getElementById('statusPending').style.display = 'none';
-        document.getElementById('statusExpired').style.display = 'flex';
+    const timeEl = document.getElementById('timeLeft');
+    const progressEl = document.getElementById('timeProgress');
+
+    if (!timeEl || !progressEl) return;
+
+    const total = Math.max(1, expiry - createdAt);
+    const remaining = Math.max(0, expiry - now);
+
+    if (remaining <= 0) {
+        timeEl.textContent = '0:00';
+        progressEl.style.width = '0%';
+        const pending = document.getElementById('statusPending');
+        const expired = document.getElementById('statusExpired');
+        if (pending) pending.style.display = 'none';
+        if (expired) expired.style.display = 'grid';
         return;
     }
     const d = expiry - now;
     const m = Math.floor(d / 60000);
     const s = Math.floor((d % 60000) / 1000);
-    document.getElementById('timeLeft').textContent = m + ':' + s.toString().padStart(2, '0');
+    timeEl.textContent = m + ':' + s.toString().padStart(2, '0');
+
+    const ratio = Math.max(0, Math.min(1, remaining / total));
+    progressEl.style.width = (ratio * 100).toFixed(2) + '%';
 }
 
 function checkStatus() {
-    fetch('/api/commande/statut/' + ref)
+    fetch('/api/commande/statut/' + ref + '?token=' + encodeURIComponent(token))
         .then(r => r.json())
         .then(data => {
             if (data.statut === 'Paid') {
-                document.getElementById('statusPending').style.display = 'none';
-                document.getElementById('statusProcessing').style.display = 'none';
-                document.getElementById('statusExpired').style.display = 'none';
-                document.getElementById('statusPaid').style.display = 'flex';
-                document.getElementById('btnVoirBillets').style.display = 'inline-flex';
+                const pending = document.getElementById('statusPending');
+                const processing = document.getElementById('statusProcessing');
+                const expired = document.getElementById('statusExpired');
+                const paid = document.getElementById('statusPaid');
+                if (pending) pending.style.display = 'none';
+                if (processing) processing.style.display = 'none';
+                if (expired) expired.style.display = 'none';
+                if (paid) paid.style.display = 'grid';
             } else if (data.statut === 'Processing') {
-                document.getElementById('statusPending').style.display = 'none';
-                document.getElementById('statusProcessing').style.display = 'flex';
-                document.getElementById('statusExpired').style.display = 'none';
-                document.getElementById('statusPaid').style.display = 'none';
+                const pending = document.getElementById('statusPending');
+                const processing = document.getElementById('statusProcessing');
+                const expired = document.getElementById('statusExpired');
+                const paid = document.getElementById('statusPaid');
+                if (pending) pending.style.display = 'none';
+                if (processing) processing.style.display = 'grid';
+                if (expired) expired.style.display = 'none';
+                if (paid) paid.style.display = 'none';
             } else if (data.statut === 'Expired') {
-                document.getElementById('statusPending').style.display = 'none';
-                document.getElementById('statusProcessing').style.display = 'none';
-                document.getElementById('statusPaid').style.display = 'none';
-                document.getElementById('statusExpired').style.display = 'flex';
+                const pending = document.getElementById('statusPending');
+                const processing = document.getElementById('statusProcessing');
+                const expired = document.getElementById('statusExpired');
+                const paid = document.getElementById('statusPaid');
+                if (pending) pending.style.display = 'none';
+                if (processing) processing.style.display = 'none';
+                if (paid) paid.style.display = 'none';
+                if (expired) expired.style.display = 'grid';
             }
         })
         .catch(() => {});
@@ -300,7 +210,7 @@ function copyRef() {
 }
 
 function copyMomo() {
-    navigator.clipboard.writeText('{{ momoNumero }}');
+    navigator.clipboard.writeText('{{ depotNumero }}');
     alert('Numero copie !');
 }
 
@@ -308,21 +218,32 @@ function copyMomo() {
 function showInitialStatus() {
     const currentStatus = '{{ commande.statut }}';
     if (currentStatus === 'Processing') {
-        document.getElementById('statusPending').style.display = 'none';
-        document.getElementById('statusProcessing').style.display = 'flex';
-        document.getElementById('statusExpired').style.display = 'none';
-        document.getElementById('statusPaid').style.display = 'none';
+        const pending = document.getElementById('statusPending');
+        const processing = document.getElementById('statusProcessing');
+        const expired = document.getElementById('statusExpired');
+        const paid = document.getElementById('statusPaid');
+        if (pending) pending.style.display = 'none';
+        if (processing) processing.style.display = 'grid';
+        if (expired) expired.style.display = 'none';
+        if (paid) paid.style.display = 'none';
     } else if (currentStatus === 'Paid') {
-        document.getElementById('statusPending').style.display = 'none';
-        document.getElementById('statusProcessing').style.display = 'none';
-        document.getElementById('statusExpired').style.display = 'none';
-        document.getElementById('statusPaid').style.display = 'flex';
-        document.getElementById('btnVoirBillets').style.display = 'inline-flex';
+        const pending = document.getElementById('statusPending');
+        const processing = document.getElementById('statusProcessing');
+        const expired = document.getElementById('statusExpired');
+        const paid = document.getElementById('statusPaid');
+        if (pending) pending.style.display = 'none';
+        if (processing) processing.style.display = 'none';
+        if (expired) expired.style.display = 'none';
+        if (paid) paid.style.display = 'grid';
     } else if (currentStatus === 'Expired') {
-        document.getElementById('statusPending').style.display = 'none';
-        document.getElementById('statusProcessing').style.display = 'none';
-        document.getElementById('statusPaid').style.display = 'none';
-        document.getElementById('statusExpired').style.display = 'flex';
+        const pending = document.getElementById('statusPending');
+        const processing = document.getElementById('statusProcessing');
+        const expired = document.getElementById('statusExpired');
+        const paid = document.getElementById('statusPaid');
+        if (pending) pending.style.display = 'none';
+        if (processing) processing.style.display = 'none';
+        if (paid) paid.style.display = 'none';
+        if (expired) expired.style.display = 'grid';
     }
 }
 
@@ -341,6 +262,16 @@ setInterval(checkStatus, 15000);
 
     if (!input) return;
 
+    if (zone) {
+        zone.addEventListener('click', () => input.click());
+        zone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                input.click();
+            }
+        });
+    }
+
     input.addEventListener('change', function() {
         const file = this.files[0];
         if (!file) return;
@@ -354,17 +285,21 @@ setInterval(checkStatus, 15000);
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            placeholder.style.display = 'none';
-            zone.style.borderColor = '#27ae60';
+            if (preview) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            if (placeholder) placeholder.style.display = 'none';
+            if (zone) zone.style.borderColor = 'rgba(167, 232, 193, .9)';
         };
         reader.readAsDataURL(file);
     });
 
     // Drag and drop
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = '#1a73e8'; });
-    zone.addEventListener('dragleave', () => { zone.style.borderColor = '#e0e0e0'; });
+    if (!zone) return;
+
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'rgba(87,166,255,.9)'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = 'rgba(255,255,255,.22)'; });
     zone.addEventListener('drop', e => {
         e.preventDefault();
         if (e.dataTransfer.files.length > 0) {

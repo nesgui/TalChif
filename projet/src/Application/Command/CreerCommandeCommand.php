@@ -13,7 +13,7 @@ final readonly class CreerCommandeCommand
      * @param array<int, int> $panier [id_evenement => quantite]
      */
     public function __construct(
-        public int $userId,
+        public string $checkoutEmail,
         public array $panier,
         public string $methodePaiement,
         public string $numeroClient

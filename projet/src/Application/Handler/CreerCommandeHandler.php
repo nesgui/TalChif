@@ -42,9 +42,9 @@ final class CreerCommandeHandler
         // Validation du numéro
         $telephone = Telephone::fromString($command->numeroClient);
 
-        $user = $this->userRepository->find($command->userId);
-        if (!$user) {
-            throw new \RuntimeException('Utilisateur non trouvé.');
+        $email = mb_strtolower(trim((string) $command->checkoutEmail));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException('Adresse email invalide.');
         }
 
         $this->entityManager->beginTransaction();
@@ -102,7 +102,9 @@ final class CreerCommandeHandler
             $commande->setStatut(Commande::STATUT_PENDING);
             $commande->setCommissionPlateforme($commission);
             $commande->setMontantNetOrganisateur($montantNet);
-            $commande->setClient($user);
+            $commande->setClient(null);
+            $commande->setCheckoutEmail($email);
+            $commande->setAccessToken(bin2hex(random_bytes(24)));
 
             $dateExpiration = (new \DateTimeImmutable())->modify("+{$this->expirationMinutes} minutes");
             $commande->setDateExpiration($dateExpiration);

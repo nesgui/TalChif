@@ -5,8 +5,10 @@ parameters:
     # Taux de commission admin sur les ventes (ex: 0.10 = 10 %)
     app.commission_taux: 0.10
 
-    # Mobile Money - numéro business plateforme
-    app.momo.numero: '63519678'
+    # Mobile Money - numéros de dépôt plateforme (selon opérateur)
+    app.depot.numeros:
+        momo: '63519678'
+        airtel: '63519678'
     app.momo.beneficiaire: 'TALCHIF'
 
     # Commande : durée avant expiration (minutes)
