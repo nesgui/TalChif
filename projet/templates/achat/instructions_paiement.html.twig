@@ -19,11 +19,16 @@
                 <p class="mm-kicker">Paiement Mobile Money</p>
 
                 <div class="mm-headline">
-                    <div class="mm-line">
-                        Il vous reste
-                        <strong id="timeLeft" class="mm-countdown">10:00</strong>
-                        pour faire le dépôt sur notre numéro :
-                        <button type="button" class="mm-link" onclick="copyMomo()">{{ depotNumero }}</button>
+                    {% set depotNumeroBrut = depotNumero|replace({' ': ''}) %}
+                    {% set depotNumeroAffiche = depotNumeroBrut %}
+                    {% if depotNumeroBrut|length == 8 %}
+                        {% set depotNumeroAffiche = depotNumeroBrut|slice(0,2) ~ ' ' ~ depotNumeroBrut|slice(2,2) ~ ' ' ~ depotNumeroBrut|slice(4,2) ~ ' ' ~ depotNumeroBrut|slice(6,2) %}
+                    {% endif %}
+                    <div class="mm-hero">
+                        <div class="mm-hero-lead">Il vous reste</div>
+                        <strong id="timeLeft" class="mm-countdown mm-hero-time">10:00</strong>
+                        <div class="mm-hero-sub">Pour effectuer votre dépôt sur notre numero</div>
+                        <button type="button" class="mm-link mm-hero-number" onclick="copyMomo()">{{ depotNumeroAffiche }}</button>
                     </div>
                     <div class="mm-progress" aria-hidden="true">
                         <div class="mm-progress-bar" id="timeProgress"></div>
