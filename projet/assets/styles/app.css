@@ -4202,14 +4202,6 @@ html[data-theme="dark"] .auth-btn-secondary:hover {
 .mm-form { display: grid; gap: 14px; }
 .mm-kicker { margin: 0; text-transform: uppercase; letter-spacing: .08em; font-size: .82rem; opacity: .85; color: var(--couleur-texte-secondaire); }
 .mm-headline { display: grid; gap: 10px; }
-.mm-hero { display: grid; gap: 6px; }
-.mm-hero-lead { font-size: 1rem; font-weight: 700; color: var(--couleur-texte); }
-.mm-hero-values { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
-.mm-hero-time { font-size: 2rem; line-height: 1.05; font-weight: 900; letter-spacing: -0.02em; color: var(--couleur-texte); }
-.mm-hero-number { font-size: 1.25rem; font-weight: 900; text-decoration: none; padding: 2px 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--couleur-secondaire) 35%, var(--couleur-bordure)); background: color-mix(in srgb, var(--couleur-secondaire) 12%, var(--couleur-surface)); }
-.mm-hero-number:hover { background: color-mix(in srgb, var(--couleur-secondaire) 18%, var(--couleur-surface)); }
-.mm-hero-sep { opacity: .6; font-weight: 900; color: var(--couleur-texte-secondaire); }
-.mm-hero-sub { font-size: 1rem; color: var(--couleur-texte-secondaire); }
 .mm-line { font-size: 1.05rem; line-height: 1.4; color: var(--couleur-texte); }
 .mm-countdown { font-size: 1.35rem; }
 .mm-link { border: 0; background: none; padding: 0; cursor: pointer; color: var(--couleur-secondaire); font-weight: 700; text-decoration: underline; }

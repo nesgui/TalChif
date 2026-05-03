@@ -19,14 +19,11 @@
                 <p class="mm-kicker">Paiement Mobile Money</p>
 
                 <div class="mm-headline">
-                    <div class="mm-hero">
-                        <div class="mm-hero-lead">Il vous reste</div>
-                        <div class="mm-hero-values">
-                            <strong id="timeLeft" class="mm-countdown mm-hero-time">10:00</strong>
-                            <span class="mm-hero-sep" aria-hidden="true">•</span>
-                            <button type="button" class="mm-link mm-hero-number" onclick="copyMomo()">{{ depotNumero }}</button>
-                        </div>
-                        <div class="mm-hero-sub">pour faire le dépôt sur notre numéro</div>
+                    <div class="mm-line">
+                        Il vous reste
+                        <strong id="timeLeft" class="mm-countdown">10:00</strong>
+                        pour faire le dépôt sur notre numéro :
+                        <button type="button" class="mm-link" onclick="copyMomo()">{{ depotNumero }}</button>
                     </div>
                     <div class="mm-progress" aria-hidden="true">
                         <div class="mm-progress-bar" id="timeProgress"></div>
