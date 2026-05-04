@@ -76,9 +76,14 @@
     letter-spacing: 0.2px;
 }
 
-.dashboard-sidebar,
-.dashboard-sidebar * {
+.dashboard-sidebar {
     color: #ffffff;
+}
+
+.dashboard-sidebar p,
+.dashboard-sidebar span,
+.dashboard-sidebar li {
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .dashboard-sidebar svg {
@@ -134,20 +139,48 @@
 }
 
 .dashboard-group {
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 12px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .dashboard-group > summary {
     cursor: pointer;
     list-style: none;
-    padding: var(--espace-fluid-sm) var(--espace-fluid-sm);
+    padding: 12px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 12px;
+}
+
+.dashboard-group > summary:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.dashboard-group[open] > summary {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.dashboard-group > summary::after {
+    content: '▾';
+    font-size: 14px;
+    line-height: 1;
+    transform: rotate(-90deg);
+    transition: transform 0.15s ease;
+    opacity: 0.9;
+}
+
+.dashboard-group[open] > summary::after {
+    transform: rotate(0deg);
 }
 
 .dashboard-group > summary::-webkit-details-marker {
@@ -214,6 +247,11 @@ turbo-frame.dashboard-main,
     align-items: center;
     gap: 8px;
     transition: background 0.2s, border-color 0.2s;
+}
+
+.dashboard-burger.is-open {
+    background: color-mix(in srgb, var(--couleur-secondaire) 14%, var(--couleur-surface));
+    border-color: color-mix(in srgb, var(--couleur-secondaire) 45%, var(--couleur-bordure));
 }
 
 .dashboard-burger:hover {

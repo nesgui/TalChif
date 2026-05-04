@@ -7,6 +7,8 @@
         {% set section = 'client' %}
     {% endif %}
 
+    {% set current_route = app.request.attributes.get('_route') %}
+
     {% set dashboard_sidebar_content %}
         <div class="dashboard-sidebar-top">
             <a class="dashboard-brand" href="{{ path('accueil') }}" data-turbo-frame="_top">TalChif</a>
@@ -17,67 +19,71 @@
             {% if section == 'organisateur' %}
                 <div class="dashboard-nav-title">Organisateur</div>
 
-                <a class="dashboard-link" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
+                <a class="dashboard-link{{ current_route == 'organisateur.dashboard' ? ' active' : '' }}" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
 
-                <details class="dashboard-group" open>
+                {% set organisateur_gestion_open = current_route starts with 'organisateur.evenement.' or current_route == 'organisateur.commande.references' %}
+                <details class="dashboard-group" {% if organisateur_gestion_open %}open{% endif %}>
                     <summary>Gestion des événements</summary>
                     <div class="dashboard-sub">
-                        <a class="dashboard-sublink" href="{{ path('organisateur.evenement.index') }}" data-turbo-frame="dashboard-main-frame">Liste des événements</a>
-                        <a class="dashboard-sublink" href="{{ path('organisateur.evenement.create') }}" data-turbo-frame="dashboard-main-frame">Ajouter un événement</a>
+                        <a class="dashboard-sublink{{ current_route == 'organisateur.evenement.index' ? ' active' : '' }}" href="{{ path('organisateur.evenement.index') }}" data-turbo-frame="dashboard-main-frame">Liste des événements</a>
+                        <a class="dashboard-sublink{{ current_route == 'organisateur.evenement.create' ? ' active' : '' }}" href="{{ path('organisateur.evenement.create') }}" data-turbo-frame="dashboard-main-frame">Ajouter un événement</a>
                         <a class="dashboard-sublink" href="{{ path('organisateur.dashboard') }}" data-turbo-frame="dashboard-main-frame">Vue globale ventes</a>
-                        <a class="dashboard-sublink" href="{{ path('organisateur.commande.references') }}" data-turbo-frame="dashboard-main-frame">Références à vérifier</a>
+                        <a class="dashboard-sublink{{ current_route == 'organisateur.commande.references' ? ' active' : '' }}" href="{{ path('organisateur.commande.references') }}" data-turbo-frame="dashboard-main-frame">Références à vérifier</a>
                     </div>
                 </details>
 
                 <div class="dashboard-nav-title">Général</div>
-                <a class="dashboard-link" href="{{ path('profile.index') }}" data-turbo-frame="_top">Mon profil</a>
-                <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
+                <a class="dashboard-link{{ current_route == 'profile.index' ? ' active' : '' }}" href="{{ path('profile.index') }}" data-turbo-frame="_top">Mon profil</a>
+                <a class="dashboard-link{{ current_route == 'accueil' ? ' active' : '' }}" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour site</a>
             {% elseif section == 'admin' %}
                 <div class="dashboard-nav-title">Administration</div>
 
-                <a class="dashboard-link" href="{{ path('admin.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
+                <a class="dashboard-link{{ current_route == 'admin.dashboard' ? ' active' : '' }}" href="{{ path('admin.dashboard') }}" data-turbo-frame="dashboard-main-frame">Tableau de bord</a>
 
-                <details class="dashboard-group" open>
+                {% set admin_gestion_open = current_route starts with 'admin.user.' or current_route starts with 'admin.organisateur.' or current_route starts with 'admin.commande.' %}
+                <details class="dashboard-group" {% if admin_gestion_open %}open{% endif %}>
                     <summary>Gestion</summary>
                     <div class="dashboard-sub">
-                        <a class="dashboard-sublink" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.user.index' ? ' active' : '' }}" href="{{ path('admin.user.index') }}" data-turbo-frame="dashboard-main-frame">
                             Utilisateurs
                         </a>
-                        <a class="dashboard-sublink" href="{{ path('admin.organisateur.index') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.organisateur.index' ? ' active' : '' }}" href="{{ path('admin.organisateur.index') }}" data-turbo-frame="dashboard-main-frame">
                             Organisateurs
                         </a>
-                        <a class="dashboard-sublink" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.commande.index' ? ' active' : '' }}" href="{{ path('admin.commande.index') }}" data-turbo-frame="dashboard-main-frame">
                             Commandes & validation
                         </a>
-                        <a class="dashboard-sublink" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.commande.references' ? ' active' : '' }}" href="{{ path('admin.commande.references') }}" data-turbo-frame="dashboard-main-frame">
                             Références à vérifier
                         </a>
                     </div>
                 </details>
 
-                <details class="dashboard-group">
+                {% set admin_finance_open = current_route starts with 'admin.finance.' or current_route starts with 'admin.evenement.' %}
+                <details class="dashboard-group" {% if admin_finance_open %}open{% endif %}>
                     <summary>Finance & stats</summary>
                     <div class="dashboard-sub">
-                        <a class="dashboard-sublink" href="{{ path('admin.finance.index') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.finance.index' ? ' active' : '' }}" href="{{ path('admin.finance.index') }}" data-turbo-frame="dashboard-main-frame">
                             Tableau financier
                         </a>
-                        <a class="dashboard-sublink" href="{{ path('admin.evenement.index') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.evenement.index' ? ' active' : '' }}" href="{{ path('admin.evenement.index') }}" data-turbo-frame="dashboard-main-frame">
                             Événements
                         </a>
                     </div>
                 </details>
 
-                <details class="dashboard-group">
+                {% set admin_securite_open = current_route starts with 'admin.securite.' %}
+                <details class="dashboard-group" {% if admin_securite_open %}open{% endif %}>
                     <summary>Sécurité</summary>
                     <div class="dashboard-sub">
-                        <a class="dashboard-sublink" href="{{ path('admin.securite.index') }}" data-turbo-frame="dashboard-main-frame">
+                        <a class="dashboard-sublink{{ current_route == 'admin.securite.index' ? ' active' : '' }}" href="{{ path('admin.securite.index') }}" data-turbo-frame="dashboard-main-frame">
                             Logs de sécurité
                         </a>
                     </div>
                 </details>
 
                 <div class="dashboard-nav-title">Général</div>
-                <a class="dashboard-link" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour au site</a>
+                <a class="dashboard-link{{ current_route == 'accueil' ? ' active' : '' }}" href="{{ path('accueil') }}" data-turbo-frame="_top">Retour au site</a>
             {% endif %}
         </nav>
     {% endset %}

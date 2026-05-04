@@ -30,11 +30,24 @@ document.addEventListener('turbo:frame-missing', function(event) {
 
 (function initDashboardSidebarDialog() {
     let dashboardSidebarDialogBound = false;
+    let lastOpenButton = null;
 
     function setExpandedState(isExpanded) {
         document.querySelectorAll('[data-dashboard-open]').forEach((button) => {
             button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+            button.classList.toggle('is-open', isExpanded);
         });
+    }
+
+    function focusFirstSidebarElement(dialog) {
+        if (!dialog) return;
+        const closeButton = dialog.querySelector('[data-dashboard-close]');
+        if (closeButton) {
+            closeButton.focus();
+            return;
+        }
+        const firstLink = dialog.querySelector('a[href]');
+        if (firstLink) firstLink.focus();
     }
 
     function closeDialog(dialog) {
@@ -45,6 +58,10 @@ document.addEventListener('turbo:frame-missing', function(event) {
 
         dialog.close();
         setExpandedState(false);
+
+        if (lastOpenButton && typeof lastOpenButton.focus === 'function') {
+            lastOpenButton.focus();
+        }
     }
 
     function bindOnce() {
@@ -67,8 +84,10 @@ document.addEventListener('turbo:frame-missing', function(event) {
                 if (dialog.open) {
                     closeDialog(dialog);
                 } else {
+                    lastOpenButton = openButton;
                     dialog.showModal();
                     setExpandedState(true);
+                    focusFirstSidebarElement(dialog);
                 }
                 return;
             }
@@ -87,6 +106,10 @@ document.addEventListener('turbo:frame-missing', function(event) {
         document.addEventListener('close', function(event) {
             if (event.target.id !== 'dashboard-sidebar-dialog') return;
             setExpandedState(false);
+
+            if (lastOpenButton && typeof lastOpenButton.focus === 'function') {
+                lastOpenButton.focus();
+            }
         }, true);
 
         window.addEventListener('resize', function() {

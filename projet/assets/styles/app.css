@@ -4202,16 +4202,19 @@ html[data-theme="dark"] .auth-btn-secondary:hover {
 .mm-form { display: grid; gap: 14px; }
 .mm-kicker { margin: 0; text-transform: uppercase; letter-spacing: .08em; font-size: .82rem; opacity: .85; color: var(--couleur-texte-secondaire); }
 .mm-headline { display: grid; gap: 10px; }
-.mm-hero { display: grid; justify-items: center; gap: 10px; padding: 12px 8px 4px; text-align: center; }
+.mm-hero { display: grid; justify-items: center; gap: 8px; padding: 4px 8px 0; text-align: center; }
 .mm-hero-lead { font-size: 1.05rem; font-weight: 700; color: var(--couleur-texte); }
 .mm-hero-time { font-size: 3.1rem; line-height: 1; font-weight: 900; letter-spacing: -0.02em; color: var(--couleur-error, #ef4444); }
 .mm-hero-sub { font-size: 1.05rem; color: var(--couleur-texte); }
-.mm-hero-number { display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 10px 22px; border-radius: 14px; background: var(--couleur-primaire); color: var(--couleur-texte-inverse); font-weight: 900; font-size: 1.7rem; letter-spacing: .22em; text-decoration: none; box-shadow: 0 12px 26px color-mix(in srgb, var(--couleur-primaire) 42%, transparent); }
-.mm-hero-number:hover { background: var(--couleur-primaire-hover); }
+.mm-hero-number { display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 10px 22px; border-radius: 14px; background: var(--couleur-surface); color: var(--couleur-texte); font-weight: 900; font-size: 1.7rem; letter-spacing: .22em; text-decoration: none; box-shadow: 0 12px 26px color-mix(in srgb, var(--couleur-texte) 12%, transparent); }
+.mm-hero-number:hover { background: var(--couleur-surface); }
+.mm-hero-number:active { background: var(--couleur-surface); }
 .mm-hero-number:focus-visible { outline: 3px solid color-mix(in srgb, var(--couleur-secondaire) 55%, transparent); outline-offset: 3px; }
 .mm-line { font-size: 1.05rem; line-height: 1.4; color: var(--couleur-texte); }
 .mm-countdown { font-size: 1.35rem; }
 .mm-link { border: 0; background: none; padding: 0; cursor: pointer; color: var(--couleur-secondaire); font-weight: 700; text-decoration: underline; }
+.mm-link.mm-hero-number { text-decoration: none; cursor: pointer; color: var(--couleur-texte); }
+.mm-link.mm-hero-number:hover { text-decoration: none; color: var(--couleur-texte); }
 .mm-progress { height: 4px; background: color-mix(in srgb, var(--couleur-bordure) 70%, transparent); border-radius: 999px; overflow: hidden; }
 .mm-progress-bar { height: 100%; width: 0%; background: var(--couleur-secondaire); border-radius: 999px; transition: width .25s ease; }
 .mm-help { margin: 0; color: var(--couleur-texte-secondaire); }

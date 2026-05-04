@@ -1,0 +1,135 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Organisateur{% endblock %}
+
+{% block dashboard_title %}Détails organisateur{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Consultation des informations de l'organisateur</p>
+
+<div class="grid">
+    <section class="card">
+        <div class="cv-header">
+            <div>
+                <h2 class="card-title" style="margin-bottom: .25rem;">{{ organisateur.nom }}</h2>
+                <p class="card-meta" style="margin: 0;">Organisateur • ID #{{ organisateur.id }}</p>
+            </div>
+            <div class="cv-badges">
+                {% if organisateur.actif %}
+                    <span class="pill pill-success">Actif</span>
+                {% else %}
+                    <span class="pill pill-warning">Inactif</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% include 'partials/flashes.html.twig' %}
+
+        <div class="cv-grid">
+            <div class="cv-section">
+                <div class="cv-section-title">Contact</div>
+                <dl class="cv-dl">
+                    <div class="cv-row">
+                        <dt>Email</dt>
+                        <dd>{{ organisateur.email }}</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Téléphone</dt>
+                        <dd>{{ organisateur.telephone ?: 'Non renseigné' }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="cv-section">
+                <div class="cv-section-title">Compte</div>
+                <dl class="cv-dl">
+                    <div class="cv-row">
+                        <dt>Statut</dt>
+                        <dd>{{ organisateur.actif ? 'Actif' : 'Inactif' }}</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Inscription</dt>
+                        <dd>{{ organisateur.createdAt ? organisateur.createdAt|date('d/m/Y') : 'N/A' }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card-actions" style="margin-top: 1rem;">
+            <a href="{{ path('admin.organisateur.edit', {id: organisateur.id}) }}" class="btn btn-primary">Modifier</a>
+            <a href="{{ path('admin.organisateur.index') }}" class="btn">Retour</a>
+        </div>
+    </section>
+</div>
+
+<style>
+.cv-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.cv-badges {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+.cv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cv-section {
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-surface);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.cv-section-title {
+    font-weight: 800;
+    margin-bottom: .75rem;
+}
+
+.cv-dl {
+    margin: 0;
+    display: grid;
+    gap: .6rem;
+}
+
+.cv-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: .75rem;
+}
+
+.cv-row dt {
+    font-weight: 700;
+    color: var(--couleur-texte-secondaire);
+}
+
+.cv-row dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+    .cv-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cv-row {
+        grid-template-columns: 1fr;
+        gap: .15rem;
+    }
+}
+</style>
+{% endblock %}

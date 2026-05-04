@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\UserType;
 use App\Repository\BilletRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,6 +40,44 @@ final class AdminOrganisateurController extends AbstractController
             'page'          => $page,
             'totalPages'    => $totalPages,
             'search'        => $search,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'admin.organisateur.show', methods: ['GET'], requirements: ['id' => '\\d+'])]
+    public function show(User $user): Response
+    {
+        if (!$user->isOrganisateur()) {
+            throw $this->createAccessDeniedException('Cet utilisateur n\'est pas un organisateur.');
+        }
+
+        return $this->render('admin_organisateur/show.html.twig', [
+            'organisateur' => $user,
+        ]);
+    }
+
+    #[Route('/{id}/editer', name: 'admin.organisateur.edit', methods: ['GET', 'POST'], requirements: ['id' => '\\d+'])]
+    public function edit(User $user, Request $request): Response
+    {
+        if (!$user->isOrganisateur()) {
+            throw $this->createAccessDeniedException('Cet utilisateur n\'est pas un organisateur.');
+        }
+
+        $form = $this->createForm(UserType::class, $user, [
+            'include_password' => false,
+            'include_role' => false,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->userRepository->save($user, true);
+            $this->addFlash('success', "Organisateur mis à jour avec succès.");
+            return $this->redirectToRoute('admin.organisateur.index');
+        }
+
+        return $this->render('admin_organisateur/edit.html.twig', [
+            'form' => $form->createView(),
+            'organisateur' => $user,
         ]);
     }
 

@@ -29,91 +29,42 @@
             </tr>
         </thead>
         <tbody>
+            {% for organisateur in organisateurs %}
             <tr>
-                <td class="cell-id">12</td>
-                <td class="cell-name">Alpha Events</td>
-                <td class="cell-email">alpha@talchif.td</td>
-                <td class="cell-phone">+235 12 34 56 78</td>
-                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
-                <td class="cell-commission">10%</td>
-                <td class="cell-events">15</td>
-                <td class="cell-date">2024-01-15</td>
+                <td class="cell-id">{{ organisateur.id }}</td>
+                <td class="cell-name">{{ organisateur.nom }}</td>
+                <td class="cell-email">{{ organisateur.email }}</td>
+                <td class="cell-phone">{{ organisateur.telephone ?: 'Non renseigné' }}</td>
+                <td class="cell-status">
+                    {% if organisateur.actif %}
+                        <span class="pill pill-success admin-organizer-pill">Actif</span>
+                    {% else %}
+                        <span class="pill pill-warning admin-organizer-pill">Inactif</span>
+                    {% endif %}
+                </td>
+                <td class="cell-commission">-</td>
+                <td class="cell-events">-</td>
+                <td class="cell-date">{{ organisateur.createdAt ? organisateur.createdAt|date('d/m/Y') : 'N/A' }}</td>
                 <td class="cell-actions">
                     <div class="btn-group admin-organizers-actions">
-                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
-                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
+                        <a href="{{ path('admin.organisateur.show', {id: organisateur.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                        <a href="{{ path('admin.organisateur.edit', {id: organisateur.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
+                        <form method="post" action="{{ path('admin.organisateur.toggle_actif', {id: organisateur.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_organisateur_' ~ organisateur.id) }}">
+                            {% if organisateur.actif %}
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Suspendre le compte de {{ organisateur.nom }} ?')">Suspendre</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Réactiver le compte de {{ organisateur.nom }} ?')">Réactiver</button>
+                            {% endif %}
+                        </form>
                     </div>
                 </td>
             </tr>
+            {% else %}
             <tr>
-                <td class="cell-id">8</td>
-                <td class="cell-name">Beta Productions</td>
-                <td class="cell-email">beta@talchif.td</td>
-                <td class="cell-phone">+235 23 45 67 89</td>
-                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
-                <td class="cell-commission">8%</td>
-                <td class="cell-events">8</td>
-                <td class="cell-date">2024-02-20</td>
-                <td class="cell-actions">
-                    <div class="btn-group admin-organizers-actions">
-                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
-                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
-                    </div>
-                </td>
+                <td colspan="9" class="text-center">Aucun organisateur trouvé</td>
             </tr>
-            <tr>
-                <td class="cell-id">15</td>
-                <td class="cell-name">Gamma Concerts</td>
-                <td class="cell-email">gamma@talchif.td</td>
-                <td class="cell-phone">+235 34 56 78 90</td>
-                <td class="cell-status"><span class="pill pill-warning admin-organizer-pill">Inactif</span></td>
-                <td class="cell-commission">12%</td>
-                <td class="cell-events">22</td>
-                <td class="cell-date">2024-03-10</td>
-                <td class="cell-actions">
-                    <div class="btn-group admin-organizers-actions">
-                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                    <a href="#" class="btn btn-sm">Modifier</a>
-                    <a href="#" class="btn btn-sm btn-success">Activer</a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-id">3</td>
-                <td class="cell-name">Delta Shows</td>
-                <td class="cell-email">delta@talchif.td</td>
-                <td class="cell-phone">+235 45 67 89 01</td>
-                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
-                <td class="cell-commission">15%</td>
-                <td class="cell-events">35</td>
-                <td class="cell-date">2023-12-05</td>
-                <td class="cell-actions">
-                    <div class="btn-group admin-organizers-actions">
-                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
-                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-id">20</td>
-                <td class="cell-name">Epsilon Events</td>
-                <td class="cell-email">epsilon@talchif.td</td>
-                <td class="cell-phone">+235 56 78 90 12</td>
-                <td class="cell-status"><span class="pill pill-success admin-organizer-pill">Actif</span></td>
-                <td class="cell-commission">7%</td>
-                <td class="cell-events">12</td>
-                <td class="cell-date">2024-04-01</td>
-                <td class="cell-actions">
-                    <div class="btn-group admin-organizers-actions">
-                        <a href="#" class="btn btn-sm btn-primary">Voir</a>
-                        <a href="#" class="btn btn-sm btn-secondary">Modifier</a>
-                        <a href="#" class="btn btn-sm btn-danger">Bloquer</a>
-                    </div>
-                </td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
     </div>
@@ -168,6 +119,10 @@
     flex-wrap: wrap;
     gap: .45rem;
     align-items: center;
+}
+
+.admin-organizers-actions form {
+    margin: 0;
 }
 
 .admin-organizers-actions .btn {

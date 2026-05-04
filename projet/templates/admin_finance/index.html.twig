@@ -9,130 +9,265 @@
 {% block dashboard_content %}
 <p class="page-subtitle">Suivi des transactions, commissions et reversements.</p>
 
-<div class="grid">
-    <section class="card">
-        <h2 class="card-title">Commission standard</h2>
-        <p class="card-meta"><span class="pill">10%</span> (modifiable plus tard)</p>
-        <div class="card-actions">
-            <a class="btn btn-primary" href="#">Modifier</a>
-        </div>
-    </section>
+<div class="finance-tabs" data-finance-tabs>
+    <div class="finance-tablist" role="tablist" aria-label="Navigation finance">
+        <button type="button" class="finance-tab is-active" role="tab" id="finance-tab-summary" aria-controls="finance-panel-summary" aria-selected="true">Synthèse</button>
+        <button type="button" class="finance-tab" role="tab" id="finance-tab-transactions" aria-controls="finance-panel-transactions" aria-selected="false" tabindex="-1">Transactions</button>
+        <button type="button" class="finance-tab" role="tab" id="finance-tab-settings" aria-controls="finance-panel-settings" aria-selected="false" tabindex="-1">Paramètres</button>
+    </div>
 
-    <section class="card">
-        <h2 class="card-title">Transactions récentes</h2>
-        <p class="card-meta">Historique complet des paiements et commissions</p>
-        
-        <div class="table-responsive admin-finance-table-wrap">
-        <table id="transactions-table" class="table admin-finance-table">
-            <thead>
-                <tr>
-                    <th class="col-id">ID</th>
-                    <th class="col-event">Événement</th>
-                    <th class="col-organizer">Organisateur</th>
-                    <th class="col-type">Type</th>
-                    <th class="col-amount">Montant</th>
-                    <th class="col-commission">Commission</th>
-                    <th class="col-method">Moyen</th>
-                    <th class="col-date">Date</th>
-                    <th class="col-status">Statut</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="cell-id">TX-1001</td>
-                    <td class="cell-event">Concert Live N'Djamena</td>
-                    <td class="cell-organizer">Alpha Events</td>
-                    <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                    <td class="cell-amount">10 000 XAF</td>
-                    <td class="cell-commission">1 000 XAF</td>
-                    <td class="cell-method">Mobile Money</td>
-                    <td class="cell-date">2024-02-10 14:30</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1002</td>
-                    <td class="cell-event">Match Foot Étoile vs Djamena</td>
-                    <td class="cell-organizer">Beta Productions</td>
-                    <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                    <td class="cell-amount">2 000 XAF</td>
-                    <td class="cell-commission">200 XAF</td>
-                    <td class="cell-method">Carte Bancaire</td>
-                    <td class="cell-date">2024-02-10 16:45</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1003</td>
-                    <td class="cell-event">Soirée Urbaine VIP</td>
-                    <td class="cell-organizer">Alpha Events</td>
-                    <td class="cell-type"><span class="pill pill-warning admin-finance-pill">Remboursement</span></td>
-                    <td class="cell-amount">-500 XAF</td>
-                    <td class="cell-commission">0 XAF</td>
-                    <td class="cell-method">Mobile Money</td>
-                    <td class="cell-date">2024-02-09 11:20</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Traité</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1004</td>
-                    <td class="cell-event">Festival de Musique</td>
-                    <td class="cell-organizer">Delta Shows</td>
-                    <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                    <td class="cell-amount">25 000 XAF</td>
-                    <td class="cell-commission">3 750 XAF</td>
-                    <td class="cell-method">Carte Bancaire</td>
-                    <td class="cell-date">2024-02-09 18:00</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1005</td>
-                    <td class="cell-event">Conférence Tech</td>
-                    <td class="cell-organizer">Gamma Concerts</td>
-                    <td class="cell-type"><span class="pill pill-warning admin-finance-pill">Remboursement</span></td>
-                    <td class="cell-amount">-1 200 XAF</td>
-                    <td class="cell-commission">0 XAF</td>
-                    <td class="cell-method">Mobile Money</td>
-                    <td class="cell-date">2024-02-08 09:15</td>
-                    <td class="cell-status"><span class="pill pill-error admin-finance-pill">Échoué</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1006</td>
-                    <td class="cell-event">Match Foot Étoile vs Djamena</td>
-                    <td class="cell-organizer">Beta Productions</td>
-                    <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                    <td class="cell-amount">3 500 XAF</td>
-                    <td class="cell-commission">350 XAF</td>
-                    <td class="cell-method">Mobile Money</td>
-                    <td class="cell-date">2024-02-08 20:30</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1007</td>
-                    <td class="cell-event">Concert Live N'Djamena</td>
-                    <td class="cell-organizer">Alpha Events</td>
-                    <td class="cell-type"><span class="pill pill-info admin-finance-pill">Commission</span></td>
-                    <td class="cell-amount">1 000 XAF</td>
-                    <td class="cell-commission">0 XAF</td>
-                    <td class="cell-method">Virement</td>
-                    <td class="cell-date">2024-02-07 12:00</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Payé</span></td>
-                </tr>
-                <tr>
-                    <td class="cell-id">TX-1008</td>
-                    <td class="cell-event">Soirée Urbaine VIP</td>
-                    <td class="cell-organizer">Alpha Events</td>
-                    <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                    <td class="cell-amount">8 000 XAF</td>
-                    <td class="cell-commission">800 XAF</td>
-                    <td class="cell-method">Mobile Money</td>
-                    <td class="cell-date">2024-02-07 19:45</td>
-                    <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="finance-panel" role="tabpanel" id="finance-panel-summary" aria-labelledby="finance-tab-summary">
+        <div class="grid">
+            <section class="card">
+                <h2 class="card-title">Indicateurs</h2>
+                <p class="card-meta">Vue rapide des montants et commandes</p>
+
+                <div class="finance-kpis">
+                    <div class="finance-kpi">
+                        <div class="finance-kpi-label">Total encaissé</div>
+                        <div class="finance-kpi-value">{{ totalEncaisse|number_format(0, '.', ' ') }} FCFA</div>
+                    </div>
+                    <div class="finance-kpi">
+                        <div class="finance-kpi-label">Commissions</div>
+                        <div class="finance-kpi-value">{{ totalCommission|number_format(0, '.', ' ') }} FCFA</div>
+                    </div>
+                    <div class="finance-kpi">
+                        <div class="finance-kpi-label">Net organisateurs</div>
+                        <div class="finance-kpi-value">{{ totalNetOrganisateurs|number_format(0, '.', ' ') }} FCFA</div>
+                    </div>
+                    <div class="finance-kpi">
+                        <div class="finance-kpi-label">Commandes payées</div>
+                        <div class="finance-kpi-value">{{ nbCommandesPaid }}</div>
+                    </div>
+                    <div class="finance-kpi">
+                        <div class="finance-kpi-label">Commandes en attente</div>
+                        <div class="finance-kpi-value">{{ nbCommandesPending }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">Événements à payer</h2>
+                <p class="card-meta">Événements passés dont le reversement organisateur n'est pas encore effectué</p>
+
+                <div class="table-responsive">
+                    <table class="table admin-finance-payouts">
+                        <thead>
+                            <tr>
+                                <th>Événement</th>
+                                <th>Organisateur</th>
+                                <th>Brut</th>
+                                <th>Net</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in evenementsAPayer %}
+                                <tr>
+                                    <td>{{ item.evenement.nom }}</td>
+                                    <td>{{ item.evenement.organisateur.nom }}</td>
+                                    <td style="white-space: nowrap; text-align: right;">{{ item.soldeBrut|number_format(0, '.', ' ') }} FCFA</td>
+                                    <td style="white-space: nowrap; text-align: right;">{{ item.soldeNet|number_format(0, '.', ' ') }} FCFA</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Aucun événement à payer.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-    </section>
+    </div>
+
+    <div class="finance-panel" role="tabpanel" id="finance-panel-transactions" aria-labelledby="finance-tab-transactions" hidden>
+        <div class="grid">
+            <section class="card">
+                <h2 class="card-title">Transactions récentes</h2>
+                <p class="card-meta">Historique complet des paiements et commissions</p>
+                <p class="card-meta" style="margin-top: -.35rem;">Astuce : utilisez le bouton <strong>Colonnes</strong> pour afficher/masquer les informations secondaires.</p>
+                
+                <div class="table-responsive admin-finance-table-wrap">
+                <table id="transactions-table" class="table admin-finance-table">
+                    <thead>
+                        <tr>
+                            <th class="col-id">ID</th>
+                            <th class="col-event">Événement</th>
+                            <th class="col-organizer">Organisateur</th>
+                            <th class="col-type">Type</th>
+                            <th class="col-amount">Montant</th>
+                            <th class="col-commission">Commission</th>
+                            <th class="col-method">Moyen</th>
+                            <th class="col-date">Date</th>
+                            <th class="col-status">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="cell-id">TX-1001</td>
+                            <td class="cell-event">Concert Live N'Djamena</td>
+                            <td class="cell-organizer">Alpha Events</td>
+                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
+                            <td class="cell-amount">10 000 XAF</td>
+                            <td class="cell-commission">1 000 XAF</td>
+                            <td class="cell-method">Mobile Money</td>
+                            <td class="cell-date">2024-02-10 14:30</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1002</td>
+                            <td class="cell-event">Match Foot Étoile vs Djamena</td>
+                            <td class="cell-organizer">Beta Productions</td>
+                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
+                            <td class="cell-amount">2 000 XAF</td>
+                            <td class="cell-commission">200 XAF</td>
+                            <td class="cell-method">Carte Bancaire</td>
+                            <td class="cell-date">2024-02-10 16:45</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1003</td>
+                            <td class="cell-event">Soirée Urbaine VIP</td>
+                            <td class="cell-organizer">Alpha Events</td>
+                            <td class="cell-type"><span class="pill pill-warning admin-finance-pill">Remboursement</span></td>
+                            <td class="cell-amount">-500 XAF</td>
+                            <td class="cell-commission">0 XAF</td>
+                            <td class="cell-method">Mobile Money</td>
+                            <td class="cell-date">2024-02-09 11:20</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Traité</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1004</td>
+                            <td class="cell-event">Festival de Musique</td>
+                            <td class="cell-organizer">Delta Shows</td>
+                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
+                            <td class="cell-amount">25 000 XAF</td>
+                            <td class="cell-commission">3 750 XAF</td>
+                            <td class="cell-method">Carte Bancaire</td>
+                            <td class="cell-date">2024-02-09 18:00</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1005</td>
+                            <td class="cell-event">Conférence Tech</td>
+                            <td class="cell-organizer">Gamma Concerts</td>
+                            <td class="cell-type"><span class="pill pill-warning admin-finance-pill">Remboursement</span></td>
+                            <td class="cell-amount">-1 200 XAF</td>
+                            <td class="cell-commission">0 XAF</td>
+                            <td class="cell-method">Mobile Money</td>
+                            <td class="cell-date">2024-02-08 09:15</td>
+                            <td class="cell-status"><span class="pill pill-error admin-finance-pill">Échoué</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1006</td>
+                            <td class="cell-event">Match Foot Étoile vs Djamena</td>
+                            <td class="cell-organizer">Beta Productions</td>
+                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
+                            <td class="cell-amount">3 500 XAF</td>
+                            <td class="cell-commission">350 XAF</td>
+                            <td class="cell-method">Mobile Money</td>
+                            <td class="cell-date">2024-02-08 20:30</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1007</td>
+                            <td class="cell-event">Concert Live N'Djamena</td>
+                            <td class="cell-organizer">Alpha Events</td>
+                            <td class="cell-type"><span class="pill pill-info admin-finance-pill">Commission</span></td>
+                            <td class="cell-amount">1 000 XAF</td>
+                            <td class="cell-commission">0 XAF</td>
+                            <td class="cell-method">Virement</td>
+                            <td class="cell-date">2024-02-07 12:00</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Payé</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cell-id">TX-1008</td>
+                            <td class="cell-event">Soirée Urbaine VIP</td>
+                            <td class="cell-organizer">Alpha Events</td>
+                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
+                            <td class="cell-amount">8 000 XAF</td>
+                            <td class="cell-commission">800 XAF</td>
+                            <td class="cell-method">Mobile Money</td>
+                            <td class="cell-date">2024-02-07 19:45</td>
+                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="finance-panel" role="tabpanel" id="finance-panel-settings" aria-labelledby="finance-tab-settings" hidden>
+        <div class="grid">
+            <section class="card">
+                <h2 class="card-title">Commission standard</h2>
+                <p class="card-meta"><span class="pill">10%</span> (modifiable plus tard)</p>
+                <div class="card-actions">
+                    <a class="btn btn-primary" href="#">Modifier</a>
+                </div>
+            </section>
+        </div>
+    </div>
 </div>
 
 <style>
+.finance-tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+
+.finance-tab {
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-surface);
+    color: var(--couleur-texte);
+    border-radius: 12px;
+    padding: .55rem .85rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.finance-tab.is-active {
+    background: color-mix(in srgb, var(--couleur-secondaire) 14%, var(--couleur-surface));
+    border-color: color-mix(in srgb, var(--couleur-secondaire) 45%, var(--couleur-bordure));
+}
+
+.finance-panel[hidden] {
+    display: none;
+}
+
+.finance-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: .75rem;
+    margin-top: .75rem;
+}
+
+.finance-kpi {
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-surface);
+    border-radius: 12px;
+    padding: .85rem;
+    display: grid;
+    gap: .35rem;
+}
+
+.finance-kpi-label {
+    font-size: .8rem;
+    font-weight: 800;
+    color: var(--couleur-texte-secondaire);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.finance-kpi-value {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--couleur-texte);
+}
+
 .admin-finance-table {
     width: 100%;
     table-layout: fixed;
@@ -198,27 +333,76 @@
         min-width: 1140px;
     }
 }
+
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser DataTables pour les transactions
-    if (typeof DataTableOS !== 'undefined') {
-        DataTableOS.init('#transactions-table', {
-            order: [[8, 'desc']], // Tri par date (décroissant)
-            columns: [
-                { width: '92px' },
-                null,
-                null,
-                { width: '112px', orderable: false },
-                { width: '120px' },
-                { width: '120px' },
-                { width: '120px' },
-                { width: '120px' },
-                { width: '112px', orderable: false }
-            ]
+function initFinanceTabs() {
+    const root = document.querySelector('[data-finance-tabs]');
+    if (!root || root.dataset.financeTabsBound === '1') return;
+    root.dataset.financeTabsBound = '1';
+
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll('[role="tabpanel"]'));
+
+    function setActiveTab(activeTab) {
+        tabs.forEach((tab) => {
+            const isActive = tab === activeTab;
+            tab.classList.toggle('is-active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            tab.tabIndex = isActive ? 0 : -1;
+        });
+
+        panels.forEach((panel) => {
+            panel.hidden = panel.id !== activeTab.getAttribute('aria-controls');
         });
     }
-});
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => setActiveTab(tab));
+        tab.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            const index = tabs.indexOf(tab);
+            const dir = e.key === 'ArrowRight' ? 1 : -1;
+            const next = tabs[(index + dir + tabs.length) % tabs.length];
+            next.focus();
+            setActiveTab(next);
+        });
+    });
+}
+
+function initFinanceTransactionsTable() {
+    const tableEl = document.getElementById('transactions-table');
+    if (!tableEl || tableEl.dataset.dtInit === '1') return;
+    tableEl.dataset.dtInit = '1';
+
+    if (typeof DataTableOS === 'undefined') return;
+    DataTableOS.init('#transactions-table', {
+        order: [[8, 'desc']],
+        columns: [
+            { width: '92px' },
+            null,
+            null,
+            { width: '112px', orderable: false },
+            { width: '120px' },
+            { width: '120px' },
+            { width: '120px' },
+            { width: '120px' },
+            { width: '112px', orderable: false }
+        ],
+        columnDefs: [
+            { targets: [2, 3, 6], visible: false }
+        ]
+    });
+}
+
+function initFinancePage() {
+    initFinanceTabs();
+    initFinanceTransactionsTable();
+}
+
+document.addEventListener('DOMContentLoaded', initFinancePage);
+document.addEventListener('turbo:load', initFinancePage);
 </script>
 {% endblock %}

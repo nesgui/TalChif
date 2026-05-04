@@ -9,6 +9,8 @@
 .mm-line { font-size: 1.05rem; line-height: 1.4; color: #ededed; }
 .mm-countdown { font-size: 1.35rem; }
 .mm-link { border: 0; background: none; padding: 0; cursor: pointer; color: #57a6ff; font-weight: 700; text-decoration: underline; }
+.mm-hero-number { text-decoration: none; cursor: default; }
+.mm-hero-number:hover { text-decoration: none; color: #57a6ff; }
 .mm-progress { height: 4px; background: rgba(255,255,255,.14); border-radius: 999px; overflow: hidden; }
 .mm-progress-bar { height: 100%; width: 0%; background: #2f86ff; border-radius: 999px; transition: width .25s ease; }
 .mm-help { margin: 0; color: rgba(255,255,255,.72); }

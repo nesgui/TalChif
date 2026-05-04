@@ -1,0 +1,74 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Modifier un organisateur{% endblock %}
+
+{% block dashboard_title %}Modifier un organisateur{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Modification des informations de l'organisateur</p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Informations de l'organisateur</h2>
+        <p class="card-meta">Modifiez les informations de l'organisateur</p>
+
+        {% include 'partials/flashes.html.twig' %}
+
+        {{ form_start(form, {'attr': {'class': 'auth-form'}}) }}
+
+        <div class="auth-form-group">
+            <label for="{{ form.email.vars.id }}" class="auth-label">Adresse email <span style="color: #e53e3e;">*</span></label>
+            {{ form_widget(form.email, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez l\'adresse email'}}) }}
+            {% if form_errors(form.email) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.email) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="auth-form-group">
+            <label for="{{ form.nom.vars.id }}" class="auth-label">Nom complet <span style="color: #e53e3e;">*</span></label>
+            {{ form_widget(form.nom, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le nom complet'}}) }}
+            {% if form_errors(form.nom) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.nom) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="auth-form-group">
+            {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.telephone, {'attr': {'class': 'auth-input', 'placeholder': 'Entrez le numéro de téléphone'}}) }}
+            {% if form_errors(form.telephone) %}
+                <div class="auth-error-message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ form_errors(form.telephone) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card-actions">
+            <button type="submit" class="btn btn-primary">Modifier l'organisateur</button>
+            <a href="{{ path('admin.organisateur.index') }}" class="btn">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </section>
+</div>
+{% endblock %}
