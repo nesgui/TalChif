@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Billet;
 use App\Entity\Evenement;
 use App\Entity\User;
+use App\Service\CommissionRateProvider;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,14 +18,10 @@ class BilletRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry,
-        #[\Symfony\Component\DependencyInjection\Attribute\Autowire('%app.commission_taux%')]
-        float $commissionTaux = 0.10
+        private CommissionRateProvider $commissionRateProvider
     ) {
         parent::__construct($registry, Billet::class);
-        $this->commissionTaux = $commissionTaux;
     }
-
-    private float $commissionTaux;
 
     public function findByClient(User $client): array
     {
@@ -168,7 +165,8 @@ class BilletRepository extends ServiceEntityRepository
     public function calculateNetRevenue(Evenement $evenement): int
     {
         $brut = $this->calculateGrossRevenue($evenement);
-        return (int) ($brut * (1 - $this->commissionTaux));
+        $rate = $this->commissionRateProvider->getRate();
+        return (int) ($brut * (1 - $rate));
     }
 
     public function findParticipantsByEvenement(Evenement $evenement, ?int $limit = 50, ?int $offset = 0): array

@@ -58,6 +58,7 @@
                                 <th>Organisateur</th>
                                 <th>Brut</th>
                                 <th>Net</th>
+                                <th style="width: 160px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,10 +68,16 @@
                                     <td>{{ item.evenement.organisateur.nom }}</td>
                                     <td style="white-space: nowrap; text-align: right;">{{ item.soldeBrut|number_format(0, '.', ' ') }} FCFA</td>
                                     <td style="white-space: nowrap; text-align: right;">{{ item.soldeNet|number_format(0, '.', ' ') }} FCFA</td>
+                                    <td style="white-space: nowrap;">
+                                        <form method="post" action="{{ path('admin.commande.settle', {id: item.evenement.id}) }}" style="display:inline;">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('settle_' ~ item.evenement.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Marquer cet événement comme réglé ?')">Marquer réglé</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center">Aucun événement à payer.</td>
+                                    <td colspan="5" class="text-center">Aucun événement à payer.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -86,6 +93,36 @@
                 <h2 class="card-title">Transactions récentes</h2>
                 <p class="card-meta">Historique complet des paiements et commissions</p>
                 <p class="card-meta" style="margin-top: -.35rem;">Astuce : utilisez le bouton <strong>Colonnes</strong> pour afficher/masquer les informations secondaires.</p>
+
+                <form method="get" action="{{ path('admin.finance.index') }}" class="admin-finance-filters" style="margin-top: .75rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: end;">
+                    <div style="display: grid; gap: .25rem;">
+                        <label for="txn-from" style="font-weight: 800; font-size: .85rem;">Du</label>
+                        <input id="txn-from" name="from" type="date" class="auth-input" value="{{ transactionFilters.from ?? '' }}">
+                    </div>
+
+                    <div style="display: grid; gap: .25rem;">
+                        <label for="txn-to" style="font-weight: 800; font-size: .85rem;">Au</label>
+                        <input id="txn-to" name="to" type="date" class="auth-input" value="{{ transactionFilters.to ?? '' }}">
+                    </div>
+
+                    <div style="display: grid; gap: .25rem; min-width: 220px;">
+                        <label for="txn-status" style="font-weight: 800; font-size: .85rem;">Statut</label>
+                        <select id="txn-status" name="status" class="auth-input">
+                            <option value="all" {{ (transactionFilters.status ?? 'all') == 'all' ? 'selected' : '' }}>Tous</option>
+                            <option value="{{ constant('App\\Entity\\Commande::STATUT_PAID') }}" {{ (transactionFilters.status ?? '') == constant('App\\Entity\\Commande::STATUT_PAID') ? 'selected' : '' }}>Payé</option>
+                            <option value="{{ constant('App\\Entity\\Commande::STATUT_PENDING') }}" {{ (transactionFilters.status ?? '') == constant('App\\Entity\\Commande::STATUT_PENDING') ? 'selected' : '' }}>En attente</option>
+                            <option value="{{ constant('App\\Entity\\Commande::STATUT_PROCESSING') }}" {{ (transactionFilters.status ?? '') == constant('App\\Entity\\Commande::STATUT_PROCESSING') ? 'selected' : '' }}>En traitement</option>
+                            <option value="{{ constant('App\\Entity\\Commande::STATUT_REJECTED') }}" {{ (transactionFilters.status ?? '') == constant('App\\Entity\\Commande::STATUT_REJECTED') ? 'selected' : '' }}>Rejeté</option>
+                            <option value="{{ constant('App\\Entity\\Commande::STATUT_EXPIRED') }}" {{ (transactionFilters.status ?? '') == constant('App\\Entity\\Commande::STATUT_EXPIRED') ? 'selected' : '' }}>Expiré</option>
+                            <option value="{{ constant('App\\Entity\\Commande::STATUT_CANCELLED') }}" {{ (transactionFilters.status ?? '') == constant('App\\Entity\\Commande::STATUT_CANCELLED') ? 'selected' : '' }}>Annulé</option>
+                        </select>
+                    </div>
+
+                    <div style="display:flex; gap: .5rem;">
+                        <button type="submit" class="btn btn-primary">Filtrer</button>
+                        <a class="btn" href="{{ path('admin.finance.index') }}#finance-panel-transactions">Réinitialiser</a>
+                    </div>
+                </form>
                 
                 <div class="table-responsive admin-finance-table-wrap">
                 <table id="transactions-table" class="table admin-finance-table">
@@ -103,94 +140,47 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="cell-id">TX-1001</td>
-                            <td class="cell-event">Concert Live N'Djamena</td>
-                            <td class="cell-organizer">Alpha Events</td>
-                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                            <td class="cell-amount">10 000 XAF</td>
-                            <td class="cell-commission">1 000 XAF</td>
-                            <td class="cell-method">Mobile Money</td>
-                            <td class="cell-date">2024-02-10 14:30</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1002</td>
-                            <td class="cell-event">Match Foot Étoile vs Djamena</td>
-                            <td class="cell-organizer">Beta Productions</td>
-                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                            <td class="cell-amount">2 000 XAF</td>
-                            <td class="cell-commission">200 XAF</td>
-                            <td class="cell-method">Carte Bancaire</td>
-                            <td class="cell-date">2024-02-10 16:45</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1003</td>
-                            <td class="cell-event">Soirée Urbaine VIP</td>
-                            <td class="cell-organizer">Alpha Events</td>
-                            <td class="cell-type"><span class="pill pill-warning admin-finance-pill">Remboursement</span></td>
-                            <td class="cell-amount">-500 XAF</td>
-                            <td class="cell-commission">0 XAF</td>
-                            <td class="cell-method">Mobile Money</td>
-                            <td class="cell-date">2024-02-09 11:20</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Traité</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1004</td>
-                            <td class="cell-event">Festival de Musique</td>
-                            <td class="cell-organizer">Delta Shows</td>
-                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                            <td class="cell-amount">25 000 XAF</td>
-                            <td class="cell-commission">3 750 XAF</td>
-                            <td class="cell-method">Carte Bancaire</td>
-                            <td class="cell-date">2024-02-09 18:00</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1005</td>
-                            <td class="cell-event">Conférence Tech</td>
-                            <td class="cell-organizer">Gamma Concerts</td>
-                            <td class="cell-type"><span class="pill pill-warning admin-finance-pill">Remboursement</span></td>
-                            <td class="cell-amount">-1 200 XAF</td>
-                            <td class="cell-commission">0 XAF</td>
-                            <td class="cell-method">Mobile Money</td>
-                            <td class="cell-date">2024-02-08 09:15</td>
-                            <td class="cell-status"><span class="pill pill-error admin-finance-pill">Échoué</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1006</td>
-                            <td class="cell-event">Match Foot Étoile vs Djamena</td>
-                            <td class="cell-organizer">Beta Productions</td>
-                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                            <td class="cell-amount">3 500 XAF</td>
-                            <td class="cell-commission">350 XAF</td>
-                            <td class="cell-method">Mobile Money</td>
-                            <td class="cell-date">2024-02-08 20:30</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1007</td>
-                            <td class="cell-event">Concert Live N'Djamena</td>
-                            <td class="cell-organizer">Alpha Events</td>
-                            <td class="cell-type"><span class="pill pill-info admin-finance-pill">Commission</span></td>
-                            <td class="cell-amount">1 000 XAF</td>
-                            <td class="cell-commission">0 XAF</td>
-                            <td class="cell-method">Virement</td>
-                            <td class="cell-date">2024-02-07 12:00</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Payé</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cell-id">TX-1008</td>
-                            <td class="cell-event">Soirée Urbaine VIP</td>
-                            <td class="cell-organizer">Alpha Events</td>
-                            <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
-                            <td class="cell-amount">8 000 XAF</td>
-                            <td class="cell-commission">800 XAF</td>
-                            <td class="cell-method">Mobile Money</td>
-                            <td class="cell-date">2024-02-07 19:45</td>
-                            <td class="cell-status"><span class="pill pill-success admin-finance-pill">Confirmé</span></td>
-                        </tr>
+                        {% for commande in transactions %}
+                            {% set evenement = commande.premierEvenement %}
+                            {% set organisateur = evenement ? evenement.organisateur : null %}
+                            {% set dateTxn = commande.dateValidation ?: commande.createdAt %}
+
+                            {% set statut = commande.statut %}
+                            {% set statutLabel = statut %}
+                            {% set statutPill = 'pill' %}
+                            {% if statut == constant('App\\Entity\\Commande::STATUT_PAID') %}
+                                {% set statutLabel = 'Payé' %}
+                                {% set statutPill = 'pill pill-success admin-finance-pill' %}
+                            {% elseif statut in [constant('App\\Entity\\Commande::STATUT_PENDING'), 'Pending'] %}
+                                {% set statutLabel = 'En attente' %}
+                                {% set statutPill = 'pill pill-warning admin-finance-pill' %}
+                            {% elseif statut == constant('App\\Entity\\Commande::STATUT_PROCESSING') %}
+                                {% set statutLabel = 'En traitement' %}
+                                {% set statutPill = 'pill pill-info admin-finance-pill' %}
+                            {% elseif statut == constant('App\\Entity\\Commande::STATUT_REJECTED') %}
+                                {% set statutLabel = 'Rejeté' %}
+                                {% set statutPill = 'pill pill-error admin-finance-pill' %}
+                            {% elseif statut == constant('App\\Entity\\Commande::STATUT_EXPIRED') %}
+                                {% set statutLabel = 'Expiré' %}
+                                {% set statutPill = 'pill pill-warning admin-finance-pill' %}
+                            {% endif %}
+
+                            <tr>
+                                <td class="cell-id"><a href="{{ path('admin.finance.transaction_show', {id: commande.id}) }}">{{ commande.reference }}</a></td>
+                                <td class="cell-event">{{ evenement ? evenement.nom : '—' }}</td>
+                                <td class="cell-organizer">{{ organisateur ? organisateur.nom : '—' }}</td>
+                                <td class="cell-type"><span class="pill pill-success admin-finance-pill">Vente</span></td>
+                                <td class="cell-amount" style="text-align: right;">{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</td>
+                                <td class="cell-commission" style="text-align: right;">{{ commande.commissionPlateforme|number_format(0, '.', ' ') }} FCFA</td>
+                                <td class="cell-method">{{ commande.methodePaiement }}</td>
+                                <td class="cell-date">{{ dateTxn ? dateTxn|date('Y-m-d H:i') : '—' }}</td>
+                                <td class="cell-status"><span class="{{ statutPill }}">{{ statutLabel }}</span></td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center">Aucune transaction.</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
                 </div>
@@ -202,9 +192,9 @@
         <div class="grid">
             <section class="card">
                 <h2 class="card-title">Commission standard</h2>
-                <p class="card-meta"><span class="pill">10%</span> (modifiable plus tard)</p>
+                <p class="card-meta"><span class="pill">{{ (commissionRate * 100)|number_format(0, '.', ' ') }}%</span></p>
                 <div class="card-actions">
-                    <a class="btn btn-primary" href="#">Modifier</a>
+                    <a class="btn btn-primary" href="{{ path('admin.finance.commission_edit') }}">Modifier</a>
                 </div>
             </section>
         </div>

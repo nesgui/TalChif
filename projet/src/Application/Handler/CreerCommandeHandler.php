@@ -13,6 +13,7 @@ use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\CommissionRateProvider;
 use App\Service\Payment\PawaPayClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -28,8 +29,7 @@ final class CreerCommandeHandler
         private CommandeRepositoryInterface $commandeRepository,
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
-        #[Autowire('%app.commission_taux%')]
-        private float $commissionTaux,
+        private CommissionRateProvider $commissionRateProvider,
         #[Autowire('%app.commande.expiration_minutes%')]
         private int $expirationMinutes,
         private PawaPayClient $pawaPayClient,
@@ -90,7 +90,8 @@ final class CreerCommandeHandler
                 throw new \RuntimeException('Panier invalide ou événements indisponibles.');
             }
 
-            $commission = (float) round($total * $this->commissionTaux, 2);
+            $commissionRate = $this->commissionRateProvider->getRate();
+            $commission = (float) round($total * $commissionRate, 2);
             $montantNet = $total - $commission;
 
             // Créer la commande

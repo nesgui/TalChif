@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LogSecuriteRepository;
+use App\Service\CommissionRateProvider;
 use App\Service\Ticket\TicketRenderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\LockMode;
@@ -31,8 +32,7 @@ final class ServiceCommande
         private LogSecuriteRepository $logSecuriteRepository,
         private RequestStack $requestStack,
         private TicketRenderService $ticketRenderService,
-        #[Autowire('%app.commission_taux%')]
-        private float $commissionTaux,
+        private CommissionRateProvider $commissionRateProvider,
         #[Autowire('%app.commande.expiration_minutes%')]
         private int $expirationMinutes,
         #[Autowire('%app.antifraude.tentatives_max%')]
@@ -91,7 +91,8 @@ final class ServiceCommande
                 throw new \RuntimeException('Panier invalide ou événements indisponibles.');
             }
 
-            $commission = (float) round($total * $this->commissionTaux, 2);
+            $commissionRate = $this->commissionRateProvider->getRate();
+            $commission = (float) round($total * $commissionRate, 2);
             $montantNet = $total - $commission;
 
             $commande = new Commande();

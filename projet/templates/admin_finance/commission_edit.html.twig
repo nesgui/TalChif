@@ -1,0 +1,40 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Commission{% endblock %}
+
+{% block dashboard_title %}Commission standard{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Définissez le taux de commission appliqué sur les ventes (ex: 0.10 = 10%).</p>
+
+<p class="card-meta" style="margin-top: .35rem;">Valeur actuellement appliquée: <strong>{{ ((appliedRate ?? 0) * 100)|number_format(0, '.', ' ') }}%</strong></p>
+
+<div class="grid">
+    <section class="card">
+        <h2 class="card-title">Modifier la commission</h2>
+        <p class="card-meta">Saisissez une valeur comprise entre 0 et 1.</p>
+
+        {% include 'partials/flashes.html.twig' %}
+
+        {{ form_start(form, {'attr': {'class': 'auth-form'}}) }}
+
+        <div class="auth-form-group">
+            {{ form_label(form.rate, 'Taux de commission (0 - 1)', {'label_attr': {'class': 'auth-label'}}) }}
+            {{ form_widget(form.rate, {'attr': {'class': 'auth-input', 'placeholder': 'Ex: 0.10'}}) }}
+            {% if form_errors(form.rate) %}
+                <div class="auth-error-message">{{ form_errors(form.rate) }}</div>
+            {% endif %}
+            <div class="auth-helper" style="margin-top: .35rem;">Exemples : 0.10 = 10%, 0.15 = 15%</div>
+        </div>
+
+        <div class="card-actions">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="{{ path('admin.finance.index') }}" class="btn">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </section>
+</div>
+{% endblock %}

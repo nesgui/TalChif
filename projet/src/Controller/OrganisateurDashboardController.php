@@ -13,9 +13,9 @@ use App\Repository\BilletRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LogSecuriteRepository;
+use App\Service\CommissionRateProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,8 +34,7 @@ final class OrganisateurDashboardController extends AbstractController
         private EntityManagerInterface $entityManager,
         private ValiderPaiementHandler $validerPaiementHandler,
         private RejeterPaiementHandler $rejeterPaiementHandler,
-        #[Autowire('%app.commission_taux%')]
-        private float $commissionTaux
+        private CommissionRateProvider $commissionRateProvider
     ) {
     }
 
@@ -80,7 +79,8 @@ final class OrganisateurDashboardController extends AbstractController
         $evenements = $this->evenementRepository->findBy(['organisateur' => $user], ['dateEvenement' => 'DESC']);
 
         $totalBrut = $this->billetRepository->calculateTotalRevenueByOrganisateur($user);
-        $totalCommission = (float) round($totalBrut * $this->commissionTaux, 2);
+        $commissionRate = $this->commissionRateProvider->getRate();
+        $totalCommission = (float) round($totalBrut * $commissionRate, 2);
         $soldeNet = $totalBrut - $totalCommission;
 
         // Statistiques globales

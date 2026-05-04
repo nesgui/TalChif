@@ -199,4 +199,61 @@ class CommandeRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return Commande[] */
+    public function findRecentForFinance(int $limit = 200): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.lignes', 'l')
+            ->leftJoin('l.evenement', 'e')
+            ->leftJoin('e.organisateur', 'o')
+            ->addSelect('l', 'e', 'o')
+            ->orderBy('c.dateValidation', 'DESC')
+            ->addOrderBy('c.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Commande[]
+     */
+    public function findForFinanceFiltered(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $to,
+        ?string $status,
+        int $limit = 200
+    ): array {
+        $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.lignes', 'l')
+            ->leftJoin('l.evenement', 'e')
+            ->leftJoin('e.organisateur', 'o')
+            ->addSelect('l', 'e', 'o')
+            ->setMaxResults($limit);
+
+        if ($status && $status !== 'all') {
+            if ($status === Commande::STATUT_PENDING) {
+                $qb->andWhere('c.statut IN (:pendingStatuses)')
+                    ->setParameter('pendingStatuses', [Commande::STATUT_PENDING, 'Pending']);
+            } else {
+                $qb->andWhere('c.statut = :status')
+                    ->setParameter('status', $status);
+            }
+        }
+
+        if ($from) {
+            $qb->andWhere('(c.dateValidation >= :from OR (c.dateValidation IS NULL AND c.createdAt >= :from))')
+                ->setParameter('from', $from);
+        }
+
+        if ($to) {
+            $qb->andWhere('(c.dateValidation <= :to OR (c.dateValidation IS NULL AND c.createdAt <= :to))')
+                ->setParameter('to', $to);
+        }
+
+        $qb->orderBy('c.dateValidation', 'DESC')
+            ->addOrderBy('c.createdAt', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
 }

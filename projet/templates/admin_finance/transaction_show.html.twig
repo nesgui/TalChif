@@ -1,0 +1,192 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'admin' %}
+
+{% block title %}Admin - Détail transaction{% endblock %}
+
+{% block dashboard_title %}Détail transaction{% endblock %}
+
+{% block dashboard_content %}
+<p class="page-subtitle">Consultation d'une transaction / commande.</p>
+
+<div class="grid">
+    <section class="card">
+        <div class="cv-header">
+            <div>
+                <h2 class="card-title" style="margin-bottom: .25rem;">Commande {{ commande.reference }}</h2>
+                <p class="card-meta" style="margin: 0;">ID #{{ commande.id }}</p>
+            </div>
+            <div class="cv-badges">
+                {% set statut = commande.statut %}
+                {% set statutLabel = statut %}
+                {% set statutPill = 'pill' %}
+                {% if statut == constant('App\\Entity\\Commande::STATUT_PAID') %}
+                    {% set statutLabel = 'Payé' %}
+                    {% set statutPill = 'pill pill-success' %}
+                {% elseif statut in [constant('App\\Entity\\Commande::STATUT_PENDING'), 'Pending'] %}
+                    {% set statutLabel = 'En attente' %}
+                    {% set statutPill = 'pill pill-warning' %}
+                {% elseif statut == constant('App\\Entity\\Commande::STATUT_PROCESSING') %}
+                    {% set statutLabel = 'En traitement' %}
+                    {% set statutPill = 'pill pill-info' %}
+                {% elseif statut == constant('App\\Entity\\Commande::STATUT_REJECTED') %}
+                    {% set statutLabel = 'Rejeté' %}
+                    {% set statutPill = 'pill pill-error' %}
+                {% elseif statut == constant('App\\Entity\\Commande::STATUT_EXPIRED') %}
+                    {% set statutLabel = 'Expiré' %}
+                    {% set statutPill = 'pill pill-warning' %}
+                {% endif %}
+                <span class="{{ statutPill }}">{{ statutLabel }}</span>
+            </div>
+        </div>
+
+        {% include 'partials/flashes.html.twig' %}
+
+        <div class="cv-grid">
+            <div class="cv-section">
+                <div class="cv-section-title">Paiement</div>
+                <dl class="cv-dl">
+                    <div class="cv-row">
+                        <dt>Moyen</dt>
+                        <dd>{{ commande.methodePaiement ?: '—' }}</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Téléphone</dt>
+                        <dd>{{ commande.numeroClient ?: '—' }}</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Validée le</dt>
+                        <dd>{{ commande.dateValidation ? commande.dateValidation|date('d/m/Y H:i') : '—' }}</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Créée le</dt>
+                        <dd>{{ commande.createdAt ? commande.createdAt|date('d/m/Y H:i') : '—' }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="cv-section">
+                <div class="cv-section-title">Montants</div>
+                <dl class="cv-dl">
+                    <div class="cv-row">
+                        <dt>Montant</dt>
+                        <dd>{{ commande.montantTotal|number_format(0, '.', ' ') }} FCFA</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Commission</dt>
+                        <dd>{{ commande.commissionPlateforme|number_format(0, '.', ' ') }} FCFA</dd>
+                    </div>
+                    <div class="cv-row">
+                        <dt>Net organisateur</dt>
+                        <dd>{{ commande.montantNetOrganisateur|number_format(0, '.', ' ') }} FCFA</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="cv-section" style="margin-top: 1rem;">
+            <div class="cv-section-title">Lignes de commande</div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Événement</th>
+                            <th>Organisateur</th>
+                            <th>Type billet</th>
+                            <th style="text-align: right;">PU</th>
+                            <th style="text-align: right;">Qté</th>
+                            <th style="text-align: right;">Sous-total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in commande.lignes %}
+                            <tr>
+                                <td>{{ ligne.evenement.nom }}</td>
+                                <td>{{ ligne.evenement.organisateur.nom }}</td>
+                                <td>{{ ligne.typeBillet }}</td>
+                                <td style="text-align: right; white-space: nowrap;">{{ ligne.prixUnitaire|number_format(0, '.', ' ') }} FCFA</td>
+                                <td style="text-align: right; white-space: nowrap;">{{ ligne.quantite }}</td>
+                                <td style="text-align: right; white-space: nowrap;">{{ ligne.sousTotal|number_format(0, '.', ' ') }} FCFA</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucune ligne.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-actions" style="margin-top: 1rem;">
+            {% if commande.capturePreuvePaiement %}
+                <a href="{{ path('admin.commande.preuve', {reference: commande.reference}) }}" class="btn btn-secondary" target="_blank" rel="noopener">Voir la preuve</a>
+            {% endif %}
+            <a href="{{ path('admin.finance.index') }}" class="btn">Retour</a>
+        </div>
+    </section>
+</div>
+
+<style>
+.cv-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.cv-badges {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+.cv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cv-section {
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-surface);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.cv-section-title {
+    font-weight: 800;
+    margin-bottom: .75rem;
+}
+
+.cv-dl {
+    margin: 0;
+    display: grid;
+    gap: .6rem;
+}
+
+.cv-row {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: .75rem;
+}
+
+.cv-row dt {
+    font-weight: 700;
+    color: var(--couleur-texte-secondaire);
+}
+
+.cv-row dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+    .cv-grid { grid-template-columns: 1fr; }
+    .cv-row { grid-template-columns: 1fr; gap: .15rem; }
+}
+</style>
+{% endblock %}

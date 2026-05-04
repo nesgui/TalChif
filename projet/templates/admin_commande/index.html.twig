@@ -6,7 +6,7 @@
 {% block dashboard_title %}Commandes & paiements{% endblock %}
 
 {% block dashboard_actions %}
-<form method="post" action="{{ path('admin.commande.export') }}" style="display:inline;">
+<form method="post" action="{{ path('admin.commande.export') }}" style="display:inline;" data-turbo="false">
     <input type="hidden" name="_token" value="{{ csrf_token('admin_export_commandes') }}">
     <button type="submit" class="btn btn-sm btn-secondary">Export CSV</button>
 </form>
