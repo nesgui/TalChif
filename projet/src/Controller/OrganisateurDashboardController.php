@@ -99,6 +99,50 @@ final class OrganisateurDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/organisateur/ventes', name: 'organisateur.ventes')]
+    #[IsGranted('ROLE_ORGANISATEUR')]
+    public function ventes(): Response
+    {
+        $user = $this->getUser();
+        /** @var \App\Entity\User $user */
+
+        $evenements = $this->evenementRepository->findBy(['organisateur' => $user], ['dateEvenement' => 'DESC']);
+
+        $rows = [];
+        $totalBrut = 0;
+        $totalNet = 0;
+        $totalBillets = 0;
+
+        foreach ($evenements as $evenement) {
+            $billetsVendus = $this->billetRepository->countSoldByEvenement($evenement);
+            $brut = $this->billetRepository->calculateGrossRevenue($evenement);
+            $net = $this->billetRepository->calculateNetRevenue($evenement);
+
+            $rows[] = [
+                'evenement' => $evenement,
+                'billetsVendus' => $billetsVendus,
+                'brut' => $brut,
+                'net' => $net,
+            ];
+
+            $totalBillets += (int) $billetsVendus;
+            $totalBrut += (int) $brut;
+            $totalNet += (int) $net;
+        }
+
+        $commission = $totalBrut - $totalNet;
+
+        return $this->render('organisateur_dashboard/ventes.html.twig', [
+            'rows' => $rows,
+            'totaux' => [
+                'billets' => $totalBillets,
+                'brut' => $totalBrut,
+                'commission' => $commission,
+                'net' => $totalNet,
+            ],
+        ]);
+    }
+
     #[Route('/organisateur/references-a-verifier', name: 'organisateur.commande.references', methods: ['GET'])]
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function referencesAVerifier(): Response

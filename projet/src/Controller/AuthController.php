@@ -52,7 +52,6 @@ final class AuthController extends AbstractController
         ]);
     }
 
-    #[Route('/inscription', name: 'auth.register')]
     public function register(Request $request): Response
     {
         // Si déjà connecté, rediriger vers le portefeuille

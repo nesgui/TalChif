@@ -1,0 +1,100 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block title %}Rapports ventes{% endblock %}
+
+{% block dashboard_title %}Rapports ventes{% endblock %}
+
+{% block dashboard_actions %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="page-title">Rapports ventes</h1>
+        <p class="page-subtitle">Suivez vos ventes, votre commission et votre solde net.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card revenue">
+            <div class="stat-header"><h3>Ventes (brut)</h3></div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ totaux.brut|number_format(0, '.', ' ') }}</span>
+                    <span class="label">FCFA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-header"><h3>Commission plateforme</h3></div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ totaux.commission|number_format(0, '.', ' ') }}</span>
+                    <span class="label">FCFA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-header"><h3>Solde net</h3></div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ totaux.net|number_format(0, '.', ' ') }}</span>
+                    <span class="label">FCFA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card primary">
+            <div class="stat-header"><h3>Billets vendus</h3></div>
+            <div class="stat-content">
+                <div class="big-number">
+                    <span class="number">{{ totaux.billets }}</span>
+                    <span class="label">billets</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 1rem;">
+        <h2 class="card-title">Détail par événement</h2>
+        <p class="card-meta">Brut et net sont calculés sur la base des billets effectivement payés.</p>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Événement</th>
+                        <th>Date</th>
+                        <th style="text-align:right;">Billets vendus</th>
+                        <th style="text-align:right;">Brut</th>
+                        <th style="text-align:right;">Net</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    {% set evt = row.evenement %}
+                    <tr>
+                        <td>{{ evt.nom }}</td>
+                        <td>{{ evt.dateEvenement ? evt.dateEvenement|date('d/m/Y H:i') : '—' }}</td>
+                        <td style="text-align:right;">{{ row.billetsVendus }}</td>
+                        <td style="text-align:right;">{{ row.brut|number_format(0, '.', ' ') }} FCFA</td>
+                        <td style="text-align:right;">{{ row.net|number_format(0, '.', ' ') }} FCFA</td>
+                        <td style="white-space:nowrap;">
+                            <a class="btn btn-sm btn-outline" href="{{ path('organisateur.evenement.stats', {id: evt.id}) }}" data-turbo-frame="dashboard-main-frame">Stats</a>
+                            <a class="btn btn-sm btn-outline" href="{{ path('organisateur.evenement.performance', {id: evt.id}) }}" data-turbo-frame="dashboard-main-frame">Performance</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun événement.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

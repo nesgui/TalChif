@@ -154,6 +154,34 @@
 
 <section class="movie-categories">
 
+    <!-- CatÃ©gorie Recommandations -->
+{% if evenements|length > 0 %}
+<div class="category-row">
+    <div class="category-header">
+        <h3>Recommandations pour vous</h3>
+        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout &rarr;</a>
+    </div>
+    <div class="movie-row-container">
+        <button class="movie-nav prev" data-category="recommendations" aria-label="Précédent">&#8249;</button>
+        <button class="movie-nav next" data-category="recommendations" aria-label="Suivant">&#8250;</button>
+        <div class="movie-row" id="recommendations-row">
+            {% for evenement in evenements %}
+                <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="movie-card-link" data-turbo="false">
+                    <div class="movie-card">
+                        <div class="movie-poster">
+                            {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
+                            <img src="{{ image_path }}" alt="Affiche de l'événement : {{ evenement.titre }}" onerror="this.src='/images/evenements/default-event.jpg';">
+                        </div>
+                        <h4>{{ evenement.titre }}</h4>
+                        <p>{{ evenement.date|date('d M Y') }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
     <!-- CatÃ©gorie Concerts & SoirÃ©es -->
 {% set concerts_evenements = evenements|filter(e => e.categorie is defined and e.categorie == 'concert') %}
 {% if concerts_evenements|length > 0 %}
@@ -233,34 +261,6 @@
                         <div class="movie-poster">
                             <img src="{{ image_path }}" alt="{{ 'accueil.alt.event_poster'|trans({'%title%': evenement.titre}) }}" 
                                  onerror="this.src='/images/evenements/default-event.jpg'; console.log('Image manquante: {{ image_path }}');">
-                        </div>
-                        <h4>{{ evenement.titre }}</h4>
-                        <p>{{ evenement.date|date('d M Y') }}</p>
-                    </div>
-                </a>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- CatÃ©gorie Recommandations -->
-{% if evenements|length > 0 %}
-<div class="category-row">
-    <div class="category-header">
-        <h3>Recommandations pour vous</h3>
-        <a href="{{ path('evenement.index') }}" class="see-all">Voir tout &rarr;</a>
-    </div>
-    <div class="movie-row-container">
-        <button class="movie-nav prev" data-category="recommendations" aria-label="Précédent">&#8249;</button>
-        <button class="movie-nav next" data-category="recommendations" aria-label="Suivant">&#8250;</button>
-        <div class="movie-row" id="recommendations-row">
-            {% for evenement in evenements %}
-                <a href="{{ path('evenement.show', {slug: evenement.slug, id: evenement.id}) }}" class="movie-card-link" data-turbo="false">
-                    <div class="movie-card">
-                        <div class="movie-poster">
-                            {% set image_path = evenement.image starts with '/' ? evenement.image : '/' ~ evenement.image %}
-                            <img src="{{ image_path }}" alt="Affiche de l'événement : {{ evenement.titre }}" onerror="this.src='/images/evenements/default-event.jpg';">
                         </div>
                         <h4>{{ evenement.titre }}</h4>
                         <p>{{ evenement.date|date('d M Y') }}</p>
