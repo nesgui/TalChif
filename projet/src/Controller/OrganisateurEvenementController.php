@@ -6,7 +6,10 @@ use App\Entity\Evenement;
 use App\Entity\User;
 use App\Form\EvenementType;
 use App\Repository\EvenementRepository;
-use App\Service\ErrorHandlingService;
+use App\Service\Notification\MessagesFlash;
+use App\Service\Form\ErreursFormulaire;
+use App\Service\Erreur\RapporteurErreurs;
+use App\Security\Voter\EvenementVoter;
 use App\Service\Upload\ServiceUploadFichier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -14,8 +17,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -30,7 +31,9 @@ final class OrganisateurEvenementController extends AbstractController
     public function __construct(
         private EvenementRepository $evenementRepository,
         private ServiceUploadFichier $serviceUploadFichier,
-        private ErrorHandlingService $errorHandling
+        private MessagesFlash $messagesFlash,
+        private ErreursFormulaire $erreursFormulaire,
+        private RapporteurErreurs $rapporteurErreurs
     ) {
     }
 
@@ -76,19 +79,17 @@ final class OrganisateurEvenementController extends AbstractController
                 $this->traiterUploadsCreation($form, $evenement);
                 $this->evenementRepository->save($evenement, true);
 
-                $this->errorHandling->addSuccessFlash('Événement créé avec succès !');
+                $this->messagesFlash->succes('Événement créé avec succès !');
                 return $this->redirectToRoute('organisateur.evenement.index');
                 
             } catch (FileException $e) {
-                $this->errorHandling->handleFileUploadError($e);
-                $this->errorHandling->logError($e, ['action' => 'create_event']);
+                $this->rapporteurErreurs->signalerUpload($e, ['action' => 'create_event']);
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'create_event']);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'create_event']);
             }
         } elseif ($form->isSubmitted()) {
             // Utiliser le service pour gérer les erreurs de formulaire
-            $this->errorHandling->handleFormErrors($form);
+            $this->erreursFormulaire->publierEnFlash($form);
         }
 
         return $this->render('organisateur_evenement/create.html.twig', [
@@ -100,11 +101,7 @@ final class OrganisateurEvenementController extends AbstractController
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function edit(Evenement $evenement, Request $request, SluggerInterface $slugger): Response
     {
-        /** @var User $user */
-        $user = $this->getUser();
-        if ($evenement->getOrganisateur() !== $user) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cet événement.');
-        }
+        $this->denyAccessUnlessGranted(EvenementVoter::MODIFIER, $evenement);
 
         $form = $this->createForm(EvenementType::class, $evenement, ['allow_file_upload' => true]);
         $nomAvant = $evenement->getNom();
@@ -122,18 +119,16 @@ final class OrganisateurEvenementController extends AbstractController
                 $this->traiterUploadsEdition($form, $evenement);
                 $this->evenementRepository->save($evenement, true);
 
-                $this->errorHandling->addSuccessFlash('Événement modifié avec succès !');
+                $this->messagesFlash->succes('Événement modifié avec succès !');
                 return $this->redirectToRoute('organisateur.evenement.index');
 
             } catch (FileException $e) {
-                $this->errorHandling->handleFileUploadError($e);
-                $this->errorHandling->logError($e, ['action' => 'edit_event', 'id' => $evenement->getId()]);
+                $this->rapporteurErreurs->signalerUpload($e, ['action' => 'edit_event', 'id' => $evenement->getId()]);
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'edit_event', 'id' => $evenement->getId()]);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'edit_event', 'id' => $evenement->getId()]);
             }
         } elseif ($form->isSubmitted()) {
-            $this->errorHandling->handleFormErrors($form);
+            $this->erreursFormulaire->publierEnFlash($form);
         }
 
         return $this->render('organisateur_evenement/edit.html.twig', [
@@ -146,13 +141,17 @@ final class OrganisateurEvenementController extends AbstractController
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function delete(Evenement $evenement, Request $request): Response
     {
-        if ($evenement->getOrganisateur() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à supprimer cet événement.');
+        $this->denyAccessUnlessGranted(EvenementVoter::MODIFIER, $evenement);
+
+        if (!$this->isCsrfTokenValid('delete' . $evenement->getId(), (string) $request->request->get('_token'))) {
+            $this->messagesFlash->erreur('Token de securite invalide. Veuillez reessayer.');
+
+            return $this->redirectToRoute('organisateur.evenement.index');
         }
-        if ($this->isCsrfTokenValid('delete' . $evenement->getId(), $request->request->get('_token'))) {
-            $this->evenementRepository->remove($evenement, true);
-            $this->addFlash('success', 'Événement supprimé avec succès !');
-        }
+
+        $this->evenementRepository->remove($evenement, true);
+        $this->messagesFlash->succes('Evenement supprime avec succes !');
+
         return $this->redirectToRoute('organisateur.evenement.index');
     }
 
@@ -160,34 +159,32 @@ final class OrganisateurEvenementController extends AbstractController
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function show(Evenement $evenement): Response
     {
-        if ($evenement->getOrganisateur() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à voir cet événement.');
-        }
+        $this->denyAccessUnlessGranted(EvenementVoter::CONSULTER, $evenement);
+
         return $this->render('organisateur_evenement/show.html.twig', ['evenement' => $evenement]);
     }
 
     #[Route('/organisateur/evenement/{id}/toggle-status/{action}', name: 'organisateur.evenement.toggle_status', methods: ['POST'])]
     #[IsGranted('ROLE_ORGANISATEUR')]
-    public function toggleStatus(Request $request, Evenement $evenement, string $action, CsrfTokenManagerInterface $csrfTokenManager): Response
+    public function toggleStatus(Request $request, Evenement $evenement, string $action): Response
     {
-        $token = new CsrfToken('status' . $evenement->getId(), $request->request->get('_token'));
-        if (!$csrfTokenManager->isTokenValid($token)) {
+        $this->denyAccessUnlessGranted(EvenementVoter::MODIFIER, $evenement);
+
+        if (!$this->isCsrfTokenValid('status' . $evenement->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Token CSRF invalide');
-        }
-        if ($evenement->getOrganisateur() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas l\'organisateur de cet événement');
         }
 
         if ($action === 'activate') {
             $evenement->setIsActive(true);
             $evenement->setIsValide(true);
-            $this->addFlash('success', 'L\'événement a été activé et publié avec succès !');
+            $this->addFlash('success', "L'evenement a ete active et publie avec succes !");
         } elseif ($action === 'deactivate') {
             $evenement->setIsActive(false);
-            $this->addFlash('warning', 'L\'événement a été désactivé et n\'est plus visible par les utilisateurs.');
+            $this->addFlash('warning', "L'evenement a ete desactive et n'est plus visible par les utilisateurs.");
         }
 
         $this->evenementRepository->save($evenement, true);
+
         return $this->redirectToRoute('organisateur.evenement.show', ['id' => $evenement->getId()]);
     }
 

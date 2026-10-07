@@ -2,6 +2,11 @@
 
 {% set section = 'organisateur' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/organisateur_evenement/index.css') }}">
+{% endblock %}
+
 {% block title %}Mes événements{% endblock %}
 
 {% block dashboard_title %}Mes événements{% endblock %}
@@ -105,133 +110,6 @@
         {% endif %}
     </section>
 </div>
-
-<style>
-.organizer-events-table-wrap {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.organizer-events-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.organizer-events-table .col-id,
-.organizer-events-table .cell-id {
-    width: 64px;
-    white-space: nowrap;
-}
-
-.organizer-events-table .col-date,
-.organizer-events-table .cell-date {
-    width: 148px;
-}
-
-.organizer-events-table .col-status,
-.organizer-events-table .cell-status {
-    width: 110px;
-    text-align: center;
-}
-
-.organizer-events-table .col-places,
-.organizer-events-table .cell-places {
-    width: 96px;
-    text-align: center;
-}
-
-.organizer-events-table .col-actions,
-.organizer-events-table .cell-actions {
-    width: 190px;
-}
-
-.organizer-events-table .cell-name {
-    font-weight: 600;
-}
-
-.organizer-events-table .cell-location {
-    line-height: 1.45;
-}
-
-.organizer-events-table .cell-date,
-.organizer-events-table .cell-location {
-    word-break: break-word;
-}
-
-.event-status-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 84px;
-    white-space: nowrap;
-    text-align: center;
-}
-
-.event-places-value {
-    display: inline-block;
-    white-space: nowrap;
-    font-weight: 600;
-}
-
-.actions-cell {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    flex-wrap: wrap;
-}
-
-.actions-cell form {
-    margin: 0;
-}
-
-.actions-cell .btn {
-    min-width: 96px;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-@media (max-width: 980px) {
-    .organizer-events-table {
-        min-width: 860px;
-    }
-}
-
-@media (max-width: 768px) {
-    .organizer-events-table .col-id,
-    .organizer-events-table .cell-id {
-        width: 56px;
-    }
-
-    .organizer-events-table .col-date,
-    .organizer-events-table .cell-date {
-        width: 132px;
-    }
-
-    .organizer-events-table .col-status,
-    .organizer-events-table .cell-status {
-        width: 104px;
-    }
-
-    .organizer-events-table .col-places,
-    .organizer-events-table .cell-places {
-        width: 88px;
-    }
-
-    .organizer-events-table .col-actions,
-    .organizer-events-table .cell-actions {
-        width: 168px;
-    }
-
-    .actions-cell {
-        gap: .4rem;
-    }
-
-    .actions-cell .btn {
-        min-width: 84px;
-        padding-inline: .7rem;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

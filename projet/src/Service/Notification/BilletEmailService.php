@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Notification;
 
 use App\Entity\Commande;
-use App\Domain\Repository\BilletRepositoryInterface;
+use App\Repository\BilletRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -14,7 +14,7 @@ final class BilletEmailService
 {
     public function __construct(
         private MailerInterface $mailer,
-        private BilletRepositoryInterface $billetRepository,
+        private BilletRepository $billetRepository,
         private UrlGeneratorInterface $urlGenerator
     ) {
     }
@@ -44,9 +44,10 @@ final class BilletEmailService
 
             $billetsCards[] = [
                 'billet' => $billet,
+                // La route achat.billet attend l'identifiant du billet, pas son QR.
                 'billetUrl' => $this->urlGenerator->generate(
                     'achat.billet',
-                    ['qrCode' => $qrCode],
+                    ['id' => $billet->getId()],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 ),
             ];

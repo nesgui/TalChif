@@ -5,9 +5,9 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
-use App\Service\ErrorHandlingService;
-// TODO: Décommenter quand le mailer sera configuré
-// use App\Service\Notification\EmailVerificationService;
+use App\Service\Notification\MessagesFlash;
+use App\Service\Form\ErreursFormulaire;
+use App\Service\Erreur\RapporteurErreurs;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,9 @@ final class AuthController extends AbstractController
     public function __construct(
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
-        private ErrorHandlingService $errorHandling
+        private MessagesFlash $messagesFlash,
+        private ErreursFormulaire $erreursFormulaire,
+        private RapporteurErreurs $rapporteurErreurs
     ) {
     }
 
@@ -39,7 +41,7 @@ final class AuthController extends AbstractController
             
             // Utiliser le service pour gérer l'erreur de sécurité
             if ($error instanceof \Throwable) {
-                $this->errorHandling->handleSecurityError($error);
+                $this->rapporteurErreurs->signalerSecurite($error);
             }
         }
 
@@ -73,7 +75,7 @@ final class AuthController extends AbstractController
 
             // Vérifier que les mots de passe correspondent
             if ($password !== $passwordConfirm) {
-                $this->errorHandling->addErrorFlash('Les mots de passe ne correspondent pas');
+                $this->messagesFlash->erreur('Les mots de passe ne correspondent pas');
                 return $this->render('auth/register.html.twig', [
                     'form' => $form->createView(),
                 ]);
@@ -86,7 +88,9 @@ final class AuthController extends AbstractController
                 );
                 // Règle métier : inscription depuis la page de connexion (sans auth) = client
                 $user->setRole('CLIENT');
-                $user->setIsVerified(false); // Pas encore vérifié
+                // Verification email non implementee : aucun email n'est envoye, le
+                // compte reste non verifie. Voir docs/fonctionnalites_desactiver.md
+                $user->setIsVerified(false);
                 
                 // TODO: Activer l'envoi d'email quand le mailer sera configuré
                 // Générer un token de vérification
@@ -99,18 +103,17 @@ final class AuthController extends AbstractController
                 // Sauvegarder en base
                 $this->userRepository->save($user, true);
 
-                $this->errorHandling->addSuccessFlash('Inscription réussie. Vous pouvez maintenant vous connecter.');
+                $this->messagesFlash->succes('Inscription réussie. Vous pouvez maintenant vous connecter.');
 
                 // Rediriger vers la connexion
                 return $this->redirectToRoute('auth.login');
                 
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'register']);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'register']);
             }
         } elseif ($form->isSubmitted()) {
             // Utiliser le service pour gérer les erreurs de formulaire
-            $this->errorHandling->handleFormErrors($form);
+            $this->erreursFormulaire->publierEnFlash($form);
         }
 
         return $this->render('auth/register.html.twig', [

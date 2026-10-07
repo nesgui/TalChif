@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Handler;
 
 use App\Application\Command\RejeterPaiementCommand;
-use App\Domain\Repository\CommandeRepositoryInterface;
+use App\Repository\CommandeRepository;
 use App\Entity\LogSecurite;
 use App\Repository\LogSecuriteRepository;
 use App\Repository\UserRepository;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 final class RejeterPaiementHandler
 {
     public function __construct(
-        private CommandeRepositoryInterface $commandeRepository,
+        private CommandeRepository $commandeRepository,
         private UserRepository $userRepository,
         private LogSecuriteRepository $logSecuriteRepository,
         private EntityManagerInterface $entityManager,
@@ -44,7 +44,7 @@ final class RejeterPaiementHandler
             $validateur = $this->userRepository->find($command->validateurId);
 
             $commande->marquerRejetee($validateur);
-            $this->commandeRepository->save($commande);
+            $this->entityManager->persist($commande);
 
             // Logger l'action
             $this->loggerAction(

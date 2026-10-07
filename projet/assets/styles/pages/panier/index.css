@@ -1,0 +1,23 @@
+/* Styles de templates/panier/index.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.panier-shell { max-width: 980px; margin: 0 auto; display: grid; gap: 1rem; }
+.panier-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; }
+.top-row { justify-content: space-between; align-items: center; }
+.items-list { display: grid; gap: .7rem; }
+.item-row { display: grid; grid-template-columns: 90px 1fr auto; gap: .8rem; align-items: center; padding: .75rem; border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); }
+.item-img { width: 90px; height: 70px; aspect-ratio: 9 / 7; object-fit: cover; object-position: center; border-radius: var(--rayon); display: block; flex-shrink: 0; }
+.item-title { margin: 0; font-weight: 700; }
+.item-main small { color: var(--couleur-texte-secondaire); }
+.qty-row { margin-top: .45rem; display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+.qty { min-width: 20px; text-align: center; font-weight: 700; }
+.remove-form { display: inline; }
+.item-total { white-space: nowrap; }
+.recap .total { font-size: 1.5rem; font-weight: 800; margin: .3rem 0 1rem; }
+.empty { text-align: center; }
+@media (max-width: 860px) {
+    .panier-grid { grid-template-columns: 1fr; }
+    .item-row { grid-template-columns: 70px 1fr; }
+    .item-img { width: 70px; height: 54px; aspect-ratio: 4 / 3; }
+    .item-total { grid-column: 1 / -1; }
+}

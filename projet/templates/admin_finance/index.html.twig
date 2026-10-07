@@ -2,6 +2,11 @@
 
 {% set section = 'admin' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/admin_finance/index.css') }}">
+{% endblock %}
+
 {% block title %}Admin - Finance{% endblock %}
 
 {% block dashboard_title %}Finance & paiements{% endblock %}
@@ -200,131 +205,6 @@
         </div>
     </div>
 </div>
-
-<style>
-.finance-tablist {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    margin-bottom: 1rem;
-}
-
-.finance-tab {
-    border: 1px solid var(--couleur-bordure);
-    background: var(--couleur-surface);
-    color: var(--couleur-texte);
-    border-radius: 12px;
-    padding: .55rem .85rem;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.finance-tab.is-active {
-    background: color-mix(in srgb, var(--couleur-secondaire) 14%, var(--couleur-surface));
-    border-color: color-mix(in srgb, var(--couleur-secondaire) 45%, var(--couleur-bordure));
-}
-
-.finance-panel[hidden] {
-    display: none;
-}
-
-.finance-kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: .75rem;
-    margin-top: .75rem;
-}
-
-.finance-kpi {
-    border: 1px solid var(--couleur-bordure);
-    background: var(--couleur-surface);
-    border-radius: 12px;
-    padding: .85rem;
-    display: grid;
-    gap: .35rem;
-}
-
-.finance-kpi-label {
-    font-size: .8rem;
-    font-weight: 800;
-    color: var(--couleur-texte-secondaire);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-}
-
-.finance-kpi-value {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: var(--couleur-texte);
-}
-
-.admin-finance-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.admin-finance-table .col-id,
-.admin-finance-table .cell-id {
-    width: 92px;
-    white-space: nowrap;
-}
-
-.admin-finance-table .col-event,
-.admin-finance-table .cell-event {
-    width: 220px;
-}
-
-.admin-finance-table .col-organizer,
-.admin-finance-table .cell-organizer {
-    width: 180px;
-}
-
-.admin-finance-table .col-type,
-.admin-finance-table .cell-type,
-.admin-finance-table .col-status,
-.admin-finance-table .cell-status {
-    width: 112px;
-    text-align: center;
-}
-
-.admin-finance-table .col-amount,
-.admin-finance-table .cell-amount,
-.admin-finance-table .col-commission,
-.admin-finance-table .cell-commission,
-.admin-finance-table .col-date,
-.admin-finance-table .cell-date {
-    width: 120px;
-    white-space: nowrap;
-}
-
-.admin-finance-table .col-method,
-.admin-finance-table .cell-method {
-    width: 120px;
-}
-
-.admin-finance-table .cell-event,
-.admin-finance-table .cell-organizer,
-.admin-finance-table .cell-method {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: anywhere;
-}
-
-.admin-finance-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 88px;
-    white-space: nowrap;
-}
-
-@media (max-width: 980px) {
-    .admin-finance-table {
-        min-width: 1140px;
-    }
-}
-
-</style>
 
 <script>
 function initFinanceTabs() {

@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/achat/mes_commandes.css') }}">
+{% endblock %}
+
 {% block title %}Mes commandes{% endblock %}
 
 {% block body %}
@@ -109,27 +114,4 @@
 </div>
 {% endif %}
 
-<style>
-.commandes-header { margin-bottom: 1.5rem; }
-.commandes-nav { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-.commandes-section { margin-bottom: 2rem; }
-.commande-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-radius: var(--rayon);
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--couleur-bordure);
-    background: var(--couleur-surface);
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-.commande-item.pending { border-left: 4px solid var(--couleur-warning); }
-.commande-item.paid { border-left: 4px solid var(--couleur-success); }
-.commande-item.expired, .commande-item.rejected { opacity: 0.8; border-left: 4px solid var(--couleur-texte-secondaire); }
-.commande-info { display: flex; flex-direction: column; gap: 0.25rem; }
-.commande-meta { font-size: 0.875rem; color: var(--couleur-texte-secondaire); }
-.empty-state { text-align: center; padding: 2rem; }
-</style>
 {% endblock %}

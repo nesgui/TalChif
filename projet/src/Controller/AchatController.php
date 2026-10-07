@@ -10,7 +10,7 @@ use App\Entity\LogSecurite;
 use App\Message\PaymentReferenceNotificationMessage;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
-use App\Repository\UserRepository;
+use App\Service\Panier\ResolveurPanier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,10 +19,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -34,12 +32,10 @@ final class AchatController extends AbstractController
     public function __construct(
         private EvenementRepository $evenementRepository,
         private CommandeRepository $commandeRepository,
-        private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private CreerCommandeHandler $creerCommandeHandler,
         private MessageBusInterface $messageBus,
-        private UserPasswordHasherInterface $passwordHasher,
-        private TokenStorageInterface $tokenStorage,
+        private ResolveurPanier $resolveurPanier,
         #[Autowire('%app.depot.numeros%')]
         private array $depotNumeros,
         #[Autowire('%app.momo.beneficiaire%')]
@@ -50,56 +46,16 @@ final class AchatController extends AbstractController
     #[Route('/achat', name: 'achat.index')]
     public function index(SessionInterface $session): Response
     {
-        $panier = $session->get('panier', []);
-        if (empty($panier)) {
+        $contenu = $this->resolveurPanier->resoudre($session);
+        if ($contenu->estVide()) {
             $this->addFlash('warning', 'Votre panier est vide');
+
             return $this->redirectToRoute('panier.index');
         }
 
-        $lignes = [];
-        $total = 0.0;
-
-        foreach ($panier as $id => $donnees) {
-            $evenement = $this->evenementRepository->find($id);
-            if (!$evenement || !$evenement->isActive()) {
-                continue;
-            }
-            
-            // Compatibilité ancienne structure (int) et nouvelle (array)
-            $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
-            $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
-            
-            // S'assurer que la quantité est un entier
-            $quantite = is_numeric($quantite) ? (int) $quantite : 1;
-            
-            // Utiliser le bon prix selon le type
-            $prix = $type === 'VIP' && $evenement->getPrixVip()
-                ? $evenement->getPrixVip()
-                : $evenement->getPrixSimple();
-            
-            $sousTotal = $prix * $quantite;
-            $total += $sousTotal;
-            $lignes[] = [
-                'id' => $id,
-                'quantite' => $quantite,
-                'type' => $type,
-                'produit' => [
-                    'id' => $evenement->getId(),
-                    'slug' => $evenement->getSlug(),
-                    'titre' => $evenement->getNom(),
-                    'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
-                    'prix_min' => $evenement->getPrixSimple(),
-                    'prix_vip' => $evenement->getPrixVip(),
-                    'ville' => $evenement->getVille(),
-                    'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
-                ],
-                'sous_total' => $sousTotal,
-            ];
-        }
-
         return $this->render('achat/index.html.twig', [
-            'lignes' => $lignes,
-            'total' => $total,
+            'lignes' => $contenu->lignes,
+            'total' => $contenu->total,
             'prefillEmail' => $this->getUser()?->getEmail(),
         ]);
     }
@@ -150,6 +106,12 @@ final class AchatController extends AbstractController
     #[Route('/achat/paiement', name: 'achat.paiement', methods: ['POST'])]
     public function paiement(Request $request, SessionInterface $session): Response
     {
+        if (!$this->isCsrfTokenValid('achat_paiement', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de securite invalide. Veuillez reessayer.');
+
+            return $this->redirectToRoute('achat.index');
+        }
+
         $panier = $session->get('panier', []);
         if (empty($panier)) {
             $this->addFlash('error', 'Votre panier est vide');
@@ -189,6 +151,13 @@ final class AchatController extends AbstractController
     #[Route('/api/payments/create', name: 'api.payments.create', methods: ['POST'])]
     public function createPayment(Request $request, SessionInterface $session): JsonResponse
     {
+        if (!$this->isCsrfTokenValid('achat_paiement', (string) $request->headers->get('X-CSRF-TOKEN', ''))) {
+            return $this->json([
+                'ok' => false,
+                'message' => 'Session expiree. Rechargez la page.',
+            ], 403);
+        }
+
         $panier = $session->get('panier', []);
         if (empty($panier)) {
             return $this->json([
@@ -262,49 +231,6 @@ final class AchatController extends AbstractController
         ], 201);
     }
 
-    private function resolveCheckoutUser(string $email, Request $request): ?\App\Entity\User
-    {
-        $currentUser = $this->getUser();
-        if ($currentUser instanceof \App\Entity\User) {
-            return $currentUser;
-        }
-
-        $normalizedEmail = mb_strtolower(trim($email));
-        if (!filter_var($normalizedEmail, FILTER_VALIDATE_EMAIL)) {
-            return null;
-        }
-
-        $user = $this->userRepository->findByEmail($normalizedEmail);
-        if (!$user) {
-            $user = new \App\Entity\User();
-            $user->setEmail($normalizedEmail);
-            $user->setNom('Compte à compléter');
-            $user->setTelephone(null);
-            $user->setRole('CLIENT');
-            $user->setActif(true);
-            $user->setIsVerified(false);
-            $user->setCheckoutAccount(true);
-            $user->setPassword($this->passwordHasher->hashPassword($user, bin2hex(random_bytes(16))));
-
-            $this->userRepository->save($user, true);
-        }
-
-        $this->authenticateCheckoutUser($user, $request);
-
-        return $user;
-    }
-
-    private function authenticateCheckoutUser(\App\Entity\User $user, Request $request): void
-    {
-        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
-        $this->tokenStorage->setToken($token);
-
-        $session = $request->getSession();
-        if ($session) {
-            $session->set('_security_main', serialize($token));
-        }
-    }
-
     #[Route('/mes-commandes', name: 'achat.commandes')]
     #[IsGranted('ROLE_CLIENT')]
     public function mesCommandes(): Response
@@ -336,7 +262,9 @@ final class AchatController extends AbstractController
 
         $token = (string) $request->query->get('token', '');
         if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
-            throw $this->createAccessDeniedException('Accès non autorisé.');
+            // 403 franc : l'acheteur invite n'a pas de compte, une redirection
+            // vers la connexion serait une impasse.
+            throw new AccessDeniedHttpException('Lien de suivi invalide ou expire.');
         }
 
         $methode = (string) ($commande->getMethodePaiement() ?? '');
@@ -376,7 +304,9 @@ final class AchatController extends AbstractController
 
         $token = (string) $request->query->get('token', '');
         if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
-            throw $this->createAccessDeniedException('Accès non autorisé.');
+            // 403 franc : l'acheteur invite n'a pas de compte, une redirection
+            // vers la connexion serait une impasse.
+            throw new AccessDeniedHttpException('Lien de suivi invalide ou expire.');
         }
         if (($commande->getReferenceTransactionClient() ?? '') !== '') {
             $this->addFlash('info', 'Votre référence est déjà envoyée et en cours de traitement. Vous ne pouvez plus la modifier.');
@@ -500,10 +430,11 @@ final class AchatController extends AbstractController
         ]);
         if (empty($billets)) {
             $commande = $this->commandeRepository->findByReference($transactionId);
-            if ($commande && $commande->getClient()->getId() === $user->getId()) {
+            if ($commande && $commande->getClient()?->getId() === $user->getId()) {
                 if ($commande->isPending()) {
                     $this->addFlash('warning', 'Votre paiement est en attente de validation.');
-                    return $this->redirectToRoute('achat.instructions', ['reference' => $transactionId]);
+
+                    return $this->redirectToRoute('achat.commandes');
                 }
                 if ($commande->isExpired()) {
                     $this->addFlash('error', 'Cette commande a expiré.');
@@ -557,7 +488,9 @@ final class AchatController extends AbstractController
 
         $token = (string) $request->query->get('token', '');
         if ($token === '' || $commande->getAccessToken() === null || !hash_equals($commande->getAccessToken(), $token)) {
-            throw $this->createAccessDeniedException('Accès non autorisé.');
+            // 403 franc : l'acheteur invite n'a pas de compte, une redirection
+            // vers la connexion serait une impasse.
+            throw new AccessDeniedHttpException('Lien de suivi invalide ou expire.');
         }
 
         if (!$this->isCsrfTokenValid('annuler_' . $reference, (string) $request->request->get('_token'))) {

@@ -1,0 +1,340 @@
+/* Styles de templates/admin_commande/index.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.cmd-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+}
+.cmd-kpi {
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: .85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+}
+.cmd-kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--couleur-texte);
+}
+.cmd-kpi-label {
+    font-size: .78rem;
+    color: var(--couleur-texte-secondaire);
+}
+.cmd-kpi.kpi-warn { border-left: 3px solid var(--couleur-warning); }
+.cmd-kpi.kpi-ok   { border-left: 3px solid var(--couleur-success); }
+.cmd-kpi.kpi-info { border-left: 3px solid var(--couleur-primaire); }
+
+/* Sections */
+.cmd-section { display: none; }
+.cmd-section.active { display: block; }
+
+/* Bottom nav */
+.cmd-bottom-nav {
+    position: sticky;
+    bottom: 0;
+    background: var(--couleur-surface);
+    border-top: 1px solid var(--couleur-bordure);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    margin-top: 1.5rem;
+    z-index: 10;
+    border-radius: 0 0 var(--rayon) var(--rayon);
+}
+.cmd-nav-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .2rem;
+    padding: .5rem .9rem;
+    border-radius: var(--rayon);
+    border: 1px solid var(--couleur-bordure);
+    background: var(--couleur-fond);
+    color: var(--couleur-texte-secondaire);
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    text-decoration: none;
+    min-width: 80px;
+    text-align: center;
+    min-height: 44px;
+}
+.cmd-nav-btn:hover {
+    border-color: var(--couleur-primaire);
+    color: var(--couleur-primaire);
+}
+.cmd-nav-btn.active {
+    background: var(--couleur-primaire);
+    border-color: var(--couleur-primaire);
+    color: #fff;
+}
+.cmd-nav-btn .cmd-nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 700;
+    background: rgba(255,255,255,.3);
+    color: inherit;
+}
+.cmd-nav-btn:not(.active) .cmd-nav-badge {
+    background: var(--couleur-warning);
+    color: #fff;
+}
+.cmd-nav-icon { font-size: 1.1rem; }
+
+/* Tables */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.dt-table { width: 100% !important; border-collapse: collapse; }
+table.dt-table th, table.dt-table td {
+    padding: .5rem .6rem;
+    font-size: .85rem;
+    white-space: nowrap;
+}
+table.dt-table td.wrap { white-space: normal; }
+
+#section-pending table.dt-table,
+#section-paid table.dt-table,
+#section-organisateurs table.dt-table,
+#section-expired table.dt-table,
+#section-logs table.dt-table {
+    table-layout: fixed;
+}
+
+#section-pending table.dt-table th:nth-child(1),
+#section-pending table.dt-table td:nth-child(1),
+#section-paid table.dt-table th:nth-child(1),
+#section-paid table.dt-table td:nth-child(1),
+#section-expired table.dt-table th:nth-child(1),
+#section-expired table.dt-table td:nth-child(1),
+#section-logs table.dt-table th:nth-child(3),
+#section-logs table.dt-table td:nth-child(3) {
+    white-space: nowrap;
+}
+
+#section-pending table.dt-table th:nth-child(4),
+#section-pending table.dt-table td:nth-child(4),
+#section-paid table.dt-table th:nth-child(3),
+#section-paid table.dt-table td:nth-child(3),
+#section-paid table.dt-table th:nth-child(4),
+#section-paid table.dt-table td:nth-child(4),
+#section-organisateurs table.dt-table th:nth-child(5),
+#section-organisateurs table.dt-table td:nth-child(5),
+#section-expired table.dt-table th:nth-child(2),
+#section-expired table.dt-table td:nth-child(2) {
+    white-space: nowrap;
+}
+
+#section-pending table.dt-table th:nth-child(6),
+#section-pending table.dt-table td:nth-child(6),
+#section-paid table.dt-table th:nth-child(6),
+#section-paid table.dt-table td:nth-child(6),
+#section-expired table.dt-table th:nth-child(3),
+#section-expired table.dt-table td:nth-child(3),
+#section-logs table.dt-table th:nth-child(1),
+#section-logs table.dt-table td:nth-child(1) {
+    width: 112px;
+}
+
+#section-pending table.dt-table th:nth-child(7),
+#section-pending table.dt-table td:nth-child(7) {
+    width: 360px;
+}
+
+#section-organisateurs table.dt-table th:nth-child(6),
+#section-organisateurs table.dt-table td:nth-child(6) {
+    width: 126px;
+}
+
+#section-logs table.dt-table th:nth-child(2),
+#section-logs table.dt-table td:nth-child(2) {
+    width: 180px;
+}
+
+#section-logs table.dt-table td:nth-child(2) .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+/* DataTables search */
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+    text-align: left;
+    float: none;
+    clear: both;
+}
+.dataTables_wrapper .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
+    font-weight: 500;
+}
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 999px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+    width: 250px;
+    transition: all 0.2s ease;
+}
+.dataTables_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 2px rgba(var(--couleur-primaire-rgb), 0.1);
+    background: var(--couleur-surface);
+}
+.dataTables_wrapper .dataTables_filter input::placeholder {
+    color: var(--couleur-texte-secondaire);
+    opacity: 0.7;
+}
+
+/* DataTables info */
+.dataTables_wrapper .dataTables_info {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--couleur-texte-secondaire);
+    text-align: left;
+    float: none;
+    clear: both;
+}
+
+/* DataTables pagination */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 1rem;
+    text-align: left;
+    float: none;
+    clear: both;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    margin: 0 2px;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 999px;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: var(--couleur-primaire);
+    color: var(--couleur-primaire);
+    background: var(--couleur-surface);
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--couleur-primaire);
+    border-color: var(--couleur-primaire);
+    color: #fff;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* DataTables length */
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 1rem;
+    float: none;
+    text-align: left;
+}
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+}
+
+/* Formulaires inline */
+.form-inline {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: .2rem 0;
+}
+.form-inline input[type="number"],
+.form-inline input[type="text"] {
+    max-width: 130px;
+    padding: .28rem .5rem;
+    font-size: .82rem;
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    background: var(--couleur-fond);
+    color: var(--couleur-texte);
+}
+
+.form-inline .btn,
+td.wrap > .btn {
+    min-width: 92px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+td.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    align-items: center;
+}
+
+td.wrap form {
+    margin: 0;
+}
+
+@media (max-width: 980px) {
+    #section-pending table.dt-table {
+        min-width: 1180px;
+    }
+
+    #section-paid table.dt-table {
+        min-width: 760px;
+    }
+
+    #section-organisateurs table.dt-table {
+        min-width: 860px;
+    }
+
+    #section-expired table.dt-table {
+        min-width: 420px;
+    }
+
+    #section-logs table.dt-table {
+        min-width: 920px;
+    }
+}
+
+/* Empty state */
+.empty-state-inline {
+    padding: 2rem;
+    text-align: center;
+    color: var(--couleur-texte-secondaire);
+    font-size: .9rem;
+}

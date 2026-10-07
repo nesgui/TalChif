@@ -121,15 +121,18 @@
             </section>
         </turbo-frame>
     </div>
-    
-    {% block stylesheets %}
-        {{ parent() }}
-        <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
-    {% endblock %}
-    
-    {% block javascripts %}
-        {{ parent() }}
-        <script src="{{ asset('js/menu-error-handler.js') }}" defer></script>
-        <script src="{{ asset('js/form-validator.js') }}" defer></script>
-    {% endblock %}
+{% endblock %}
+
+{# Ces deux blocs doivent rester au premier niveau. Imbriques dans site_main,
+   ils etaient rendus une seconde fois dans le <body> : chaque page du tableau
+   de bord chargeait toutes ses feuilles de style en double. #}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/menu-error-handler.js') }}" defer></script>
+    <script src="{{ asset('js/form-validator.js') }}" defer></script>
 {% endblock %}

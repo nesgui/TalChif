@@ -1,177 +1,140 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Payment;
 
-use App\Entity\Commande;
-use App\Entity\User;
-use App\Infrastructure\Doctrine\Repository\DoctrineCommandeRepository;
-use App\Service\Ticket\QrCodeGeneratorService;
+use App\Repository\CommandeRepository;
+use App\Entity\LogSecurite;
+use App\Service\Paiement\ContexteConfirmation;
+use App\Service\Paiement\ServiceConfirmationPaiement;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class PaymentVerificationService
+/**
+ * Rattrapage des commandes restees en traitement.
+ *
+ * Specificite de ce chemin : interroger l'API PawaPay pour les commandes dont
+ * aucun webhook n'est arrive. L'emission des billets est deleguee a
+ * ServiceConfirmationPaiement, ce qui rend le rattrapage sans risque meme si
+ * le webhook finit par arriver (idempotence).
+ */
+final class PaymentVerificationService
 {
+    private const STATUT_SUCCES = 'COMPLETED';
+    private const STATUTS_ECHEC = ['FAILED', 'REJECTED'];
+
     public function __construct(
         private PawaPayClient $pawaPayClient,
-        private DoctrineCommandeRepository $commandeRepository,
-        private QrCodeGeneratorService $qrCodeGenerator,
+        private CommandeRepository $commandeRepository,
+        private ServiceConfirmationPaiement $serviceConfirmation,
         private EntityManagerInterface $entityManager,
-        private LoggerInterface $logger
-    ) {}
+        private LoggerInterface $logger,
+    ) {
+    }
 
     public function verifyAndUpdateBalance(string $depositId): bool
     {
+        $commande = $this->commandeRepository->findByDepositId($depositId);
+        if (!$commande) {
+            $this->logger->warning('Commande non trouvee pour ce depositId', ['depositId' => $depositId]);
+
+            return false;
+        }
+
         try {
-            // Récupérer la commande via le depositId
-            $commande = $this->commandeRepository->findByDepositId($depositId);
-            
-            if (!$commande) {
-                $this->logger->warning('Commande non trouvée pour le depositId', ['depositId' => $depositId]);
+            $statut = strtoupper((string) $this->pawaPayClient->verifierStatutDepot($depositId));
+        } catch (\Throwable $e) {
+            $this->logger->error('Interrogation PawaPay impossible', [
+                'depositId' => $depositId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        if ($statut === self::STATUT_SUCCES) {
+            try {
+                $resultat = $this->serviceConfirmation->confirmer(
+                    $commande,
+                    ContexteConfirmation::sondagePawaPay($depositId)
+                );
+            } catch (\Throwable $e) {
+                $this->logger->error('Confirmation par sondage en echec', [
+                    'depositId' => $depositId,
+                    'reference' => $commande->getReference(),
+                    'error' => $e->getMessage(),
+                ]);
+
                 return false;
             }
 
-            // Vérifier le statut du paiement via PawaPay API
-            $status = $this->pawaPayClient->verifierStatutDepot($depositId);
-            
-            if ($status === 'COMPLETED') {
-                return $this->processSuccessfulPayment($commande, $depositId);
-            } elseif ($status === 'FAILED' || $status === 'REJECTED') {
-                return $this->processFailedPayment($commande, $depositId);
-            }
-
-            // Statut encore en cours (PROCESSING, PENDING)
-            $this->logger->info('Paiement encore en cours', [
-                'depositId' => $depositId,
-                'reference' => $commande->getReference(),
-                'status' => $status
-            ]);
-            
-            return false;
-            
-        } catch (\Throwable $e) {
-            $this->logger->error('Erreur lors de la vérification du paiement', [
-                'depositId' => $depositId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            return false;
-        }
-    }
-
-    private function processSuccessfulPayment(Commande $commande, string $depositId): bool
-    {
-        if ($commande->getStatut() === Commande::STATUT_PAID) {
-            $this->logger->info('Commande déjà validée', ['reference' => $commande->getReference()]);
-            return true;
+            return !$resultat->dejaConfirmee;
         }
 
-        // 1. Marquer la commande payée
-        $commande->marquerPayee();
+        if (\in_array($statut, self::STATUTS_ECHEC, true)) {
+            return $this->rejeter($depositId);
+        }
 
-        // 2. Générer les billets EN PREMIER
-        $this->generateTickets($commande);
-
-        // 3. Créditer le cashback SEULEMENT après succès de la génération
-        $user = $commande->getClient();
-        $cashbackAmount = (int) ($commande->getMontantTotal() * 0.01);
-        $user->addBalance($cashbackAmount);
-
-        // 4. Sauvegarder tout en une seule transaction
-        $this->entityManager->flush();
-
-        $this->logger->info('Paiement validé avec succès', [
-            'reference' => $commande->getReference(),
+        $this->logger->info('Paiement encore en cours', [
             'depositId' => $depositId,
-            'cashback' => $cashbackAmount,
+            'reference' => $commande->getReference(),
+            'status' => $statut,
         ]);
 
-        return true;
+        return false;
     }
 
-    private function processFailedPayment(Commande $commande, string $depositId): bool
+    /**
+     * Parcourt les commandes en traitement et tente de les resoudre.
+     *
+     * @return list<array{reference: string, depositId: string, success: bool}>
+     */
+    public function checkPendingPayments(): array
     {
-        if ($commande->getStatut() === Commande::STATUT_REJECTED) {
-            $this->logger->info('Commande déjà rejetée', ['reference' => $commande->getReference()]);
-            return true;
+        $resultats = [];
+
+        foreach ($this->commandeRepository->findProcessingWithDepositId() as $commande) {
+            $depositId = (string) $commande->getDepositId();
+
+            $resultats[] = [
+                'reference' => (string) $commande->getReference(),
+                'depositId' => $depositId,
+                'success' => $this->verifyAndUpdateBalance($depositId),
+            ];
+        }
+
+        return $resultats;
+    }
+
+    private function rejeter(string $depositId): bool
+    {
+        $commande = $this->commandeRepository->findByDepositId($depositId);
+        if (!$commande || $commande->isRejected()) {
+            return false;
+        }
+
+        if (!$commande->isPending() && !$commande->isProcessing()) {
+            return false;
         }
 
         $commande->marquerRejetee();
+
+        $log = new LogSecurite();
+        $log->setAction('PAWAPAY_DEPOT_ECHOUE_SONDAGE');
+        $log->setReferenceCommande((string) $commande->getReference());
+        $log->setDetails("Depot PawaPay {$depositId} en echec, detecte par verification periodique");
+        $log->setIpAddress('pawapay-polling');
+        $this->entityManager->persist($log);
+
+        $this->entityManager->persist($commande);
         $this->entityManager->flush();
-        
-        $this->logger->warning('Paiement rejeté', [
-            'reference' => $commande->getReference(),
+
+        $this->logger->warning('Paiement rejete', [
             'depositId' => $depositId,
-            'montant' => $commande->getMontantTotal()
+            'reference' => $commande->getReference(),
         ]);
-        
+
         return true;
-    }
-
-    private function generateTickets(Commande $commande): void
-    {
-        foreach ($commande->getLignes() as $ligne) {
-            $evenement = $ligne->getEvenement();
-            
-            // Verrouiller l'événement pour éviter les race conditions
-            $evenementLocked = $this->entityManager->find(
-                Evenement::class,
-                $evenement->getId(),
-                \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE
-            );
-            
-            if (!$evenementLocked) {
-                throw new \RuntimeException("Événement introuvable.");
-            }
-            
-            $quantite = $ligne->getQuantite();
-            
-            // Vérifier à nouveau les places avec le verrou
-            if ($quantite > $evenementLocked->getPlacesRestantes()) {
-                throw new \App\Domain\Exception\PlacesInsuffisantesException(
-                    "Plus assez de places disponibles pour « {$evenementLocked->getNom()} »."
-                );
-            }
-            
-            for ($i = 0; $i < $quantite; $i++) {
-                $billet = new \App\Entity\Billet();
-                $billet->setQrCode($this->qrCodeGenerator->generer());
-                $billet->setType($ligne->getTypeBillet());
-                $billet->setPrix($ligne->getPrixUnitaire());
-                $billet->setClient($commande->getClient());
-                $billet->setEvenement($evenementLocked);
-                $billet->setStatutPaiement('PAYE');
-                $billet->setTransactionId($commande->getReference());
-                
-                $this->entityManager->persist($billet);
-            }
-            
-            // Mettre à jour les places vendues de l'événement
-            $evenementLocked->reserverPlaces($quantite);
-        }
-    }
-
-
-    public function checkPendingPayments(): array
-    {
-        $results = [];
-        
-        // Récupérer toutes les commandes en statut Processing avec un depositId
-        $commandesProcessing = $this->entityManager->getRepository(Commande::class)->findBy([
-            'statut' => Commande::STATUT_PROCESSING
-        ]);
-
-        foreach ($commandesProcessing as $commande) {
-            if ($commande->getDepositId()) {
-                $success = $this->verifyAndUpdateBalance($commande->getDepositId());
-                $results[] = [
-                    'reference' => $commande->getReference(),
-                    'depositId' => $commande->getDepositId(),
-                    'success' => $success
-                ];
-            }
-        }
-
-        return $results;
     }
 }

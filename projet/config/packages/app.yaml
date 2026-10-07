@@ -5,6 +5,9 @@ parameters:
     # Taux de commission admin sur les ventes (ex: 0.10 = 10 %)
     app.commission_taux: 0.10
 
+    # Cashback credite au client sur la balance apres confirmation (ex: 0.01 = 1 %)
+    app.cashback_taux: 0.01
+
     # Mobile Money - numéros de dépôt plateforme (selon opérateur)
     app.depot.numeros:
         momo: '63519678'
@@ -34,7 +37,9 @@ parameters:
     # PawaPay - Agrégateur Mobile Money
     app.pawapay.api_token: '%env(PAWAPAY_API_TOKEN)%'
     app.pawapay.base_url: '%env(PAWAPAY_BASE_URL)%'
-    app.pawapay.webhook_secret: '%env(default::PAWAPAY_WEBHOOK_SECRET)%'
+    # string: force la chaine vide si la variable est absente, le controleur
+    # typant ce parametre en string (et refusant la requete si vide).
+    app.pawapay.webhook_secret: '%env(string:default::PAWAPAY_WEBHOOK_SECRET)%'
     app.pawapay.currency: 'XAF'
     # Mapping méthode de paiement → correspondant PawaPay (opérateur_pays)
     app.pawapay.correspondents:

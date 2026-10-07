@@ -8,6 +8,7 @@ use App\Application\Handler\RejeterPaiementHandler;
 use App\Application\Handler\ValiderPaiementHandler;
 use App\Entity\Evenement;
 use App\Entity\LogSecurite;
+use App\Service\Finance\CalculateurRevenus;
 use App\Repository\BilletRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
@@ -35,6 +36,7 @@ final class AdminCommandeController extends AbstractController
         private BilletRepository $billetRepository,
         private EntityManagerInterface $entityManager,
         private ValiderPaiementHandler $validerPaiementHandler,
+        private CalculateurRevenus $calculateurRevenus,
         private RejeterPaiementHandler $rejeterPaiementHandler
     ) {
     }
@@ -56,7 +58,7 @@ final class AdminCommandeController extends AbstractController
         foreach ($evenementsAPayer as $evt) {
             $evenementsAvecSolde[] = [
                 'evenement' => $evt,
-                'soldeNet' => $this->billetRepository->calculateNetRevenue($evt),
+                'soldeNet' => $this->calculateurRevenus->net($evt),
             ];
         }
 
@@ -105,8 +107,13 @@ final class AdminCommandeController extends AbstractController
                 validateurId: $this->getUser()->getId()
             );
             
-            $this->validerPaiementHandler->handle($command);
-            $this->addFlash('success', "Paiement validé. Les billets ont été générés pour la commande {$reference}.");
+            $resultat = $this->validerPaiementHandler->handle($command);
+            $this->addFlash(
+                'success',
+                $resultat->dejaConfirmee
+                    ? "La commande {$reference} etait deja validee, aucun billet supplementaire n'a ete emis."
+                    : "Paiement valide. {$resultat->nombreBillets} billet(s) emis pour la commande {$reference}."
+            );
         } catch (\RuntimeException $e) {
             $this->addFlash('error', $e->getMessage());
         }
@@ -154,7 +161,7 @@ final class AdminCommandeController extends AbstractController
             $this->addFlash('error', 'L\'événement n\'est pas encore terminé.');
             return $this->redirectToRoute('admin.commande.index');
         }
-        $montantNet = $this->billetRepository->calculateNetRevenue($evenement);
+        $montantNet = $this->calculateurRevenus->net($evenement);
         $organisateur = $evenement->getOrganisateur();
         $tel = $organisateur?->getTelephone() ?? 'N/A';
         $evenement->setOrganisateurPaye(true);

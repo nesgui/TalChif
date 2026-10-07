@@ -2,6 +2,11 @@
 
 {% set section = 'admin' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/admin_evenement/index.css') }}">
+{% endblock %}
+
 {% block title %}Admin - Événements{% endblock %}
 
 {% block dashboard_title %}Événements{% endblock %}
@@ -40,56 +45,6 @@
     </table>
     </div>
 </div>
-
-<style>
-.admin-events-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.admin-events-table .col-id,
-.admin-events-table .cell-id {
-    width: 60px;
-    white-space: nowrap;
-}
-
-.admin-events-table .col-status,
-.admin-events-table .cell-status {
-    width: 110px;
-    text-align: center;
-}
-
-.admin-events-table .col-action,
-.admin-events-table .cell-action {
-    width: 140px;
-    text-align: center;
-}
-
-.admin-events-table .cell-name,
-.admin-events-table .cell-organizer {
-    word-break: break-word;
-}
-
-.admin-event-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 78px;
-    white-space: nowrap;
-}
-
-.admin-events-table .cell-action .btn {
-    min-width: 104px;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-    .admin-events-table {
-        min-width: 620px;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

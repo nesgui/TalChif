@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Billet;
 use App\Entity\Evenement;
 use App\Entity\User;
-use App\Service\CommissionRateProvider;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,10 +15,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BilletRepository extends ServiceEntityRepository
 {
-    public function __construct(
-        ManagerRegistry $registry,
-        private CommissionRateProvider $commissionRateProvider
-    ) {
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, Billet::class);
     }
 
@@ -161,13 +158,6 @@ class BilletRepository extends ServiceEntityRepository
             ->getSingleScalarResult() ?? 0;
     }
 
-    /** Revenu net après commission admin (taux configuré dans app.commission_taux). */
-    public function calculateNetRevenue(Evenement $evenement): int
-    {
-        $brut = $this->calculateGrossRevenue($evenement);
-        $rate = $this->commissionRateProvider->getRate();
-        return (int) ($brut * (1 - $rate));
-    }
 
     public function findParticipantsByEvenement(Evenement $evenement, ?int $limit = 50, ?int $offset = 0): array
     {
@@ -309,6 +299,40 @@ class BilletRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('now', new \DateTime())
             ->orderBy('e.dateEvenement', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Billets emis pour une reference de transaction (= reference de commande).
+     *
+     * @return Billet[]
+     */
+    public function findByTransactionId(string $transactionId): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.evenement', 'e')
+            ->addSelect('e')
+            ->where('b.transactionId = :transactionId')
+            ->setParameter('transactionId', $transactionId)
+            ->orderBy('b.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Billets d'un client designe par son identifiant.
+     *
+     * @return Billet[]
+     */
+    public function findByClientId(int $clientId): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.evenement', 'e')
+            ->addSelect('e')
+            ->where('b.client = :client')
+            ->setParameter('client', $clientId)
+            ->orderBy('b.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

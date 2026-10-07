@@ -2,6 +2,11 @@
 
 {% set section = 'admin' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/admin_organisateur/index.css') }}">
+{% endblock %}
+
 {% block title %}Admin - Organisateurs{% endblock %}
 
 {% block dashboard_title %}Organisateurs{% endblock %}
@@ -69,74 +74,6 @@
     </table>
     </div>
 </div>
-
-<style>
-.admin-organizers-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.admin-organizers-table .col-id,
-.admin-organizers-table .cell-id {
-    width: 54px;
-    white-space: nowrap;
-}
-
-.admin-organizers-table .col-status,
-.admin-organizers-table .cell-status,
-.admin-organizers-table .col-commission,
-.admin-organizers-table .cell-commission,
-.admin-organizers-table .col-events,
-.admin-organizers-table .cell-events,
-.admin-organizers-table .col-date,
-.admin-organizers-table .cell-date {
-    width: 96px;
-    text-align: center;
-    white-space: nowrap;
-}
-
-.admin-organizers-table .col-actions,
-.admin-organizers-table .cell-actions {
-    width: 220px;
-}
-
-.admin-organizers-table .cell-email,
-.admin-organizers-table .cell-phone,
-.admin-organizers-table .cell-name {
-    word-break: break-word;
-}
-
-.admin-organizer-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 84px;
-    white-space: nowrap;
-}
-
-.admin-organizers-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .45rem;
-    align-items: center;
-}
-
-.admin-organizers-actions form {
-    margin: 0;
-}
-
-.admin-organizers-actions .btn {
-    min-width: 88px;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-@media (max-width: 980px) {
-    .admin-organizers-table {
-        min-width: 1040px;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

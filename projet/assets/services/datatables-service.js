@@ -1,15 +1,11 @@
-// DataTables configuration pour TalChif - Style personnalisé
-// Version sans modules ES : on utilise la version jQuery
-// chargée via les CDN dans base.html.twig (jQuery + DataTables + Buttons).
+// Configuration DataTables pour TalChif - style personnalise
 //
-// IMPORTANT :
-// - On suppose que jQuery et DataTables sont disponibles globalement
-//   (window.jQuery / window.$ et $.fn.DataTable).
-// - Ce fichier est chargé en type "module", mais on n'utilise ici que l'API globale.
+// jQuery et les plugins DataTables sont servis depuis public/vendor/ (aucun CDN).
+// Ce fichier est un script classique charge apres eux dans base.html.twig :
+// window.jQuery et jQuery.fn.DataTable sont donc disponibles.
 //
-// Objectif :
-// - Fournir une API simple `DataTableOS.init(selector, options)` pour initialiser
-//   les tableaux avec les réglages et le style TalChif.
+// Objectif : exposer `DataTableOS.init(selector, options)` pour initialiser
+// les tableaux avec les reglages et le style TalChif.
 
 const DataTableOS = {
     // Style personnalisé pour les DataTables
@@ -20,7 +16,6 @@ const DataTableOS = {
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             deferRender: true,
             language: {
-                url: '//cdn.datatables.net/plug-ins/2.1.8/i18n/fr.json',
                 searchPlaceholder: "Rechercher...",
                 lengthMenu: "Afficher _MENU_ éléments",
                 info: "Affichage de _START_ à _END_ sur _TOTAL_ éléments",
@@ -83,7 +78,7 @@ const DataTableOS = {
             console.log('Initialisation de DataTables (TalChif):', selector);
 
             if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
-                console.error('DataTables (jQuery) n\'est pas chargé. Vérifiez les scripts CDN dans base.html.twig.');
+                console.error('DataTables (jQuery) n\'est pas charge. Verifiez les scripts locaux dans base.html.twig.');
                 return null;
             }
 
@@ -155,9 +150,6 @@ const DataTableOS = {
     }
 };
 
-// Exporter pour utilisation dans les modules
-export default DataTableOS;
-
-// Le rendre aussi disponible globalement (au cas où on l'appelle sans import)
+// Expose globalement : consomme par les scripts inline des templates.
 window.DataTableOS = DataTableOS;
 

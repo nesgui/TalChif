@@ -1,0 +1,102 @@
+/* Styles de templates/error/500.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.error-page-wrapper {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--espace-xl) 0;
+}
+
+.error-page-content-centered {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.error-page-icon {
+    width: clamp(64px, 10vw, 96px);
+    height: clamp(64px, 10vw, 96px);
+    margin: 0 auto var(--espace-md);
+    opacity: 0.9;
+}
+
+.error-icon-error {
+    color: var(--couleur-error);
+}
+
+.error-page-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.error-page-code-watermark {
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 800;
+    color: var(--couleur-texte);
+    opacity: 0.1;
+    line-height: 1;
+    margin-bottom: var(--espace-sm);
+    letter-spacing: -0.02em;
+    user-select: none;
+}
+
+.error-page-title {
+    font-size: clamp(1.5rem, 3vw + 1rem, 2.25rem);
+    font-weight: 700;
+    color: var(--couleur-texte);
+    margin: 0 0 var(--espace-md);
+    line-height: 1.2;
+}
+
+.error-page-description {
+    font-size: clamp(0.95rem, 0.5vw + 0.85rem, 1.125rem);
+    color: var(--couleur-texte-secondaire);
+    line-height: 1.6;
+    margin: 0 0 var(--espace-xl);
+}
+
+.error-page-info-box {
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: var(--espace-lg);
+    margin-bottom: var(--espace-xl);
+    display: flex;
+    gap: var(--espace-md);
+    text-align: left;
+}
+
+.error-page-info-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: var(--couleur-info);
+}
+
+.error-page-info-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.error-page-info-text strong {
+    display: block;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin-bottom: var(--espace-xs);
+}
+
+.error-page-info-text p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--couleur-texte-secondaire);
+    line-height: 1.5;
+}
+
+.error-page-actions {
+    display: flex;
+    gap: var(--espace-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}

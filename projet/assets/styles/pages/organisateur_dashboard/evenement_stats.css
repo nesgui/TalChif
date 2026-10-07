@@ -1,0 +1,319 @@
+/* Styles de templates/organisateur_dashboard/evenement_stats.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-link {
+    color: var(--couleur-texte-secondaire);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: var(--couleur-primaire);
+}
+
+.event-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin: 0;
+}
+
+.event-meta {
+    color: var(--couleur-texte-secondaire);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #f1f5f9;
+}
+
+.stat-card.main {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-card.main .stat-header h3 {
+    color: white;
+}
+
+.big-number {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.big-number .number {
+    display: block;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.big-number .label {
+    display: block;
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+.progress-bar {
+    background: rgba(255,255,255,0.2);
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--couleur-success);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.remaining-places {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.places-count {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.places-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.revenue-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.revenue-row:last-child {
+    border-bottom: none;
+}
+
+.revenue-label {
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.revenue-amount {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.revenue-amount.gross {
+    color: var(--couleur-warning);
+}
+
+.revenue-amount.net {
+    color: var(--couleur-success);
+}
+
+.commission-info {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.ticket-type-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+}
+
+.ticket-type-row:last-child {
+    border-bottom: none;
+}
+
+.type-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.type-name {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.type-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.type-percentage {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.percentage-bar {
+    width: 60px;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.percentage-fill {
+    height: 100%;
+    background: var(--couleur-primaire);
+    transition: width 0.3s ease;
+}
+
+.percentage-fill.vip {
+    background: var(--couleur-warning);
+}
+
+.percentage-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--couleur-texte-secondaire);
+}
+
+.actions-section {
+    margin-top: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin-bottom: 1rem;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+.action-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.action-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.action-content p {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card.main {
+        grid-column: span 1;
+    }
+    
+    .page-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}

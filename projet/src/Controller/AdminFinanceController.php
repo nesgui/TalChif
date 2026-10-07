@@ -7,6 +7,7 @@ use App\Form\CommissionRateType;
 use App\Repository\BilletRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
+use App\Service\Finance\CalculateurRevenus;
 use App\Service\CommissionRateProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ final class AdminFinanceController extends AbstractController
         private CommandeRepository $commandeRepository,
         private BilletRepository $billetRepository,
         private EvenementRepository $evenementRepository,
+        private CalculateurRevenus $calculateurRevenus,
     ) {}
 
     #[Route('/admin/finance', name: 'admin.finance.index')]
@@ -72,8 +74,8 @@ final class AdminFinanceController extends AbstractController
         foreach ($evenementsAPayer as $evt) {
             $evenementsAvecSolde[] = [
                 'evenement' => $evt,
-                'soldeNet'  => $this->billetRepository->calculateNetRevenue($evt),
-                'soldeBrut' => $this->billetRepository->calculateGrossRevenue($evt),
+                'soldeNet'  => $this->calculateurRevenus->net($evt),
+                'soldeBrut' => $this->calculateurRevenus->brut($evt),
             ];
         }
 

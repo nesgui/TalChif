@@ -6,8 +6,8 @@ namespace App\Application\Handler;
 
 use App\Application\Command\CreerCommandeCommand;
 use App\Domain\Exception\PlacesInsuffisantesException;
-use App\Domain\Repository\EvenementRepositoryInterface;
-use App\Domain\Repository\CommandeRepositoryInterface;
+use App\Repository\EvenementRepository;
+use App\Repository\CommandeRepository;
 use App\Domain\ValueObject\Telephone;
 use App\Entity\Commande;
 use App\Entity\CommandeLigne;
@@ -25,8 +25,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final class CreerCommandeHandler
 {
     public function __construct(
-        private EvenementRepositoryInterface $evenementRepository,
-        private CommandeRepositoryInterface $commandeRepository,
+        private EvenementRepository $evenementRepository,
+        private CommandeRepository $commandeRepository,
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private CommissionRateProvider $commissionRateProvider,
@@ -121,7 +121,7 @@ final class CreerCommandeHandler
                 $this->entityManager->persist($ligne);
             }
 
-            $this->commandeRepository->save($commande);
+            $this->entityManager->persist($commande);
             $this->entityManager->flush();
 
             // Phase 1: pour le Tchad (+235), on garde un flux manuel (pas d'initiation PawaPay auto).
@@ -158,7 +158,7 @@ final class CreerCommandeHandler
                 description: 'TalChif ' . $commande->getReference()
             );
             $commande->marquerEnTraitement($depositId);
-            $this->commandeRepository->save($commande);
+            $this->entityManager->persist($commande);
             $this->entityManager->flush();
         } catch (\Throwable $e) {
             $this->logger->error('PawaPay dépôt échoué, fallback manuel', [
@@ -179,7 +179,7 @@ final class CreerCommandeHandler
     {
         do {
             $ref = 'EVT-' . random_int(1000, 9999) . '-' . strtoupper(bin2hex(random_bytes(2)));
-        } while ($this->commandeRepository->referenceExists($ref));
+        } while ($this->commandeRepository->referenceExiste($ref));
 
         return $ref;
     }

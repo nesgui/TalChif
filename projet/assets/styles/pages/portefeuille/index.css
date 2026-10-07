@@ -1,0 +1,12 @@
+/* Styles de templates/portefeuille/index.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.client-shell { max-width: 900px; margin: 0 auto; display: grid; gap: 1rem; }
+.card-warning { border-left: 3px solid var(--couleur-warning); }
+.pending-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid var(--couleur-bordure); }
+.pending-row:last-child { border-bottom: none; }
+.billets-grid { display: grid; gap: .65rem; }
+.billet-mini { display: flex; align-items: center; gap: .75rem; padding: .6rem; border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); }
+.billet-mini-info { flex: 1; display: grid; gap: .15rem; }
+.billet-mini-info strong { font-size: .95rem; }
+.billet-mini-info span { font-size: .82rem; color: var(--couleur-texte-secondaire); }

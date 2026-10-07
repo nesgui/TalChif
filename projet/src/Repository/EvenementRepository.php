@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Evenement;
 use App\Entity\User;
+use Doctrine\DBAL\LockMode;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -245,6 +246,47 @@ class EvenementRepository extends ServiceEntityRepository
     public function countActiveEvents(): int
     {
         return $this->count(['isActive' => true]);
+    }
+
+    /**
+     * Charge en une requete les evenements actifs correspondant aux identifiants.
+     *
+     * Evite une requete par ligne de panier.
+     *
+     * @param list<int> $ids
+     *
+     * @return array<int, Evenement> indexe par identifiant
+     */
+    public function findActifsParIds(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $evenements = $this->createQueryBuilder('e')
+            ->where('e.id IN (:ids)')
+            ->andWhere('e.isActive = true')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $parIdentifiant = [];
+        foreach ($evenements as $evenement) {
+            $parIdentifiant[$evenement->getId()] = $evenement;
+        }
+
+        return $parIdentifiant;
+    }
+
+    /**
+     * Charge un evenement en posant un verrou en ecriture.
+     *
+     * Exige une transaction ouverte : Doctrine leve TransactionRequiredException
+     * sinon. Utilise pour serialiser le decrement du stock.
+     */
+    public function findByIdWithLock(int $id): ?Evenement
+    {
+        return $this->find($id, LockMode::PESSIMISTIC_WRITE);
     }
 
     public function save(Evenement $evenement, bool $flush = false): void

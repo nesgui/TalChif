@@ -2,6 +2,11 @@
 
 {% set section = 'admin' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/admin_user/index.css') }}">
+{% endblock %}
+
 {% block title %}Gestion des utilisateurs{% endblock %}
 
 {% block dashboard_title %}Gestion des utilisateurs{% endblock %}
@@ -119,81 +124,6 @@
         {% endif %}
     </section>
 </div>
-
-<style>
-.admin-users-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.admin-users-table .col-id,
-.admin-users-table .cell-id {
-    width: 60px;
-    white-space: nowrap;
-}
-
-.admin-users-table .col-role,
-.admin-users-table .cell-role,
-.admin-users-table .col-status,
-.admin-users-table .cell-status {
-    width: 112px;
-    text-align: center;
-}
-
-.admin-users-table .col-date,
-.admin-users-table .cell-date {
-    width: 118px;
-    white-space: nowrap;
-}
-
-.admin-users-table .col-actions,
-.admin-users-table .cell-actions {
-    width: 190px;
-}
-
-.admin-users-table .cell-email,
-.admin-users-table .cell-phone,
-.admin-users-table .cell-name {
-    word-break: break-word;
-}
-
-.admin-user-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 84px;
-    white-space: nowrap;
-}
-
-.admin-users-actions {
-    display: flex;
-    gap: .5rem;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.admin-users-actions form {
-    margin: 0;
-}
-
-.admin-users-actions .btn {
-    min-width: 92px;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-@media (max-width: 980px) {
-    .admin-users-table {
-        min-width: 960px;
-    }
-}
-
-@media (max-width: 768px) {
-    .admin-users-actions .btn {
-        min-width: 84px;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

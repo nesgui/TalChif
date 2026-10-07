@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\EvenementRepository;
+use App\Service\Panier\ResolveurPanier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,97 +12,71 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Gestion du panier (session) : affichage, ajout, modification quantité, suppression.
- * Les actions modifiant le panier sont protégées par CSRF où nécessaire.
+ * Gestion du panier (session) : affichage, ajout, modification quantite, suppression.
+ * Toutes les actions modifiant le panier sont protegees par un jeton CSRF.
  */
 final class PanierController extends AbstractController
 {
+    private const TYPE_SIMPLE = 'SIMPLE';
+    private const TYPE_VIP = 'VIP';
+
+    /** @var string[] */
+    private const TYPES_BILLET = [self::TYPE_SIMPLE, self::TYPE_VIP];
+
     public function __construct(
-        private EvenementRepository $evenementRepository
+        private EvenementRepository $evenementRepository,
+        private ResolveurPanier $resolveurPanier
     ) {
     }
 
     #[Route('/panier', name: 'panier.index', methods: ['GET'])]
     public function index(SessionInterface $session): Response
     {
-        $panier = $session->get('panier', []);
-
-        $lignes = [];
-        $total = 0;
-
-        foreach ($panier as $id => $donnees) {
-            // Compatibilité ancienne structure (int) et nouvelle (array)
-            $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
-            $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
-            
-            $evenement = $this->evenementRepository->find($id);
-            
-            if (!$evenement || !$evenement->isActive()) {
-                continue;
-            }
-
-            $prix = $type === 'VIP' && $evenement->getPrixVip()
-                ? $evenement->getPrixVip()
-                : $evenement->getPrixSimple();
-            
-            $sousTotal = $prix * $quantite;
-            $total += $sousTotal;
-
-            $lignes[] = [
-                'id' => $id,
-                'quantite' => $quantite,
-                'type' => $type,
-                'produit' => [
-                    'id' => $evenement->getId(),
-                    'slug' => $evenement->getSlug(),
-                    'titre' => $evenement->getNom(),
-                    'image' => $evenement->getAffichePrincipale() ?: '/images/evenements/default.svg',
-                    'prix_simple' => $evenement->getPrixSimple(),
-                    'prix_vip' => $evenement->getPrixVip(),
-                    'prix_choisi' => $prix,
-                    'ville' => $evenement->getVille(),
-                    'date' => $evenement->getDateEvenement()->format('Y-m-d H:i'),
-                    'places_restantes' => $evenement->getPlacesRestantes(),
-                ],
-                'sous_total' => $sousTotal,
-            ];
-        }
+        $contenu = $this->resolveurPanier->resoudre($session);
 
         return $this->render('panier/index.html.twig', [
-            'lignes' => $lignes,
-            'total' => $total,
+            'lignes' => $contenu->lignes,
+            'total' => $contenu->total,
         ]);
     }
 
     #[Route('/panier/ajouter/{id}', name: 'panier.ajouter', requirements: ['id' => '\\d+'], methods: ['POST'])]
     public function ajouter(int $id, Request $request, SessionInterface $session): RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('panier_ajouter', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de securite invalide. Veuillez reessayer.');
+
+            return $this->redirectToRoute('panier.index');
+        }
+
         $evenement = $this->evenementRepository->find($id);
-        
+
         if (!$evenement || !$evenement->isActive()) {
-            $this->addFlash('error', 'Événement non disponible');
+            $this->addFlash('error', 'Evenement non disponible');
+
             return $this->redirectToRoute('evenement.index');
         }
 
         if ($evenement->isComplet()) {
-            $this->addFlash('error', 'Cet événement est complet');
+            $this->addFlash('error', 'Cet evenement est complet');
+
             return $this->redirectToRoute('evenement.show', ['slug' => $evenement->getSlug(), 'id' => $evenement->getId()]);
         }
 
         $quantite = (int) $request->request->get('quantite', 1);
         $quantite = max(1, min($quantite, $evenement->getPlacesRestantes()));
-        $type = $request->request->get('type', 'SIMPLE'); // 'SIMPLE' ou 'VIP'
+        $type = $this->normaliserType($request->request->get('type'));
 
         $panier = $session->get('panier', []);
-        
-        // Nouvelle structure : [id_evenement => ['quantite' => int, 'type' => string]]
+
+        // Structure : [id_evenement => ['quantite' => int, 'type' => string]]
         $panier[$id] = [
             'quantite' => ($panier[$id]['quantite'] ?? 0) + $quantite,
-            'type'     => $type,
+            'type' => $type,
         ];
         $session->set('panier', $panier);
 
-        $this->addFlash('success', 'Événement ajouté au panier');
+        $this->addFlash('success', 'Evenement ajoute au panier');
 
         $redirect = $request->request->get('redirect');
         if ($redirect === 'achat') {
@@ -173,45 +148,28 @@ final class PanierController extends AbstractController
     }
 
     #[Route('/panier/vider', name: 'panier.vider', methods: ['POST'])]
-    public function vider(SessionInterface $session): RedirectResponse
+    public function vider(Request $request, SessionInterface $session): RedirectResponse
     {
+        if (!$this->isCsrfTokenValid('panier_vider', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de securite invalide. Veuillez reessayer.');
+
+            return $this->redirectToRoute('panier.index');
+        }
+
         $session->remove('panier');
-        $this->addFlash('success', 'Panier vidé');
+        $this->addFlash('success', 'Panier vide');
+
         return $this->redirectToRoute('panier.index');
     }
 
-    public function getNombreArticles(SessionInterface $session): int
+    /**
+     * Les types de billet sont normalises en majuscules : le calcul de prix
+     * compare strictement a « VIP » cote commande.
+     */
+    private function normaliserType(mixed $type): string
     {
-        $panier = $session->get('panier', []);
-        $total = 0;
+        $normalise = strtoupper(trim((string) $type));
 
-        foreach ($panier as $donnees) {
-            // Compatibilité ancienne structure (int) et nouvelle (array)
-            $total += is_array($donnees) ? $donnees['quantite'] : $donnees;
-        }
-
-        return $total;
-    }
-
-    public function getTotal(SessionInterface $session): int
-    {
-        $panier = $session->get('panier', []);
-        $total = 0;
-
-        foreach ($panier as $id => $donnees) {
-            // Compatibilité ancienne structure (int) et nouvelle (array)
-            $quantite = is_array($donnees) ? $donnees['quantite'] : $donnees;
-            $type = is_array($donnees) ? ($donnees['type'] ?? 'SIMPLE') : 'SIMPLE';
-            
-            $evenement = $this->evenementRepository->find($id);
-            if ($evenement && $evenement->isActive()) {
-                $prix = $type === 'VIP' && $evenement->getPrixVip()
-                    ? $evenement->getPrixVip()
-                    : $evenement->getPrixSimple();
-                $total += $prix * $quantite;
-            }
-        }
-
-        return $total;
+        return \in_array($normalise, self::TYPES_BILLET, true) ? $normalise : self::TYPE_SIMPLE;
     }
 }

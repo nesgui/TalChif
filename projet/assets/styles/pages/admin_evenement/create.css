@@ -1,0 +1,45 @@
+/* Styles de templates/admin_evenement/create.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+        .form-checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: var(--couleur-surface);
+            border: 1px solid var(--couleur-bordure);
+            border-radius: var(--rayon);
+            transition: all 0.2s ease;
+        }
+
+        .form-checkbox-wrapper:hover {
+            border-color: var(--couleur-primaire);
+            background: color-mix(in srgb, var(--couleur-surface) 95%, var(--couleur-primaire) 5%);
+        }
+
+        .form-checkbox {
+            margin: 4px 0 0 0;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--couleur-primaire);
+        }
+
+        .form-checkbox-label {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .form-checkbox-label strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--couleur-texte);
+            font-weight: 600;
+        }
+
+        .form-help {
+            display: block;
+            color: var(--couleur-texte-secondaire);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }

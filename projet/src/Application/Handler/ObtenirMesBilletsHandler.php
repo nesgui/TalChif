@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Handler;
 
 use App\Application\Query\ObtenirMesBilletsQuery;
-use App\Domain\Repository\BilletRepositoryInterface;
+use App\Repository\BilletRepository;
 use App\Entity\Billet;
 
 /**
@@ -15,7 +15,7 @@ use App\Entity\Billet;
 final class ObtenirMesBilletsHandler
 {
     public function __construct(
-        private BilletRepositoryInterface $billetRepository
+        private BilletRepository $billetRepository
     ) {
     }
 
@@ -24,7 +24,7 @@ final class ObtenirMesBilletsHandler
      */
     public function handle(ObtenirMesBilletsQuery $query): array
     {
-        $billets = $this->billetRepository->findByUser($query->userId);
+        $billets = $this->billetRepository->findByClientId($query->userId);
 
         if ($query->filtre === 'avenir') {
             return array_filter($billets, function (Billet $b) {

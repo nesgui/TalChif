@@ -2,6 +2,11 @@
 
 {% set section = 'admin' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/admin_securite/index.css') }}">
+{% endblock %}
+
 {% block title %}Admin - Sécurité{% endblock %}
 
 {% block dashboard_title %}Sécurité & anti-fraude{% endblock %}
@@ -108,96 +113,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<style>
-.table-responsive {
-    overflow-x: auto;
-}
-
-.quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.quick-action-card {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: var(--couleur-fond);
-    border: 1px solid var(--couleur-bordure);
-    border-radius: var(--rayon);
-    text-decoration: none;
-    color: var(--couleur-texte);
-    transition: all var(--transition-rapide);
-}
-
-.quick-action-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--ombre-md);
-    border-color: var(--couleur-primaire);
-}
-
-.quick-action-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.quick-action-content h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem 0;
-    color: var(--couleur-texte);
-}
-
-.quick-action-content p {
-    font-size: 0.875rem;
-    color: var(--couleur-texte-secondaire);
-    margin: 0;
-}
-
-.admin-security-controls-table,
-.admin-security-logs-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.admin-security-controls-table .col-status,
-.admin-security-controls-table .cell-status,
-.admin-security-logs-table .col-status,
-.admin-security-logs-table .cell-status {
-    width: 110px;
-    text-align: center;
-}
-
-.admin-security-logs-table .col-date,
-.admin-security-logs-table .cell-date {
-    width: 150px;
-    white-space: nowrap;
-}
-
-.admin-security-controls-table .cell-control,
-.admin-security-logs-table .cell-action {
-    word-break: break-word;
-}
-
-.admin-security-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 84px;
-    white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-    .admin-security-controls-table {
-        min-width: 460px;
-    }
-
-    .admin-security-logs-table {
-        min-width: 620px;
-    }
-}
-</style>
 {% endblock %}

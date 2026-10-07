@@ -2,6 +2,11 @@
 
 {% set section = 'admin' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/admin_organisateur/show.css') }}">
+{% endblock %}
+
 {% block title %}Admin - Organisateur{% endblock %}
 
 {% block dashboard_title %}Détails organisateur{% endblock %}
@@ -64,72 +69,4 @@
     </section>
 </div>
 
-<style>
-.cv-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.cv-badges {
-    display: flex;
-    justify-content: flex-end;
-    gap: .5rem;
-}
-
-.cv-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.cv-section {
-    border: 1px solid var(--couleur-bordure);
-    background: var(--couleur-surface);
-    border-radius: 12px;
-    padding: 1rem;
-}
-
-.cv-section-title {
-    font-weight: 800;
-    margin-bottom: .75rem;
-}
-
-.cv-dl {
-    margin: 0;
-    display: grid;
-    gap: .6rem;
-}
-
-.cv-row {
-    display: grid;
-    grid-template-columns: 120px minmax(0, 1fr);
-    gap: .75rem;
-}
-
-.cv-row dt {
-    font-weight: 700;
-    color: var(--couleur-texte-secondaire);
-}
-
-.cv-row dd {
-    margin: 0;
-    font-weight: 600;
-    color: var(--couleur-texte);
-    overflow-wrap: anywhere;
-}
-
-@media (max-width: 760px) {
-    .cv-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .cv-row {
-        grid-template-columns: 1fr;
-        gap: .15rem;
-    }
-}
-</style>
 {% endblock %}

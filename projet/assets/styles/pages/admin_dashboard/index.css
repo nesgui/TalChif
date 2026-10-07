@@ -1,0 +1,51 @@
+/* Styles de templates/admin_dashboard/index.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.kpi-card {
+    background: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--couleur-texte);
+}
+.kpi-label {
+    font-size: 0.82rem;
+    color: var(--couleur-texte-secondaire);
+}
+.kpi-link {
+    font-size: 0.82rem;
+    color: var(--couleur-primaire);
+    text-decoration: none;
+    margin-top: auto;
+}
+.kpi-warning { border-left: 3px solid var(--couleur-warning); }
+.kpi-success { border-left: 3px solid var(--couleur-success); }
+.kpi-info    { border-left: 3px solid var(--couleur-primaire); }
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 6px;
+    background: var(--couleur-warning);
+    color: #fff;
+}

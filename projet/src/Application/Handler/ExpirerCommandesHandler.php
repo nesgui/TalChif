@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Handler;
 
 use App\Application\Command\ExpirerCommandesCommand;
-use App\Domain\Repository\CommandeRepositoryInterface;
+use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 final class ExpirerCommandesHandler
 {
     public function __construct(
-        private CommandeRepositoryInterface $commandeRepository,
+        private CommandeRepository $commandeRepository,
         private EntityManagerInterface $entityManager
     ) {
     }
@@ -22,7 +22,7 @@ final class ExpirerCommandesHandler
     public function handle(ExpirerCommandesCommand $command): int
     {
         $now = new \DateTimeImmutable();
-        $commandesExpirees = $this->commandeRepository->findPendingExpired($now);
+        $commandesExpirees = $this->commandeRepository->findToExpire($now);
 
         if (empty($commandesExpirees)) {
             return 0;
@@ -32,7 +32,7 @@ final class ExpirerCommandesHandler
         try {
             foreach ($commandesExpirees as $commande) {
                 $commande->marquerExpiree();
-                $this->commandeRepository->save($commande);
+                $this->entityManager->persist($commande);
             }
 
             $this->entityManager->flush();

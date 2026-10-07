@@ -20,9 +20,17 @@ docker/secrets/
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
+/.phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###
 /public/assets/
-/assets/vendor/
 ###< symfony/asset-mapper ###
+
+# assets/vendor/ est VERSIONNE a dessein : Stimulus et Turbo sont telecharges
+# par "importmap:install" depuis un CDN. Les committer garantit qu'un clone
+# neuf se construise sans aucun acces Internet (autonomie du front-end).
+
+# Dependances JS installees localement (non versionnees)
+/node_modules/
+/package-lock.json

@@ -13,6 +13,7 @@ use App\Repository\BilletRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LogSecuriteRepository;
+use App\Service\Finance\CalculateurRevenus;
 use App\Service\CommissionRateProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,6 +35,7 @@ final class OrganisateurDashboardController extends AbstractController
         private EntityManagerInterface $entityManager,
         private ValiderPaiementHandler $validerPaiementHandler,
         private RejeterPaiementHandler $rejeterPaiementHandler,
+        private CalculateurRevenus $calculateurRevenus,
         private CommissionRateProvider $commissionRateProvider
     ) {
     }
@@ -52,7 +54,7 @@ final class OrganisateurDashboardController extends AbstractController
 
         $reglements = [];
         foreach ($evenementsPayes as $evenement) {
-            $montantNet = $this->billetRepository->calculateNetRevenue($evenement);
+            $montantNet = $this->calculateurRevenus->net($evenement);
             $log = $this->logSecuriteRepository->findOneBy(
                 ['action' => 'SETTLE_ORGANISATEUR', 'referenceCommande' => $evenement->getSlug()],
                 ['createdAt' => 'DESC']
@@ -115,8 +117,8 @@ final class OrganisateurDashboardController extends AbstractController
 
         foreach ($evenements as $evenement) {
             $billetsVendus = $this->billetRepository->countSoldByEvenement($evenement);
-            $brut = $this->billetRepository->calculateGrossRevenue($evenement);
-            $net = $this->billetRepository->calculateNetRevenue($evenement);
+            $brut = $this->calculateurRevenus->brut($evenement);
+            $net = $this->calculateurRevenus->net($evenement);
 
             $rows[] = [
                 'evenement' => $evenement,
@@ -176,13 +178,18 @@ final class OrganisateurDashboardController extends AbstractController
         }
 
         try {
-            $this->validerPaiementHandler->handle(new ValiderPaiementCommand(
+            $resultat = $this->validerPaiementHandler->handle(new ValiderPaiementCommand(
                 referenceCommande: $commande->getReference(),
                 montantRecu: $commande->getMontantTotal(),
                 numeroClient: (string) $commande->getNumeroClient(),
                 validateurId: $this->getUser()?->getId() ?? 0
             ));
-            $this->addFlash('success', 'Paiement validé. Le client peut maintenant récupérer ses billets.');
+            $this->addFlash(
+                'success',
+                $resultat->dejaConfirmee
+                    ? 'Cette commande etait deja validee, aucun billet supplementaire emis.'
+                    : 'Paiement valide. Le client peut maintenant recuperer ses billets.'
+            );
         } catch (\RuntimeException $e) {
             $this->addFlash('error', $e->getMessage());
         } catch (\Throwable) {
@@ -261,13 +268,19 @@ final class OrganisateurDashboardController extends AbstractController
         }
 
         try {
-            $this->validerPaiementHandler->handle(new ValiderPaiementCommand(
+            $resultat = $this->validerPaiementHandler->handle(new ValiderPaiementCommand(
                 referenceCommande: $commande->getReference(),
                 montantRecu: $commande->getMontantTotal(),
                 numeroClient: (string) $commande->getNumeroClient(),
                 validateurId: $this->resolveValidateurIdFromRecipient($commande, $recipient)
             ));
-            return new Response('Paiement validé avec succès. Le client peut récupérer ses billets.', Response::HTTP_OK);
+
+            return new Response(
+                $resultat->dejaConfirmee
+                    ? 'Cette commande etait deja validee.'
+                    : 'Paiement valide avec succes. Le client peut recuperer ses billets.',
+                Response::HTTP_OK
+            );
         } catch (\RuntimeException $e) {
             return new Response('Validation impossible: ' . $e->getMessage(), Response::HTTP_CONFLICT);
         }
@@ -312,13 +325,13 @@ final class OrganisateurDashboardController extends AbstractController
         $stats = [
             'total_billets' => $this->billetRepository->countByEvenement($evenement),
             'billets_vendus' => $this->billetRepository->countSoldByEvenement($evenement),
-            'billets_restants' => $evenement->getPlacesTotal() - $this->billetRepository->countSoldByEvenement($evenement),
+            'billets_restants' => $evenement->getPlacesDisponibles() - $this->billetRepository->countSoldByEvenement($evenement),
             'billets_simple' => $this->billetRepository->countByType($evenement, 'simple'),
             'billets_vip' => $this->billetRepository->countByType($evenement, 'vip'),
-            'revenus_bruts' => $this->billetRepository->calculateGrossRevenue($evenement),
-            'revenus_nets' => $this->billetRepository->calculateNetRevenue($evenement),
-            'taux_remplissage' => $evenement->getPlacesTotal() > 0 ? 
-                round(($this->billetRepository->countSoldByEvenement($evenement) / $evenement->getPlacesTotal()) * 100, 1) : 0,
+            'revenus_bruts' => $this->calculateurRevenus->brut($evenement),
+            'revenus_nets' => $this->calculateurRevenus->net($evenement),
+            'taux_remplissage' => $evenement->getPlacesDisponibles() > 0 ? 
+                round(($this->billetRepository->countSoldByEvenement($evenement) / $evenement->getPlacesDisponibles()) * 100, 1) : 0,
         ];
 
         return $this->render('organisateur_dashboard/evenement_stats.html.twig', [
@@ -432,9 +445,9 @@ final class OrganisateurDashboardController extends AbstractController
         $stats = [
             'total_billets' => $this->billetRepository->countByEvenement($evenement),
             'billets_vendus' => $this->billetRepository->countSoldByEvenement($evenement),
-            'billets_restants' => $evenement->getPlacesTotal() - $this->billetRepository->countSoldByEvenement($evenement),
-            'revenus_bruts' => $this->billetRepository->calculateGrossRevenue($evenement),
-            'revenus_nets' => $this->billetRepository->calculateNetRevenue($evenement),
+            'billets_restants' => $evenement->getPlacesDisponibles() - $this->billetRepository->countSoldByEvenement($evenement),
+            'revenus_bruts' => $this->calculateurRevenus->brut($evenement),
+            'revenus_nets' => $this->calculateurRevenus->net($evenement),
         ];
 
         return new JsonResponse($stats);

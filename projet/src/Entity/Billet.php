@@ -399,7 +399,11 @@ class Billet
      */
     public function appartientA(User $user): bool
     {
-        return $this->client && $this->client->getId() === $user->getId();
+        if ($this->client === null) {
+            return false;
+        }
+
+        return self::memeEntite($this->client->getId(), $user->getId(), $this->client, $user);
     }
 
     /**
@@ -407,6 +411,26 @@ class Billet
      */
     public function estPourEvenement(Evenement $evenement): bool
     {
-        return $this->evenement && $this->evenement->getId() === $evenement->getId();
+        if ($this->evenement === null) {
+            return false;
+        }
+
+        return self::memeEntite($this->evenement->getId(), $evenement->getId(), $this->evenement, $evenement);
+    }
+
+    /**
+     * Compare deux entites par identifiant, en retombant sur l'identite d'objet
+     * quand l'une des deux n'est pas encore persistee.
+     *
+     * Sans ce garde-fou, deux entites neuves ont toutes deux un id null et
+     * « null === null » les declarerait identiques.
+     */
+    private static function memeEntite(?int $idA, ?int $idB, object $a, object $b): bool
+    {
+        if ($idA === null || $idB === null) {
+            return $a === $b;
+        }
+
+        return $idA === $idB;
     }
 }

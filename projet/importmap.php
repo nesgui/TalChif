@@ -25,9 +25,6 @@ return [
     'services/theme_service' => [
         'path' => './assets/services/theme_service.js',
     ],
-    'services/datatables-service' => [
-        'path' => './assets/services/datatables-service.js',
-    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

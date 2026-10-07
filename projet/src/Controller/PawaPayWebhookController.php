@@ -42,30 +42,38 @@ final class PawaPayWebhookController
             return new JsonResponse(['error' => 'Method not allowed'], 405);
         }
 
-        // Vérifier la signature HMAC avant tout traitement
-        if (!empty($this->webhookSecret)) {
-            $signature = $request->headers->get('x-pawapay-signature', '');
-            if (empty($signature)) {
-                $this->logger->warning('PawaPay webhook: en-tête de signature manquant', [
-                    'ip' => $request->getClientIp(),
-                ]);
-                return new JsonResponse(['error' => 'Missing signature'], 401);
-            }
-            $expected = hash_hmac('sha256', $request->getContent(), $this->webhookSecret);
-            if (!hash_equals($expected, $signature)) {
-                $this->logger->warning('PawaPay webhook: signature HMAC invalide', [
-                    'ip' => $request->getClientIp(),
-                ]);
-                return new JsonResponse(['error' => 'Invalid signature'], 401);
-            }
+        // Fail-closed : sans secret configure, le webhook est refuse (OWASP A02/A08).
+        if ($this->webhookSecret === '') {
+            $this->logger->critical('PawaPay webhook: PAWAPAY_WEBHOOK_SECRET absent, requete refusee', [
+                'ip' => $request->getClientIp(),
+            ]);
+
+            return new JsonResponse(['error' => 'Webhook not configured'], 503);
+        }
+
+        $signature = (string) $request->headers->get('x-pawapay-signature', '');
+        if ($signature === '') {
+            $this->logger->warning('PawaPay webhook: en-tete de signature manquant', [
+                'ip' => $request->getClientIp(),
+            ]);
+
+            return new JsonResponse(['error' => 'Missing signature'], 401);
+        }
+
+        $attendue = hash_hmac('sha256', $request->getContent(), $this->webhookSecret);
+        if (!hash_equals($attendue, $signature)) {
+            $this->logger->warning('PawaPay webhook: signature HMAC invalide', [
+                'ip' => $request->getClientIp(),
+            ]);
+
+            return new JsonResponse(['error' => 'Invalid signature'], 401);
         }
 
         // Parser le JSON
         $data = json_decode($request->getContent(), true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
             $this->logger->error('PawaPay webhook: JSON invalide', [
                 'error' => json_last_error_msg(),
-                'content' => $request->getContent(),
             ]);
             return new JsonResponse(['error' => 'Invalid JSON'], 400);
         }
@@ -94,8 +102,7 @@ final class PawaPayWebhookController
             $this->logger->error('PawaPay webhook: erreur traitement', [
                 'depositId' => $depositId,
                 'status' => $status,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'exception' => $e,
             ]);
 
             return new JsonResponse([

@@ -1,30 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ErrorHandler\Exception\FlattenException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 
-class ErrorController extends AbstractController
+/**
+ * Rendu des pages d'erreur HTTP.
+ *
+ * Branche sur framework.error_controller : Symfony passe une FlattenException
+ * (et non un Throwable) au controleur d'erreur.
+ */
+final class ErrorController extends AbstractController
 {
-    #[Route('/error/403', name: 'error.403')]
-    public function accessDenied(): Response
-    {
-        return $this->render('error/403.html.twig');
-    }
+    /**
+     * Codes HTTP disposant d'un template dedie.
+     *
+     * @var array<int, string>
+     */
+    private const TEMPLATES_PAR_CODE = [
+        403 => 'error/403.html.twig',
+        404 => 'error/404.html.twig',
+        500 => 'error/500.html.twig',
+        503 => 'error/503.html.twig',
+    ];
 
-    public function show(\Throwable $exception): Response
+    private const TEMPLATE_PAR_DEFAUT = 'error/error.html.twig';
+
+    public function show(FlattenException $exception): Response
     {
-        // Si c'est une erreur d'accès refusé, utiliser notre template personnalisé
-        if ($exception instanceof AccessDeniedHttpException) {
-            return $this->render('error/403.html.twig');
+        $code = $exception->getStatusCode();
+        if ($code < 400 || $code > 599) {
+            $code = 500;
         }
 
-        // Pour les autres erreurs, utiliser le template par défaut
-        return $this->render('error/error.html.twig', [
-            'exception' => $exception,
-        ]);
+        $template = self::TEMPLATES_PAR_CODE[$code] ?? self::TEMPLATE_PAR_DEFAUT;
+
+        // Aucune donnee d'exception n'est exposee au template (OWASP A05 : fuite d'information).
+        return $this->render($template, ['code' => $code], new Response('', $code));
     }
 }

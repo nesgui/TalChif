@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
-use App\Service\ErrorHandlingService;
+use App\Service\Notification\MessagesFlash;
+use App\Service\Form\ErreursFormulaire;
+use App\Service\Erreur\RapporteurErreurs;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +19,9 @@ final class AdminUserController extends AbstractController
 {
     public function __construct(
         private UserRepository $userRepository,
-        private ErrorHandlingService $errorHandling
+        private MessagesFlash $messagesFlash,
+        private ErreursFormulaire $erreursFormulaire,
+        private RapporteurErreurs $rapporteurErreurs
     ) {
     }
 
@@ -62,7 +66,7 @@ final class AdminUserController extends AbstractController
             $passwordConfirm = $form->get('password_confirm')->getData();
             
             if ($password !== $passwordConfirm) {
-                $this->errorHandling->addErrorFlash('Les mots de passe ne correspondent pas.');
+                $this->messagesFlash->erreur('Les mots de passe ne correspondent pas.');
                 return $this->render('admin_user/create.html.twig', [
                     'form' => $form->createView(),
                 ]);
@@ -73,11 +77,8 @@ final class AdminUserController extends AbstractController
                 $hashedPassword = $passwordHasher->hashPassword($user, $password);
                 $user->setPassword($hashedPassword);
 
-                // Définir le rôle
+                // Le role metier est la source de verite : User::getRoles() en derive.
                 $user->setRole($form->get('role')->getData());
-                
-                // Synchroniser les rôles pour Symfony Security
-                $user->setRoles([$user->getRole()]);
 
                 // Définir l'utilisateur comme vérifié
                 $user->setIsVerified(true);
@@ -85,14 +86,13 @@ final class AdminUserController extends AbstractController
                 // Sauvegarder l'utilisateur
                 $this->userRepository->save($user, true);
 
-                $this->errorHandling->addSuccessFlash('Utilisateur créé avec succès !');
+                $this->messagesFlash->succes('Utilisateur créé avec succès !');
                 return $this->redirectToRoute('admin.user.index');
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'admin_create_user']);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'admin_create_user']);
             }
         } elseif ($form->isSubmitted()) {
-            $this->errorHandling->handleFormErrors($form);
+            $this->erreursFormulaire->publierEnFlash($form);
         }
 
         return $this->render('admin_user/create.html.twig', [
@@ -113,22 +113,18 @@ final class AdminUserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                // Mettre à jour le rôle
+                // Le role metier est la source de verite : User::getRoles() en derive.
                 $user->setRole($form->get('role')->getData());
-                
-                // Synchroniser les rôles pour Symfony Security
-                $user->setRoles([$user->getRole()]);
 
                 $this->userRepository->save($user, true);
 
-                $this->errorHandling->addSuccessFlash('Utilisateur modifié avec succès !');
+                $this->messagesFlash->succes('Utilisateur modifié avec succès !');
                 return $this->redirectToRoute('admin.user.index');
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'admin_edit_user', 'user_id' => $user->getId()]);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'admin_edit_user', 'user_id' => $user->getId()]);
             }
         } elseif ($form->isSubmitted()) {
-            $this->errorHandling->handleFormErrors($form);
+            $this->erreursFormulaire->publierEnFlash($form);
         }
 
         return $this->render('admin_user/edit.html.twig', [
@@ -143,7 +139,7 @@ final class AdminUserController extends AbstractController
     {
         // Empêcher la désactivation de soi-même
         if ($user === $this->getUser()) {
-            $this->errorHandling->addErrorFlash('Vous ne pouvez pas désactiver votre propre compte.');
+            $this->messagesFlash->erreur('Vous ne pouvez pas désactiver votre propre compte.');
             return $this->redirectToRoute('admin.user.index');
         }
 
@@ -153,10 +149,9 @@ final class AdminUserController extends AbstractController
                 $this->userRepository->save($user, true);
 
                 $statut = $user->isActif() ? 'activé' : 'désactivé';
-                $this->errorHandling->addSuccessFlash("Le compte de {$user->getNom()} a été {$statut}.");
+                $this->messagesFlash->succes("Le compte de {$user->getNom()} a été {$statut}.");
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'toggle_actif', 'user_id' => $user->getId()]);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'toggle_actif', 'user_id' => $user->getId()]);
             }
         }
 

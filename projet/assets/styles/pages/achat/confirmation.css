@@ -1,0 +1,53 @@
+/* Styles de templates/achat/confirmation.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.confirmation-wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 1rem; }
+.confirmation-hero { display: grid; gap: .55rem; }
+.confirmation-kicker { margin: 0; text-transform: uppercase; font-size: .82rem; color: var(--couleur-texte-secondaire); letter-spacing: .08em; }
+.confirmation-hero .page-title { margin: 0; }
+.confirmation-hero .page-subtitle { margin: 0; color: var(--couleur-texte-secondaire); }
+.confirmation-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin-top: .4rem; }
+.metric { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .75rem; background: color-mix(in srgb, var(--couleur-primaire) 8%, var(--couleur-surface)); display: grid; gap: .2rem; }
+.metric span { font-size: .84rem; color: var(--couleur-texte-secondaire); }
+.metric strong { font-size: 1.05rem; }
+.tickets-grid { display: grid; gap: .75rem; }
+.ticket-card { border: 1px solid var(--couleur-bordure); border-radius: var(--rayon); padding: .8rem; display: grid; gap: .6rem; }
+.ticket-top { display: flex; justify-content: space-between; gap: .7rem; align-items: flex-start; }
+.ticket-top h3 { margin: 0; font-size: 1rem; }
+.ticket-top p { margin: .2rem 0 0; color: var(--couleur-texte-secondaire); font-size: .9rem; }
+.ticket-bottom { display: flex; justify-content: space-between; align-items: center; gap: .7rem; }
+.pill-vip { background: var(--couleur-warning); color: #fff; }
+.pill-simple { background: var(--couleur-primaire); color: #fff; }
+.info-card .card-meta { margin: 0; }
+.card-actions-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+}
+
+.card-actions-confirm .btn {
+    flex: 1 1 auto;
+    min-width: 120px;
+    text-align: center;
+    justify-content: center;
+}
+
+@media (max-width: 700px) {
+    .confirmation-wrap { gap: .75rem; }
+    .confirmation-metrics { grid-template-columns: 1fr 1fr; }
+    .ticket-top { flex-direction: row; flex-wrap: wrap; }
+    .ticket-bottom { flex-direction: row; align-items: center; flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+    .confirmation-metrics { grid-template-columns: 1fr 1fr; gap: .4rem; }
+    .ticket-top { flex-direction: column; align-items: flex-start; }
+    .ticket-bottom { flex-direction: column; align-items: flex-start; }
+    .card-actions-confirm {
+        flex-direction: column;
+    }
+    .card-actions-confirm .btn {
+        width: 100%;
+    }
+}

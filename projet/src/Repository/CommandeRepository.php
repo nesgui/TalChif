@@ -32,6 +32,11 @@ class CommandeRepository extends ServiceEntityRepository
         return $this->findOneBy(['reference' => $reference]);
     }
 
+    public function findByDepositId(string $depositId): ?Commande
+    {
+        return $this->findOneBy(['depositId' => $depositId]);
+    }
+
     public function referenceExiste(string $reference): bool
     {
         return $this->findByReference($reference) !== null;
@@ -124,14 +129,35 @@ class CommandeRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /** @return Commande[] */
-    public function findToExpire(): array
+    /**
+     * Commandes en attente dont le delai de paiement est depasse.
+     *
+     * @return Commande[]
+     */
+    public function findToExpire(?\DateTimeImmutable $limite = null): array
     {
         return $this->createQueryBuilder('c')
             ->where('c.statut IN (:pending)')
-            ->andWhere('c.dateExpiration <= :now')
+            ->andWhere('c.dateExpiration <= :limite')
             ->setParameter('pending', $this->pendingStatuses())
-            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('limite', $limite ?? new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Commandes en cours de traitement rattachees a un depot PawaPay, pour le
+     * rattrapage periodique quand aucun webhook n'est arrive.
+     *
+     * @return Commande[]
+     */
+    public function findProcessingWithDepositId(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.statut = :statut')
+            ->andWhere('c.depositId IS NOT NULL')
+            ->setParameter('statut', Commande::STATUT_PROCESSING)
+            ->orderBy('c.createdAt', 'ASC')
             ->getQuery()
             ->getResult();
     }

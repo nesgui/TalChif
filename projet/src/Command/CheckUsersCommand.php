@@ -1,45 +1,57 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
-use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Liste les utilisateurs et leurs roles.
+ *
+ * Passe par l'ORM et non par du SQL brut : « user » est un mot reserve
+ * PostgreSQL, Doctrine se charge de l'echappement selon la plateforme.
+ */
 #[AsCommand(
     name: 'app:check-users',
-    description: 'Vérifie les utilisateurs et leurs rôles'
+    description: 'Verifie les utilisateurs et leurs roles'
 )]
-class CheckUsersCommand extends Command
+final class CheckUsersCommand extends Command
 {
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private UserRepository $userRepository
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $conn = $this->entityManager->getConnection();
-        $sql = "SELECT id, email, role, roles FROM user";
-        $stmt = $conn->prepare($sql);
-        $result = $stmt->executeQuery();
-        
-        $users = $result->fetchAllAssociative();
-        
-        $output->writeln('<info>Utilisateurs dans la base de données :</info>');
-        foreach ($users as $user) {
-            $output->writeln(sprintf(
-                'ID: %d | Email: %s | Rôle: %s | Roles: %s',
-                $user['id'],
-                $user['email'],
-                $user['role'],
-                $user['roles']
-            ));
+        $io = new SymfonyStyle($input, $output);
+
+        $utilisateurs = $this->userRepository->findBy([], ['id' => 'ASC']);
+        if ($utilisateurs === []) {
+            $io->warning('Aucun utilisateur en base.');
+
+            return Command::SUCCESS;
         }
-        
+
+        $io->table(
+            ['ID', 'Email', 'Role metier', 'Roles Symfony', 'Actif'],
+            array_map(static fn (User $u): array => [
+                (string) $u->getId(),
+                (string) $u->getEmail(),
+                $u->getRole(),
+                implode(', ', $u->getRoles()),
+                $u->isActif() ? 'oui' : 'non',
+            ], $utilisateurs)
+        );
+
         return Command::SUCCESS;
     }
 }

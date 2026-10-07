@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Evenement;
 use App\Form\EvenementType;
 use App\Repository\EvenementRepository;
-use App\Service\ErrorHandlingService;
+use App\Service\Notification\MessagesFlash;
+use App\Service\Form\ErreursFormulaire;
+use App\Service\Erreur\RapporteurErreurs;
 use App\Service\Upload\ServiceUploadFichier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -23,7 +25,9 @@ final class AdminEvenementController extends AbstractController
     public function __construct(
         private EvenementRepository $evenementRepository,
         private ServiceUploadFichier $serviceUploadFichier,
-        private ErrorHandlingService $errorHandling
+        private MessagesFlash $messagesFlash,
+        private ErreursFormulaire $erreursFormulaire,
+        private RapporteurErreurs $rapporteurErreurs
     ) {
     }
 
@@ -47,7 +51,7 @@ final class AdminEvenementController extends AbstractController
                     try {
                         $evenement->setAffichePrincipale($this->serviceUploadFichier->uploaderImageEvenement($fichier));
                     } catch (FileException $e) {
-                        $this->errorHandling->handleFileUploadError($e);
+                        $this->rapporteurErreurs->signalerUpload($e);
                     }
                 }
 
@@ -69,18 +73,16 @@ final class AdminEvenementController extends AbstractController
                 $evenement->setSlug($this->evenementRepository->generateUniqueSlug((string) $slugger->slug($evenement->getNom())));
                 $this->evenementRepository->save($evenement, true);
 
-                $this->errorHandling->addSuccessFlash('Événement créé avec succès !');
+                $this->messagesFlash->succes('Événement créé avec succès !');
                 return $this->redirectToRoute('admin.evenement.index');
 
             } catch (FileException $e) {
-                $this->errorHandling->handleFileUploadError($e);
-                $this->errorHandling->logError($e, ['action' => 'admin_create_event']);
+                $this->rapporteurErreurs->signalerUpload($e, ['action' => 'admin_create_event']);
             } catch (\Throwable $e) {
-                $this->errorHandling->handleDatabaseError($e);
-                $this->errorHandling->logError($e, ['action' => 'admin_create_event']);
+                $this->rapporteurErreurs->signalerBaseDeDonnees($e, ['action' => 'admin_create_event']);
             }
         } elseif ($form->isSubmitted()) {
-            $this->errorHandling->handleFormErrors($form);
+            $this->erreursFormulaire->publierEnFlash($form);
         }
 
         return $this->render('admin_evenement/create.html.twig', [

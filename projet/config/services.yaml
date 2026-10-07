@@ -1,124 +1,48 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-# See also https://symfony.com/doc/current/service_container/import.html
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+# Point d'entree de la configuration des services applicatifs.
+# Les dependances tierces se configurent dans packages/.
+#
+# Les handlers, services et repositories sont tous resolus par autowiring :
+# seuls les arguments non deductibles (scalaires, parametres, variables
+# d'environnement) sont declares explicitement ci-dessous.
 parameters:
 
-# Importer la configuration de gestion des erreurs
-imports:
-    - { resource: '../config/services/error_handling.yaml' }
-
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true      # Injection automatique des dependances.
+        autoconfigure: true # Enregistrement automatique (commandes, subscribers, voters...).
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    # Un service par classe de src/, identifie par son nom pleinement qualifie.
     App\:
         resource: '../src/'
+        # Ni les entites Doctrine ni les objets du domaine ne sont des services.
+        exclude:
+            - '../src/Entity/'
+            - '../src/Domain/'
+            - '../src/Application/Command/'
+            - '../src/Application/Query/'
+            - '../src/Message/'
+            - '../src/Kernel.php'
 
-    # Paiement : par défaut le stub (remplacer par une implémentation réelle en prod)
-    App\Service\Payment\PaymentInterface:
-        alias: App\Service\Payment\StubPaymentService
-
-    # Upload de fichiers : injection du répertoire projet
+    # Upload de fichiers : repertoire racine du projet.
     App\Service\Upload\ServiceUploadFichier:
         arguments:
             $repertoireProjet: '%kernel.project_dir%'
 
+    # CORS : liste blanche d'origines, vide par defaut.
     App\EventSubscriber\CorsSubscriber:
         arguments:
             $corsAllowOrigin: '%env(APP_CORS_ALLOW_ORIGIN)%'
 
-    # ========================================
-    # Architecture Hexagonale - Repositories
-    # ========================================
-
-    # Interfaces de repositories (ports) -> Implémentations Doctrine (adapters)
-    App\Domain\Repository\EvenementRepositoryInterface:
-        alias: App\Infrastructure\Doctrine\Repository\DoctrineEvenementRepository
-
-    App\Domain\Repository\BilletRepositoryInterface:
-        alias: App\Infrastructure\Doctrine\Repository\DoctrineBilletRepository
-
-    App\Domain\Repository\CommandeRepositoryInterface:
-        alias: App\Infrastructure\Doctrine\Repository\DoctrineCommandeRepository
-
-    # ========================================
-    # Services
-    # ========================================
-
+    # PawaPay : identifiants et correspondants par operateur.
     App\Service\Payment\PawaPayClient:
         arguments:
-            $client: '@http_client'
-            $logger: '@Psr\Log\LoggerInterface'
             $baseUrl: '%app.pawapay.base_url%'
             $apiToken: '%app.pawapay.api_token%'
             $currency: '%app.pawapay.currency%'
             $correspondents: '%app.pawapay.correspondents%'
 
-    # ========================================
-    # Architecture Hexagonale - Handlers (Use Cases)
-    # ========================================
-
-    App\Application\Handler\AcheterBilletsHandler:
-        arguments:
-            $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
-            $billetRepository: '@App\Domain\Repository\BilletRepositoryInterface'
-
-    App\Application\Handler\CreerCommandeHandler:
-        arguments:
-            $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
-            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-            $pawaPayClient: '@App\Service\Payment\PawaPayClient'
-            $logger: '@Psr\Log\LoggerInterface'
-
-    App\Application\Handler\ValiderPaiementHandler:
-        arguments:
-            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-            $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
-            $billetRepository: '@App\Domain\Repository\BilletRepositoryInterface'
-
-    App\Application\Handler\RejeterPaiementHandler:
-        arguments:
-            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-
-    App\Application\Handler\ExpirerCommandesHandler:
-        arguments:
-            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-
-    # ========================================
-    # CQRS - Query Handlers (Lectures)
-    # ========================================
-
-    App\Application\Handler\ObtenirMesBilletsHandler:
-        arguments:
-            $billetRepository: '@App\Domain\Repository\BilletRepositoryInterface'
-
-    App\Application\Handler\ObtenirMesCommandesHandler: ~
-
-    App\Application\Handler\ObtenirEvenementHandler:
-        arguments:
-            $evenementRepository: '@App\Domain\Repository\EvenementRepositoryInterface'
-
-    App\Application\Handler\ListerEvenementsActifsHandler: ~
-
-    App\Application\Handler\ObtenirCommandeHandler:
-        arguments:
-            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-
-    App\Service\Payment\PaymentVerificationService:
-        arguments:
-            $pawaPayClient: '@App\Service\Payment\PawaPayClient'
-            $commandeRepository: '@App\Domain\Repository\CommandeRepositoryInterface'
-            $entityManager: '@Doctrine\ORM\EntityManagerInterface'
-            $logger: '@Psr\Log\LoggerInterface'
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Messages utilisateur : la session est l implementation par defaut.
+    App\Service\Notification\MessagesUtilisateurInterface:
+        alias: App\Service\Notification\MessagesFlash

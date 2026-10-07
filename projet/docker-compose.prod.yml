@@ -40,7 +40,6 @@ services:
       APP_ENV: prod
       APP_SECRET: ${APP_SECRET}
       DATABASE_URL: postgresql://${DB_USER:-app}:${DB_PASSWORD:-!ChangeMe!}@postgres:5432/${DB_NAME:-talchif}?serverVersion=16&charset=utf8
-      REDIS_URL: redis://redis:6379
       MESSENGER_TRANSPORT_DSN: doctrine://default
       MAILER_DSN: ${MAILER_DSN:-null://null}
       
@@ -56,8 +55,6 @@ services:
       - php_logs:/app/var/log
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - talchif
@@ -94,45 +91,24 @@ services:
     shm_size: 256mb
 
   # ============================================
-  # Redis - Cache et Sessions
-  # ============================================
-  redis:
-    image: redis:7-alpine
-    container_name: talchif_redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    networks:
-      - talchif
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
-  # ============================================
   # Messenger Worker - Queue asynchrone
   # ============================================
   messenger_worker:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: talchif_messenger
+    # Pas de container_name : incompatible avec deploy.replicas, le nom devant
+    # rester unique. Docker nomme les instances talchif-messenger_worker-N.
     restart: unless-stopped
     command: php bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
     environment:
       APP_ENV: prod
       APP_SECRET: ${APP_SECRET}
       DATABASE_URL: postgresql://${DB_USER:-app}:${DB_PASSWORD:-!ChangeMe!}@postgres:5432/${DB_NAME:-talchif}?serverVersion=16&charset=utf8
-      REDIS_URL: redis://redis:6379
     volumes:
       - ./var:/app/var
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - talchif
@@ -170,8 +146,6 @@ services:
 # ============================================
 volumes:
   postgres_data:
-    driver: local
-  redis_data:
     driver: local
   nginx_logs:
     driver: local

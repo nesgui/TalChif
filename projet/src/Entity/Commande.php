@@ -143,6 +143,26 @@ class Commande
         return $this->checkoutEmail;
     }
 
+    /**
+     * Libelle identifiant le client, quel que soit l'etat de la commande.
+     *
+     * Une commande payee en invite n'a pas de client rattache avant sa
+     * validation : seul l'email saisi au checkout est disponible. Les vues
+     * doivent passer par cette methode plutot que par client.nom, qui echoue
+     * sur une commande en attente.
+     */
+    public function getIdentiteClient(): string
+    {
+        $nom = trim((string) $this->client?->getNom());
+        if ($nom !== '') {
+            return $nom;
+        }
+
+        $email = trim((string) ($this->client?->getEmail() ?? $this->checkoutEmail));
+
+        return $email !== '' ? $email : 'Client inconnu';
+    }
+
     public function setCheckoutEmail(?string $checkoutEmail): static
     {
         $this->checkoutEmail = $checkoutEmail;

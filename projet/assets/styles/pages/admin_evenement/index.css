@@ -1,0 +1,50 @@
+/* Styles de templates/admin_evenement/index.html.twig */
+/* Extrait du template : charge via le bloc stylesheets. */
+
+.admin-events-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-events-table .col-id,
+.admin-events-table .cell-id {
+    width: 60px;
+    white-space: nowrap;
+}
+
+.admin-events-table .col-status,
+.admin-events-table .cell-status {
+    width: 110px;
+    text-align: center;
+}
+
+.admin-events-table .col-action,
+.admin-events-table .cell-action {
+    width: 140px;
+    text-align: center;
+}
+
+.admin-events-table .cell-name,
+.admin-events-table .cell-organizer {
+    word-break: break-word;
+}
+
+.admin-event-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    white-space: nowrap;
+}
+
+.admin-events-table .cell-action .btn {
+    min-width: 104px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .admin-events-table {
+        min-width: 620px;
+    }
+}

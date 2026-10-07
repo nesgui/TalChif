@@ -39,6 +39,14 @@ final class ValidationController extends AbstractController
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function scanBillet(Request $request): JsonResponse
     {
+        if (!$this->isCsrfTokenValid('validation_scan', (string) $request->request->get('_token'))) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Session expiree. Rechargez la page.',
+                'type' => 'INVALID_CSRF',
+            ], 403);
+        }
+
         $qrCode = $request->request->get('qrCode');
         
         if (!$qrCode) {
