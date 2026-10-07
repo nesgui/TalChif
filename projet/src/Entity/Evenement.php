@@ -102,6 +102,14 @@ class Evenement
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    /**
+     * Organisation proprietaire. Cle du cloisonnement automatique :
+     * le filtre Doctrine TenantFilter s'appuie sur cette colonne.
+     */
+    #[ORM\ManyToOne(targetEntity: Organisation::class, inversedBy: 'evenements')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organisation $organisation = null;
+
     #[ORM\ManyToOne(inversedBy: 'evenementsOrganises')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $organisateur = null;
@@ -557,5 +565,17 @@ class Evenement
     public static function getCategorieValues(): array
     {
         return array_values(self::CATEGORIES);
+    }
+
+    public function getOrganisation(): ?Organisation
+    {
+        return $this->organisation;
+    }
+
+    public function setOrganisation(?Organisation $organisation): static
+    {
+        $this->organisation = $organisation;
+
+        return $this;
     }
 }

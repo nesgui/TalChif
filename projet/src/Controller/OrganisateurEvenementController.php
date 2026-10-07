@@ -10,6 +10,8 @@ use App\Service\Notification\MessagesFlash;
 use App\Service\Form\ErreursFormulaire;
 use App\Service\Erreur\RapporteurErreurs;
 use App\Security\Voter\EvenementVoter;
+use App\Service\Tenant\ContexteTenant;
+use App\Service\Tenant\ServiceOrganisation;
 use App\Service\Upload\ServiceUploadFichier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -19,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Service\Quota\ServiceQuotas;
+use App\Service\Quota\QuotaDepasseException;
 
 /**
  * Gestion des événements par l'organisateur (CRUD).
@@ -33,6 +37,9 @@ final class OrganisateurEvenementController extends AbstractController
         private ServiceUploadFichier $serviceUploadFichier,
         private MessagesFlash $messagesFlash,
         private ErreursFormulaire $erreursFormulaire,
+        private ServiceOrganisation $serviceOrganisation,
+        private ContexteTenant $contexteTenant,
+        private ServiceQuotas $serviceQuotas,
         private RapporteurErreurs $rapporteurErreurs
     ) {
     }
@@ -46,8 +53,14 @@ final class OrganisateurEvenementController extends AbstractController
         $page = max(1, $request->query->getInt('page', 1));
         $search = $request->query->get('q');
         $limit = self::EVENEMENTS_PAR_PAGE;
-        $evenements = $this->evenementRepository->findPaginatedByOrganisateur($user, $page, $limit, $search);
-        $total = $this->evenementRepository->countByOrganisateur($user, $search);
+        // Scope l'organisation courante : celle choisie via le selecteur, qui
+        // vit en session. assurerPour() ne sert qu'au premier passage, quand
+        // aucune organisation n'existe encore.
+        $organisation = $this->contexteTenant->organisation()
+            ?? $this->contexteTenant->resoudrePour($user)
+            ?? $this->serviceOrganisation->assurerPour($user);
+        $evenements = $this->evenementRepository->findPaginatedByOrganisation($organisation, $page, $limit, $search);
+        $total = $this->evenementRepository->countByOrganisation($organisation, $search);
         $totalPages = max(1, (int) ceil($total / $limit));
 
         return $this->render('organisateur_evenement/index.html.twig', [
@@ -73,6 +86,12 @@ final class OrganisateurEvenementController extends AbstractController
                 /** @var User $user */
                 $user = $this->getUser();
                 $evenement->setOrganisateur($user);
+                $organisation = $this->serviceOrganisation->assurerPour($user);
+
+                // Quota bloquant : verifie avant toute ecriture.
+                $this->serviceQuotas->verifierCreationEvenement($organisation);
+
+                $evenement->setOrganisation($organisation);
                 $evenement->setSlug($this->evenementRepository->generateUniqueSlug((string) $slugger->slug($evenement->getNom())));
                 $evenement->setPlacesVendues(0);
 
@@ -82,6 +101,8 @@ final class OrganisateurEvenementController extends AbstractController
                 $this->messagesFlash->succes('Événement créé avec succès !');
                 return $this->redirectToRoute('organisateur.evenement.index');
                 
+            } catch (QuotaDepasseException $e) {
+                $this->messagesFlash->erreur($e->getMessage());
             } catch (FileException $e) {
                 $this->rapporteurErreurs->signalerUpload($e, ['action' => 'create_event']);
             } catch (\Throwable $e) {

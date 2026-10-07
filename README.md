@@ -1,3 +1,11 @@
+ Mise en production — l'etape manuelle
+
+  php bin/console doctrine:migrations:migrate          # compte proprietaire
+  APP_DB_ROLE_PASSWORD=... php bin/console app:securite:role-applicatif
+  # puis DATABASE_URL -> postgresql://talchif_app:...@...
+
+
+
 TalChif application web centralisée sur le modèle SaaS (Software as a Service)
 
 

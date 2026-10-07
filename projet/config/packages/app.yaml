@@ -51,3 +51,7 @@ parameters:
     app.notifications.whatsapp.enabled: '%env(bool:WHATSAPP_ENABLED)%'
     app.notifications.whatsapp.token: '%env(default::WHATSAPP_API_TOKEN)%'
     app.notifications.whatsapp.phone_number_id: '%env(default::WHATSAPP_PHONE_NUMBER_ID)%'
+
+    # Offre appliquee a une organisation sans souscription explicite.
+    # Les quotas sont bloquants : une limite atteinte refuse l'action.
+    app.plan_par_defaut: 'DECOUVERTE'

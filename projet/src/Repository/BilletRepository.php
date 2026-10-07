@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Billet;
 use App\Entity\Evenement;
+use App\Entity\Organisation;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -335,5 +336,21 @@ class BilletRepository extends ServiceEntityRepository
             ->orderBy('b.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Billets emis par une organisation depuis une date : base du quota
+     * mensuel.
+     */
+    public function countParOrganisationDepuis(Organisation $organisation, \DateTimeImmutable $depuis): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.organisation = :organisation')
+            ->andWhere('b.createdAt >= :depuis')
+            ->setParameter('organisation', $organisation)
+            ->setParameter('depuis', $depuis)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

@@ -1,0 +1,158 @@
+/* Styles des ecrans d organisation : liste, creation, equipe */
+
+.org-intro,
+.org-note {
+    color: var(--couleur-texte-secondaire);
+    margin-bottom: var(--espace-lg, 1.5rem);
+}
+
+.org-note {
+    padding: 0.75rem 1rem;
+    border-left: 3px solid var(--couleur-warning, #d97706);
+    background: var(--couleur-surface);
+    border-radius: var(--rayon, 6px);
+}
+
+.org-cartes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.org-carte {
+    background: var(--couleur-surface-elevee, #fff);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: var(--rayon, 8px);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.org-carte-active {
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 0 1px var(--couleur-primaire);
+}
+
+.org-carte-tete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.org-nom {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.org-badge {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.org-badge-active {
+    background: var(--couleur-primaire);
+    color: var(--couleur-texte-inverse, #fff);
+}
+
+.org-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.org-meta dt {
+    color: var(--couleur-texte-secondaire);
+}
+
+.org-meta dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.org-carte-actions {
+    margin-top: auto;
+}
+
+.org-vide {
+    text-align: center;
+    padding: 3rem 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.org-formulaire {
+    max-width: 520px;
+}
+
+.org-formulaire-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.org-equipe {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.org-inline-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.org-invitation {
+    max-width: 420px;
+}
+
+.org-roles-aide {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--couleur-bordure-subtile, var(--couleur-bordure));
+    font-size: 0.875rem;
+}
+
+.org-roles-aide dt {
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.org-roles-aide dd {
+    margin: 0 0 0.25rem;
+    color: var(--couleur-texte-secondaire);
+}
+
+/* Selecteur d organisation dans la barre du tableau de bord */
+.org-selecteur {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.org-selecteur select {
+    max-width: 220px;
+}
+
+@media (max-width: 640px) {
+    .org-cartes {
+        grid-template-columns: 1fr;
+    }
+
+    .org-inline-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .org-selecteur select {
+        max-width: 100%;
+    }
+}

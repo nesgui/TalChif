@@ -115,6 +115,7 @@ final class CreerCommandeHandler
                 $ligne = new CommandeLigne();
                 $ligne->setCommande($commande);
                 $ligne->setEvenement($donnees['evenement']);
+                $ligne->setOrganisation($donnees['evenement']->getOrganisation());
                 $ligne->setQuantite($donnees['quantite']);
                 $ligne->setPrixUnitaire($donnees['prix']);
                 $ligne->setTypeBillet($donnees['type']);

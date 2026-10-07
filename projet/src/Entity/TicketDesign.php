@@ -19,6 +19,14 @@ class TicketDesign
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * Organisation proprietaire. Cle du cloisonnement automatique :
+     * le filtre Doctrine TenantFilter s'appuie sur cette colonne.
+     */
+    #[ORM\ManyToOne(targetEntity: Organisation::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organisation $organisation = null;
+
     #[ORM\ManyToOne(inversedBy: 'ticketDesigns')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Evenement $evenement = null;
@@ -121,5 +129,17 @@ class TicketDesign
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getOrganisation(): ?Organisation
+    {
+        return $this->organisation;
+    }
+
+    public function setOrganisation(?Organisation $organisation): static
+    {
+        $this->organisation = $organisation;
+
+        return $this;
     }
 }

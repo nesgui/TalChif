@@ -7,6 +7,8 @@ namespace App\Tests\Integration;
 use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\Evenement;
+use App\Entity\Organisation;
+use App\Entity\MembreOrganisation;
 use App\Entity\User;
 use App\Service\Paiement\ContexteConfirmation;
 use App\Service\Paiement\ServiceConfirmationPaiement;
@@ -34,7 +36,7 @@ final class ServiceConfirmationPaiementTest extends KernelTestCase
         $this->service = $conteneur->get(ServiceConfirmationPaiement::class);
 
         $this->em->getConnection()->executeStatement(
-            'TRUNCATE billet, commande_ligne, commande, log_securite, evenement, "user" RESTART IDENTITY CASCADE'
+            'TRUNCATE billet, commande_ligne, commande, log_securite, evenement, membre_organisation, organisation, utilisateur RESTART IDENTITY CASCADE'
         );
     }
 
@@ -144,6 +146,7 @@ final class ServiceConfirmationPaiementTest extends KernelTestCase
         $evenement->setIsActive(true);
         $evenement->setIsValide(true);
         $evenement->setOrganisateur($organisateur);
+        $evenement->setOrganisation($this->organisationDe($organisateur));
         $this->em->persist($evenement);
 
         $commande = new Commande();
@@ -163,6 +166,7 @@ final class ServiceConfirmationPaiementTest extends KernelTestCase
         $ligne = new CommandeLigne();
         $ligne->setCommande($commande);
         $ligne->setEvenement($evenement);
+        $ligne->setOrganisation($evenement->getOrganisation());
         $ligne->setQuantite($quantite);
         $ligne->setPrixUnitaire($prixUnitaire);
         $ligne->setTypeBillet('SIMPLE');
@@ -171,5 +175,30 @@ final class ServiceConfirmationPaiementTest extends KernelTestCase
         $this->em->flush();
 
         return $commande;
+    }
+
+    /**
+     * Organisation du vendeur, creee au besoin et dont il est proprietaire.
+     */
+    private function organisationDe(User $proprietaire): Organisation
+    {
+        foreach ($proprietaire->getAppartenances() as $appartenance) {
+            return $appartenance->getOrganisation();
+        }
+
+        $organisation = new Organisation();
+        $organisation->setNom('Organisation ' . $proprietaire->getEmail());
+        $organisation->setSlug('org-' . bin2hex(random_bytes(4)));
+        $organisation->setActif(true);
+        $this->em->persist($organisation);
+
+        $membre = new MembreOrganisation();
+        $membre->setOrganisation($organisation);
+        $membre->setUtilisateur($proprietaire);
+        $membre->setRole(MembreOrganisation::ROLE_PROPRIETAIRE);
+        $this->em->persist($membre);
+        $this->em->flush();
+
+        return $organisation;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Evenement;
+use App\Entity\Organisation;
 use App\Entity\User;
 use Doctrine\DBAL\LockMode;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -108,6 +109,58 @@ class EvenementRepository extends ServiceEntityRepository
             ->setParameter('organisateur', $organisateur);
         $this->applyOrganisateurSearch($qb, $search);
         return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Evenements d'une organisation, pagines.
+     *
+     * Scope l'organisation et non le compte createur : plusieurs membres
+     * gerent les memes evenements. Le filtre Doctrine « tenant » double cette
+     * clause en defense en profondeur.
+     *
+     * @return Evenement[]
+     */
+    public function findPaginatedByOrganisation(
+        Organisation $organisation,
+        int $page = 1,
+        int $limit = 100,
+        ?string $search = null
+    ): array {
+        $offset = max(0, ($page - 1) * $limit);
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.organisation = :organisation')
+            ->setParameter('organisation', $organisation)
+            ->orderBy('e.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+        $this->applyOrganisateurSearch($qb, $search);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countByOrganisation(Organisation $organisation, ?string $search = null): int
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.organisation = :organisation')
+            ->setParameter('organisation', $organisation);
+        $this->applyOrganisateurSearch($qb, $search);
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Evenements actifs d'une organisation : base du quota d'evenements.
+     */
+    public function countActifsParOrganisation(Organisation $organisation): int
+    {
+        return (int) $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.organisation = :organisation')
+            ->andWhere('e.isActive = true')
+            ->setParameter('organisation', $organisation)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     private function applyOrganisateurSearch($qb, ?string $search): void

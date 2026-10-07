@@ -12,6 +12,8 @@ use App\Entity\Billet;
 use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\Evenement;
+use App\Entity\Organisation;
+use App\Entity\MembreOrganisation;
 use App\Entity\User;
 use App\Repository\CommandeRepository;
 use App\Service\Notification\BilletEmailService;
@@ -33,7 +35,7 @@ final class AccesDonneesTest extends KernelTestCase
         self::bootKernel();
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
         $this->em->getConnection()->executeStatement(
-            'TRUNCATE billet, commande_ligne, commande, log_securite, evenement, "user" RESTART IDENTITY CASCADE'
+            'TRUNCATE billet, commande_ligne, commande, log_securite, evenement, membre_organisation, organisation, utilisateur RESTART IDENTITY CASCADE'
         );
     }
 
@@ -135,6 +137,7 @@ final class AccesDonneesTest extends KernelTestCase
         $evenement->setIsActive(true);
         $evenement->setIsValide(true);
         $evenement->setOrganisateur($organisateur);
+        $evenement->setOrganisation($this->organisationDe($organisateur));
         $this->em->persist($evenement);
 
         return $evenement;
@@ -173,6 +176,7 @@ final class AccesDonneesTest extends KernelTestCase
         $ligne = new CommandeLigne();
         $ligne->setCommande($commande);
         $ligne->setEvenement($evenement);
+        $ligne->setOrganisation($evenement->getOrganisation());
         $ligne->setQuantite(1);
         $ligne->setPrixUnitaire(5000.0);
         $ligne->setTypeBillet('SIMPLE');
@@ -190,10 +194,36 @@ final class AccesDonneesTest extends KernelTestCase
         $billet->setEvenement($evenement);
         $billet->setClient($client);
         $billet->setOrganisateur($evenement->getOrganisateur());
+        $billet->setOrganisation($evenement->getOrganisation());
         $billet->setTransactionId($transactionId ?? 'EVT-TEST-0000');
         $billet->validerPaiement();
         $this->em->persist($billet);
 
         return $billet;
+    }
+
+    /**
+     * Organisation du vendeur, creee au besoin et dont il est proprietaire.
+     */
+    private function organisationDe(User $proprietaire): Organisation
+    {
+        foreach ($proprietaire->getAppartenances() as $appartenance) {
+            return $appartenance->getOrganisation();
+        }
+
+        $organisation = new Organisation();
+        $organisation->setNom('Organisation ' . $proprietaire->getEmail());
+        $organisation->setSlug('org-' . bin2hex(random_bytes(4)));
+        $organisation->setActif(true);
+        $this->em->persist($organisation);
+
+        $membre = new MembreOrganisation();
+        $membre->setOrganisation($organisation);
+        $membre->setUtilisateur($proprietaire);
+        $membre->setRole(MembreOrganisation::ROLE_PROPRIETAIRE);
+        $this->em->persist($membre);
+        $this->em->flush();
+
+        return $organisation;
     }
 }

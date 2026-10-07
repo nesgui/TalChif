@@ -3,6 +3,9 @@
 namespace App\Form;
 
 use App\Entity\Evenement;
+use App\Entity\Organisation;
+use App\Repository\OrganisationRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -209,6 +212,22 @@ class EvenementType extends AbstractType
                     'help' => 'Cochez cette case lorsque l\'événement est prêt à être publié'
                 ]);
         }
+
+        // L'administrateur publie pour le compte d'une organisation : sans ce
+        // champ, l'evenement atterrissait dans la sienne.
+        if ($options['include_organisation']) {
+            $builder->add('organisation', EntityType::class, [
+                'class' => Organisation::class,
+                'choice_label' => 'nom',
+                'label' => 'Organisation proprietaire',
+                'placeholder' => 'Choisir une organisation',
+                'query_builder' => static fn (OrganisationRepository $repository) => $repository
+                    ->createQueryBuilder('o')
+                    ->where('o.actif = true')
+                    ->orderBy('o.nom', 'ASC'),
+                'help' => 'Determine qui percoit les ventes et qui gere cet evenement.',
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -216,6 +235,8 @@ class EvenementType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Evenement::class,
             'allow_file_upload' => false,
+            'include_organisation' => false,
         ]);
+        $resolver->setAllowedTypes('include_organisation', 'bool');
     }
 }

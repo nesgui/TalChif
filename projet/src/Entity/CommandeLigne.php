@@ -14,6 +14,14 @@ class CommandeLigne
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * Organisation proprietaire. Cle du cloisonnement automatique :
+     * le filtre Doctrine TenantFilter s'appuie sur cette colonne.
+     */
+    #[ORM\ManyToOne(targetEntity: Organisation::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organisation $organisation = null;
+
     #[ORM\ManyToOne(inversedBy: 'lignes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Commande $commande = null;
@@ -93,6 +101,18 @@ class CommandeLigne
     public function setTypeBillet(string $typeBillet): static
     {
         $this->typeBillet = $typeBillet;
+        return $this;
+    }
+
+    public function getOrganisation(): ?Organisation
+    {
+        return $this->organisation;
+    }
+
+    public function setOrganisation(?Organisation $organisation): static
+    {
+        $this->organisation = $organisation;
+
         return $this;
     }
 }

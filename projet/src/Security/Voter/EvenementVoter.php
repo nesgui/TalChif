@@ -5,16 +5,24 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use App\Entity\Evenement;
+use App\Entity\MembreOrganisation;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Centralise la regle d'acces a un evenement : son organisateur ou un administrateur.
+ * Centralise la regle d'acces a un evenement.
  *
- * Remplace les controles « $evenement->getOrganisateur() !== $this->getUser() »
- * dupliques dans les controleurs (SOLID : une seule source de verite).
+ * L'acces vient de l'appartenance a l'organisation proprietaire, et non plus du
+ * seul fait d'etre le compte createur : plusieurs membres peuvent gerer les
+ * memes evenements, avec des droits distincts selon leur role.
+ *
+ * - CONSULTER : tout membre de l'organisation, controleur inclus
+ * - MODIFIER  : proprietaire et gestionnaire uniquement
+ *
+ * Un administrateur passe toujours. Le createur historique reste autorise, pour
+ * les evenements anterieurs a la migration des organisations.
  *
  * @extends Voter<string, Evenement>
  */
@@ -41,7 +49,34 @@ final class EvenementVoter extends Voter
         }
 
         /** @var Evenement $subject */
-        $organisateur = $subject->getOrganisateur();
+        if ($this->estCreateur($subject, $utilisateur)) {
+            return true;
+        }
+
+        $organisation = $subject->getOrganisation();
+        if ($organisation === null) {
+            return false;
+        }
+
+        $role = $utilisateur->roleDansOrganisation($organisation);
+        if ($role === null) {
+            return false;
+        }
+
+        if ($attribute === self::CONSULTER) {
+            return true;
+        }
+
+        return \in_array(
+            $role,
+            [MembreOrganisation::ROLE_PROPRIETAIRE, MembreOrganisation::ROLE_GESTIONNAIRE],
+            true
+        );
+    }
+
+    private function estCreateur(Evenement $evenement, User $utilisateur): bool
+    {
+        $organisateur = $evenement->getOrganisateur();
 
         return $organisateur !== null && $organisateur->getId() === $utilisateur->getId();
     }

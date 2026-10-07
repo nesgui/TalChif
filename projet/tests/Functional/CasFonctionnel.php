@@ -8,6 +8,8 @@ use App\Entity\Billet;
 use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\Evenement;
+use App\Entity\Organisation;
+use App\Entity\MembreOrganisation;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -32,7 +34,7 @@ abstract class CasFonctionnel extends WebTestCase
 
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
         $this->em->getConnection()->executeStatement(
-            'TRUNCATE billet, commande_ligne, commande, log_securite, app_setting, ticket_design, evenement, "user" RESTART IDENTITY CASCADE'
+            'TRUNCATE billet, commande_ligne, commande, log_securite, app_setting, ticket_design, evenement, membre_organisation, organisation, utilisateur RESTART IDENTITY CASCADE'
         );
     }
 
@@ -82,6 +84,7 @@ abstract class CasFonctionnel extends WebTestCase
         $evenement->setIsActive($actif);
         $evenement->setIsValide(true);
         $evenement->setOrganisateur($organisateur);
+        $evenement->setOrganisation($this->organisationDe($organisateur));
         $this->em->persist($evenement);
         $this->em->flush();
 
@@ -122,6 +125,7 @@ abstract class CasFonctionnel extends WebTestCase
         $ligne = new CommandeLigne();
         $ligne->setCommande($commande);
         $ligne->setEvenement($evenement);
+        $ligne->setOrganisation($evenement->getOrganisation());
         $ligne->setQuantite($quantite);
         $ligne->setPrixUnitaire($evenement->getPrixSimple());
         $ligne->setTypeBillet('SIMPLE');
@@ -141,6 +145,7 @@ abstract class CasFonctionnel extends WebTestCase
         $billet->setEvenement($evenement);
         $billet->setClient($client);
         $billet->setOrganisateur($evenement->getOrganisateur());
+        $billet->setOrganisation($evenement->getOrganisation());
         $billet->setTransactionId('EVT-TEST-0000');
         $billet->validerPaiement();
         $this->em->persist($billet);
@@ -188,5 +193,30 @@ abstract class CasFonctionnel extends WebTestCase
         preg_match($motif, (string) $this->client->getResponse()->getContent(), $trouve);
 
         return $trouve[1];
+    }
+
+    /**
+     * Organisation du vendeur, creee au besoin et dont il est proprietaire.
+     */
+    protected function organisationDe(User $proprietaire): Organisation
+    {
+        foreach ($proprietaire->getAppartenances() as $appartenance) {
+            return $appartenance->getOrganisation();
+        }
+
+        $organisation = new Organisation();
+        $organisation->setNom('Organisation ' . $proprietaire->getEmail());
+        $organisation->setSlug('org-' . bin2hex(random_bytes(4)));
+        $organisation->setActif(true);
+        $this->em->persist($organisation);
+
+        $membre = new MembreOrganisation();
+        $membre->setOrganisation($organisation);
+        $membre->setUtilisateur($proprietaire);
+        $membre->setRole(MembreOrganisation::ROLE_PROPRIETAIRE);
+        $this->em->persist($membre);
+        $this->em->flush();
+
+        return $organisation;
     }
 }

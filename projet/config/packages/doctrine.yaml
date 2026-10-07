@@ -18,6 +18,14 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        filters:
+            # Cloisonnement multi-tenant. Desactive par defaut : active par
+            # ContexteTenant sur l'espace organisateur uniquement, pour que le
+            # catalogue public et l'administration gardent une vue transverse.
+            tenant:
+                class: App\Doctrine\Filter\TenantFilter
+                enabled: false
+
         controller_resolver:
             auto_mapping: false
 

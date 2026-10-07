@@ -1,0 +1,29 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/organisation/index.css') }}">
+{% endblock %}
+
+{% block title %}Nouvelle organisation - TalChif{% endblock %}
+
+{% block dashboard_title %}Nouvelle organisation{% endblock %}
+
+{% block dashboard_content %}
+<div class="org-formulaire">
+    <p class="org-intro">
+        Vous en serez proprietaire et pourrez y inviter des membres.
+    </p>
+
+    {{ form_start(form) }}
+        {{ form_row(form.nom) }}
+
+        <div class="org-formulaire-actions">
+            <button type="submit" class="btn btn-primary">Creer l'organisation</button>
+            <a class="btn btn-secondary" href="{{ path('organisation.index') }}">Annuler</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

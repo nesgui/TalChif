@@ -112,6 +112,9 @@
                     {% block dashboard_title %}{% endblock %}
                 </div>
                 <div class="dashboard-topbar-actions">
+                    {% if is_granted('ROLE_ORGANISATEUR') %}
+                        {% include 'partials/selecteur_organisation.html.twig' %}
+                    {% endif %}
                     {% block dashboard_actions %}{% endblock %}
                 </div>
             </header>
@@ -129,6 +132,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('css/error-handling.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/pages/organisation/index.css') }}">
 {% endblock %}
 
 {% block javascripts %}

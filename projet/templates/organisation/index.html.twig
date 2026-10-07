@@ -1,0 +1,73 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% set section = 'organisateur' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/organisation/index.css') }}">
+{% endblock %}
+
+{% block title %}Mes organisations - TalChif{% endblock %}
+
+{% block dashboard_title %}Mes organisations{% endblock %}
+
+{% block dashboard_actions %}
+    <a class="btn btn-primary btn-sm" href="{{ path('organisation.create') }}">Nouvelle organisation</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="org-liste">
+    {% if appartenances is empty %}
+        <div class="org-vide">
+            <h2>Aucune organisation</h2>
+            <p>Une organisation regroupe vos evenements, votre equipe et vos reglements.</p>
+            <a class="btn btn-primary" href="{{ path('organisation.create') }}">Creer mon organisation</a>
+        </div>
+    {% else %}
+        <p class="org-intro">
+            L'organisation active determine les evenements, billets et reglements que vous voyez.
+        </p>
+
+        <ul class="org-cartes">
+            {% for appartenance in appartenances %}
+                {% set org = appartenance.organisation %}
+                {% set active = courante and courante.id == org.id %}
+                <li class="org-carte {{ active ? 'org-carte-active' : '' }}">
+                    <div class="org-carte-tete">
+                        <h2 class="org-nom">{{ org.nom }}</h2>
+                        {% if active %}
+                            <span class="org-badge org-badge-active">Active</span>
+                        {% endif %}
+                    </div>
+
+                    <dl class="org-meta">
+                        <dt>Mon role</dt>
+                        <dd>{{ appartenance.role|lower|capitalize }}</dd>
+                        <dt>Commission</dt>
+                        <dd>
+                            {% if org.tauxCommission %}
+                                {{ (org.tauxCommission * 100)|number_format(2, ',', ' ') }} % (negociee)
+                            {% else %}
+                                Taux de la plateforme
+                            {% endif %}
+                        </dd>
+                        <dt>Membres</dt>
+                        <dd>{{ org.membres|length }}</dd>
+                    </dl>
+
+                    <div class="org-carte-actions">
+                        {% if not active %}
+                            <form method="post" action="{{ path('organisation.basculer', {id: org.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('organisation_basculer') }}">
+                                <button type="submit" class="btn btn-primary btn-sm">Travailler sur celle-ci</button>
+                            </form>
+                        {% else %}
+                            <a class="btn btn-secondary btn-sm" href="{{ path('organisation.equipe') }}">Gerer l'equipe</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}

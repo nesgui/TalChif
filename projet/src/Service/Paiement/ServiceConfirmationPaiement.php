@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use App\Service\Quota\ServiceQuotas;
 
 /**
  * Proprietaire unique de l'invariant « paiement confirme ».
@@ -50,6 +51,7 @@ final class ServiceConfirmationPaiement
         private LoggerInterface $logger,
         #[Autowire('%app.cashback_taux%')]
         private float $tauxCashback,
+        private ServiceQuotas $serviceQuotas,
     ) {
     }
 
@@ -174,6 +176,13 @@ final class ServiceConfirmationPaiement
             }
 
             $quantite = $ligne->getQuantite();
+
+            // Quota bloquant : refuse l'emission plutot que de la facturer.
+            $organisationVendeuse = $evenementVerrouille->getOrganisation();
+            if ($organisationVendeuse !== null) {
+                $this->serviceQuotas->verifierEmissionBillets($organisationVendeuse, $quantite);
+            }
+
             if ($quantite > $evenementVerrouille->getPlacesRestantes()) {
                 throw new PlacesInsuffisantesException(
                     "Plus assez de places pour « {$evenementVerrouille->getNom()} »."
@@ -186,6 +195,7 @@ final class ServiceConfirmationPaiement
                 $billet->setType($ligne->getTypeBillet());
                 $billet->setPrix($ligne->getPrixUnitaire());
                 $billet->setEvenement($evenementVerrouille);
+                $billet->setOrganisation($evenementVerrouille->getOrganisation());
                 $billet->setClient($client);
                 $billet->setOrganisateur($evenementVerrouille->getOrganisateur());
                 $billet->setTransactionId($commande->getReference());

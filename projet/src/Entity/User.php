@@ -12,9 +12,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-// Nom entoure de backticks : « user » est un mot reserve PostgreSQL et Doctrine
-// ne l'echappe en DML que si le mapping le declare explicitement quote.
-#[ORM\Table(name: '`user`')]
+// Table nommee en francais : evite le mot reserve PostgreSQL « user », que
+// Doctrine n'echappe pas en DML.
+#[ORM\Table(name: 'utilisateur')]
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['email'], message: 'Un compte existe deja avec cette adresse email.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -78,6 +78,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $checkoutAccount = false;
 
+    /**
+     * Appartenances a des organisations : c'est elles qui accordent les
+     * droits de vendeur, la propriete role ne portant plus que la
+     * dimension plateforme (CLIENT / ORGANISATEUR / ADMIN).
+     *
+     * @var Collection<int, MembreOrganisation>
+     */
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: MembreOrganisation::class)]
+    private Collection $appartenances;
+
     #[ORM\OneToMany(mappedBy: 'organisateur', targetEntity: Evenement::class)]
     private Collection $evenementsOrganises;
 
@@ -86,6 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        $this->appartenances = new ArrayCollection();
         $this->evenementsOrganises = new ArrayCollection();
         $this->billets = new ArrayCollection();
     }
@@ -123,8 +134,62 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roleSymfony = 'ROLE_' . $this->role;
-        return array_unique(['ROLE_USER', $roleSymfony]);
+        $roles = ['ROLE_USER', 'ROLE_' . $this->role];
+
+        // Etre membre d'une organisation accorde le role vendeur, quel que soit
+        // le role plateforme : un meme compte peut ainsi etre client et
+        // organisateur, ce que la chaine unique interdisait.
+        if (!$this->appartenances->isEmpty()) {
+            $roles[] = 'ROLE_ORGANISATEUR';
+        }
+
+        return array_values(array_unique($roles));
+    }
+
+    /**
+     * @return Collection<int, MembreOrganisation>
+     */
+    public function getAppartenances(): Collection
+    {
+        return $this->appartenances;
+    }
+
+    /**
+     * Synchronise le cote inverse.
+     *
+     * Sans cela, getRoles() et roleDansOrganisation() ignorent une appartenance
+     * creee dans la requete courante : la collection reste vide jusqu'au
+     * prochain chargement depuis la base.
+     */
+    public function ajouterAppartenance(MembreOrganisation $appartenance): static
+    {
+        if (!$this->appartenances->contains($appartenance)) {
+            $this->appartenances->add($appartenance);
+            $appartenance->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function retirerAppartenance(MembreOrganisation $appartenance): static
+    {
+        $this->appartenances->removeElement($appartenance);
+
+        return $this;
+    }
+
+    /**
+     * Role detenu dans cette organisation, null si l'utilisateur n'en est pas membre.
+     */
+    public function roleDansOrganisation(Organisation $organisation): ?string
+    {
+        foreach ($this->appartenances as $appartenance) {
+            if ($appartenance->getOrganisation()?->getId() === $organisation->getId()) {
+                return $appartenance->getRole();
+            }
+        }
+
+        return null;
     }
 
     /**

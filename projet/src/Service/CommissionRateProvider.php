@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Organisation;
 use App\Repository\AppSettingRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -36,6 +37,24 @@ final class CommissionRateProvider
         }
 
         return $rate;
+    }
+
+    /**
+     * Taux applicable a une organisation donnee.
+     *
+     * Le taux propre a l'organisation prime ; a defaut on retombe sur celui de
+     * la plateforme. Permet des conditions negociees par vendeur, ce que
+     * l'unique cle globale interdisait.
+     */
+    public function getRateForOrganisation(?Organisation $organisation): float
+    {
+        $taux = $organisation?->getTauxCommission();
+
+        if ($taux !== null && $taux > 0 && $taux < 1) {
+            return $taux;
+        }
+
+        return $this->getRate();
     }
 
     public function setRate(float $rate): void

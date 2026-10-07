@@ -49,6 +49,7 @@ final class OrganisateurTicketDesignController extends AbstractController
         $ticketDesign = $this->ticketDesignRepository->findOneForEvenementAndType($evenement, $typeBillet);
         if (!$ticketDesign) {
             $ticketDesign = (new TicketDesign())
+                ->setOrganisation($evenement->getOrganisation())
                 ->setEvenement($evenement)
                 ->setTypeBillet($typeBillet);
             $this->entityManager->persist($ticketDesign);

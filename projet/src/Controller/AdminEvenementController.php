@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Evenement;
+use App\Entity\User;
 use App\Form\EvenementType;
 use App\Repository\EvenementRepository;
+use App\Service\Tenant\ServiceOrganisation;
 use App\Service\Notification\MessagesFlash;
 use App\Service\Form\ErreursFormulaire;
 use App\Service\Erreur\RapporteurErreurs;
@@ -27,6 +29,7 @@ final class AdminEvenementController extends AbstractController
         private ServiceUploadFichier $serviceUploadFichier,
         private MessagesFlash $messagesFlash,
         private ErreursFormulaire $erreursFormulaire,
+        private ServiceOrganisation $serviceOrganisation,
         private RapporteurErreurs $rapporteurErreurs
     ) {
     }
@@ -41,7 +44,10 @@ final class AdminEvenementController extends AbstractController
     public function create(Request $request, SluggerInterface $slugger): Response
     {
         $evenement = new Evenement();
-        $form = $this->createForm(EvenementType::class, $evenement, ['allow_file_upload' => true]);
+        $form = $this->createForm(EvenementType::class, $evenement, [
+            'allow_file_upload' => true,
+            'include_organisation' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -69,6 +75,15 @@ final class AdminEvenementController extends AbstractController
                     }
                 }
                 $evenement->setAutresAffiches($autresAffichesUrls);
+
+                // organisateur_id est NOT NULL : l'admin est enregistre comme
+                // auteur, l'organisation proprietaire venant du formulaire.
+                /** @var User $admin */
+                $admin = $this->getUser();
+                $evenement->setOrganisateur($admin);
+                if ($evenement->getOrganisation() === null) {
+                    $evenement->setOrganisation($this->serviceOrganisation->assurerPour($admin));
+                }
 
                 $evenement->setSlug($this->evenementRepository->generateUniqueSlug((string) $slugger->slug($evenement->getNom())));
                 $this->evenementRepository->save($evenement, true);
